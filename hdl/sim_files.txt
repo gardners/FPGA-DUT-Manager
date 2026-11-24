@@ -5,3 +5,10 @@ third_party/mega65-core/kb_matrix_ram.vhdl
 third_party/mega65-core/mega65kbd_to_matrix.vhdl
 # Project sources
 hdl/src/kbd/kbd_mk1_device.vhd
+hdl/src/common/common_pkg.vhd
+hdl/src/common/sync_bit.vhd
+hdl/src/common/dpram.vhd
+hdl/src/uart/uart_tx.vhd
+hdl/src/uart/uart_rx.vhd
+hdl/src/uart/uart_bridge.vhd
+hdl/src/jtag/jtag_engine.vhd
