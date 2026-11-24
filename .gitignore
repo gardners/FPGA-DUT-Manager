@@ -1,0 +1,9 @@
+/tools/prefix/
+/tools/src/
+/tools/stamps/
+/tools/chipdb/
+/tools/logs/
+/build/
+/sw/dutctl/build/
+*.o
+work/

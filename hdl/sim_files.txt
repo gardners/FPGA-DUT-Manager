@@ -1,0 +1,7 @@
+# Ordered list of sources analysed for simulation (repo-relative).
+# Third-party reference models (testbench use only)
+third_party/mega65-core/debugtools.vhdl
+third_party/mega65-core/kb_matrix_ram.vhdl
+third_party/mega65-core/mega65kbd_to_matrix.vhdl
+# Project sources
+hdl/src/kbd/kbd_mk1_device.vhd
