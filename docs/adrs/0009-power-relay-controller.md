@@ -29,7 +29,7 @@ later by the master Mimas P13 X-block through level shifters.
   | `VERSION` | `OK VERSION relay-controller 1` |
   | anything else | `ERR <reason>` |
 
-  A repeated `#<id>` within the last 8 ids is answered from cache without
+  A repeated `#<id>` within the last 4 ids is answered from cache without
   re-executing (duplicate protection for `CYCLE`). Cycles run
   non-blocking; `POWER` on a channel cancels its pending cycle.
 * Off-time minimum 500 ms enforced for `CYCLE` (protect DUT supplies).

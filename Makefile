@@ -103,6 +103,7 @@ test-hdl: $(STAMPS)/nvc
 
 test-sw:
 	$(MAKE) -C $(REPO)/sw/dutctl test
+	$(MAKE) -C $(REPO)/firmware/relay-controller test
 
 # ---------------------------------------------------------------- bitstream
 BITDIR := $(BUILD)/$(BOARD)
