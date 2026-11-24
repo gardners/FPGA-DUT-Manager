@@ -12,7 +12,7 @@ entity tb_supervisor_core is
   generic (
     VEC_IN  : string := "core_vectors.txt";
     CAP_OUT : string := "core_capture.txt";
-    RUN_US  : natural := 2600
+    RUN_US  : natural := 3300
   );
 end entity;
 
@@ -36,11 +36,12 @@ begin
   clk_rx  <= not clk_rx after 4.0016 ns when not done;   -- 200 ppm offset
 
   dut : entity work.supervisor_core
-    generic map (CLK_HZ => 125_000_000, BUILD_ID => x"C0DE0001")
+    generic map (CLK_HZ => 125_000_000, BUILD_ID => x"C0DE0001",
+                 DHCP_FALLBACK_MS => 1, DHCP_MS_PER_S => 1)
     port map (
       clk_sys => clk_sys, clk_rx => clk_rx,
       rx_dv => rx_dv, rx_er => rx_er, rxd => rxd, tx_en => tx_en, txd => txd,
-      dna => x"0123456789ABCDEF", dip => x"00", link_flags => x"03",
+      dna => x"0123456789ABCDEF", dip => x"10", link_flags => x"03",
       vio_sense => "11", kb3v3_sense => "11",
       jtck => jtck, jtms => jtms, jtdi => jtdi, jtdo => jtdo, jtag_oe => joe,
       utx => utx, utx_oe => uoe, urx => urx,
@@ -140,7 +141,7 @@ begin
     report "captured " & integer'image(captured) & " frames; rx good " &
       integer'image(to_integer(good)) & " bad " & integer'image(to_integer(bad));
     assert bad = 0 report "RX CRC errors/drops" severity failure;
-    assert good = 15 report "expected 15 good RX frames" severity failure;
+    assert good = 18 report "expected 18 good RX frames" severity failure;
     report "tb_supervisor_core PASSED (frame-level); run core_scenario.py check";
     done <= true;
     wait;

@@ -22,7 +22,10 @@ use work.net_pkg.all;
 entity net_rx is
   port (
     clk        : in  std_logic;
-    node_id    : in  unsigned(3 downto 0);
+    dut_id0    : in  unsigned(3 downto 0);   -- DIP[3:0]  (ADR 0011)
+    dut_id1    : in  unsigned(3 downto 0);   -- DIP[7:4]
+    ep_enable  : in  std_logic_vector(1 downto 0);
+    ip_eff     : in  ip_arr_t;               -- effective address (DHCP/fallback/static)
     dna        : in  std_logic_vector(63 downto 0);
     -- RX slots
     rx_toggle  : in  std_logic_vector(1 downto 0);   -- async from clk_rx
@@ -79,6 +82,9 @@ entity net_rx is
     jr_status  : out slv8_arr_t;
     jr_seq     : out u32_arr_t;
     jr_taken   : in  std_logic_vector(1 downto 0);
+    -- DHCP replies for dhcp_client
+    dhcp_strobe: out std_logic_vector(1 downto 0);
+    dhcp_rx    : out dhcp_rx_t;
     -- statistics
     rx_rejects : out u16_arr_t
   );
@@ -92,6 +98,7 @@ architecture rtl of net_rx is
   type state_t is (S_WAIT, S_HDR, S_CSUM, S_PARSE, S_ARP, S_ICMP, S_MGMT,
                    S_KBD, S_UART_ADM, S_UART_WAIT, S_UART_COPY,
                    S_JTAG_ADM, S_JTAG_WAIT, S_JTAG_COPY, S_JTAG_GO, S_JTAG_REPLY,
+                   S_DHCP_RD, S_DHCP_WAIT, S_DHCP_BYTE, S_DHCP_DONE,
                    S_RELEASE);
   signal state : state_t := S_WAIT;
 
@@ -104,7 +111,8 @@ architecture rtl of net_rx is
   signal cidx    : integer range 0 to 10 := 0;
   signal d       : integer range 0 to 1 := 0;
 
-  signal cfg_r   : dut_cfg_arr_t := (default_cfg(0, x"0", x"00"), default_cfg(1, x"0", x"00"));
+  signal cfg_r   : dut_cfg_arr_t := (default_cfg(x"0"), default_cfg(x"1"));
+  signal ids_seen: unsigned(7 downto 0) := (others => '1');
   signal cfg_init: std_logic := '0';
   signal bcfg_r  : board_cfg_t := (x"FF", x"FF", '1', "00", (others => '0'));
   signal last_cmd: u16_arr_t := (others => (others => '0'));
@@ -121,6 +129,14 @@ architecture rtl of net_rx is
   signal ack_st_r : std_logic_vector(7 downto 0) := (others => '0');
   signal rej     : u16_arr_t := (others => (others => '0'));
   signal kbd_r   : kbd_arr_t := (others => (others => '0'));
+
+  -- DHCP option scan
+  type opt_st_t is (O_CODE, O_LEN, O_VAL);
+  signal opt_st  : opt_st_t := O_CODE;
+  signal opt_code: byte_t := (others => '0');
+  signal opt_left: unsigned(7 downto 0) := (others => '0');
+  signal dhcp_r  : dhcp_rx_t := (x"00", (others => '0'), (others => '0'), (others => '0'),
+                                  (others => '0'), (others => '0'));
 
   -- copy engine
   signal cp_src, cp_end : unsigned(11 downto 0) := (others => '0');
@@ -154,6 +170,7 @@ begin
   arp        <= arp_r;
   arp_tpa_o  <= (others => '0');
   icmp       <= icmp_r;
+  dhcp_rx    <= dhcp_r;
   icmp_len   <= icmp_len_r;
   ack        <= ack_r;
   ack_cmd    <= ack_cmd_r;
@@ -192,6 +209,8 @@ begin
     variable code     : unsigned(2 downto 0);
     variable bits     : unsigned(31 downto 0);
     variable nb       : unsigned(31 downto 0);
+    variable dhcp_hit : boolean;
+    variable ob       : byte_t;
 
   begin
     if rising_edge(clk) then
@@ -204,10 +223,14 @@ begin
       jvec_we    <= "00";
       jgo        <= "00";
 
-      if cfg_init = '0' then
-        cfg_init <= '1';
-        cfg_r(0) <= default_cfg(0, node_id, dna(7 downto 0) xor dna(15 downto 8));
-        cfg_r(1) <= default_cfg(1, node_id, dna(7 downto 0) xor dna(15 downto 8));
+      dhcp_strobe <= "00";
+      -- (re)initialise per-endpoint defaults whenever the DIP DUT IDs change
+      if cfg_init = '0' or ids_seen /= (dut_id1 & dut_id0) then
+        cfg_init   <= '1';
+        ids_seen   <= dut_id1 & dut_id0;
+        cfg_r(0)   <= default_cfg(dut_id0);
+        cfg_r(1)   <= default_cfg(dut_id1);
+        last_cmd_v <= "00";
       end if;
 
       -- consumers taking replies
@@ -274,7 +297,7 @@ begin
             if be16(h, 14) = 1 and be16(h, 16) = 16#0800# and h(18) = x"06" and
                h(19) = x"04" and be16(h, 20) = 1 then
               for i in 0 to 1 loop
-                if slv32(h, 38) = cfg_r(i).ip then
+                if slv32(h, 38) = ip_eff(i) and ep_enable(i) = '1' and ip_eff(i) /= x"00000000" then
                   matched := true; dd := i;
                 end if;
               end loop;
@@ -287,17 +310,40 @@ begin
                 and (h(20) and x"3F") = x"00" and h(21) = x"00" then
             ip_total := be16(h, 16);
             for i in 0 to 1 loop
-              if slv32(h, 30) = cfg_r(i).ip and slv48(h, 0) = cfg_r(i).mac then
+              if slv32(h, 30) = ip_eff(i) and slv48(h, 0) = cfg_r(i).mac and
+                 ep_enable(i) = '1' and ip_eff(i) /= x"00000000" then
                 matched := true; dd := i;
               end if;
             end loop;
-            if slv32(h, 30) = x"FFFFFFFF" and slv48(h, 0) = x"FFFFFFFFFFFF" then
+            -- DHCP replies (UDP 67 -> 68): match on chaddr, any dst IP
+            dhcp_hit := false;
+            if h(23) = x"11" and be16(h, 34) = PORT_DHCP_S and be16(h, 36) = PORT_DHCP_C and
+               h(42) = x"02" then
+              for i in 0 to 1 loop
+                if slv48(h, 70) = cfg_r(i).mac and ep_enable(i) = '1' and cfg_r(i).dhcp_en = '1' and
+                   (slv48(h, 0) = cfg_r(i).mac or slv48(h, 0) = x"FFFFFFFFFFFF") then
+                  dhcp_hit := true; dd := i;
+                end if;
+              end loop;
+            end if;
+            if slv32(h, 30) = x"FFFFFFFF" and slv48(h, 0) = x"FFFFFFFFFFFF" and not dhcp_hit then
               bcast := true;
               dd := to_integer(unsigned(h(48)(0 downto 0)));
             end if;
             d <= dd;
             if ip_total + 14 > flen or ip_total < 28 then
               null;                     -- truncated
+            elsif dhcp_hit then
+              dhcp_r.xid    <= slv32(h, 46);
+              dhcp_r.yiaddr <= slv32(h, 58);
+              dhcp_r.typ    <= x"00";
+              dhcp_r.server <= (others => '0');
+              dhcp_r.lease  <= (others => '0');
+              dhcp_r.t1     <= (others => '0');
+              -- magic cookie at UDP payload 236 = frame 278; options at 282
+              ra     <= cur & to_unsigned(282, 11);
+              opt_st <= O_CODE;
+              state  <= S_DHCP_RD;
             elsif matched and h(23) = x"01" then
               -- ICMP echo request
               if h(34) = x"08" and h(35) = x"00" and ip_total <= 20 + 72 then
@@ -366,7 +412,11 @@ begin
                 when K_MAC =>
                   if vlen = 6 then cfg_r(d).mac <= slv48(h, 56); else st := ST_BAD_LEN; end if;
                 when K_IP =>
-                  if vlen = 4 then cfg_r(d).ip <= slv32(h, 56); else st := ST_BAD_LEN; end if;
+                  -- a static address also stops DHCP for this endpoint
+                  if vlen = 4 then cfg_r(d).ip <= slv32(h, 56); cfg_r(d).dhcp_en <= '0';
+                  else st := ST_BAD_LEN; end if;
+                when K_DHCP_EN =>
+                  if vlen = 1 then cfg_r(d).dhcp_en <= h(56)(0); else st := ST_BAD_LEN; end if;
                 when K_DEST_IP =>
                   if vlen = 4 then cfg_r(d).dest_ip <= slv32(h, 56); else st := ST_BAD_LEN; end if;
                 when K_DEST_MAC =>
@@ -375,6 +425,7 @@ begin
                   if vlen = 18 then
                     cfg_r(d).mac <= slv48(h, 64);
                     cfg_r(d).ip  <= slv32(h, 70);
+                    cfg_r(d).dhcp_en <= '0';
                   else
                     st := ST_BAD_LEN;
                   end if;
@@ -541,6 +592,45 @@ begin
           state  <= S_RELEASE;
 
         when S_JTAG_REPLY =>
+          state <= S_RELEASE;
+
+        -- DHCP option scan: one byte per two cycles (address, then data) --
+        when S_DHCP_RD =>
+          if ra(10 downto 0) >= flen then
+            state <= S_DHCP_DONE;
+          else
+            state <= S_DHCP_WAIT;
+          end if;
+        when S_DHCP_WAIT =>
+          state <= S_DHCP_BYTE;          -- RAM latency
+        when S_DHCP_BYTE =>
+          ob := mem_data;
+          ra <= ra + 1;
+          state <= S_DHCP_RD;
+          case opt_st is
+            when O_CODE =>
+              if ob = x"FF" then
+                state <= S_DHCP_DONE;
+              elsif ob /= x"00" then
+                opt_code <= ob;
+                opt_st   <= O_LEN;
+              end if;
+            when O_LEN =>
+              opt_left <= unsigned(ob);
+              if ob = x"00" then opt_st <= O_CODE; else opt_st <= O_VAL; end if;
+            when O_VAL =>
+              case opt_code is
+                when x"35" => dhcp_r.typ <= ob;                                  -- 53
+                when x"36" => dhcp_r.server <= dhcp_r.server(23 downto 0) & ob; -- 54
+                when x"33" => dhcp_r.lease  <= dhcp_r.lease(23 downto 0) & unsigned(ob);  -- 51
+                when x"3A" => dhcp_r.t1     <= dhcp_r.t1(23 downto 0) & unsigned(ob);     -- 58
+                when others => null;
+              end case;
+              if opt_left = 1 then opt_st <= O_CODE; end if;
+              opt_left <= opt_left - 1;
+          end case;
+        when S_DHCP_DONE =>
+          dhcp_strobe(d) <= '1';
           state <= S_RELEASE;
 
         when S_RELEASE =>

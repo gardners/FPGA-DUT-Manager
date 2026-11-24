@@ -122,6 +122,8 @@ int dp_decode_heartbeat(const uint8_t *p, size_t len, dp_heartbeat_t *hb)
   hb->rx_rejects = dp_get16(p + 82);
   hb->tx_drops = dp_get16(p + 84);
   memcpy(hb->dut_leds, p + 86, 12);
+  hb->addr_src = p[98];
+  hb->dut_id = p[99];
   return 0;
 }
 

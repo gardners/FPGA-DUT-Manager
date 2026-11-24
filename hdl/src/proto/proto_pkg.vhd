@@ -17,6 +17,9 @@ package proto_pkg is
   constant PORT_RAST  : natural := 6504;
   constant PORT_AUDIO : natural := 6505;
   constant PORT_JTAG  : natural := 6507;
+  constant PORT_TEXT  : natural := 6508;
+  constant PORT_DHCP_S : natural := 67;
+  constant PORT_DHCP_C : natural := 68;
 
   -- packet types
   constant T_HEARTBEAT : std_logic_vector(7 downto 0) := x"01";
@@ -45,6 +48,7 @@ package proto_pkg is
   constant K_DEST_IP      : natural := 16#0003#;
   constant K_DEST_MAC     : natural := 16#0004#;
   constant K_IDENTITY     : natural := 16#0005#;
+  constant K_DHCP_EN      : natural := 16#0006#;
   constant K_UART_BAUD    : natural := 16#0010#;
   constant K_UART_FAST    : natural := 16#0011#;
   constant K_UART_SNAP_EN : natural := 16#0012#;

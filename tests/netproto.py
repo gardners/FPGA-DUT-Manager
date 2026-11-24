@@ -135,6 +135,7 @@ def decode_heartbeat(b):
     (f["phys_change"], f["phys_type"], f["jtag_status"], f["jtag_next_seq"], f["uart_rx_seq"],
      f["uart_tx_acc"], f["rx_rejects"], f["tx_drops"]) = struct.unpack(">HBBIIIHH", b[66:86])
     f["dut_leds"] = b[86:98]
+    f["addr_src"], f["dut_id"] = b[98], b[99]
     return f
 
 
@@ -169,7 +170,7 @@ def encode_heartbeat(dut, f):
     b += struct.pack(">HBBIIIHH", f["phys_change"], f["phys_type"], f["jtag_status"],
                      f["jtag_next_seq"], f["uart_rx_seq"], f["uart_tx_acc"], f["rx_rejects"],
                      f["tx_drops"])
-    b += f["dut_leds"] + b"\0\0"
+    b += f["dut_leds"] + bytes([f.get("addr_src", 0), f.get("dut_id", 0)])
     assert len(b) == 100
     return custom(T_HEARTBEAT, dut, b)
 
@@ -189,3 +190,30 @@ def encode_jtag_resp(dut, seq, nxt, status, bits, tdo):
 
 def encode_ack(dut, cmd, key, status, gen):
     return custom(T_MGMT_ACK, dut, struct.pack(">HHBBI", cmd, key, status, 0, gen))
+
+
+# ------------------------------------------------------------------ DHCP
+def dhcp_reply(msg_type, xid, yiaddr, chaddr, server, lease=3600):
+    """BOOTREPLY with options 53, 54, 51, 1 (UDP payload)."""
+    b = bytearray(236)
+    b[0], b[1], b[2] = 2, 1, 6
+    struct.pack_into(">I", b, 4, xid)
+    b[16:20] = yiaddr
+    b[28:34] = chaddr
+    opts = bytes([53, 1, msg_type, 54, 4]) + server + bytes([51, 4]) + struct.pack(">I", lease) + \
+        bytes([1, 4, 255, 255, 255, 0, 255])
+    return bytes(b) + b"\x63\x82\x53\x63" + opts
+
+
+def parse_dhcp(p):
+    """Decode a client DHCP message (UDP payload) -> dict with options."""
+    d = {"op": p[0], "xid": struct.unpack(">I", p[4:8])[0], "flags": struct.unpack(">H", p[10:12])[0],
+         "ciaddr": p[12:16], "chaddr": p[28:34], "cookie": p[236:240], "opts": {}, "len": len(p)}
+    i = 240
+    while i < len(p) and p[i] != 255:
+        if p[i] == 0:
+            i += 1
+            continue
+        d["opts"][p[i]] = p[i + 2:i + 2 + p[i + 1]]
+        i += 2 + p[i + 1]
+    return d

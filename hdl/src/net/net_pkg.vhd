@@ -22,6 +22,7 @@ package net_pkg is
     kbd_override : std_logic_vector(7 downto 0);
     out_policy   : std_logic_vector(7 downto 0);
     hb_period_ms : unsigned(15 downto 0);
+    dhcp_en      : std_logic;
   end record;
   type dut_cfg_arr_t is array (0 to 1) of dut_cfg_t;
 
@@ -61,6 +62,8 @@ package net_pkg is
     uart_rx_seq   : unsigned(31 downto 0);
     uart_tx_acc   : unsigned(31 downto 0);
     rx_rejects    : unsigned(15 downto 0);
+    addr_src      : std_logic_vector(7 downto 0);  -- 0 none, 1 DHCP, 2 fallback, 3 static
+    dut_id        : std_logic_vector(7 downto 0);
   end record;
   type dut_status_arr_t is array (0 to 1) of dut_status_t;
 
@@ -86,17 +89,51 @@ package net_pkg is
   end record;
   type snap_arr_t is array (0 to 1) of snap_t;
 
-  function default_cfg(dut : natural; node : unsigned(3 downto 0); dna_hash : std_logic_vector(7 downto 0))
-    return dut_cfg_t;
+  type ip_arr_t is array (0 to 1) of ip_t;
+
+  -- DHCP reply fields parsed by net_rx (one set, strobe per DUT)
+  type dhcp_rx_t is record
+    typ    : std_logic_vector(7 downto 0);
+    xid    : std_logic_vector(31 downto 0);
+    yiaddr : ip_t;
+    server : ip_t;
+    lease  : unsigned(31 downto 0);
+    t1     : unsigned(31 downto 0);
+  end record;
+
+  -- DHCP transmit request from dhcp_client to net_tx
+  type dhcp_tx_t is record
+    req    : std_logic;
+    typ    : std_logic_vector(7 downto 0);
+    xid    : std_logic_vector(31 downto 0);
+    ciaddr : ip_t;
+    reqip  : ip_t;
+    server : ip_t;
+  end record;
+  type dhcp_tx_arr_t is array (0 to 1) of dhcp_tx_t;
+
+  -- ADR 0011: MAC 02:4D:36:35:00:<DUT ID>, fallback IP 192.168.65.(16+ID)
+  function dut_mac(id : unsigned(3 downto 0)) return mac_t;
+  function fallback_ip(id : unsigned(3 downto 0)) return ip_t;
+  function default_cfg(id : unsigned(3 downto 0)) return dut_cfg_t;
 end package;
 
 package body net_pkg is
-  function default_cfg(dut : natural; node : unsigned(3 downto 0); dna_hash : std_logic_vector(7 downto 0))
-    return dut_cfg_t is
+  function dut_mac(id : unsigned(3 downto 0)) return mac_t is
+  begin
+    return x"024D36350000" or std_logic_vector(resize(id, 48));
+  end function;
+
+  function fallback_ip(id : unsigned(3 downto 0)) return ip_t is
+  begin
+    return std_logic_vector(unsigned(DEFAULT_IP_BASE) + resize(id, 32));
+  end function;
+
+  function default_cfg(id : unsigned(3 downto 0)) return dut_cfg_t is
     variable c : dut_cfg_t;
   begin
-    c.mac          := x"024D3635" & dna_hash & std_logic_vector(to_unsigned(dut, 8));
-    c.ip           := std_logic_vector(unsigned(DEFAULT_IP_BASE) + resize(node & '0', 32) + dut);
+    c.mac          := dut_mac(id);
+    c.ip           := fallback_ip(id);
     c.dest_mac     := (others => '1');
     c.dest_ip      := (others => '1');
     c.baud_inc     := DEFAULT_BAUD_INC;
@@ -107,6 +144,7 @@ package body net_pkg is
     c.kbd_override := x"00";
     c.out_policy   := x"00";
     c.hb_period_ms := to_unsigned(20, 16);
+    c.dhcp_en      := '1';
     return c;
   end function;
 end package body;

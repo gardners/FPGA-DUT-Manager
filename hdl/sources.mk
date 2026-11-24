@@ -14,6 +14,7 @@ SYNTH_SOURCES := \
 	$(HDL_SRC)/kbd/kbd_mk1_device.vhd \
 	$(HDL_SRC)/eth/eth_mac_rx.vhd \
 	$(HDL_SRC)/eth/eth_mac_tx.vhd \
+	$(HDL_SRC)/net/dhcp_client.vhd \
 	$(HDL_SRC)/net/net_rx.vhd \
 	$(HDL_SRC)/net/net_tx.vhd \
 	$(HDL_SRC)/top/supervisor_core.vhd \

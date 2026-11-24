@@ -154,7 +154,7 @@ static int cmd_set(int argc, char **argv)
   if (argc < 3) {
     fprintf(stderr,
             "usage: dutctl set IP NAME VALUE\n"
-            "  names: mac ip dest-ip dest-mac baud uart-fast uart-snap uart-period-us\n"
+            "  names: mac ip dhcp dest-ip dest-mac baud uart-fast uart-snap uart-period-us\n"
             "         kbd-policy kbd-override kbd-target video-target coupled capture\n"
             "         hb-period-ms out-policy (0 auto, 1 on, 2 off)\n");
     return 2;
@@ -167,7 +167,7 @@ static int cmd_set(int argc, char **argv)
     uint16_t key;
     int len; /* 1, 2, 4 numeric; 6 mac; -4 ip */
   } tab[] = {
-    {"mac", DP_K_MAC, 6}, {"ip", DP_K_IP, -4}, {"dest-ip", DP_K_DEST_IP, -4},
+    {"mac", DP_K_MAC, 6}, {"ip", DP_K_IP, -4}, {"dhcp", DP_K_DHCP_EN, 1}, {"dest-ip", DP_K_DEST_IP, -4},
     {"dest-mac", DP_K_DEST_MAC, 6}, {"baud", DP_K_UART_BAUD, 4}, {"uart-fast", DP_K_UART_FAST, 1},
     {"uart-snap", DP_K_UART_SNAP_EN, 1}, {"uart-period-us", DP_K_UART_PERIOD, 2},
     {"kbd-policy", DP_K_KBD_POLICY, 1}, {"kbd-override", DP_K_KBD_OVERRIDE, 1},
@@ -246,6 +246,8 @@ static int cmd_listen(int argc, char **argv)
       continue;
     char ipb[32];
     inet_ntop(AF_INET, &src.sin_addr, ipb, sizeof ipb);
+    static const char *const src_names[] = {"none", "dhcp", "fallback", "static"};
+    printf("[DUT %2u %-8s] ", hb.dut_id, hb.addr_src < 4 ? src_names[hb.addr_src] : "?");
     printf("%-15s dut%d seq %-8u boot %08x build %08x dna %016llx dip %02x link %02x "
            "power vio=%d kb=%d out=%d  uart rx %u tx %u  jtag next %u st %02x  rej %u  keys",
            ipb, h.dut, hb.hb_seq, hb.boot_id, hb.build_id, (unsigned long long)hb.dna, hb.dip,

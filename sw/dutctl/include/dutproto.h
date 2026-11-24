@@ -21,6 +21,7 @@ enum dp_port {
   DP_PORT_RASTER = 6504,
   DP_PORT_AUDIO = 6505,
   DP_PORT_JTAG = 6507,
+  DP_PORT_TEXT = 6508,
 };
 
 enum dp_type {
@@ -40,6 +41,7 @@ enum dp_key {
   DP_K_DEST_IP = 0x0003,
   DP_K_DEST_MAC = 0x0004,
   DP_K_IDENTITY = 0x0005,
+  DP_K_DHCP_EN = 0x0006,
   DP_K_UART_BAUD = 0x0010,
   DP_K_UART_FAST = 0x0011,
   DP_K_UART_SNAP_EN = 0x0012,
@@ -81,6 +83,8 @@ typedef struct {
   uint32_t jtag_next_seq, uart_rx_seq, uart_tx_acc;
   uint16_t rx_rejects, tx_drops;
   uint8_t dut_leds[12];
+  uint8_t addr_src; /* 0 none, 1 DHCP, 2 fallback, 3 static */
+  uint8_t dut_id;
 } dp_heartbeat_t;
 
 typedef struct {

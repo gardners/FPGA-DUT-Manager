@@ -110,6 +110,7 @@ static void test_decoders(void)
   CHECK(hb.phys_change == 3 && hb.phys_type == 2 && hb.jtag_status == 2);
   CHECK(hb.jtag_next_seq == 77 && hb.uart_rx_seq == 1000 && hb.uart_tx_acc == 55);
   CHECK(hb.rx_rejects == 4 && hb.tx_drops == 1 && hb.dut_leds[11] == 11);
+  CHECK(hb.addr_src == 1 && hb.dut_id == 7);
 
   v = vec("snapshot");
   CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && h.type == DP_T_UART_SNAP);

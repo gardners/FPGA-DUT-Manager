@@ -27,7 +27,7 @@ def vectors():
               kbd_eff=(1 << 10) | (1 << 79), kbd_udp=1 << 10, kbd_phys=1 << 60,
               phys_change=3, phys_type=2, jtag_status=0x02, jtag_next_seq=77,
               uart_rx_seq=1000, uart_tx_acc=55, rx_rejects=4, tx_drops=1,
-              dut_leds=bytes(range(12)))
+              dut_leds=bytes(range(12)), addr_src=1, dut_id=7)
     v.append(("heartbeat", P.encode_heartbeat(1, hb)))
     hist = bytes(507) + b"HELLO"
     snap = dict(boot_id=0x11223344, snap_seq=5, rx_seq=5, tx_accepted=5, tx_emitted=5,

@@ -12,7 +12,10 @@ use work.net_pkg.all;
 entity supervisor_core is
   generic (
     CLK_HZ   : positive := 125_000_000;
-    BUILD_ID : std_logic_vector(31 downto 0) := x"00000000"
+    BUILD_ID : std_logic_vector(31 downto 0) := x"00000000";
+    -- DHCP timing (shortened in simulation)
+    DHCP_FALLBACK_MS : positive := 10_000;
+    DHCP_MS_PER_S    : positive := 1000
   );
   port (
     clk_sys   : in  std_logic;
@@ -132,6 +135,16 @@ architecture rtl of supervisor_core is
   signal dstat : dut_status_arr_t;
   signal bstat : board_status_t;
   signal frames_sent : unsigned(31 downto 0);
+
+  -- identity / DHCP (ADR 0011)
+  signal id0, id1 : unsigned(3 downto 0);
+  signal ep_enable : std_logic_vector(1 downto 0);
+  signal ip_eff : ip_arr_t;
+  signal dhcp_strobe, dhcp_taken : std_logic_vector(1 downto 0);
+  signal dhcp_rx : dhcp_rx_t;
+  signal dhcp_tx : dhcp_tx_arr_t;
+  signal ids_prev : unsigned(7 downto 0) := (others => '1');
+  signal id_restart : std_logic := '0';
 begin
   ---------------------------------------------------------------- timers
   process (clk_sys)
@@ -193,7 +206,8 @@ begin
   ---------------------------------------------------------------- dispatch
   nrx : entity work.net_rx
     port map (
-      clk => clk_sys, node_id => unsigned(dip(3 downto 0)), dna => dna,
+      clk => clk_sys, dut_id0 => id0, dut_id1 => id1, ep_enable => ep_enable,
+      ip_eff => ip_eff, dna => dna,
       rx_toggle => rx_tog, rel_toggle => rel_tog, len0 => len0, len1 => len1,
       mem_addr => rxm_ra, mem_data => rxm_rd,
       cfg => cfg, bcfg => bcfg, kbd_udp => kbd_udp, kbd_strobe => kbd_strobe,
@@ -210,13 +224,31 @@ begin
       icmp_rdata => icmp_rdata, icmp_taken => icmp_taken,
       ack => ack, ack_cmd => ack_cmd, ack_key => ack_key, ack_status => ack_status,
       ack_taken => ack_taken, jr => jr, jr_status => jr_status, jr_seq => jr_seq,
-      jr_taken => jr_taken, rx_rejects => rx_rejects);
+      jr_taken => jr_taken, dhcp_strobe => dhcp_strobe, dhcp_rx => dhcp_rx,
+      rx_rejects => rx_rejects);
+
+  ---------------------------------------------------------------- identity
+  id0 <= unsigned(dip(3 downto 0));
+  id1 <= unsigned(dip(7 downto 4));
+  -- same DUT ID on both halves: the P13 half stays silent (ADR 0011)
+  ep_enable <= "01" when id0 = id1 else "11";
+  process (clk_sys)
+  begin
+    if rising_edge(clk_sys) then
+      id_restart <= '0';
+      if ids_prev /= (id1 & id0) then
+        ids_prev   <= id1 & id0;
+        id_restart <= '1';
+      end if;
+    end if;
+  end process;
 
   ---------------------------------------------------------------- builder
   ntx : entity work.net_tx
     port map (
       clk => clk_sys, tick_1ms => tick_1ms, cfg => cfg, bcfg => bcfg,
       bstat => bstat, dstat => dstat, hb_expedite => '0',
+      ip_eff => ip_eff, ep_enable => ep_enable, dhcp => dhcp_tx, dhcp_taken => dhcp_taken,
       arp => arp, arp_taken => arp_taken,
       icmp => icmp, icmp_len => icmp_len, icmp_raddr => icmp_raddr,
       icmp_rdata => icmp_rdata, icmp_taken => icmp_taken,
@@ -251,6 +283,37 @@ begin
                  '0' when cfg(i).out_policy = x"02" else
                  vio_s(i);
     baud(i) <= cfg(i).baud_inc;
+
+    dc : block
+      signal bound, fb : std_logic;
+      signal lease : ip_t;
+      signal st3 : unsigned(2 downto 0);
+      signal id : unsigned(3 downto 0);
+    begin
+      id <= id0 when i = 0 else id1;
+      cl : entity work.dhcp_client
+        generic map (FALLBACK_MS => DHCP_FALLBACK_MS, MS_PER_S => DHCP_MS_PER_S)
+        port map (
+          clk => clk_sys, tick_1ms => tick_1ms,
+          enable => cfg(i).dhcp_en and ep_enable(i), restart => id_restart,
+          xid_base => x"4D3635" & "0000" & std_logic_vector(id),
+          rx_strobe => dhcp_strobe(i), rx_type => dhcp_rx.typ, rx_xid => dhcp_rx.xid,
+          rx_yiaddr => dhcp_rx.yiaddr, rx_server => dhcp_rx.server,
+          rx_lease => dhcp_rx.lease, rx_t1 => dhcp_rx.t1,
+          tx_req => dhcp_tx(i).req, tx_taken => dhcp_taken(i), tx_type => dhcp_tx(i).typ,
+          tx_xid => dhcp_tx(i).xid, tx_ciaddr => dhcp_tx(i).ciaddr,
+          tx_reqip => dhcp_tx(i).reqip, tx_server => dhcp_tx(i).server,
+          bound => bound, lease_ip => lease, fallback => fb, state_o => st3);
+      -- effective address: static, DHCP lease, fallback after timeout, else none
+      ip_eff(i) <= cfg(i).ip  when cfg(i).dhcp_en = '0' else
+                   lease      when bound = '1' else
+                   cfg(i).ip  when fb = '1' else
+                   x"00000000";
+      dstat(i).addr_src <= x"03" when cfg(i).dhcp_en = '0' else
+                           x"01" when bound = '1' else
+                           x"02" when fb = '1' else x"00";
+      dstat(i).dut_id <= "0000" & std_logic_vector(id);
+    end block;
 
     ub : entity work.uart_bridge
       port map (
@@ -319,7 +382,7 @@ begin
   bstat.topo_index  <= x"FF";
   bstat.topo_count  <= x"00";
   bstat.dip         <= dip;
-  bstat.link_flags  <= link_flags;
+  bstat.link_flags  <= link_flags(7) & (not ep_enable(1)) & link_flags(5 downto 0);
   bstat.caps        <= x"00000007";     -- uart, jtag, kbd device
   bstat.selected    <= bcfg.vid_target(3 downto 0) & bcfg.kbd_target(3 downto 0);
   bstat.kbd_phys    <= (others => '0');

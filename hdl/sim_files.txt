@@ -16,6 +16,7 @@ hdl/src/proto/proto_pkg.vhd
 hdl/src/net/net_pkg.vhd
 hdl/src/eth/eth_mac_rx.vhd
 hdl/src/eth/eth_mac_tx.vhd
+hdl/src/net/dhcp_client.vhd
 hdl/src/net/net_rx.vhd
 hdl/src/net/net_tx.vhd
 hdl/src/top/supervisor_core.vhd

@@ -30,6 +30,10 @@ entity net_tx is
     bstat      : in  board_status_t;
     dstat      : in  dut_status_arr_t;
     hb_expedite: in  std_logic;            -- master physical keyboard change
+    ip_eff     : in  ip_arr_t;
+    ep_enable  : in  std_logic_vector(1 downto 0);
+    dhcp       : in  dhcp_tx_arr_t;
+    dhcp_taken : out std_logic_vector(1 downto 0);
     -- replies from net_rx
     arp        : in  reply_t;
     arp_taken  : out std_logic;
@@ -74,7 +78,7 @@ entity net_tx is
 end entity;
 
 architecture rtl of net_tx is
-  type kind_t is (K_NONE, K_ARP, K_JRESP, K_ACK, K_ICMP, K_SNAP, K_HB);
+  type kind_t is (K_NONE, K_ARP, K_JRESP, K_ACK, K_ICMP, K_DHCP, K_SNAP, K_HB);
   signal kind : kind_t := K_NONE;
   signal d    : integer range 0 to 1 := 0;
 
@@ -118,6 +122,79 @@ architecture rtl of net_tx is
   begin
     return b(std_logic_vector(v), i);
   end function;
+
+  -- DHCP DISCOVER/REQUEST UDP payload (300 bytes, RFC 2131/2132)
+  function dhcp_byte(i : natural; mac : mac_t; t : dhcp_tx_t; id : std_logic_vector(7 downto 0))
+    return byte_t is
+    variable tens, ones : natural;
+    -- options: 53 type, 61 client id, 12 host name, [50 req ip], [54 server], 55 params, 255
+    variable o : integer;
+    variable has50, has54 : boolean;
+  begin
+    has50 := t.reqip /= x"00000000";
+    has54 := t.server /= x"00000000";
+    tens := to_integer(unsigned(id)) / 10;
+    ones := to_integer(unsigned(id)) mod 10;
+    case i is
+      when 0 => return x"01";                 -- BOOTREQUEST
+      when 1 => return x"01";                 -- Ethernet
+      when 2 => return x"06";
+      when 4 to 7 => return b(t.xid, i - 4);
+      when 10 => return x"80";                -- broadcast flag
+      when 12 to 15 => return b(t.ciaddr, i - 12);
+      when 28 to 33 => return b(mac, i - 28);
+      when 236 => return x"63";
+      when 237 => return x"82";
+      when 238 => return x"53";
+      when 239 => return x"63";
+      when others => null;
+    end case;
+    if i < 240 then
+      return x"00";
+    end if;
+    o := i - 240;
+    -- 53,1,type
+    if o = 0 then return x"35"; elsif o = 1 then return x"01"; elsif o = 2 then return t.typ; end if;
+    -- 61,7,1,mac
+    if o = 3 then return x"3D"; elsif o = 4 then return x"07"; elsif o = 5 then return x"01"; end if;
+    if o >= 6 and o <= 11 then return b(mac, o - 6); end if;
+    -- 12,8,"m65dutNN"
+    case o is
+      when 12 => return x"0C";
+      when 13 => return x"08";
+      when 14 => return x"6D";                -- m
+      when 15 => return x"36";                -- 6
+      when 16 => return x"35";                -- 5
+      when 17 => return x"64";                -- d
+      when 18 => return x"75";                -- u
+      when 19 => return x"74";                -- t
+      when 20 => return std_logic_vector(to_unsigned(48 + tens, 8));
+      when 21 => return std_logic_vector(to_unsigned(48 + ones, 8));
+      when others => null;
+    end case;
+    o := o - 22;
+    if has50 then
+      if o = 0 then return x"32"; elsif o = 1 then return x"04"; end if;
+      if o >= 2 and o <= 5 then return b(t.reqip, o - 2); end if;
+      o := o - 6;
+    end if;
+    if has54 then
+      if o = 0 then return x"36"; elsif o = 1 then return x"04"; end if;
+      if o >= 2 and o <= 5 then return b(t.server, o - 2); end if;
+      o := o - 6;
+    end if;
+    -- 55,4: subnet, router, lease, T1
+    case o is
+      when 0 => return x"37";
+      when 1 => return x"04";
+      when 2 => return x"01";
+      when 3 => return x"03";
+      when 4 => return x"33";
+      when 5 => return x"3A";
+      when 6 => return x"FF";
+      when others => return x"00";
+    end case;
+  end function;
 begin
   frames_sent <= sent;
   hist_addr   <= tail_addr(9 downto 0);
@@ -147,6 +224,7 @@ begin
       ack_taken  <= '0';
       jr_taken   <= "00";
       snap_ack   <= "00";
+      dhcp_taken <= "00";
       mac_start  <= '0';
       mem_we     <= '0';
 
@@ -182,11 +260,19 @@ begin
           elsif jr(1).pend = '1' then k := K_JRESP; dd := 1;
           elsif ack.pend = '1' then k := K_ACK; dd := ack.dut;
           elsif icmp.pend = '1' then k := K_ICMP; dd := icmp.dut;
-          elsif snap_req(0) = '1' and (rr = '0' or snap_req(1) = '0') then k := K_SNAP; dd := 0;
-          elsif snap_req(1) = '1' then k := K_SNAP; dd := 1;
-          elsif hb_due(0) = '1' and (rr = '0' or hb_due(1) = '0') then k := K_HB; dd := 0;
-          elsif hb_due(1) = '1' then k := K_HB; dd := 1;
+          elsif dhcp(0).req = '1' and ep_enable(0) = '1' then k := K_DHCP; dd := 0;
+          elsif dhcp(1).req = '1' and ep_enable(1) = '1' then k := K_DHCP; dd := 1;
+          elsif snap_req(0) = '1' and ep_enable(0) = '1' and (rr = '0' or snap_req(1) = '0') then k := K_SNAP; dd := 0;
+          elsif snap_req(1) = '1' and ep_enable(1) = '1' then k := K_SNAP; dd := 1;
+          elsif hb_due(0) = '1' and ep_enable(0) = '1' and (rr = '0' or hb_due(1) = '0') then k := K_HB; dd := 0;
+          elsif hb_due(1) = '1' and ep_enable(1) = '1' then k := K_HB; dd := 1;
           end if;
+          -- a disabled endpoint (DUT ID conflict) drops its periodic traffic
+          for i in 0 to 1 loop
+            if ep_enable(i) = '0' then
+              hb_due(i) <= '0';
+            end if;
+          end loop;
           if k /= K_NONE and pend_valid = '0' then
             rr    <= not rr;
             kind  <= k;
@@ -199,6 +285,7 @@ begin
               when K_JRESP=> jr_taken(dd) <= '1';
               when K_SNAP => snap_ack(dd) <= '1';
               when K_HB   => hb_due(dd) <= '0';
+              when K_DHCP => dhcp_taken(dd) <= '1';
               when others => null;
             end case;
           end if;
@@ -220,6 +307,10 @@ begin
             when K_ICMP =>
               dmac := icmp.mac; dip := icmp.ip; proto := x"01";
               tl := to_integer(icmp_len);
+            when K_DHCP =>
+              dmac := (others => '1'); dip := (others => '1');
+              sport := PORT_DHCP_C; dport := std_logic_vector(to_unsigned(PORT_DHCP_S, 16));
+              tl := 300;
             when K_ACK =>
               dmac := ack.mac; dip := ack.ip; dport := ack.port_n; sport := PORT_MGMT;
               typ := T_MGMT_ACK; plen := ACK_PAYLOAD_LEN;
@@ -294,12 +385,13 @@ begin
               pf(76) <= bstat.phys_type; pf(77) <= st.jtag_status;
               pf(90) <= bu(st.rx_rejects, 0); pf(91) <= bu(st.rx_rejects, 1);
               pf(92) <= x"00"; pf(93) <= x"00";
+              pf(106) <= st.addr_src; pf(107) <= st.dut_id;
               for i in 0 to 11 loop pf(94 + i) <= b(st.dut_leds, i); end loop;
             when others => null;
           end case;
 
           -- common custom header
-          if kind /= K_ARP and kind /= K_ICMP then
+          if kind /= K_ARP and kind /= K_ICMP and kind /= K_DHCP then
             pf(0) <= PROTO_MAGIC(15 downto 8); pf(1) <= PROTO_MAGIC(7 downto 0);
             pf(2) <= PROTO_VERSION; pf(3) <= typ;
             pf(4) <= bu(to_unsigned(plen, 16), 0); pf(5) <= bu(to_unsigned(plen, 16), 1);
@@ -320,7 +412,7 @@ begin
               hdr(32 + i) <= b(arp.mac, i);
             end loop;
             for i in 0 to 3 loop
-              hdr(28 + i) <= b(cfg(d).ip, i);
+              hdr(28 + i) <= b(ip_eff(d), i);
               hdr(38 + i) <= b(arp.ip, i);
             end loop;
             hdr_len  <= to_unsigned(42, 12);
@@ -335,6 +427,11 @@ begin
               hdr_len <= to_unsigned(34, 12);
               pf_len  <= (others => '0');
               total   <= to_unsigned(34 + tl, 12);
+            elsif kind = K_DHCP then
+              iplen := to_unsigned(20 + 8 + tl, 16);
+              hdr_len <= to_unsigned(42, 12);
+              pf_len  <= (others => '0');
+              total   <= to_unsigned(42 + tl, 12);
             else
               iplen := to_unsigned(20 + 8 + 8 + plen, 16);
               hdr_len <= to_unsigned(42, 12);
@@ -348,7 +445,11 @@ begin
             hdr(18) <= x"00"; hdr(19) <= x"00"; hdr(20) <= x"40"; hdr(21) <= x"00";
             hdr(22) <= x"40"; hdr(23) <= proto; hdr(24) <= x"00"; hdr(25) <= x"00";
             for i in 0 to 3 loop
-              hdr(26 + i) <= b(cfg(d).ip, i);
+              if kind = K_DHCP then
+                hdr(26 + i) <= b(dhcp(d).ciaddr, i);   -- 0.0.0.0 unless renewing
+              else
+                hdr(26 + i) <= b(ip_eff(d), i);
+              end if;
               hdr(30 + i) <= b(dip, i);
             end loop;
             hdr(34) <= bu(to_unsigned(sport, 16), 0); hdr(35) <= bu(to_unsigned(sport, 16), 1);
@@ -391,6 +492,8 @@ begin
                   if d = 0 then wb := j_tdo_data0; else wb := j_tdo_data1; end if;
                 when K_ICMP =>
                   wb := icmp_rdata;     -- type/checksum already patched by net_rx
+                when K_DHCP =>
+                  wb := dhcp_byte(to_integer(o) - 42, cfg(d).mac, dhcp(d), dstat(d).dut_id);
                 when others => wb := x"00";
               end case;
             end if;
