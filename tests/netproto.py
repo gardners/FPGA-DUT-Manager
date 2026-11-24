@@ -157,3 +157,35 @@ def decode_jtag_resp(b):
 def decode_ack(b):
     cmd, key, status, _, gen = struct.unpack(">HHBBI", b[:10])
     return {"cmd_id": cmd, "key": key, "status": status, "cfg_gen": gen}
+
+
+# ------------------------------------------------- FPGA -> host encoders (tests)
+def encode_heartbeat(dut, f):
+    b = struct.pack(">IIIQBBBBIIBBBB", f["hb_seq"], f["boot_id"], f["build_id"], f["dna"],
+                    f["topo_index"], f["topo_count"], f["dip"], f["link_flags"], f["caps"],
+                    f["cfg_gen"], f["target_flags"], f["kbd_owner"], f["kbd_policy"], f["selected"])
+    b += f["kbd_eff"].to_bytes(10, "little") + f["kbd_udp"].to_bytes(10, "little") + \
+        f["kbd_phys"].to_bytes(10, "little")
+    b += struct.pack(">HBBIIIHH", f["phys_change"], f["phys_type"], f["jtag_status"],
+                     f["jtag_next_seq"], f["uart_rx_seq"], f["uart_tx_acc"], f["rx_rejects"],
+                     f["tx_drops"])
+    b += f["dut_leds"] + b"\0\0"
+    assert len(b) == 100
+    return custom(T_HEARTBEAT, dut, b)
+
+
+def encode_snapshot(dut, f):
+    b = struct.pack(">IIIIIHHHHHIIH", f["boot_id"], f["snap_seq"], f["rx_seq"], f["tx_accepted"],
+                    f["tx_emitted"], f["tx_free"], f["framing_errors"], f["rx_overflows"],
+                    f["tx_rejects"], f["clear_gen"], f["rx_seq_at_clear"], f["baud_nco"], 0)
+    b += f["rx_history"] + f["tx_history"]
+    assert len(b) == 680
+    return custom(T_UART_SNAP, dut, b)
+
+
+def encode_jtag_resp(dut, seq, nxt, status, bits, tdo):
+    return custom(T_JTAG_RESP, dut, struct.pack(">IIBBHI", seq, nxt, status, 0, len(tdo), bits) + tdo)
+
+
+def encode_ack(dut, cmd, key, status, gen):
+    return custom(T_MGMT_ACK, dut, struct.pack(">HHBBI", cmd, key, status, 0, gen))
