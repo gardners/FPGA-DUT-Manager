@@ -12,3 +12,11 @@ hdl/src/uart/uart_tx.vhd
 hdl/src/uart/uart_rx.vhd
 hdl/src/uart/uart_bridge.vhd
 hdl/src/jtag/jtag_engine.vhd
+hdl/src/proto/proto_pkg.vhd
+hdl/src/net/net_pkg.vhd
+hdl/src/eth/eth_mac_rx.vhd
+hdl/src/eth/eth_mac_tx.vhd
+hdl/src/net/net_rx.vhd
+hdl/src/net/net_tx.vhd
+hdl/src/top/supervisor_core.vhd
+hdl/sim/tap_model.vhd

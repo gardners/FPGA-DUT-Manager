@@ -85,6 +85,13 @@ build_openxc7() {
 	# `make deps`), so stop the builder from calling sudo apt-get itself.
 	sed -e 's/^\tcheck_dependencies$/\t: # deps checked by scripts\/check-deps.sh/' \
 		"$builder.orig" > "$builder"
+	# We only need yosys for VHDL (via GHDL) -> skip the bundled slang
+	# SystemVerilog frontend and unit tests; they dominate a JOBS=1 build.
+	sed -i -e 's|^\tcmake -S . -B build -DCMAKE_BUILD_TYPE=Release "\${CMAKE_OPTS\[@\]}"$|\tcmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DYOSYS_WITHOUT_SLANG=ON -DYOSYS_ENABLE_UNIT_TESTS=OFF "${CMAKE_OPTS[@]}"|' "$builder"
+	grep -q 'YOSYS_WITHOUT_SLANG=ON' "$builder" || {
+		echo "error: could not disable slang in openXC7 builder" >&2
+		exit 1
+	}
 	grep -q 'deps checked by scripts' "$builder" || {
 		echo "error: could not neutralise check_dependencies in openXC7 builder" >&2
 		exit 1

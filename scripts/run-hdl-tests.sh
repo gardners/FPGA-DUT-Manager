@@ -23,8 +23,17 @@ pass=0; fail=0; failed=()
 for tb in "${TBS[@]}"; do
 	tb=${tb%.vhd}
 	echo "=== $tb"
-	if "$NVC" "${NVC_OPTS[@]}" -e "$tb" -r --exit-severity=error > "$WORK/$tb.log" 2>&1; then
-		grep -E 'PASSED|Note' "$WORK/$tb.log" | tail -3
+	# optional scenario hook: generates inputs before and checks outputs after
+	hook=$REPO/tests/scenarios/$tb.py
+	if [[ -f $hook ]]; then
+		python3 -I "$hook" gen "$WORK/${tb}_in.txt"
+	fi
+	gens=()
+	[[ -f $hook ]] && gens=(-gVEC_IN="${tb}_in.txt" -gCAP_OUT="${tb}_out.txt")
+	if "$NVC" "${NVC_OPTS[@]}" -e "$tb" "${gens[@]}" -r --exit-severity=error \
+		> "$WORK/$tb.log" 2>&1 &&
+		{ [[ ! -f $hook ]] || python3 -I "$hook" check "$WORK/${tb}_out.txt" >> "$WORK/$tb.log" 2>&1; }; then
+		grep -E 'PASSED|Note|captured' "$WORK/$tb.log" | tail -4
 		pass=$((pass + 1))
 	else
 		tail -30 "$WORK/$tb.log"

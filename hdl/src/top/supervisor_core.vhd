@@ -1,0 +1,331 @@
+-- supervisor_core: vendor-independent phase-1 supervisor.
+-- GMII-style byte interfaces (rx on clk_rx, tx on clk_sys); all DUT pins as
+-- plain in/out/oe so the platform top owns the IO buffers.
+-- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use work.common_pkg.all;
+use work.proto_pkg.all;
+use work.net_pkg.all;
+
+entity supervisor_core is
+  generic (
+    CLK_HZ   : positive := 125_000_000;
+    BUILD_ID : std_logic_vector(31 downto 0) := x"00000000"
+  );
+  port (
+    clk_sys   : in  std_logic;
+    clk_rx    : in  std_logic;
+    -- GMII
+    rx_dv, rx_er : in std_logic;
+    rxd       : in  std_logic_vector(7 downto 0);
+    tx_en     : out std_logic;
+    txd       : out std_logic_vector(7 downto 0);
+    -- identity / board
+    dna       : in  std_logic_vector(63 downto 0);
+    dip       : in  std_logic_vector(7 downto 0);
+    link_flags: in  std_logic_vector(7 downto 0);
+    -- DUT sense (already synchronised or not; synchronised here)
+    vio_sense : in  std_logic_vector(1 downto 0);
+    kb3v3_sense : in std_logic_vector(1 downto 0);
+    -- DUT JTAG
+    jtck, jtms, jtdi : out std_logic_vector(1 downto 0);
+    jtdo      : in  std_logic_vector(1 downto 0);
+    jtag_oe   : out std_logic_vector(1 downto 0);
+    -- DUT UART
+    utx       : out std_logic_vector(1 downto 0);
+    utx_oe    : out std_logic_vector(1 downto 0);
+    urx       : in  std_logic_vector(1 downto 0);
+    -- DUT keyboard (MK-I device side)
+    kio8      : in  std_logic_vector(1 downto 0);
+    kio9      : in  std_logic_vector(1 downto 0);
+    kio10     : out std_logic_vector(1 downto 0);
+    kio10_oe  : out std_logic_vector(1 downto 0);
+    -- front panel
+    leds      : out std_logic_vector(7 downto 0);
+    -- debug
+    stat_rx_good, stat_rx_bad : out unsigned(15 downto 0)
+  );
+end entity;
+
+architecture rtl of supervisor_core is
+  -- timers
+  constant US_DIV : positive := CLK_HZ / 1_000_000;
+  signal us_cnt : integer range 0 to US_DIV - 1 := 0;
+  signal ms_cnt : integer range 0 to 999 := 0;
+  signal tick_1us, tick_1ms : std_logic := '0';
+  signal boot_cnt : unsigned(31 downto 0) := (others => '0');
+  signal boot_id  : std_logic_vector(31 downto 0) := (others => '0');
+  signal boot_latched : std_logic := '0';
+
+  -- RX slots
+  signal rxm_we : std_logic;
+  signal rxm_wa, rxm_ra : unsigned(11 downto 0);
+  signal rxm_wd, rxm_rd : std_logic_vector(7 downto 0);
+  signal rx_tog, rel_tog : std_logic_vector(1 downto 0);
+  signal len0, len1 : unsigned(11 downto 0);
+  signal s_good, s_crc, s_drop : std_logic;
+  signal good_t, bad_t : std_logic := '0';
+  signal good_s, bad_s : std_logic_vector(2 downto 0) := "000";
+  signal cnt_good, cnt_bad : unsigned(15 downto 0) := (others => '0');
+
+  -- TX slots
+  signal txm_we : std_logic;
+  signal txm_wa, txm_ra : unsigned(11 downto 0);
+  signal txm_wd, txm_rd : std_logic_vector(7 downto 0);
+  signal mac_start, mac_busy, mac_done : std_logic;
+  signal mac_base, mac_len : unsigned(11 downto 0);
+
+  -- dispatcher <-> builder
+  signal cfg   : dut_cfg_arr_t;
+  signal bcfg  : board_cfg_t;
+  signal arp, icmp, ack : reply_t;
+  signal jr    : reply_arr_t;
+  signal jr_status : slv8_arr_t;
+  signal jr_seq : u32_arr_t;
+  signal arp_taken, icmp_taken, ack_taken : std_logic;
+  signal jr_taken : std_logic_vector(1 downto 0);
+  signal icmp_len : unsigned(6 downto 0);
+  signal icmp_raddr : unsigned(6 downto 0);
+  signal icmp_rdata : std_logic_vector(7 downto 0);
+  signal ack_cmd, ack_key : std_logic_vector(15 downto 0);
+  signal ack_status : std_logic_vector(7 downto 0);
+  signal rx_rejects : u16_arr_t;
+  signal arp_tpa : ip_t;
+
+  -- keyboard
+  signal kbd_udp : kbd_arr_t;
+  signal kbd_strobe : std_logic_vector(1 downto 0);
+  type leds_arr_t is array (0 to 1) of std_logic_vector(95 downto 0);
+  signal dut_leds : leds_arr_t;
+  signal kbd_leds_stb : std_logic_vector(1 downto 0);
+  type u16a is array (0 to 1) of unsigned(15 downto 0);
+  signal kbd_frames : u16a;
+
+  -- UART
+  signal adm_valid, adm_done, adm_ok, uwr_valid : std_logic_vector(1 downto 0);
+  signal adm_offset : unsigned(31 downto 0);
+  signal adm_count, adm_cmd : unsigned(15 downto 0);
+  signal adm_clear : std_logic;
+  signal uwr_data : std_logic_vector(7 downto 0);
+  signal snap_req, snap_ack : std_logic_vector(1 downto 0);
+  signal snap : snap_arr_t;
+  signal hist_addr : unsigned(9 downto 0);
+  signal hist_data0, hist_data1 : std_logic_vector(7 downto 0);
+  signal u_rx_seq, u_tx_acc : u32_arr_t;
+  signal baud : u32_arr_t;
+
+  -- JTAG
+  signal jreq_valid, jdec_valid, jvec_we, jgo, jdone, jab, jbusy, jready : std_logic_vector(1 downto 0);
+  signal jreq_seq, jreq_bits, jreq_half : unsigned(31 downto 0);
+  signal jreq_abort : std_logic;
+  signal jdec_code0, jdec_code1 : unsigned(2 downto 0);
+  signal jvec_addr : unsigned(10 downto 0);
+  signal jvec_data : std_logic_vector(7 downto 0);
+  signal j_tdo_addr : unsigned(9 downto 0);
+  signal j_tdo0, j_tdo1 : std_logic_vector(7 downto 0);
+  signal j_next, j_last, j_bits : u32_arr_t;
+
+  -- sense / enables
+  signal vio_s, kb_s, powered, out_en : std_logic_vector(1 downto 0);
+  signal dstat : dut_status_arr_t;
+  signal bstat : board_status_t;
+  signal frames_sent : unsigned(31 downto 0);
+begin
+  ---------------------------------------------------------------- timers
+  process (clk_sys)
+  begin
+    if rising_edge(clk_sys) then
+      tick_1us <= '0';
+      tick_1ms <= '0';
+      boot_cnt <= boot_cnt + 1;
+      if us_cnt = US_DIV - 1 then
+        us_cnt   <= 0;
+        tick_1us <= '1';
+        if ms_cnt = 999 then
+          ms_cnt   <= 0;
+          tick_1ms <= '1';
+        else
+          ms_cnt <= ms_cnt + 1;
+        end if;
+      else
+        us_cnt <= us_cnt + 1;
+      end if;
+      -- boot id: DNA-derived plus the cycle count when the first frame
+      -- arrives (varies with PHY link-up timing)
+      if boot_latched = '0' then
+        boot_id <= dna(31 downto 0) xor std_logic_vector(boot_cnt);
+        if cnt_good /= 0 then
+          boot_latched <= '1';
+        end if;
+      end if;
+    end if;
+  end process;
+
+  ---------------------------------------------------------------- MAC RX
+  mrx : entity work.eth_mac_rx
+    port map (clk_rx, rx_dv, rx_er, rxd, rxm_we, rxm_wa, rxm_wd,
+              rx_tog, rel_tog, len0, len1, s_good, s_crc, s_drop);
+  rxmem : entity work.dpram generic map (12, 8)
+    port map (clk_rx, rxm_we, rxm_wa, rxm_wd, clk_sys, rxm_ra, rxm_rd);
+
+  -- statistics across the clock domain via toggles
+  process (clk_rx)
+  begin
+    if rising_edge(clk_rx) then
+      if s_good = '1' then good_t <= not good_t; end if;
+      if s_crc = '1' or s_drop = '1' then bad_t <= not bad_t; end if;
+    end if;
+  end process;
+  process (clk_sys)
+  begin
+    if rising_edge(clk_sys) then
+      good_s <= good_s(1 downto 0) & good_t;
+      bad_s  <= bad_s(1 downto 0) & bad_t;
+      if good_s(2) /= good_s(1) then cnt_good <= cnt_good + 1; end if;
+      if bad_s(2) /= bad_s(1) then cnt_bad <= cnt_bad + 1; end if;
+    end if;
+  end process;
+  stat_rx_good <= cnt_good;
+  stat_rx_bad  <= cnt_bad;
+
+  ---------------------------------------------------------------- dispatch
+  nrx : entity work.net_rx
+    port map (
+      clk => clk_sys, node_id => unsigned(dip(3 downto 0)), dna => dna,
+      rx_toggle => rx_tog, rel_toggle => rel_tog, len0 => len0, len1 => len1,
+      mem_addr => rxm_ra, mem_data => rxm_rd,
+      cfg => cfg, bcfg => bcfg, kbd_udp => kbd_udp, kbd_strobe => kbd_strobe,
+      adm_valid => adm_valid, adm_offset => adm_offset, adm_count => adm_count,
+      adm_clear => adm_clear, adm_cmd_id => adm_cmd, adm_done => adm_done,
+      adm_ok => adm_ok, uwr_valid => uwr_valid, uwr_data => uwr_data,
+      jreq_valid => jreq_valid, jreq_seq => jreq_seq, jreq_bits => jreq_bits,
+      jreq_half => jreq_half, jreq_abort => jreq_abort, jdec_valid => jdec_valid,
+      jdec_code0 => jdec_code0, jdec_code1 => jdec_code1, jvec_we => jvec_we,
+      jvec_addr => jvec_addr, jvec_data => jvec_data, jgo => jgo,
+      jdone => jdone, jaborted => jab,
+      arp => arp, arp_tpa_o => arp_tpa, arp_taken => arp_taken,
+      icmp => icmp, icmp_len => icmp_len, icmp_raddr => icmp_raddr,
+      icmp_rdata => icmp_rdata, icmp_taken => icmp_taken,
+      ack => ack, ack_cmd => ack_cmd, ack_key => ack_key, ack_status => ack_status,
+      ack_taken => ack_taken, jr => jr, jr_status => jr_status, jr_seq => jr_seq,
+      jr_taken => jr_taken, rx_rejects => rx_rejects);
+
+  ---------------------------------------------------------------- builder
+  ntx : entity work.net_tx
+    port map (
+      clk => clk_sys, tick_1ms => tick_1ms, cfg => cfg, bcfg => bcfg,
+      bstat => bstat, dstat => dstat, hb_expedite => '0',
+      arp => arp, arp_taken => arp_taken,
+      icmp => icmp, icmp_len => icmp_len, icmp_raddr => icmp_raddr,
+      icmp_rdata => icmp_rdata, icmp_taken => icmp_taken,
+      ack => ack, ack_cmd => ack_cmd, ack_key => ack_key, ack_status => ack_status,
+      ack_taken => ack_taken, jr => jr, jr_status => jr_status, jr_seq => jr_seq,
+      jr_taken => jr_taken, j_next_seq => j_next, j_bits => j_bits,
+      j_tdo_addr => j_tdo_addr, j_tdo_data0 => j_tdo0, j_tdo_data1 => j_tdo1,
+      snap_req => snap_req, snap_ack => snap_ack, snap => snap, baud_inc => baud,
+      boot_id => boot_id, hist_addr => hist_addr, hist_data0 => hist_data0,
+      hist_data1 => hist_data1,
+      mac_start => mac_start, mac_base => mac_base, mac_len => mac_len,
+      mac_busy => mac_busy, mem_we => txm_we, mem_addr => txm_wa,
+      mem_data => txm_wd, frames_sent => frames_sent);
+
+  txmem : entity work.dpram generic map (12, 8)
+    port map (clk_sys, txm_we, txm_wa, txm_wd, clk_sys, txm_ra, txm_rd);
+  mtx : entity work.eth_mac_tx
+    port map (clk_sys, mac_start, mac_base, mac_len, mac_busy, mac_done,
+              txm_ra, txm_rd, tx_en, txd);
+
+  ---------------------------------------------------------------- per DUT
+  g_dut : for i in 0 to 1 generate
+    signal jcode : unsigned(2 downto 0);
+    signal tdo_d : std_logic_vector(7 downto 0);
+    signal hd    : std_logic_vector(7 downto 0);
+  begin
+    sv : entity work.sync_bit port map (clk_sys, vio_sense(i), vio_s(i));
+    sk : entity work.sync_bit port map (clk_sys, kb3v3_sense(i), kb_s(i));
+    powered(i) <= vio_s(i);
+    -- output policy: 0 auto (sense), 1 force on, 2 force off
+    out_en(i) <= '1' when cfg(i).out_policy = x"01" else
+                 '0' when cfg(i).out_policy = x"02" else
+                 vio_s(i);
+    baud(i) <= cfg(i).baud_inc;
+
+    ub : entity work.uart_bridge
+      port map (
+        clk => clk_sys, tick_1us => tick_1us, baud_inc => cfg(i).baud_inc,
+        out_enable => out_en(i), snap_enable => cfg(i).uart_snap_en,
+        fast_mode => cfg(i).uart_fast, snap_period_us => cfg(i).uart_period,
+        txd => utx(i), txd_oe => utx_oe(i), rxd => urx(i),
+        adm_valid => adm_valid(i), adm_offset => adm_offset, adm_count => adm_count,
+        adm_clear => adm_clear, adm_cmd_id => adm_cmd, adm_done => adm_done(i),
+        adm_ok => adm_ok(i), wr_valid => uwr_valid(i), wr_data => uwr_data,
+        snap_req => snap_req(i), snap_ack => snap_ack(i), hist_addr => hist_addr,
+        hist_data => hd,
+        snap_rx_seq => snap(i).rx_seq, snap_tx_accepted => snap(i).tx_accepted,
+        snap_tx_emitted => snap(i).tx_emitted, snap_tx_free => snap(i).tx_free,
+        snap_framing_errs => snap(i).framing_errs, snap_rx_overflows => snap(i).rx_overflows,
+        snap_tx_rejects => snap(i).tx_rejects, snap_clear_gen => snap(i).clear_gen,
+        snap_rx_seq_clear => snap(i).rx_seq_clear, snap_seq => snap(i).seq,
+        rx_seq_o => u_rx_seq(i), tx_accepted_o => u_tx_acc(i));
+
+    je : entity work.jtag_engine
+      port map (
+        clk => clk_sys, powered => powered(i),
+        req_valid => jreq_valid(i), req_seq => jreq_seq, req_bits => jreq_bits,
+        req_half => jreq_half, req_abort => jreq_abort,
+        dec_valid => jdec_valid(i), dec_code => jcode,
+        vec_we => jvec_we(i), vec_addr => jvec_addr, vec_data => jvec_data,
+        go => jgo(i), tdo_addr => j_tdo_addr, tdo_data => tdo_d,
+        busy => jbusy(i), result_ready => jready(i), done_strobe => jdone(i),
+        aborted => jab(i), next_seq => j_next(i), last_seq => j_last(i),
+        last_bits => j_bits(i),
+        tck => jtck(i), tms => jtms(i), tdi => jtdi(i), jtag_oe => jtag_oe(i),
+        tdo => jtdo(i));
+
+    kd : entity work.kbd_mk1_device
+      generic map (SYNC_CYCLES => (CLK_HZ / 1000) * 61 / 10000)
+      port map (
+        clk => clk_sys, keys_pressed => kbd_udp(i),
+        kio8_in => kio8(i), kio9_in => kio9(i), kio10_out => kio10(i),
+        leds => dut_leds(i), leds_strobe => kbd_leds_stb(i),
+        frame_count => kbd_frames(i));
+    kio10_oe(i) <= out_en(i);
+
+    -- status for heartbeat (phase 1: UDP always owns the keyboard)
+    dstat(i).target_flags  <= "0000" & '1' & out_en(i) & vio_s(i) & kb_s(i);
+    dstat(i).kbd_owner     <= x"00";
+    dstat(i).kbd_eff       <= kbd_udp(i);
+    dstat(i).kbd_udp       <= kbd_udp(i);
+    dstat(i).dut_leds      <= dut_leds(i);
+    dstat(i).jtag_status   <= "0000" & not powered(i) & jab(i) & jready(i) & jbusy(i);
+    dstat(i).jtag_next_seq <= j_next(i);
+    dstat(i).uart_rx_seq   <= u_rx_seq(i);
+    dstat(i).uart_tx_acc   <= u_tx_acc(i);
+    dstat(i).rx_rejects    <= rx_rejects(i);
+
+    g0 : if i = 0 generate
+      jdec_code0 <= jcode; j_tdo0 <= tdo_d; hist_data0 <= hd;
+    end generate;
+    g1 : if i = 1 generate
+      jdec_code1 <= jcode; j_tdo1 <= tdo_d; hist_data1 <= hd;
+    end generate;
+  end generate;
+
+  bstat.boot_id     <= boot_id;
+  bstat.build_id    <= BUILD_ID;
+  bstat.dna         <= dna;
+  bstat.topo_index  <= x"FF";
+  bstat.topo_count  <= x"00";
+  bstat.dip         <= dip;
+  bstat.link_flags  <= link_flags;
+  bstat.caps        <= x"00000007";     -- uart, jtag, kbd device
+  bstat.selected    <= bcfg.vid_target(3 downto 0) & bcfg.kbd_target(3 downto 0);
+  bstat.kbd_phys    <= (others => '0');
+  bstat.phys_change <= (others => '0');
+  bstat.phys_type   <= x"00";
+
+  -- front panel: LED0 heartbeat-ish activity, LED1/2 DUT powered, LED7 rx
+  leds(7 downto 0) <= std_logic_vector(cnt_good(3 downto 0)) & "00" & vio_s(1) & vio_s(0);
+end architecture;
