@@ -10,6 +10,9 @@ so the two implementations cannot silently diverge.
 
 ## 1. Addressing
 
+> Default MAC/IP assignment is superseded by ADR 0011 (DIP-switch DUT IDs,
+> deterministic MACs, DHCP with fallback). Port 6508 TEXT_WRITE: ADR 0012.
+
 * Each Mimas presents **two logical endpoints** (DUT0, DUT1), each with its own
   MAC and IPv4 address, on one PHY. ARP replies for both. ICMP echo for both
   (bounded to 64 payload bytes; larger echo requests are dropped).

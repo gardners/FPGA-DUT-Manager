@@ -16,3 +16,5 @@ be accepted (owner instruction 2026-11-25); refine rather than block.
 | [0008](0008-connector-allocation.md) | Header P12/P13 allocation and cable families | Proposed |
 | [0009](0009-power-relay-controller.md) | Relay controller protocol (Arduino, later Mimas GPIO) | Proposed |
 | [0010](0010-jtag-over-udp.md) | JTAG engine and host XVC proxy | Proposed |
+| [0011](0011-dut-identity-dip-and-dhcp.md) | DUT ID from DIP switches, deterministic MACs, DHCP | Accepted |
+| [0012](0012-text-fallback-display.md) | 80x25 text fallback / server-driven display | Proposed |
