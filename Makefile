@@ -52,6 +52,7 @@ CABLE_ARGS += --ftdi-serial $(FTDI_SERIAL)
 endif
 
 .DELETE_ON_ERROR:
+FORCE:
 .PHONY: all help deps toolchain test test-hdl test-sw bitstream jtagload flash \
         detect dutctl list-boards check-board clean distclean
 
@@ -105,11 +106,19 @@ test-sw:
 
 # ---------------------------------------------------------------- bitstream
 BITDIR := $(BUILD)/$(BOARD)
+# 32-bit build id embedded in heartbeats: short git hash (+ 'd' if dirty -> top bit)
+BUILD_ID ?= $(shell git -C $(REPO) rev-parse --short=8 HEAD 2>/dev/null || echo 00000000)
 XDC    := $(REPO)/boards/$(BOARD)/$(BOARD).xdc
 
-$(BITDIR)/supervisor.json: $(SYNTH_SOURCES) $(REPO)/scripts/synth.ys.in | $(STAMPS)/ghdl-plugin
+$(BITDIR)/build_id_pkg.vhd: FORCE
 	@mkdir -p $(BITDIR)
-	sed -e 's|@SOURCES@|$(SYNTH_SOURCES)|' -e 's|@TOP@|$(SYNTH_TOP)|' \
+	@printf 'library ieee;\nuse ieee.std_logic_1164.all;\npackage build_id_pkg is\n  constant BUILD_ID : std_logic_vector(31 downto 0) := x"%s";\nend package;\n' \
+	    $(BUILD_ID) > $@.tmp
+	@cmp -s $@.tmp $@ && rm $@.tmp || mv $@.tmp $@
+
+$(BITDIR)/supervisor.json: $(SYNTH_SOURCES) $(BITDIR)/build_id_pkg.vhd $(REPO)/scripts/synth.ys.in | $(STAMPS)/ghdl-plugin
+	@mkdir -p $(BITDIR)
+	sed -e 's|@SOURCES@|$(BITDIR)/build_id_pkg.vhd $(strip $(SYNTH_SOURCES))|' -e 's|@TOP@|$(SYNTH_TOP)|' \
 	    -e 's|@OUT@|$@|' $(REPO)/scripts/synth.ys.in > $(BITDIR)/synth.ys
 	$(YOSYS) -m ghdl -l $(BITDIR)/yosys.log -s $(BITDIR)/synth.ys
 

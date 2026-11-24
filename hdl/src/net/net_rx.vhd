@@ -310,7 +310,7 @@ begin
               plen    := be16(h, 46);
               if udp_len /= ip_total - 20 or udp_len < 16 or
                  be16(h, 42) /= unsigned(PROTO_MAGIC) or h(44) /= PROTO_VERSION or
-                 plen /= udp_len - 16 or unsigned(h(48)) /= dd then
+                 plen /= udp_len - 16 or (unsigned(h(48)) /= dd and h(48) /= x"FF") then
                 rej(dd) <= rej(dd) + 1;
               elsif bcast then
                 -- only SET_IDENTITY is accepted on broadcast

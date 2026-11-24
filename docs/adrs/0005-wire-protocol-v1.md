@@ -53,7 +53,7 @@ exact.
 | 2 | 1 | version | `1` |
 | 3 | 1 | type | see per-port tables |
 | 4 | 2 | length | bytes following this header |
-| 6 | 1 | dut | 0/1; must equal the endpoint addressed, else dropped |
+| 6 | 1 | dut | 0/1 = endpoint index (must match the endpoint addressed, else dropped); 0xFF = wildcard "whichever endpoint this IP is". FPGA → host packets always carry the real index |
 | 7 | 1 | flags | type specific, 0 unless stated |
 
 Datagrams with bad magic/version, `length` ≠ UDP payload − 8, out-of-range

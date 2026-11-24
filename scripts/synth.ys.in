@@ -1,0 +1,5 @@
+# yosys script template (filled in by the Makefile)
+ghdl --std=08 @SOURCES@ -e @TOP@
+synth_xilinx -flatten -abc9 -arch xc7 -top @TOP@
+stat
+write_json @OUT@
