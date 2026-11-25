@@ -60,3 +60,11 @@ HDMI mode with audio) on HDMI IN. Options: build with `HDMI_OUT => false`
 for self-loop tests, or make the RX HDMI-aware (expose the per-channel
 control/guard decode from dvi2rgb and drop guard bands and islands from DE);
 that is RX work outside this item.
+
+## 2026-11-25 Vivado (sub-agent)
+
+Build 7282eba (HDMI_OUT = true): **TIMING MET, WNS 0.219 ns, WHS 0.023 ns**.
+Bitstream in the worktree at `build/bits/supervisor-7282eba*.bit` (not loaded;
+the lead tests on hardware). To check on the monitor: the input/source info
+OSD should name the source "MEGA65 / MEGA KVM M<nn>" (or "MEGA KVM"), and the
+picture should be unchanged (full range, no overscan, 16:9).
