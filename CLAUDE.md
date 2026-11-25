@@ -74,6 +74,14 @@ pre-V4 Numato Mimas A7 boards (XC7A50T-1FGG484). Start with
 * USB 2a19:1009 = FT2232H: channel A = UART (`/dev/mimas-<serial>` after
   `scripts/setup-mimas-udev-rule.sh`), channel B = JTAG (ADBUS6 buffer OE
   active low). openFPGALoader `-b mimas_a7`, TCK ≤ 6 MHz (30 MHz fails).
+* **Power the Mimas from the DC barrel jack, not USB alone** (2026-11-25):
+  on USB power the full design browns out a few seconds after configuration
+  (about when the gigabit link comes up): DONE drops, the FPGA reloads from
+  SPI flash and goes dead; JTAG readbacks also fail intermittently. If a
+  loaded design "dies" after a few seconds, check the power first.
+* ModemManager probes new ttyUSB ports; on FTDI channel B that wiggles JTAG.
+  `scripts/setup-mimas-udev-rule.sh` makes MM ignore the board and keeps
+  ftdi_sio off channel B (installed on the build box).
 * RTL8211E RGMII with PHY delays strapped off; header banks fixed at 3.3 V;
   header rows 1–2 are raw VIN and P13 rows 34–39 are FPGA config pins —
   never run a full-width cable.
