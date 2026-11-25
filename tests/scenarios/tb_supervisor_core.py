@@ -35,6 +35,12 @@ JTAG_TDI = "0" * len(JTAG_TMS)
 # HSYNC at pixels 736..797, negative syncs
 V_HA, V_VA, V_HT, V_VT, V_HS0, V_HS1 = 720, 8, 858, 12, 736, 798
 K_CAPTURE_EN = 0x0040
+K_THUMB_FORCE = 0x0041
+PEER_MAC = P.mac("02:4D:36:35:00:22")
+PEER_TILE = [bytes((x * 3 + y) & 255 for x in range(480)) for y in range(4)]
+# thumbnail of the testbench picture: centre 640 columns (x offset 40), all
+# 8 lines (shorter than 400), 2x2 boxes -> 320 x 4
+THUMB_TILE = P.thumb_box(lambda x, y: (x & 255, y & 255, (7 * x + 31 * y + 5) & 255), 40, 0, 2, 320, 4)
 
 
 def pattern_line(y):
@@ -74,6 +80,13 @@ def scenario():
     f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 10, 0x0004, HOST_MAC))))
     f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 11, 0x0003, HOST_IP))))
     f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 8, K_CAPTURE_EN, b"\x01"))))      # raster on
+    # thumbnails (issue 0038): stream this board's pictures to the host at
+    # 1/2 scale, divisor 2; a group MAC is refused
+    f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 13, K_THUMB_FORCE, HOST_MAC + b"\x01\x02"))))
+    f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 14, K_THUMB_FORCE, b"\x01\x00\x5e\x00\x00\x01\x01\x02"))))
+    # a peer board's picture of machine 5 at 1/4 scale, and its request
+    f.append((5, P.with_fcs(P.thumb_frame(DUT_MAC[1], PEER_MAC, 5, 1, 0, PEER_TILE, P.TH_SCALE_QUARTER, 4))))
+    f.append((5, P.with_fcs(P.thumb_request(PEER_MAC, P.TH_SCALE_QUARTER, 2))))
     f.append((5, udp_to(0, P.PORT_KBD, P.kbd_set(0xFF, [10, 63]))))  # wildcard dut
     f.append((5, udp_to(0, P.PORT_UART, P.uart_tx(0, 0, 1, b"HELLO"))))
     f.append((5, udp_to(0, P.PORT_JTAG, P.jtag_req(0, 0, JTAG_TMS, JTAG_TDI, half=2))))
@@ -166,12 +179,12 @@ def check(path):
     want = [(1, 0x0010, 0), (2, 0x0050, 0), (2, 0x0050, 4), (3, 0x7777, 1),
             (4, P.K_PK_LED_MODE, 0), (5, P.K_PK_LED_MODE, 3), (6, P.K_PK_LED_HOST, 0),
             (7, P.K_PK_LED_HOST, 2), (10, 0x0004, 0), (11, 0x0003, 0), (8, K_CAPTURE_EN, 0),
-            (12, P.K_CON_SCREEN, 0)]
+            (13, K_THUMB_FORCE, 0), (14, K_THUMB_FORCE, 3), (12, P.K_CON_SCREEN, 0)]
     got = [(a["cmd_id"], a["key"], a["status"]) for a in acks]
     if got != want:
         err("MGMT acks %r != %r" % (got, want))
-    elif acks[-1]["cfg_gen"] != 9:   # baud, hb period, LED mode, LED vector, dest x2, capture,
-        err("cfg_gen %d != 9" % acks[-1]["cfg_gen"])   # DUT1 hb period, console screen
+    elif acks[-1]["cfg_gen"] != 10:  # baud, hb period, LED mode, LED vector, dest x2, capture,
+        err("cfg_gen %d != 10" % acks[-1]["cfg_gen"])  # thumb force, DUT1 hb period, console screen
 
     jr = [P.decode_jtag_resp(d["body"]) for d in parsed
           if d.get("kind") == "udp" and d.get("ptype") == P.T_JTAG_RESP]
@@ -307,6 +320,34 @@ def check(path):
         err("heartbeat frames_captured %d < %d" % (hb0[-1]["frames_captured"], len(complete) - 1))
     print("raster: %d line packets, %d complete frames (%r) rebuilt and equal to the source"
           % (len(rasters), len(complete), complete))
+
+    # thumbnails (issues 0035/0038): relay frames to the forced host MAC,
+    # pictures rebuilt and compared with the box-filtered source
+    ths = [(d, P.decode_thumb(f[14:-4])) for d, f in zip(parsed, frames) if d["etype"] == P.ETH_THUMB]
+    pics, nosrc = {}, set()
+    for d, t in ths:
+        if d["dst"] != HOST_MAC:
+            err("thumbnail frame to %s" % d["dst"].hex())
+        if t["sub"] == P.TH_SUB_NOSRC:
+            nosrc.add((t["machine"], d["src"]))
+            continue
+        if t["sub"] != P.TH_SUB_LINES or t["machine"] != 0 or d["src"] != DUT_MAC[0] or \
+           t["scale"] != P.TH_SCALE_HALF or t["height"] != 4 or t["width"] != 320:
+            err("thumbnail frame fields %r" % {k: v for k, v in t.items() if k != "lines"})
+            continue
+        pic = pics.setdefault(t["frame"], {})
+        for i, line in enumerate(t["lines"]):
+            pic[t["row"] + i] = line
+    done = [f for f in sorted(pics) if sorted(pics[f]) == [0, 1, 2, 3]]
+    for f in done:
+        if [pics[f][y] for y in range(4)] != THUMB_TILE:
+            err("thumbnail picture %d differs from the box-filtered source" % f)
+    if len(done) < 2:
+        err("expected >= 2 complete thumbnail pictures, got %d (%r)" % (len(done), sorted(pics)))
+    if (3, DUT_MAC[1]) not in nosrc:
+        err("no 'present, no source' frame for machine 3 from DUT1 (%r)" % nosrc)
+    print("thumbnails: %d relay frames, %d complete pictures equal to the source, no-source %r"
+          % (len(ths), len(done), sorted(m for m, _ in nosrc)))
 
     print("DHCP: %d DISCOVER, %d REQUEST" % (len(disc), len(reqs)))
     print("captured %d frames: %d ARP, %d ICMP, %d ACK, %d JTAG, %d snapshots, %d heartbeats"

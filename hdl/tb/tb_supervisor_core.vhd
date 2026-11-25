@@ -6,11 +6,15 @@
 -- syncs, pixel pattern R = x, G = y, B = (7x + 31y + 5) mod 256 (raster
 -- capture, issue 0023; the scenario enables capture and rebuilds frames).
 -- Passthrough request (issue 0032) is looped back as shown.
+-- Thumbnails (issues 0035/0038): the three frame-store ports share one
+-- mem_model; the scenario forces relay streaming to the host and sends a
+-- peer's picture of machine 5, checked here through the status ports.
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use std.textio.all;
 use ieee.std_logic_textio.all;
+use work.mem_pkg.all;
 
 entity tb_supervisor_core is
   generic (
@@ -41,6 +45,9 @@ architecture tb of tb_supervisor_core is
   signal vrgb : std_logic_vector(23 downto 0);
   signal pt_req : std_logic;
   signal pt_seen : boolean := false;
+  signal mreq : mem_req_arr_t(0 to 2);
+  signal mrsp : mem_rsp_arr_t(0 to 2);
+  signal th_seen, th_fresh, th_cur, th_q : std_logic_vector(31 downto 0);
 begin
   clk_sys <= not clk_sys after 4 ns when not done;
   clk_rx  <= not clk_rx after 4.0016 ns when not done;   -- 200 ppm offset
@@ -55,7 +62,7 @@ begin
 
   dut : entity work.supervisor_core
     generic map (CLK_HZ => 125_000_000, BUILD_ID => x"C0DE0001",
-                 DHCP_FALLBACK_MS => 1, DHCP_MS_PER_S => 1)
+                 DHCP_FALLBACK_MS => 1, DHCP_MS_PER_S => 1, THUMB_MS_PER_S => 1)
     port map (
       clk_sys => clk_sys, clk_rx => clk_rx,
       rx_dv => rx_dv, rx_er => rx_er, rxd => rxd, tx_en => tx_en, txd => txd,
@@ -74,7 +81,11 @@ begin
       vid_pixel_hz => to_unsigned(27_027_027, 32),
       vin_pclk => pclk, vin_rgb => vrgb, vin_de => vde, vin_hs => vhs, vin_vs => vvs,
       -- passthrough (0032): shown as soon as requested (no clock switch here)
-      pt_request => pt_req, pt_active => pt_req);
+      pt_request => pt_req, pt_active => pt_req,
+      thumb_mem_req => mreq, thumb_mem_rsp => mrsp,
+      thumb_seen => th_seen, thumb_fresh => th_fresh, thumb_cur => th_cur, thumb_quarter => th_q);
+  mm : entity work.mem_mux_model generic map (N => 3, ADDR_BITS => 17, LATENCY => 20, STALL_EVERY => 7)
+    port map (clk => clk_sys, req => mreq, rsp => mrsp);
   pt_seen <= true when pt_req = '1';
 
   urx(0) <= utx(0);
@@ -88,7 +99,7 @@ begin
     variable l : line;
     variable delay, n : integer;
     variable b : std_logic_vector(7 downto 0);
-    type buf_t is array (0 to 2047) of std_logic_vector(7 downto 0);
+    type buf_t is array (0 to 9015) of std_logic_vector(7 downto 0);
     variable buf : buf_t;
   begin
     wait for 2 us;
@@ -124,7 +135,7 @@ begin
   cap : process
     file fout : text open write_mode is CAP_OUT;
     variable l : line;
-    type buf_t is array (0 to 4095) of std_logic_vector(7 downto 0);
+    type buf_t is array (0 to 9015) of std_logic_vector(7 downto 0);
     variable buf : buf_t;
     variable n : natural;
     variable gap : natural;
@@ -170,7 +181,13 @@ begin
     report "captured " & integer'image(captured) & " frames; rx good " &
       integer'image(to_integer(good)) & " bad " & integer'image(to_integer(bad));
     assert bad = 0 report "RX CRC errors/drops" severity failure;
-    assert good = 26 report "expected 26 good RX frames" severity failure;
+    assert good = 30 report "expected 30 good RX frames" severity failure;
+    -- thumbnails: local machines 0 (DUT0, video target: captured) and 3
+    -- (DUT1) seen; machine 5's picture from a peer stored at 1/4 scale
+    assert th_seen(0) = '1' and th_seen(3) = '1' and th_seen(5) = '1'
+      report "thumbnail seen bits " & to_hstring(th_seen) severity failure;
+    assert th_fresh(0) = '1' and th_fresh(5) = '1' and th_q(5) = '1' and th_q(0) = '0'
+      report "thumbnail fresh/quarter bits " & to_hstring(th_fresh) & " " & to_hstring(th_q) severity failure;
     -- video present, video target DUT0, auto screen: passthrough requested
     -- until the last frame forces the editable screen (key 0x0035)
     assert pt_seen report "passthrough never requested" severity failure;
