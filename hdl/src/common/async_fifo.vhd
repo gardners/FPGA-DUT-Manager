@@ -48,6 +48,7 @@ architecture rtl of async_fifo is
   signal wp, rp : ptr_t := (others => '0');
   signal wp_g, rp_g : std_logic_vector(AW downto 0) := (others => '0');
   signal wp_s1, wp_s2, rp_s1, rp_s2 : std_logic_vector(AW downto 0) := (others => '0');
+  signal wu : ptr_t := (others => '0');
   signal ov : std_logic := '0';
   signal q  : std_logic_vector(DW - 1 downto 0) := (others => '0');
 
@@ -65,9 +66,9 @@ begin
       rp_s1 <= rp_g;
       rp_s2 <= rp_s1;
       if we = '1' then
-        wused <= wp + 1 - gray2bin(rp_s2);
+        wu <= wp + 1 - gray2bin(rp_s2);
       else
-        wused <= wp - gray2bin(rp_s2);
+        wu <= wp - gray2bin(rp_s2);
       end if;
     end if;
   end process;
@@ -89,6 +90,7 @@ begin
       end if;
     end if;
   end process;
+  wused  <= wu;
   rvalid <= ov;
   dout   <= q;
 end architecture;

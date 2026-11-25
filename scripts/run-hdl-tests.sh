@@ -30,7 +30,7 @@ for tb in "${TBS[@]}"; do
 	fi
 	gens=()
 	[[ -f $hook ]] && gens=(-gVEC_IN="${tb}_in.txt" -gCAP_OUT="${tb}_out.txt")
-	if "$NVC" "${NVC_OPTS[@]}" -e "$tb" "${gens[@]}" -r --exit-severity=error \
+	if "$NVC" -H 256m "${NVC_OPTS[@]}" -e "$tb" "${gens[@]}" -r --exit-severity=error \
 		> "$WORK/$tb.log" 2>&1 &&
 		{ [[ ! -f $hook ]] || python3 -I "$hook" check "$WORK/${tb}_out.txt" >> "$WORK/$tb.log" 2>&1; }; then
 		grep -E 'PASSED|Note|captured' "$WORK/$tb.log" | tail -4

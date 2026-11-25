@@ -22,6 +22,8 @@ hdl/sim/mem_mux_model.vhd
 hdl/src/video/thumb_pkg.vhd
 hdl/src/video/thumb_capture.vhd
 hdl/src/video/thumb_status.vhd
+hdl/src/net/thumb_rx_tap.vhd
+hdl/src/net/thumb_rx_writer.vhd
 hdl/src/video/raster_pkg.vhd
 hdl/src/video/raster_capture.vhd
 hdl/src/uart/uart_tx.vhd

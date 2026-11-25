@@ -1,0 +1,152 @@
+-- tb_thumb_rx: relay frames (EtherType 0x88B5) from a vector file into
+-- thumb_rx_tap -> thumb_rx_writer -> mem_model, with thumb_status. At the
+-- end the status, the last request and the shown buffers of machines 3 and
+-- 8 are written to CAP_OUT; tests/scenarios/tb_thumb_rx.py generates the
+-- frames (RAW888 and RLE24, 1/2 and 1/4 scale, bad FCS, foreign MAC, local
+-- machine, no-source, request) and checks the result (issue 0038).
+-- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use std.textio.all;
+use ieee.std_logic_textio.all;
+use work.mem_pkg.all;
+
+entity tb_thumb_rx is
+  generic (VEC_IN : string := "tb_thumb_rx_in.txt"; CAP_OUT : string := "tb_thumb_rx_out.txt");
+end entity;
+
+architecture tb of tb_thumb_rx is
+  signal clk, clk_rx : std_logic := '0';
+  signal fin : boolean := false;
+  signal rx_dv : std_logic := '0';
+  signal rxd : std_logic_vector(7 downto 0) := (others => '0');
+  signal f_valid, f_pop : std_logic;
+  signal f_dout : std_logic_vector(35 downto 0);
+  signal req_stb : std_logic;
+  signal req_mac : std_logic_vector(47 downto 0);
+  signal req_scale, req_div : std_logic_vector(7 downto 0);
+  signal nreq : natural := 0;
+  signal req : mem_req_arr_t(0 to 1) := (others => MEM_REQ_IDLE);
+  signal rsp : mem_rsp_arr_t(0 to 1);
+  signal ev, ev_buf, ev_q, sev : std_logic;
+  signal ev_m, sm : unsigned(4 downto 0);
+  signal seen, fresh, cur, quarter : std_logic_vector(31 downto 0);
+  signal nseen : unsigned(5 downto 0);
+  signal pics : unsigned(31 downto 0);
+  signal tapfr : unsigned(15 downto 0);
+  constant L0 : unsigned(4 downto 0) := to_unsigned(0, 5);
+  constant L1 : unsigned(4 downto 0) := to_unsigned(1, 5);
+begin
+  clk    <= not clk after 4 ns when not fin;
+  clk_rx <= not clk_rx after 4.0016 ns when not fin;
+
+  tap : entity work.thumb_rx_tap
+    generic map (FIFO_AW => 11)
+    port map (clk => clk_rx, rx_dv => rx_dv, rxd => rxd,
+              mac0 => x"024D36350000", mac1 => x"024D36350011",
+              sclk => clk, f_valid => f_valid, f_dout => f_dout, f_pop => f_pop,
+              req_stb => req_stb, req_mac => req_mac, req_scale => req_scale,
+              req_div => req_div, frames => tapfr);
+  wr : entity work.thumb_rx_writer
+    port map (clk => clk, f_valid => f_valid, f_dout => f_dout, f_pop => f_pop,
+              local0 => L0, local1 => L1, cur => cur, mem_req => req(0), mem_rsp => rsp(0),
+              ev => ev, ev_machine => ev_m, ev_buf => ev_buf, ev_quarter => ev_q,
+              seen_ev => sev, seen_machine => sm, pictures => pics);
+  st : entity work.thumb_status
+    port map (clk => clk, tick_1ms => '0', local0 => L0, local1 => L1,
+              ev_a => '0', ev_a_machine => L0, ev_a_buf => '0', ev_a_quarter => '0',
+              ev_b => ev, ev_b_machine => ev_m, ev_b_buf => ev_buf, ev_b_quarter => ev_q,
+              seen_ev => sev, seen_machine => sm,
+              seen => seen, fresh => fresh, cur => cur, quarter => quarter, n_seen => nseen);
+  mm : entity work.mem_mux_model generic map (N => 2, ADDR_BITS => 17, LATENCY => 10, STALL_EVERY => 5)
+    port map (clk => clk, req => req, rsp => rsp);
+
+  process (clk)
+  begin
+    if rising_edge(clk) then
+      if req_stb = '1' then nreq <= nreq + 1; end if;
+    end if;
+  end process;
+
+  drive : process
+    file fi : text open read_mode is VEC_IN;
+    file fo : text open write_mode is CAP_OUT;
+    variable l : line;
+    variable delay, n : integer;
+    variable b : std_logic_vector(7 downto 0);
+    type buf_t is array (0 to 9000) of std_logic_vector(7 downto 0);
+    variable buf : buf_t;
+    variable wd : std_logic_vector(127 downto 0);
+
+    procedure rd(a : unsigned; data : out std_logic_vector) is
+    begin
+      req(1) <= (valid => '1', we => '0', addr => a, wdata => (others => '0'), wmask => (others => '0'));
+      loop
+        wait until rising_edge(clk);
+        exit when rsp(1).ready = '1';
+      end loop;
+      req(1) <= MEM_REQ_IDLE;
+      loop
+        exit when rsp(1).rvalid = '1';
+        wait until rising_edge(clk);
+      end loop;
+      data := rsp(1).rdata;
+    end procedure;
+
+    procedure dump(m, rows, words : natural) is
+    begin
+      for r in 0 to rows - 1 loop
+        write(l, string'("row ") & integer'image(m) & " " & integer'image(r));
+        for w in 0 to words - 1 loop
+          rd(thumb_addr(to_unsigned(m, 5), cur(m), to_unsigned(r, 8), to_unsigned(w, 7)), wd);
+          write(l, string'(" "));
+          hwrite(l, wd);
+        end loop;
+        writeline(fo, l);
+      end loop;
+    end procedure;
+  begin
+    wait for 1 us;
+    while not endfile(fi) loop
+      readline(fi, l);
+      read(l, delay);
+      read(l, n);
+      for i in 0 to n - 1 loop
+        hread(l, b);
+        buf(i) := b;
+      end loop;
+      wait for delay * 1 us;
+      wait until rising_edge(clk_rx);
+      for i in 0 to 7 loop
+        rx_dv <= '1';
+        if i = 7 then rxd <= x"D5"; else rxd <= x"55"; end if;
+        wait until rising_edge(clk_rx);
+      end loop;
+      for i in 0 to n - 1 loop
+        rxd <= buf(i);
+        wait until rising_edge(clk_rx);
+      end loop;
+      rx_dv <= '0';
+      rxd <= x"00";
+      for i in 0 to 11 loop
+        wait until rising_edge(clk_rx);
+      end loop;
+    end loop;
+    wait for 100 us;
+    write(l, string'("status "));
+    hwrite(l, cur); write(l, string'(" ")); hwrite(l, seen); write(l, string'(" "));
+    hwrite(l, fresh); write(l, string'(" ")); hwrite(l, quarter);
+    write(l, string'(" ") & integer'image(to_integer(pics)) & " " & integer'image(to_integer(nseen)));
+    writeline(fo, l);
+    write(l, string'("req ") & integer'image(nreq) & " ");
+    hwrite(l, req_mac); write(l, string'(" ")); hwrite(l, req_scale);
+    write(l, string'(" ")); hwrite(l, req_div);
+    writeline(fo, l);
+    dump(3, 6, 80);
+    dump(8, 4, 40);
+    report "tb_thumb_rx PASSED (frame-level); tap frames " & integer'image(to_integer(tapfr));
+    fin <= true;
+    wait;
+  end process;
+end architecture;

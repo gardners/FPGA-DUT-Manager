@@ -316,3 +316,134 @@ def parse_dhcp(p):
         d["opts"][p[i]] = p[i + 2:i + 2 + p[i + 1]]
         i += 2 + p[i + 1]
     return d
+
+
+# ------------------------------------------- thumbnail relay (ADR 0005 s10)
+# Raw Ethernet, EtherType 0x88B5 (IEEE local experimental), issue 0038.
+ETH_THUMB = 0x88B5
+TH_VERSION = 1
+TH_SUB_REQ, TH_SUB_LINES, TH_SUB_NOSRC = 1, 2, 3
+TH_SCALE_HALF, TH_SCALE_QUARTER = 1, 2      # 320x200 / 160x100 tiles
+TH_ENC_RAW, TH_ENC_RLE24 = 0, 1             # RAW888 / RLE24 (as raster)
+TH_FLAG_PRESENT, TH_FLAG_LAST = 1, 2
+TH_HDR = ">BBHBBBBIHHHHH"                   # 22 bytes after the Ethernet header
+TH_REQ = ">BBHBBH"                          # 8 bytes
+TH_PKT_BUDGET = 8000                        # payload bytes per frame (FPGA packing)
+BCAST_MAC = b"\xff" * 6
+
+
+def thumb_tile_size(scale):
+    return (320, 200) if scale == TH_SCALE_HALF else (160, 100)
+
+
+def thumb_request(src, scale=TH_SCALE_HALF, div=2):
+    """Broadcast request frame (no FCS)."""
+    return eth(BCAST_MAC, src, ETH_THUMB, struct.pack(TH_REQ, TH_VERSION, TH_SUB_REQ, MAGIC, scale, div, 0))
+
+
+def thumb_line_bytes(line, enc):
+    """One tile line (RGB888 bytes) in the given encoding."""
+    return line if enc == TH_ENC_RAW else rle24_encode(line)
+
+
+def thumb_frame(dst, src, machine, frame, row, lines, scale, height, enc=None, flags=TH_FLAG_PRESENT):
+    """Lines frame (no FCS). lines: list of RGB888 byte strings (one tile row
+    each). enc None = RLE24 when the RLE24 bytes of all lines are fewer."""
+    width = thumb_tile_size(scale)[0]
+    assert all(len(x) == 3 * width for x in lines)
+    if enc is None:
+        enc = TH_ENC_RLE24 if sum(len(rle24_encode(x)) for x in lines) < sum(len(x) for x in lines) \
+            else TH_ENC_RAW
+    pl = b"".join(thumb_line_bytes(x, enc) for x in lines)
+    hdr = struct.pack(TH_HDR, TH_VERSION, TH_SUB_LINES, MAGIC, machine, flags, scale, enc, frame,
+                      row, len(lines), width, height, len(pl))
+    return eth(dst, src, ETH_THUMB, hdr + pl)
+
+
+def thumb_nosrc(dst, src, machine):
+    hdr = struct.pack(TH_HDR, TH_VERSION, TH_SUB_NOSRC, MAGIC, machine, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+    return eth(dst, src, ETH_THUMB, hdr)
+
+
+def thumb_packets(dst, src, machine, frame, tile, scale, budget=TH_PKT_BUDGET):
+    """The FPGA's packing (thumb_tx): per line RLE24 when strictly smaller
+    than RAW888; lines are packed while the encoding stays the same and the
+    payload stays within budget. tile: list of RGB888 rows. Flag b1 marks the
+    picture's last frame."""
+    out, cur, cur_enc, size = [], [], None, 0
+    first = 0
+    for i, line in enumerate(tile):
+        r = rle24_encode(line)
+        enc, n = (TH_ENC_RLE24, len(r)) if len(r) < len(line) else (TH_ENC_RAW, len(line))
+        if cur and (enc != cur_enc or size + n > budget):
+            out.append((first, cur, cur_enc))
+            cur, size = [], 0
+        if not cur:
+            first, cur_enc = i, enc
+        cur.append(line)
+        size += n
+    if cur:
+        out.append((first, cur, cur_enc))
+    return [thumb_frame(dst, src, machine, frame, f, ls, scale, len(tile), enc=e,
+                        flags=TH_FLAG_PRESENT | (TH_FLAG_LAST if k == len(out) - 1 else 0))
+            for k, (f, ls, e) in enumerate(out)]
+
+
+def decode_thumb(body):
+    """body: Ethernet payload (after the 14-byte header). Returns a dict; for
+    lines frames 'lines' holds the decoded RGB888 rows."""
+    if len(body) < 8:
+        raise ValueError("thumbnail frame too short")
+    ver, sub, magic = body[0], body[1], struct.unpack(">H", body[2:4])[0]
+    if ver != TH_VERSION or magic != MAGIC:
+        raise ValueError("not a thumbnail frame (version %d magic %04x)" % (ver, magic))
+    if sub == TH_SUB_REQ:
+        _, _, _, scale, div, _ = struct.unpack(TH_REQ, body[:8])
+        return {"sub": sub, "scale": scale, "div": div}
+    if len(body) < 22:
+        raise ValueError("thumbnail frame too short")
+    f = {}
+    (_, f["sub"], _, f["machine"], f["flags"], f["scale"], f["enc"], f["frame"], f["row"],
+     f["nlines"], f["width"], f["height"], f["payload_bytes"]) = struct.unpack(TH_HDR, body[:22])
+    if f["sub"] != TH_SUB_LINES:
+        return f
+    data = body[22:22 + f["payload_bytes"]]
+    if len(data) != f["payload_bytes"]:
+        raise ValueError("thumbnail payload truncated")
+    lines, i, w = [], 0, f["width"]
+    for _ in range(f["nlines"]):
+        if f["enc"] == TH_ENC_RAW:
+            line, i = data[i:i + 3 * w], i + 3 * w
+        else:
+            line = bytearray()
+            while len(line) < 3 * w:
+                if i + 4 > len(data) or data[i] == 0:
+                    raise ValueError("bad RLE24 tuple")
+                line += data[i + 1:i + 4] * data[i]
+                i += 4
+            line = bytes(line)
+        if len(line) != 3 * w:
+            raise ValueError("thumbnail line length")
+        lines.append(line)
+    if i != len(data):
+        raise ValueError("thumbnail payload has extra bytes")
+    f["lines"] = lines
+    return f
+
+
+def thumb_box(pixel, x0, y0, s, w, h):
+    """Reference S x S box average (truncating) of pixel(x, y) -> (r, g, b),
+    as thumb_capture computes it. Returns a list of RGB888 rows."""
+    rows = []
+    for ty in range(h):
+        row = bytearray()
+        for tx in range(w):
+            acc = [0, 0, 0]
+            for j in range(s):
+                for i in range(s):
+                    p = pixel(x0 + s * tx + i, y0 + s * ty + j)
+                    for c in range(3):
+                        acc[c] += p[c]
+            row += bytes(a // (s * s) for a in acc)
+        rows.append(bytes(row))
+    return rows
