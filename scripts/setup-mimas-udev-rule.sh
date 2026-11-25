@@ -6,7 +6,9 @@
 #     JTAG, per Numato's openocd config; libftdi detaches ftdi_sio itself), and
 #   * ftdi_sio is told about the VID:PID so channel A (USB interface 00), the
 #     board's user UART, appears as /dev/ttyUSBn with a stable
-#     /dev/mimas-<usb-serial> symlink. Channel B's tty is left unlinked.
+#     /dev/mimas-<usb-serial> symlink. Channel B (JTAG) is kept unbound from
+#     ftdi_sio, and ModemManager is told to ignore the board: its port
+#     probing on channel B reprograms the FPGA from flash.
 #
 # Run once, then unplug and reinsert the board(s).
 set -euo pipefail
@@ -26,6 +28,16 @@ ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="$V
 # FTDI channel A (USB interface 00) is the user UART; channel B (01) is JTAG.
 SUBSYSTEM=="tty", ENV{ID_VENDOR_ID}=="", IMPORT{builtin}="usb_id"
 SUBSYSTEM=="tty", ENV{ID_VENDOR_ID}=="$VID", ENV{ID_MODEL_ID}=="$PID", ENV{ID_USB_INTERFACE_NUM}=="00", MODE="0660", GROUP="dialout", SYMLINK+="mimas-\$env{ID_SERIAL_SHORT}"
+# ModemManager must never probe these ports: AT-command probing on channel B
+# toggles TCK/TDI/TMS and can shift a JPROGRAM into the FPGA, which then
+# reconfigures from SPI flash (seen 2026-11-25: DONE drops a few seconds after
+# every JTAG load, once libftdi hands channel B back to ftdi_sio).
+SUBSYSTEM=="tty", ENV{ID_VENDOR_ID}=="$VID", ENV{ID_MODEL_ID}=="$PID", ENV{ID_MM_DEVICE_IGNORE}="1", ENV{ID_MM_PORT_IGNORE}="1"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="$VID", ATTRS{idProduct}=="$PID", ENV{ID_MM_DEVICE_IGNORE}="1"
+# ...and keep ftdi_sio off channel B altogether: whenever it binds interface 01
+# (e.g. libftdi re-attaching the kernel driver after openFPGALoader exits),
+# unbind it again so no tty exists for anything to open.
+ACTION=="bind", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_interface", DRIVER=="ftdi_sio", ATTRS{idVendor}=="$VID", ATTRS{idProduct}=="$PID", ATTR{bInterfaceNumber}=="01", RUN+="/bin/sh -c 'echo -n %k > /sys/bus/usb/drivers/ftdi_sio/unbind'"
 EOF
 
 udevadm control --reload-rules
