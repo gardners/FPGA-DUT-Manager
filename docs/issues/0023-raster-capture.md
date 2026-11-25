@@ -44,8 +44,11 @@ Built:
   decodes every raster packet with `netproto.decode_raster`, checks fields,
   flags and UART history, rebuilds 7 complete frames and compares them byte
   for byte with the source. `make test` passes.
-* Vivado (a7cf874): TIMING MET, WNS 0.166 ns, WHS 0.021 ns; 9503 LUTs
-  (was 8724), 12284 FFs, 20.5 BRAM tiles (was 13.5).
+* Vivado (a7cf874): TIMING MET, WNS 0.166 ns. The fairness guard pushed
+  WNS to +0.008 ns (ip_eff /= 0 compares in front of the selection chain);
+  registering ep_ok / cap_on fixed it. Final (5cdf452): TIMING MET, WNS
+  0.190 ns, WHS 0.024 ns (worst path now in net_rx); 9479 LUTs (was 8724),
+  12286 FFs, 20.5 BRAM tiles (was 13.5: +6 RAMB36 pixel ring, +1 TX RAM).
 
 To test on hardware: HDMI loopback (own 480p60 console into HDMI IN),
 `dutctl video` with capture enabled on the video target; check heartbeat
