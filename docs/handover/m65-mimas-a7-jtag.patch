@@ -1,0 +1,204 @@
+From a5becdd2db192882e9af9b6208af438205b311c6 Mon Sep 17 00:00:00 2001
+From: Paul Gardner-Stephen <paul.gardner.stephen@gmail.com>
+Date: Wed, 25 Nov 2026 10:18:43 +1030
+Subject: [PATCH] m65/fpgajtag: support Numato Mimas A7 (pre-V4, USB 2a19:1009)
+
+The pre-V4 Mimas A7 uses an FT2232H under Numato's VID/PID with the FPGA
+JTAG on channel B behind a buffer whose active-low output enable is ADBUS6
+(PROG_B on ADBUS7 must be left as an input), per Numato's openocd config
+numato_mimasa7.cfg (layout_init 0x0008 0x004b). Channel A is the board UART.
+
+- accept 2a19:1009 as a JTAG candidate
+- use FTDI interface 1 for JTAG on that device
+- initialise the low byte to 0x08/0x4b (buffer enabled, PROG_B input) and
+  keep it so in pulse_gpio, which otherwise drives ADBUS6 high and would
+  disable the buffer in the middle of bitstream loading
+- 6 MHz TCK for this board (higher rates read corrupt IDCODEs)
+- record the USB interface number of serial ports on Linux/macOS and pair
+  the Mimas only with its interface-0 tty
+
+Tested: m65 -j finds the board (IDCODE 0362c093) and selects /dev/ttyUSB0.
+Bitstream loading through m65 not yet tested on hardware.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/tools/fpgajtag/fpgajtag.c  | 53 ++++++++++++++++++++++++++++++----
+ src/tools/fpgajtag/usbserial.c | 11 +++++++
+ src/tools/fpgajtag/usbserial.h |  2 ++
+ src/tools/fpgajtag/util.c      |  1 +
+ 4 files changed, 61 insertions(+), 6 deletions(-)
+
+diff --git a/src/tools/fpgajtag/fpgajtag.c b/src/tools/fpgajtag/fpgajtag.c
+index 3628f31..69cb8ad 100644
+--- a/src/tools/fpgajtag/fpgajtag.c
++++ b/src/tools/fpgajtag/fpgajtag.c
+@@ -93,6 +93,26 @@ void access_mdm(int version, int pre, int amatch)
+  * the SMT2, it has an example connecting GPIO2 -> PS_SRST_B
+  * on the Zynq-7000. (but the zedboard uses SMT1)
+  */
++/*
++ * Numato Mimas A7 (pre-V4, USB 2a19:1009): FT2232H whose channel B drives
++ * the FPGA JTAG through a buffer. ADBUS6 is the buffer's active-low output
++ * enable and must stay low; ADBUS7 (PROG_B) must stay an input (Numato
++ * openocd numato_mimasa7.cfg: layout_init 0x0008 0x004b). Channel A is the
++ * board UART. TCK above ~6 MHz reads corrupt IDCODEs on our boards.
++ */
++#define MIMAS_VID 0x2a19
++#define MIMAS_PID 0x1009
++#define MIMAS_INTERFACE 1
++#define MIMAS_LOW_VALUE 0x08
++#define MIMAS_LOW_DIR 0x4b
++#define MIMAS_CLOCK_FREQUENCY 6000000
++static int mimas_mode;
++
++static int is_mimas(int device_index)
++{
++  return uinfo[device_index].idVendor == MIMAS_VID && uinfo[device_index].idProduct == MIMAS_PID;
++}
++
+ static void pulse_gpio(int adelay)
+ {
+   int delay;
+@@ -113,19 +133,31 @@ static void pulse_gpio(int adelay)
+     log_crit("pulse_gpio: unsupported time delay %d", adelay);
+     exit(-1);
+   }
+-  write_item(DITEM(SET_LSB_DIRECTION(GPIO_DONE | GPIO_01), SET_LSB_DIRECTION(GPIO_DONE)));
++  if (mimas_mode) {
++    /* no DONE/GPIO lines on the Mimas; keep the JTAG buffer enabled and
++     * just wait (TCK is slower here, so the wait is longer, which is fine) */
++    write_item(DITEM(SET_BITS_LOW, MIMAS_LOW_VALUE & ~0x08, MIMAS_LOW_DIR));
++  }
++  else
++    write_item(DITEM(SET_LSB_DIRECTION(GPIO_DONE | GPIO_01), SET_LSB_DIRECTION(GPIO_DONE)));
+   while (delay > 65536) {
+     write_item(DITEM(CLK_BYTES, INT16(65536 - 1)));
+     delay -= 65536;
+   }
+   write_item(DITEM(CLK_BYTES, INT16(delay - 1)));
+-  flush_write(DITEM(SET_LSB_DIRECTION(GPIO_DONE | GPIO_01), SET_LSB_DIRECTION(GPIO_01)));
++  if (mimas_mode)
++    flush_write(DITEM(SET_BITS_LOW, MIMAS_LOW_VALUE & ~0x08, MIMAS_LOW_DIR));
++  else
++    flush_write(DITEM(SET_LSB_DIRECTION(GPIO_DONE | GPIO_01), SET_LSB_DIRECTION(GPIO_01)));
+   EXIT();
+ }
+ static void set_clock_divisor(void)
+ {
+   ENTER();
+-  flush_write(DITEM(TCK_DIVISOR, INT16(30000000 / CLOCK_FREQUENCY - 1)));
++  if (mimas_mode)
++    flush_write(DITEM(TCK_DIVISOR, INT16(30000000 / MIMAS_CLOCK_FREQUENCY - 1)));
++  else
++    flush_write(DITEM(TCK_DIVISOR, INT16(30000000 / CLOCK_FREQUENCY - 1)));
+   EXIT();
+ }
+ 
+@@ -420,7 +452,12 @@ static void init_device(int extra)
+   write_item(DITEM(LOOPBACK_END, DIS_DIV_5));
+   LOGNOTE("Set clock divisor");
+   set_clock_divisor();
+-  if (extra)
++  if (mimas_mode) {
++    LOGNOTE("Numato Mimas A7: enable JTAG buffer (ADBUS6 low), leave PROG_B as input");
++    write_item(DITEM(SET_BITS_LOW, MIMAS_LOW_VALUE, MIMAS_LOW_DIR, SET_BITS_HIGH, 0x00, 0x00));
++    extra = 0;
++  }
++  else if (extra)
+     write_item(DITEM(SET_BITS_LOW, 0xe8, 0xeb, SET_BITS_HIGH, 0x20, 0x30));
+   else
+     // FT232H-based Digilent cables (e.g. JTAG-HS2): ACBUS 0x00/0x60 per
+@@ -437,7 +474,8 @@ static void init_device(int extra)
+ static void get_deviceid(int device_index, int interface_id)
+ {
+   ENTER();
+-  init_ftdi(device_index, interface_id);
++  mimas_mode = is_mimas(device_index);
++  init_ftdi(device_index, mimas_mode ? MIMAS_INTERFACE : interface_id);
+   /*
+    * Set JTAG clock speed and GPIO pins for our i/f
+    */
+@@ -750,8 +788,11 @@ char *init_fpgajtag(const char *serialno, const char *serialport, const uint32_t
+ 
+     // now find the serial device in the list of candidates
+     for (ser = 0; ser < usbdev_info_count; ser++)
++      // Mimas A7: only channel A (interface 0) is the UART
++      if (is_mimas(i) && usbdev_info[ser].interface > 0)
++        continue;
+       // match linux/macos by bus-port(.subport)
+-      if (usbdev_info[ser].bus > -1 && usbdev_info[ser].bus == bus && usbdev_info[ser].pnum0 == pnum[0]
++      else if (usbdev_info[ser].bus > -1 && usbdev_info[ser].bus == bus && usbdev_info[ser].pnum0 == pnum[0]
+           && (pnum_len == 1 || usbdev_info[ser].pnum1 == pnum[1]) && (pnum_len <= 2 || usbdev_info[ser].pnum2 == pnum[2])
+           && (pnum_len <= 3 || usbdev_info[ser].pnum3 == pnum[3]))
+         break;
+diff --git a/src/tools/fpgajtag/usbserial.c b/src/tools/fpgajtag/usbserial.c
+index 0cf35be..cf1b4a2 100644
+--- a/src/tools/fpgajtag/usbserial.c
++++ b/src/tools/fpgajtag/usbserial.c
+@@ -170,6 +170,7 @@ int usbdev_get_candidates(void)
+       usbdev_info[usbdev_info_count].product_id = product_id;
+       usbdev_info[usbdev_info_count].serial_no = NULL;
+       usbdev_info[usbdev_info_count].bus = bus;
++      usbdev_info[usbdev_info_count].interface = usb_interface_number;
+       usbdev_info[usbdev_info_count].pnum0 = pnum0;
+       usbdev_info[usbdev_info_count].pnum1 = pnum1;
+       usbdev_info[usbdev_info_count].pnum2 = pnum2;
+@@ -209,6 +210,14 @@ int usbdev_get_candidates(void)
+         continue;
+       }
+       *pos = 0;
++      // the interface number is the N in the trailing ":1.N"
++      int usb_if = -1;
++      {
++        char *colon = strrchr(link, ':');
++        unsigned cfg_no, if_no;
++        if (colon && sscanf(colon, ":%u.%u", &cfg_no, &if_no) == 2)
++          usb_if = (int)if_no;
++      }
+       if (!(pos = strrchr(link, '/'))) {
+         log_debug("m65ser_get_candidates: failed to parse bus/port (split2)");
+         continue;
+@@ -244,6 +253,7 @@ int usbdev_get_candidates(void)
+       usbdev_info[usbdev_info_count].pnum1 = pnum1;
+       usbdev_info[usbdev_info_count].pnum2 = pnum2;
+       usbdev_info[usbdev_info_count].pnum3 = pnum3;
++      usbdev_info[usbdev_info_count].interface = usb_if;
+       usbdev_info_count++;
+     }
+   }
+@@ -326,6 +336,7 @@ int usbdev_get_candidates(void)
+           usbdev_info[usbdev_info_count].product_id = dev_pid;
+           usbdev_info[usbdev_info_count].serial_no = strdup(dev_serial);
+           usbdev_info[usbdev_info_count].bus = -1;
++          usbdev_info[usbdev_info_count].interface = -1;
+           usbdev_info[usbdev_info_count].pnum0 = -1;
+           usbdev_info[usbdev_info_count].pnum1 = -1;
+           usbdev_info[usbdev_info_count].pnum2 = -1;
+diff --git a/src/tools/fpgajtag/usbserial.h b/src/tools/fpgajtag/usbserial.h
+index 93cf386..7376b71 100644
+--- a/src/tools/fpgajtag/usbserial.h
++++ b/src/tools/fpgajtag/usbserial.h
+@@ -13,6 +13,8 @@ typedef struct {
+   // linux
+   int bus;
+   uint8_t pnum0, pnum1, pnum2, pnum3;
++  // USB interface number of the serial port, -1 if unknown
++  int interface;
+ } usbdev_infoT;
+ 
+ extern int usbdev_info_count;
+diff --git a/src/tools/fpgajtag/util.c b/src/tools/fpgajtag/util.c
+index 60d35f5..496bdb9 100644
+--- a/src/tools/fpgajtag/util.c
++++ b/src/tools/fpgajtag/util.c
+@@ -44,6 +44,7 @@ static int usbValidDeviceList[][2] = {
+   { 0x0403, 0x6010 }, // Trenz JTAG FTDI, NexysA7
+   { 0x0403, 0x6011 }, // ???
+   { 0x0403, 0x6014 }, // ???
++  { 0x2a19, 0x1009 }, // Numato Mimas A7 (pre-V4): FT2232H, JTAG on interface B
+   // { 0x09fb, 0x6810 }, // Altera JTAG - was skipped in the code, so we skip here too
+   // { 0x10c4, 0xea60 }, // Wukong - not working
+   // { 0x03fd, 0x0013 }, // Wukong - not working
+-- 
+2.53.0
+

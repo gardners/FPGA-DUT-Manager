@@ -2,7 +2,8 @@
 
 Networked supervisors for MEGA65 (later HewnWeb) test hardware, built on
 pre-V4 Numato Mimas A7 boards (XC7A50T-1FGG484). Start with
-`docs/design-brief-v0.5.md`, then `docs/adrs/0000-index.md`.
+`docs/design-brief-v0.5.md`, then `docs/adrs/0000-index.md`, and
+`docs/HANDOVER.md` for the current state of work.
 
 ## How we work
 
