@@ -17,7 +17,8 @@ use work.xc7_prims_pkg.all;
 entity rgmii_xc7 is
   generic (
     RX_IDELAY : integer := 0;         -- taps of ~78 ps (200 MHz reference)
-    RX_PHASE  : real    := 90.0       -- RX sample clock phase, degrees
+    RX_PHASE  : real    := 202.5      -- RX sample clock phase, degrees (balanced
+                                      -- from Vivado setup/hold slack, 2026-11-25)
   );
   port (
     clk_sys   : in  std_logic;   -- 125 MHz
