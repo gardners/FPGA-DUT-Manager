@@ -9,6 +9,7 @@
 #   make jtagload    # load bitstream into FPGA SRAM over the Mimas USB JTAG
 #   make flash       # write bitstream to the Mimas SPI flash
 #   make dutctl      # build the Linux control CLI
+#   make vivado      # Vivado batch build on a machine with Vivado
 #
 # JOBS controls compile parallelism for the toolchain build (default: nproc).
 
@@ -53,7 +54,7 @@ endif
 
 .DELETE_ON_ERROR:
 FORCE:
-.PHONY: all help deps toolchain test test-hdl test-sw bitstream jtagload flash \
+.PHONY: vivado all help deps toolchain test test-hdl test-sw bitstream jtagload flash \
         detect dutctl list-boards check-board clean distclean
 
 all: test bitstream dutctl
@@ -137,6 +138,14 @@ $(BITDIR)/supervisor.bit: $(BITDIR)/supervisor.frames
 
 bitstream: $(BITDIR)/supervisor.bit
 	@ls -l $<
+
+# Vivado build (timing sign-off / alternative bitstream) on a machine with
+# Vivado installed; needs nothing from tools/. VIVADODIR may point at the
+# install (see scripts/vivado_wrapper).
+vivado:
+	@mkdir -p $(BUILD)/vivado
+	cd $(BUILD)/vivado && $(REPO)/scripts/vivado_wrapper -mode batch -notrace \
+	    -log vivado.log -journal vivado.jou -source $(REPO)/vivado/build.tcl
 
 # ---------------------------------------------------------------- board access
 list-boards:
