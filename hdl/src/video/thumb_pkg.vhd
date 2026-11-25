@@ -14,7 +14,7 @@ package thumb_pkg is
   constant TH_SUB_LINES: std_logic_vector(7 downto 0)  := x"02";
   constant TH_SUB_NOSRC: std_logic_vector(7 downto 0)  := x"03";
   constant TH_REQ_LEN  : natural := 8;    -- request body after the Ethernet header
-  constant TH_HDR_LEN  : natural := 20;   -- lines / no-source header after the Ethernet header
+  constant TH_HDR_LEN  : natural := 22;   -- lines / no-source header after the Ethernet header
   constant TH_ENC_RAW  : std_logic_vector(7 downto 0) := x"00";   -- RGB888
   constant TH_ENC_RLE  : std_logic_vector(7 downto 0) := x"01";   -- RLE24
   -- payload budget per relay frame: lines are packed until the next one

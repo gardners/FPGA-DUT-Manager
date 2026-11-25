@@ -38,6 +38,9 @@ package proto_pkg is
   constant RASTER_VERSION   : std_logic_vector(7 downto 0) := x"01";
   constant RASTER_FIXED_LEN : natural := 44;
 
+  -- capabilities word (heartbeat byte 32): b7 thumbnails (issues 0035/0038)
+  constant CAP_THUMBS : natural := 7;
+
   -- payload lengths (after the 8-byte common header)
   -- 100 fixed + 24 video block + 8 link block (ADR 0005 sections 3, 3a, 8)
   constant HB_PAYLOAD_LEN   : natural := 132;
@@ -70,6 +73,7 @@ package proto_pkg is
   constant K_PK_LED_HOST  : natural := 16#0034#;  -- 12-byte LED vector for mode 2
   constant K_CON_SCREEN   : natural := 16#0035#;  -- console: 0 auto, 1 editable, 2 no video, 3 select
   constant K_CAPTURE_EN   : natural := 16#0040#;
+  constant K_THUMB_FORCE  : natural := 16#0041#;  -- thumbnail relay to MAC(6) scale(1) div(1); MAC 0 = off
   constant K_HB_PERIOD    : natural := 16#0050#;
   constant K_OUT_POLICY   : natural := 16#0060#;
 

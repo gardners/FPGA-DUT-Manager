@@ -38,6 +38,7 @@ use work.common_pkg.all;
 use work.proto_pkg.all;
 use work.net_pkg.all;
 use work.raster_pkg.all;
+use work.thumb_pkg.all;
 
 entity net_tx is
   port (
@@ -91,13 +92,24 @@ entity net_tx is
     rast_dut   : in  integer range 0 to 1 := 0;
     rast_raddr : out unsigned(15 downto 0);
     rast_rdata : in  std_logic_vector(23 downto 0) := (others => '0');
+    -- thumbnail relay (issue 0038, ADR 0005 s10): raw Ethernet frames from
+    -- thumb_tx's packet buffer, and broadcast requests
+    th_valid   : in  std_logic := '0';
+    th_pkt     : in  thumb_pkt_t := THUMB_PKT_NONE;
+    th_taken   : out std_logic;
+    th_raddr   : out unsigned(12 downto 0);
+    th_rdata   : in  std_logic_vector(7 downto 0) := (others => '0');
+    treq_valid : in  std_logic := '0';
+    treq_scale : in  std_logic_vector(7 downto 0) := x"01";
+    treq_div   : in  std_logic_vector(7 downto 0) := x"02";
+    treq_taken : out std_logic;
     -- MAC
     mac_start  : out std_logic;
-    mac_base   : out unsigned(12 downto 0);
-    mac_len    : out unsigned(11 downto 0);
+    mac_base   : out unsigned(13 downto 0);
+    mac_len    : out unsigned(12 downto 0);
     mac_busy   : in  std_logic;
     mem_we     : out std_logic;
-    mem_addr   : out unsigned(12 downto 0);
+    mem_addr   : out unsigned(13 downto 0);
     mem_data   : out std_logic_vector(7 downto 0);
     -- statistics
     frames_sent: out unsigned(31 downto 0)
@@ -105,7 +117,7 @@ entity net_tx is
 end entity;
 
 architecture rtl of net_tx is
-  type kind_t is (K_NONE, K_RAST, K_ARP, K_JRESP, K_ACK, K_ICMP, K_DHCP, K_SNAP, K_HB);
+  type kind_t is (K_NONE, K_RAST, K_ARP, K_JRESP, K_ACK, K_ICMP, K_DHCP, K_THUMB, K_TREQ, K_SNAP, K_HB);
   signal kind : kind_t := K_NONE;
   signal d    : integer range 0 to 1 := 0;
 
@@ -117,24 +129,24 @@ architecture rtl of net_tx is
   type hdr_t is array (0 to 41) of byte_t;
   signal hdr   : hdr_t := (others => (others => '0'));
   signal pf    : pf_t := (others => (others => '0'));
-  signal a_len    : unsigned(11 downto 0) := (others => '0');  -- segment lengths
-  signal b_len    : unsigned(11 downto 0) := (others => '0');
-  signal c_len    : unsigned(11 downto 0) := (others => '0');
-  signal total    : unsigned(11 downto 0) := (others => '0');
+  signal a_len    : unsigned(12 downto 0) := (others => '0');  -- segment lengths
+  signal b_len    : unsigned(12 downto 0) := (others => '0');
+  signal c_len    : unsigned(12 downto 0) := (others => '0');
+  signal total    : unsigned(12 downto 0) := (others => '0');
   type seg_t is (SEG_A, SEG_B, SEG_C);
   signal seg      : seg_t := SEG_A;
-  signal cnt      : unsigned(11 downto 0) := (others => '0');  -- bytes left in seg - 1
+  signal cnt      : unsigned(12 downto 0) := (others => '0');  -- bytes left in seg - 1
 
   signal csum  : unsigned(15 downto 0) := (others => '0');
   signal cidx  : integer range 0 to 11 := 0;
   signal cw    : unsigned(15 downto 0) := (others => '0');  -- checksum word (pipelined)
 
-  signal widx  : unsigned(11 downto 0) := (others => '0');   -- byte being written
+  signal widx  : unsigned(12 downto 0) := (others => '0');   -- byte being written
   signal bslot : std_logic := '0';
   signal pend_slot : std_logic := '0';
-  signal pend_len  : unsigned(11 downto 0) := (others => '0');
+  signal pend_len  : unsigned(12 downto 0) := (others => '0');
   signal pend_valid: std_logic := '0';
-  signal tail_addr : unsigned(11 downto 0) := (others => '0');
+  signal tail_addr : unsigned(12 downto 0) := (others => '0');
 
   signal hb_cnt  : u16_arr_t := (others => (others => '0'));
   signal hb_due  : std_logic_vector(1 downto 0) := "00";
@@ -254,6 +266,7 @@ begin
   j_tdo_addr  <= tail_addr(9 downto 0);
   icmp_raddr  <= tail_addr(6 downto 0);
   rast_raddr  <= raddr;
+  th_raddr    <= tail_addr;
 
   process (clk)
     variable k       : kind_t;
@@ -282,6 +295,8 @@ begin
       mem_we     <= '0';
       rast_pop   <= '0';
       hist_latch <= "00";
+      th_taken   <= '0';
+      treq_taken <= '0';
       for i in 0 to 1 loop
         if ep_enable(i) = '1' and ip_eff(i) /= x"00000000" then ep_ok(i) <= '1'; else ep_ok(i) <= '0'; end if;
       end loop;
@@ -304,7 +319,7 @@ begin
       -- hand a finished slot to the MAC
       if pend_valid = '1' and mac_busy = '0' then
         mac_start  <= '1';
-        mac_base   <= pend_slot & x"000";
+        mac_base   <= pend_slot & "0000000000000";
         mac_len    <= pend_len;
         pend_valid <= '0';
         sent       <= sent + 1;
@@ -320,6 +335,9 @@ begin
           elsif icmp.pend = '1' then k := K_ICMP; dd := icmp.dut;
           elsif dhcp(0).req = '1' and ep_enable(0) = '1' then k := K_DHCP; dd := 0;
           elsif dhcp(1).req = '1' and ep_enable(1) = '1' then k := K_DHCP; dd := 1;
+          -- thumbnail relay: below control traffic, above telemetry (owner)
+          elsif th_valid = '1' and ep_enable(th_pkt.d) = '1' then k := K_THUMB; dd := th_pkt.d;
+          elsif treq_valid = '1' and ep_enable(0) = '1' then k := K_TREQ; dd := 0;
           elsif snap_req(0) = '1' and ep_ok(0) = '1' and (rr = '0' or snap_req(1) = '0') then k := K_SNAP; dd := 0;
           elsif snap_req(1) = '1' and ep_ok(1) = '1' then k := K_SNAP; dd := 1;
           elsif hb_due(0) = '1' and ep_ok(0) = '1' and (rr = '0' or hb_due(1) = '0') then k := K_HB; dd := 0;
@@ -356,6 +374,7 @@ begin
               when K_HB   => hb_due(dd) <= '0';
               when K_DHCP => dhcp_taken(dd) <= '1';
               when K_RAST => hist_latch(dd) <= '1';
+              when K_TREQ => treq_taken <= '1';
               when others => null;
             end case;
           end if;
@@ -376,7 +395,7 @@ begin
             -- uart_bridge latched its RX history on this edge (hist_latch)
             rast_nb    <= resize(rast_desc.count & '0', 12) + rast_desc.count;
             rast_rxseq <= dstat(d).uart_rx_seq;
-            tail_addr  <= to_unsigned(496, 12);   -- latest 16 of the 512 RX bytes
+            tail_addr  <= to_unsigned(496, 13);   -- latest 16 of the 512 RX bytes
             hcnt       <= 0;
             state      <= S_HIST;
           end if;
@@ -403,6 +422,10 @@ begin
           case kind is
             when K_ARP =>
               dmac := arp.mac; dip := arp.ip;
+            when K_THUMB =>
+              dmac := th_pkt.dst;
+            when K_TREQ =>
+              dmac := (others => '1');
             when K_ICMP =>
               dmac := icmp.mac; dip := icmp.ip; proto := x"01";
               tl := to_integer(icmp_len);
@@ -534,7 +557,7 @@ begin
           end case;
 
           -- common custom header
-          if kind /= K_ARP and kind /= K_ICMP and kind /= K_DHCP then
+          if kind /= K_ARP and kind /= K_ICMP and kind /= K_DHCP and kind /= K_THUMB and kind /= K_TREQ then
             pf(0) <= PROTO_MAGIC(15 downto 8); pf(1) <= PROTO_MAGIC(7 downto 0);
             pf(2) <= PROTO_VERSION; pf(3) <= typ;
             pf(4) <= bu(to_unsigned(plen, 16), 0); pf(5) <= bu(to_unsigned(plen, 16), 1);
@@ -558,29 +581,57 @@ begin
               hdr(28 + i) <= b(ip_eff(d), i);
               hdr(38 + i) <= b(arp.ip, i);
             end loop;
-            a_len    <= to_unsigned(42, 12);
+            a_len    <= to_unsigned(42, 13);
             b_len    <= (others => '0');
             c_len    <= (others => '0');
-            total    <= to_unsigned(42, 12);
+            total    <= to_unsigned(42, 13);
             state    <= S_START;
+          elsif kind = K_THUMB or kind = K_TREQ then
+            -- raw Ethernet: EtherType 0x88B5, version, subtype, magic, ...
+            hdr(12) <= TH_ETYPE(15 downto 8); hdr(13) <= TH_ETYPE(7 downto 0);
+            hdr(14) <= TH_VERSION;
+            hdr(16) <= TH_MAGIC(15 downto 8); hdr(17) <= TH_MAGIC(7 downto 0);
+            for i in 18 to 41 loop hdr(i) <= x"00"; end loop;
+            c_len <= (others => '0');
+            if kind = K_TREQ then
+              hdr(15) <= TH_SUB_REQ;
+              hdr(18) <= treq_scale; hdr(19) <= treq_div;
+              a_len <= to_unsigned(14 + TH_REQ_LEN, 13);
+              b_len <= (others => '0');
+              total <= to_unsigned(14 + TH_REQ_LEN, 13);
+            else
+              hdr(15) <= th_pkt.sub;
+              hdr(18) <= "000" & std_logic_vector(th_pkt.machine);
+              hdr(19) <= th_pkt.flags; hdr(20) <= th_pkt.scale; hdr(21) <= th_pkt.enc;
+              for i in 0 to 3 loop hdr(22 + i) <= bu(th_pkt.frame, i); end loop;
+              hdr(26) <= x"00"; hdr(27) <= std_logic_vector(th_pkt.row);
+              hdr(28) <= x"00"; hdr(29) <= std_logic_vector(th_pkt.nlines);
+              hdr(30) <= bu(th_pkt.width, 0); hdr(31) <= bu(th_pkt.width, 1);
+              hdr(32) <= x"00"; hdr(33) <= std_logic_vector(th_pkt.height);
+              hdr(34) <= bu(resize(th_pkt.nbytes, 16), 0); hdr(35) <= bu(resize(th_pkt.nbytes, 16), 1);
+              a_len <= to_unsigned(14 + TH_HDR_LEN, 13);
+              b_len <= th_pkt.nbytes;
+              total <= to_unsigned(14 + TH_HDR_LEN, 13) + th_pkt.nbytes;
+            end if;
+            state <= S_START;
           else
             c_len <= (others => '0');
             if kind = K_ICMP then
               iplen := to_unsigned(20 + tl, 16);
-              a_len <= to_unsigned(34, 12);
-              b_len <= to_unsigned(tl, 12);
-              total <= to_unsigned(34 + tl, 12);
+              a_len <= to_unsigned(34, 13);
+              b_len <= to_unsigned(tl, 13);
+              total <= to_unsigned(34 + tl, 13);
             elsif kind = K_DHCP then
               iplen := to_unsigned(20 + 8 + tl, 16);
-              a_len <= to_unsigned(42 + 44, 12);
-              b_len <= to_unsigned(tl - 44 - 64, 12);
-              c_len <= to_unsigned(64, 12);
-              total <= to_unsigned(42 + tl, 12);
+              a_len <= to_unsigned(42 + 44, 13);
+              b_len <= to_unsigned(tl - 44 - 64, 13);
+              c_len <= to_unsigned(64, 13);
+              total <= to_unsigned(42 + tl, 13);
             else
               iplen := to_unsigned(20 + 8 + 8 + plen, 16);
-              a_len <= to_unsigned(42 + 8 + plen - tl, 12);
-              b_len <= to_unsigned(tl, 12);
-              total <= to_unsigned(42 + 8 + plen, 12);
+              a_len <= to_unsigned(42 + 8 + plen - tl, 13);
+              b_len <= to_unsigned(tl, 13);
+              total <= to_unsigned(42 + 8 + plen, 13);
             end if;
             hdr(12) <= x"08"; hdr(13) <= x"00";
             hdr(14) <= x"45"; hdr(15) <= x"00";
@@ -645,6 +696,8 @@ begin
                 wb := icmp_rdata;       -- type/checksum already patched by net_rx
               when K_RAST =>
                 wb := pix_sr(23 downto 16);
+              when K_THUMB =>
+                wb := th_rdata;           -- packet buffer, 1-cycle latency
               when others => wb := x"00";
             end case;
           else
@@ -654,7 +707,7 @@ begin
             for i in 0 to PF_MAX - 2 loop pf(i) <= pf(i + 1); end loop;
           end if;
           mem_we   <= '1';
-          mem_addr <= bslot & widx(11 downto 0);
+          mem_addr <= bslot & widx(12 downto 0);
           -- raster pixel stream: ring word (1-cycle latency) primed during
           -- segment A, then shifted out R, G, B; the next word is already
           -- on rast_rdata when the third byte goes out
@@ -690,6 +743,9 @@ begin
           else
             if kind = K_ICMP then
               icmp_taken <= '1';
+            end if;
+            if kind = K_THUMB then
+              th_taken <= '1';          -- copied: thumb_tx may refill its buffer
             end if;
             if kind = K_RAST then
               rast_pop <= '1';          -- frees the line; S_WAIT_MAC lets valid fall

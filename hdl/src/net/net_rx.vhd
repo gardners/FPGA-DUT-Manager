@@ -115,7 +115,8 @@ architecture rtl of net_rx is
   signal cfg_r   : dut_cfg_arr_t := (default_cfg(x"0"), default_cfg(x"1"));
   signal ids_seen: unsigned(9 downto 0) := (others => '1');
   signal cfg_init: std_logic := '0';
-  signal bcfg_r  : board_cfg_t := (x"FF", x"FF", '1', "00", (others => '0'), x"00", (others => '0'), x"00");
+  signal bcfg_r  : board_cfg_t := (x"FF", x"FF", '1', "00", (others => '0'), x"00", (others => '0'), x"00",
+                                   (others => '0'), x"01", x"02");
   signal last_cmd: u16_arr_t := (others => (others => '0'));
   signal last_cmd_v : std_logic_vector(1 downto 0) := "00";
 
@@ -522,6 +523,18 @@ begin
                   else st := ST_BAD_LEN; end if;
                 when K_CAPTURE_EN =>
                   if vlen = 1 then bcfg_r.capture_en(d) <= h(56)(0); else st := ST_BAD_LEN; end if;
+                when K_THUMB_FORCE =>
+                  -- MAC (unicast, or 0 = off), scale 1/2 or 1/4, divisor 1..15
+                  if vlen /= 8 then
+                    st := ST_BAD_LEN;
+                  elsif (h(56)(0) = '1') or (h(62) /= x"01" and h(62) /= x"02") or
+                        unsigned(h(63)) = 0 or unsigned(h(63)) > 15 then
+                    st := ST_BAD_VALUE;
+                  else
+                    bcfg_r.thumb_mac   <= slv48(h, 56);
+                    bcfg_r.thumb_scale <= h(62);
+                    bcfg_r.thumb_div   <= h(63);
+                  end if;
                 when K_HB_PERIOD =>
                   if vlen = 2 and be16(h, 56) >= 1 then cfg_r(d).hb_period_ms <= be16(h, 56);
                   elsif vlen = 2 then st := ST_BAD_VALUE; else st := ST_BAD_LEN; end if;

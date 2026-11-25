@@ -35,6 +35,10 @@ package net_pkg is
     pk_led_mode: std_logic_vector(7 downto 0);   -- 0 status colour, 1 DUT's LEDs, 2 host
     pk_led_host: std_logic_vector(95 downto 0);  -- LED vector for mode 2 (MK-I order)
     con_screen : std_logic_vector(7 downto 0);   -- 0 auto, 1 editable, 2 no video, 3 select
+    -- thumbnail relay forced destination (key 0x0041, issue 0038): MAC 0 = off
+    thumb_mac  : std_logic_vector(47 downto 0);
+    thumb_scale: std_logic_vector(7 downto 0);   -- 1 = 1/2, 2 = 1/4
+    thumb_div  : std_logic_vector(7 downto 0);   -- frame divisor 1..15
   end record;
 
   -- a pending reply addressed to a requester

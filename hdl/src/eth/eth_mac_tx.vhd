@@ -9,12 +9,12 @@ use ieee.numeric_std.all;
 use work.common_pkg.all;
 
 entity eth_mac_tx is
-  generic (ADDR_W : positive := 12);
+  generic (ADDR_W : positive := 12; LEN_W : positive := 12);
   port (
     clk      : in  std_logic;
     start    : in  std_logic;
     base     : in  unsigned(ADDR_W - 1 downto 0);
-    len      : in  unsigned(11 downto 0);
+    len      : in  unsigned(LEN_W - 1 downto 0);
     busy     : out std_logic;
     done     : out std_logic;              -- strobe after IFG
     mem_addr : out unsigned(ADDR_W - 1 downto 0);
@@ -27,8 +27,8 @@ end entity;
 architecture rtl of eth_mac_tx is
   type state_t is (S_IDLE, S_PRE, S_DATA, S_FCS, S_IFG);
   signal state : state_t := S_IDLE;
-  signal cnt   : unsigned(11 downto 0) := (others => '0');
-  signal n     : unsigned(11 downto 0) := (others => '0');
+  signal cnt   : unsigned(LEN_W - 1 downto 0) := (others => '0');
+  signal n     : unsigned(LEN_W - 1 downto 0) := (others => '0');
   signal addr  : unsigned(ADDR_W - 1 downto 0) := (others => '0');
   signal crc   : std_logic_vector(31 downto 0) := (others => '1');
   signal fcs   : std_logic_vector(31 downto 0) := (others => '0');

@@ -9,6 +9,8 @@ use work.common_pkg.all;
 use work.proto_pkg.all;
 use work.net_pkg.all;
 use work.raster_pkg.all;
+use work.mem_pkg.all;
+use work.thumb_pkg.all;
 
 entity supervisor_core is
   generic (
@@ -16,7 +18,10 @@ entity supervisor_core is
     BUILD_ID : std_logic_vector(31 downto 0) := x"00000000";
     -- DHCP timing (shortened in simulation)
     DHCP_FALLBACK_MS : natural := 0;    -- 0 = DHCP required (owner, ADR 0011)
-    DHCP_MS_PER_S    : positive := 1000
+    DHCP_MS_PER_S    : positive := 1000;
+    THUMB_MS_PER_S   : positive := 1000;  -- thumbnail relay timers (shortened in simulation)
+    THUMB_CROP_W     : positive := 640;   -- thumbnail source crop (centre of the picture)
+    THUMB_CROP_H     : positive := 400
   );
   port (
     clk_sys   : in  std_logic;
@@ -85,7 +90,15 @@ entity supervisor_core is
     -- HDMI OUT passthrough (issue 0032): wanted (registered) / shown (from
     -- the platform's switch sequencer, clk_sys domain)
     pt_request  : out std_logic;
-    pt_active   : in  std_logic := '0'
+    pt_active   : in  std_logic := '0';
+    -- thumbnails (issues 0035/0038): frame-store ports (mem_pkg, clk_sys):
+    -- 0 local capture writer, 1 relay receive writer, 2 relay sender reader
+    thumb_mem_req : out mem_req_arr_t(0 to 2);
+    thumb_mem_rsp : in  mem_rsp_arr_t(0 to 2) := (others => MEM_RSP_IDLE);
+    -- per-machine status for the mosaic (issue 0036), bit m = machine m,
+    -- clk_sys: seen in the last 3 s / complete picture in the last 2 s /
+    -- buffer shown (thumb_addr buf) / its scale (0: 320x200, 1: 160x100)
+    thumb_seen, thumb_fresh, thumb_cur, thumb_quarter : out std_logic_vector(31 downto 0)
   );
 end entity;
 
@@ -119,11 +132,11 @@ architecture rtl of supervisor_core is
 
   -- TX slots
   signal txm_we : std_logic;
-  signal txm_wa, txm_ra : unsigned(12 downto 0);      -- two 4 KiB slots (jumbo raster)
+  signal txm_wa, txm_ra : unsigned(13 downto 0);      -- two 8 KiB slots (jumbo raster, thumbnails)
   signal txm_wd, txm_rd : std_logic_vector(7 downto 0);
   signal mac_start, mac_busy, mac_done : std_logic;
-  signal mac_base : unsigned(12 downto 0);
-  signal mac_len  : unsigned(11 downto 0);
+  signal mac_base : unsigned(13 downto 0);
+  signal mac_len  : unsigned(12 downto 0);
 
   -- raster capture (issue 0023)
   signal cap_on : std_logic := '0';
@@ -133,6 +146,32 @@ architecture rtl of supervisor_core is
   signal rast_raddr : unsigned(15 downto 0);
   signal rast_rdata : std_logic_vector(23 downto 0);
   signal hist_latch : std_logic_vector(1 downto 0);
+
+  -- thumbnails (issues 0035, 0038)
+  signal th_cur, th_seen, th_fresh, th_q : std_logic_vector(31 downto 0);
+  signal th_nseen : unsigned(5 downto 0);
+  signal tc_en : std_logic := '0';
+  signal tc_m : unsigned(4 downto 0) := (others => '0');
+  signal tc_done, tc_buf, tc_q : std_logic;
+  signal tc_dm : unsigned(4 downto 0);
+  signal tc_rows : unsigned(7 downto 0);
+  signal te_q : std_logic;
+  signal te_div : unsigned(3 downto 0);
+  signal tl_v, tl_b : std_logic;
+  signal tl_m : unsigned(4 downto 0);
+  signal tf_valid, tf_pop : std_logic;
+  signal tf_dout : std_logic_vector(35 downto 0);
+  signal trq_stb : std_logic;
+  signal trq_mac : std_logic_vector(47 downto 0);
+  signal trq_sc, trq_dv : std_logic_vector(7 downto 0);
+  signal tr_ev, tr_buf, tr_q, tr_sev : std_logic;
+  signal tr_m, tr_sm : unsigned(4 downto 0);
+  signal tp_valid, tp_taken, tq_valid, tq_taken : std_logic;
+  signal tp : thumb_pkt_t;
+  signal tp_raddr : unsigned(12 downto 0);
+  signal tp_rdata : std_logic_vector(7 downto 0);
+  signal tq_sc, tq_dv : std_logic_vector(7 downto 0);
+  signal selecting : std_logic := '0';
 
   -- dispatcher <-> builder
   signal cfg   : dut_cfg_arr_t;
@@ -377,14 +416,17 @@ begin
       rast_valid => rast_valid, rast_desc => rast_desc, rast_pop => rast_pop,
       rast_en => cap_on, rast_dut => cap_dut, rast_raddr => rast_raddr,
       rast_rdata => rast_rdata,
+      th_valid => tp_valid, th_pkt => tp, th_taken => tp_taken, th_raddr => tp_raddr,
+      th_rdata => tp_rdata, treq_valid => tq_valid, treq_scale => tq_sc, treq_div => tq_dv,
+      treq_taken => tq_taken,
       mac_start => mac_start, mac_base => mac_base, mac_len => mac_len,
       mac_busy => mac_busy, mem_we => txm_we, mem_addr => txm_wa,
       mem_data => txm_wd, frames_sent => frames_sent);
 
-  txmem : entity work.dpram generic map (13, 8)
+  txmem : entity work.dpram generic map (14, 8)
     port map (clk_sys, txm_we, txm_wa, txm_wd, clk_sys, txm_ra, txm_rd);
   mtx : entity work.eth_mac_tx
-    generic map (ADDR_W => 13)
+    generic map (ADDR_W => 14, LEN_W => 13)
     port map (clk_sys, mac_start, mac_base, mac_len, mac_busy, mac_done,
               txm_ra, txm_rd, tx_en, txd);
 
@@ -515,7 +557,8 @@ begin
   bstat.link_flags  <= link_flags(7) & (not ep_enable(1)) & link_flags(5 downto 0);
   -- capabilities (ADR 0005 s3): b0 uart, b1 jtag, b2 kbd device, b3 physical
   -- keyboard host, b4 hdmi capture (0023)
-  bstat.caps        <= x"0000001F";
+  -- b7 thumbnails (issues 0035/0038)
+  bstat.caps        <= x"0000009F";
   bstat.selected    <= std_logic_vector(sel_vid) & std_logic_vector(sel_kbd);
   bstat.kbd_phys    <= pk_keys;
   bstat.phys_change <= pk_change;
@@ -564,6 +607,62 @@ begin
               locked => vid_ok_l, clk => clk_sys, enable => cap_on,
               desc_valid => rast_valid, desc => rast_desc, desc_pop => rast_pop,
               ring_addr => rast_raddr(12 downto 0), ring_data => rast_rdata);
+
+  ---------------------------------------------------------------- thumbnails
+  -- Local capture (issue 0035): the HDMI IN picture belongs to the video
+  -- target when it is one of this board's DUTs and its video is decoded;
+  -- stored at the scale/rate thumb_tx has in effect. Relay (issue 0038):
+  -- received pictures of other machines go into their buffers; this
+  -- board's pictures are streamed on request or to the forced MAC.
+  process (clk_sys)
+  begin
+    if rising_edge(clk_sys) then
+      if sel_vid < 2 and vid_b1 = '1' then tc_en <= '1'; else tc_en <= '0'; end if;
+      if sel_vid(0) = '1' then tc_m <= m1; else tc_m <= m0; end if;
+      if scr = "10" then selecting <= '1'; else selecting <= '0'; end if;
+    end if;
+  end process;
+  tcap : entity work.thumb_capture
+    generic map (CROP_W => THUMB_CROP_W, CROP_H => THUMB_CROP_H, FIFO_AW => 7)
+    port map (pclk => vin_pclk, de => vin_de, vs => vin_vs, rgb => vin_rgb, clk => clk_sys,
+              enable => tc_en, quarter => te_q, div => te_div, machine => tc_m, cur => th_cur,
+              lock_valid => tl_v, lock_machine => tl_m, lock_buf => tl_b,
+              mem_req => thumb_mem_req(0), mem_rsp => thumb_mem_rsp(0),
+              done => tc_done, done_machine => tc_dm, done_buf => tc_buf, done_quarter => tc_q,
+              done_rows => tc_rows, frames => open, skipped => open);
+  tstat : entity work.thumb_status
+    port map (clk => clk_sys, tick_1ms => tick_1ms, local0 => m0, local1 => m1,
+              ev_a => tc_done, ev_a_machine => tc_dm, ev_a_buf => tc_buf, ev_a_quarter => tc_q,
+              ev_b => tr_ev, ev_b_machine => tr_m, ev_b_buf => tr_buf, ev_b_quarter => tr_q,
+              seen_ev => tr_sev, seen_machine => tr_sm,
+              seen => th_seen, fresh => th_fresh, cur => th_cur, quarter => th_q, n_seen => th_nseen);
+  thumb_seen <= th_seen; thumb_fresh <= th_fresh; thumb_cur <= th_cur; thumb_quarter <= th_q;
+  thtap : entity work.thumb_rx_tap
+    generic map (FIFO_AW => 11)
+    port map (clk => clk_rx, rx_dv => rx_dv, rxd => rxd, mac0 => cfg(0).mac, mac1 => cfg(1).mac,
+              sclk => clk_sys, f_valid => tf_valid, f_dout => tf_dout, f_pop => tf_pop,
+              req_stb => trq_stb, req_mac => trq_mac, req_scale => trq_sc, req_div => trq_dv,
+              frames => open);
+  trw : entity work.thumb_rx_writer
+    port map (clk => clk_sys, f_valid => tf_valid, f_dout => tf_dout, f_pop => tf_pop,
+              local0 => m0, local1 => m1, cur => th_cur,
+              mem_req => thumb_mem_req(1), mem_rsp => thumb_mem_rsp(1),
+              ev => tr_ev, ev_machine => tr_m, ev_buf => tr_buf, ev_quarter => tr_q,
+              seen_ev => tr_sev, seen_machine => tr_sm, pictures => open);
+  ttx : entity work.thumb_tx
+    generic map (MS_PER_S => THUMB_MS_PER_S)
+    port map (clk => clk_sys, tick_1ms => tick_1ms, local0 => m0, local1 => m1,
+              selecting => selecting, n_seen => th_nseen,
+              force_mac => bcfg.thumb_mac, force_scale => bcfg.thumb_scale, force_div => bcfg.thumb_div,
+              req_stb => trq_stb, req_mac => trq_mac, req_scale => trq_sc, req_div => trq_dv,
+              cap_done => tc_done, cap_machine => tc_dm, cap_buf => tc_buf, cap_quarter => tc_q,
+              cap_rows => tc_rows, eff_quarter => te_q, eff_div => te_div,
+              lock_valid => tl_v, lock_machine => tl_m, lock_buf => tl_b,
+              mem_req => thumb_mem_req(2), mem_rsp => thumb_mem_rsp(2),
+              pkt_valid => tp_valid, pkt => tp, pkt_taken => tp_taken,
+              pb_raddr => tp_raddr, pb_rdata => tp_rdata,
+              treq_valid => tq_valid, treq_scale => tq_sc, treq_div => tq_dv, treq_taken => tq_taken,
+              streaming => open, pictures => open);
 
   ---------------------------------------------------------------- physical keyboard
   -- power LED colour = machine number k = 2 * DUT-ID nibble + half (P12 0,
