@@ -57,3 +57,10 @@ screen number in TEXT_WRITE address bits 14:13), the select screen's boxes
 drawn as an FPGA overlay (not RAM writes) from the slot-presence vector;
 kvm_hotkey entity on the physical key bitmap; displayed screen = forced
 (mgmt key) or select-pending / no-video / editable; heartbeat reports it.
+
+## 2026-11-25 implemented (simulation)
+
+text_display three screens + overlay (tb_text_screens), kvm_hotkey
+(tb_kvm_hotkey), selection by hotkey in supervisor_core, auto screen choice,
+key 0x0035, heartbeat byte 109, `dutctl set console-screen`, `dutctl text
+--screen N`, `dutctl listen` shows the screen. Hardware test pending.

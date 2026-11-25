@@ -34,6 +34,7 @@ package net_pkg is
     cfg_gen    : unsigned(31 downto 0);
     pk_led_mode: std_logic_vector(7 downto 0);   -- 0 status colour, 1 DUT's LEDs, 2 host
     pk_led_host: std_logic_vector(95 downto 0);  -- LED vector for mode 2 (MK-I order)
+    con_screen : std_logic_vector(7 downto 0);   -- 0 auto, 1 editable, 2 no video, 3 select
   end record;
 
   -- a pending reply addressed to a requester
@@ -92,6 +93,7 @@ package net_pkg is
     vid_flags   : std_logic_vector(7 downto 0);   -- b0 clock present, b1 locked
     vid_h_total, vid_v_total, vid_h_active, vid_v_active : unsigned(15 downto 0);
     vid_pixel_hz : unsigned(31 downto 0);
+    con_shown   : std_logic_vector(7 downto 0);   -- console screen shown: 0 editable, 1 no video, 2 select
   end record;
 
   -- UART snapshot counters (latched by uart_bridge on snap_ack)

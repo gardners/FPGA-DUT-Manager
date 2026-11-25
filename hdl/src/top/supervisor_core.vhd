@@ -71,7 +71,12 @@ entity supervisor_core is
     -- HDMI IN measurement (clk_sys domain, issue 0022): heartbeat video block
     vid_present, vid_locked : in std_logic := '0';
     vid_h_total, vid_v_total, vid_h_active, vid_v_active : in unsigned(15 downto 0) := (others => '0');
-    vid_pixel_hz : in unsigned(31 downto 0) := (others => '0')
+    vid_pixel_hz : in unsigned(31 downto 0) := (others => '0');
+    -- console screens (issue 0029): text_display's force bit in, screen and
+    -- select-screen slot presence out
+    text_forced : in  std_logic := '0';
+    con_screen  : out unsigned(1 downto 0);
+    con_slots   : out std_logic_vector(9 downto 0)
   );
 end entity;
 
@@ -138,6 +143,11 @@ architecture rtl of supervisor_core is
   signal pk_leds, pk_leds_o : std_logic_vector(95 downto 0);
   signal vid_ok : boolean;
   signal vid_b0, vid_b1 : std_logic;
+  signal hk_sel, hk_cho, hk_can : std_logic;
+  signal hk_k : unsigned(3 downto 0);
+  signal m0, m1 : unsigned(4 downto 0);        -- machine numbers of DUT0/DUT1
+  signal slots : std_logic_vector(9 downto 0);
+  signal scr : unsigned(1 downto 0);
   signal pk_machine : unsigned(4 downto 0);
   signal pk_change : unsigned(15 downto 0) := (others => '0');
   signal hb_exp : std_logic := '0';
@@ -526,6 +536,27 @@ begin
               kbd_commit => pk_commit);
   pk_present <= '1' when pk_type /= "00" else '0';
 
+  -- KVM hotkey (issue 0029): both SHIFTs >= 1 s, tap MEGA, then 1..9,0
+  hk : entity work.kvm_hotkey
+    port map (clk => clk_sys, tick_1ms => tick_1ms, keys => pk_keys,
+              selecting => hk_sel, choose => hk_cho, k => hk_k, cancel => hk_can);
+  m0 <= unsigned(id0(3 downto 0) & '0');
+  m1 <= unsigned(id1(3 downto 0) & '1');
+  g_slots : for k in 0 to 9 generate
+    slots(k) <= '1' when m0 = k or m1 = k else '0';
+  end generate;
+  con_slots <= slots;
+  -- console screen: forced by management, else select while choosing,
+  -- editable when the host forced text or video is present, else no video
+  scr <= "00" when bcfg.con_screen = x"01" else
+         "01" when bcfg.con_screen = x"02" else
+         "10" when bcfg.con_screen = x"03" else
+         "10" when hk_sel = '1' else
+         "00" when text_forced = '1' or vid_b1 = '1' else
+         "01";
+  con_screen <= scr;
+  bstat.con_shown <= "000000" & std_logic_vector(scr);
+
   -- selection: management writes or front-panel buttons (last writer wins);
   -- phase 1 has no chain, so targets are this board's two DUTs (0, 1).
   -- Expedited heartbeat on every physical bitmap change (brief section 13).
@@ -549,6 +580,14 @@ begin
       end if;
       if bcfg.vid_target /= bcfg_vt then
         sel_vid <= unsigned(bcfg.vid_target(3 downto 0));
+      end if;
+      -- hotkey choice: keyboard + video to the chosen machine if it is here
+      if hk_cho = '1' then
+        if hk_k = m0 then
+          sel_kbd <= (others => '0'); sel_vid <= (others => '0');
+        elsif hk_k = m1 then
+          sel_kbd <= to_unsigned(1, 4); sel_vid <= to_unsigned(1, 4);
+        end if;
       end if;
       -- buttons: sample every ~8 ms (debounce), act on press
       deb <= deb + 1;

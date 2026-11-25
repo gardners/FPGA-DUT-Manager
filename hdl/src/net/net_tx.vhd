@@ -418,6 +418,7 @@ begin
               -- 108..131 video block (ADR 0005 s8): HDMI IN measurement;
               -- frames_captured / lines dropped / decode errors 0 until capture
               pf(108) <= bstat.vid_flags(7 downto 3) & bcfg.capture_en(d) & bstat.vid_flags(1 downto 0);
+              pf(109) <= bstat.con_shown;     -- console screen shown (issue 0029)
               pf(110) <= bu(bstat.vid_h_total, 0);  pf(111) <= bu(bstat.vid_h_total, 1);
               pf(112) <= bu(bstat.vid_v_total, 0);  pf(113) <= bu(bstat.vid_v_total, 1);
               pf(114) <= bu(bstat.vid_h_active, 0); pf(115) <= bu(bstat.vid_h_active, 1);

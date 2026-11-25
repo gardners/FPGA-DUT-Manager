@@ -127,6 +127,7 @@ int dp_decode_heartbeat(const uint8_t *p, size_t len, dp_heartbeat_t *hb)
   hb->has_video = len >= 124;
   if (hb->has_video) {
     hb->video_flags = p[100];
+    hb->console_screen = p[101];
     hb->h_total = dp_get16(p + 102);
     hb->v_total = dp_get16(p + 104);
     hb->h_active = dp_get16(p + 106);
@@ -137,6 +138,7 @@ int dp_decode_heartbeat(const uint8_t *p, size_t len, dp_heartbeat_t *hb)
     hb->tmds_decode_errors = dp_get16(p + 120);
   } else {
     hb->video_flags = 0;
+    hb->console_screen = 0;
     hb->h_total = hb->v_total = hb->h_active = hb->v_active = 0;
     hb->pixel_clock_hz = hb->frames_captured = 0;
     hb->raster_lines_dropped = hb->tmds_decode_errors = 0;

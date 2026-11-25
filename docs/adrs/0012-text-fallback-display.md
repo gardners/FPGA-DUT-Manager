@@ -57,3 +57,14 @@ owner directed their reuse here; in this repository they are licensed
 LGPL-2.1-or-later like the rest of the project. Parts that hardweb itself
 took from MEGA65 (LGPL) and EMARD (BSD) keep those licences; the font keeps
 SIL OFL 1.1 (`third_party/fonts/OFL-1.1.txt`).
+
+## Amendment 2026-11-25 (issue 0029): three screens
+
+The display keeps three screens, each with its own chars, attrs and palette:
+0 editable (host-written; white on blue by default), 1 no video (black on
+green, "No video source found"), 2 select ("Select device under test to
+connect to"; white on black; FPGA overlay of ten boxes 1..9,0 coloured like
+the keyboard power LED, frowning face for empty slots). TEXT_WRITE address =
+screen(14:13) & offset(12:0); the control byte 0x1030 exists on screen 0
+only. Which screen shows: management key 0x0035 (or auto), reported in the
+heartbeat (byte 109). Code 0x7F of the font is a frowning face.

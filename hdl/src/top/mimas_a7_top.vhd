@@ -72,6 +72,8 @@ architecture rtl of mimas_a7_top is
   signal rx_locked, rx_ps_en, rx_ps_done : std_logic;
   signal dna : std_logic_vector(63 downto 0);
   signal clk100_g : std_logic;
+  signal con_screen : unsigned(1 downto 0);
+  signal con_slots : std_logic_vector(9 downto 0);
   signal vin_pclk, vin_de, vin_hs, vin_vs, vin_locked, vin_present : std_logic;
   signal vin_rgb : std_logic_vector(23 downto 0);
   signal vin_ht, vin_vt, vin_ha, vin_va : unsigned(15 downto 0);
@@ -154,7 +156,8 @@ begin
       rx_ps_en => rx_ps_en, rx_ps_done => rx_ps_done, rx_locked => rx_locked,
       vid_present => vin_present, vid_locked => vin_lock_s(1),
       vid_h_total => vin_ht, vid_v_total => vin_vt, vid_h_active => vin_ha,
-      vid_v_active => vin_va, vid_pixel_hz => vin_hz);
+      vid_v_active => vin_va, vid_pixel_hz => vin_hz,
+      text_forced => t_force, con_screen => con_screen, con_slots => con_slots);
 
   -- HDMI IN: DVI sink + measurement for the heartbeat video block (0022)
   hrx : entity work.hdmi_rx_xc7
@@ -194,7 +197,7 @@ begin
     port map (wr_clk => clk_rx, wr_en => text_we, wr_addr => text_addr, wr_data => text_data,
               clk_pix => clk_pix, x => vx, y => vy, de_in => v_de, hs_in => v_hs, vs_in => v_vs,
               r => t_r, g => t_g, b => t_b, de_out => t_de, hs_out => t_hs, vs_out => t_vs,
-              force_text => t_force);
+              force_text => t_force, screen => con_screen, slots => con_slots);
   dvi : entity work.dvi_tx_xc7
     port map (pixel_clk => clk_pix, serial_clk => clk_pix5, rst => vrst,
               r => t_r, g => t_g, b => t_b, hs => t_hs, vs => t_vs, de => t_de,

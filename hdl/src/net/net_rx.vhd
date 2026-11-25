@@ -115,7 +115,7 @@ architecture rtl of net_rx is
   signal cfg_r   : dut_cfg_arr_t := (default_cfg(x"0"), default_cfg(x"1"));
   signal ids_seen: unsigned(9 downto 0) := (others => '1');
   signal cfg_init: std_logic := '0';
-  signal bcfg_r  : board_cfg_t := (x"FF", x"FF", '1', "00", (others => '0'), x"00", (others => '0'));
+  signal bcfg_r  : board_cfg_t := (x"FF", x"FF", '1', "00", (others => '0'), x"00", (others => '0'), x"00");
   signal last_cmd: u16_arr_t := (others => (others => '0'));
   signal last_cmd_v : std_logic_vector(1 downto 0) := "00";
 
@@ -510,6 +510,9 @@ begin
                   if vlen = 1 then bcfg_r.coupled <= h(56)(0); else st := ST_BAD_LEN; end if;
                 when K_PK_LED_MODE =>
                   if vlen = 1 and unsigned(h(56)) <= 2 then bcfg_r.pk_led_mode <= h(56);
+                  elsif vlen = 1 then st := ST_BAD_VALUE; else st := ST_BAD_LEN; end if;
+                when K_CON_SCREEN =>
+                  if vlen = 1 and unsigned(h(56)) <= 3 then bcfg_r.con_screen <= h(56);
                   elsif vlen = 1 then st := ST_BAD_VALUE; else st := ST_BAD_LEN; end if;
                 when K_PK_LED_HOST =>
                   if vlen = 12 then

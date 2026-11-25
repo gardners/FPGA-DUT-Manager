@@ -13,6 +13,7 @@ T_KBD_SET, T_UART_TX, T_UART_SNAP = 0x20, 0x30, 0x31
 T_JTAG_REQ, T_JTAG_RESP = 0x40, 0x41
 T_RASTER = 0x60
 K_PK_LED_MODE, K_PK_LED_HOST = 0x0033, 0x0034  # physical keyboard LEDs (ADR 0005 s4)
+K_CON_SCREEN = 0x0035  # console screen: 0 auto, 1 editable, 2 no video, 3 select
 PORT_MGMT, PORT_HB, PORT_KBD, PORT_UART, PORT_JTAG = 6500, 6501, 6502, 6503, 6507
 PORT_RASTER = 6504
 # raster flags (ADR 0005 section 8)
@@ -143,7 +144,7 @@ def decode_heartbeat(b):
     f["dut_leds"] = b[86:98]
     f["addr_src"], f["dut_id"] = b[98], b[99]
     if len(b) >= 124:  # video block (ADR 0005 section 8), bytes 108..131 of the datagram
-        (f["video_flags"], _, f["h_total"], f["v_total"], f["h_active"], f["v_active"],
+        (f["video_flags"], f["console_screen"], f["h_total"], f["v_total"], f["h_active"], f["v_active"],
          f["pixel_clock_hz"], f["frames_captured"], f["raster_lines_dropped"],
          f["tmds_decode_errors"], _) = struct.unpack(">BBHHHHIIHHH", b[100:124])
     if len(b) >= 132:  # link block (ADR 0005 section 3a), bytes 132..139 of the datagram
@@ -260,7 +261,7 @@ def encode_heartbeat(dut, f):
     b += f["dut_leds"] + bytes([f.get("addr_src", 0), f.get("dut_id", 0)])
     assert len(b) == 100
     if "video_flags" in f:  # optional video block -> 124-byte payload
-        b += struct.pack(">BBHHHHIIHHH", f["video_flags"], 0, f["h_total"], f["v_total"],
+        b += struct.pack(">BBHHHHIIHHH", f["video_flags"], f.get("console_screen", 0), f["h_total"], f["v_total"],
                          f["h_active"], f["v_active"], f["pixel_clock_hz"], f["frames_captured"],
                          f["raster_lines_dropped"], f["tmds_decode_errors"], 0)
     if "rx_phase_pos" in f:  # link block (needs the video block) -> 132-byte payload

@@ -29,7 +29,7 @@ def vectors():
               uart_rx_seq=1000, uart_tx_acc=55, rx_rejects=4, tx_drops=1,
               dut_leds=bytes(range(12)), addr_src=1, dut_id=7)
     v.append(("heartbeat", P.encode_heartbeat(1, hb)))
-    hbv = dict(hb, video_flags=0x07, h_total=864, v_total=625, h_active=720, v_active=576,
+    hbv = dict(hb, video_flags=0x07, console_screen=2, h_total=864, v_total=625, h_active=720, v_active=576,
                pixel_clock_hz=27000000, frames_captured=0x01020304, raster_lines_dropped=5,
                tmds_decode_errors=6)
     v.append(("heartbeat_video", P.encode_heartbeat(0, hbv)))

@@ -55,6 +55,7 @@ enum dp_key {
   DP_K_COUPLED = 0x0032,
   DP_K_PK_LED_MODE = 0x0033, /* physical keyboard LEDs: 0 status, 1 DUT, 2 host */
   DP_K_PK_LED_HOST = 0x0034, /* 12-byte LED vector (LED0 R,G,B .. LED3 R,G,B) */
+  DP_K_CON_SCREEN = 0x0035,  /* console screen: 0 auto, 1 editable, 2 no video, 3 select */
   DP_K_CAPTURE_EN = 0x0040,
   DP_K_HB_PERIOD = 0x0050,
   DP_K_OUT_POLICY = 0x0060,
@@ -108,6 +109,7 @@ typedef struct {
   /* video block (ADR 0005 section 8); valid only when has_video (payload >= 124) */
   uint8_t has_video;
   uint8_t video_flags; /* b0 TMDS clock, b1 locked, b2 capture enabled, b3 DVI */
+  uint8_t console_screen; /* shown: 0 editable, 1 no video, 2 select (issue 0029) */
   uint16_t h_total, v_total, h_active, v_active;
   uint32_t pixel_clock_hz, frames_captured;
   uint16_t raster_lines_dropped, tmds_decode_errors;

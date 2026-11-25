@@ -159,6 +159,7 @@ static int cmd_set(int argc, char **argv)
             "         kbd-policy kbd-override kbd-target video-target coupled capture\n"
             "         hb-period-ms out-policy (0 auto, 1 on, 2 off)\n"
             "         kbd-leds (physical keyboard LEDs: 0 status colour, 1 DUT's, 2 host)\n"
+            "         console-screen (0 auto, 1 editable, 2 no video, 3 select)\n"
             "         kbd-led-rgb RRGGBB,RRGGBB,RRGGBB,RRGGBB (LED0..3 for kbd-leds 2;\n"
             "                     LED0/1 = drive LED, LED2/3 = power LED)\n");
     return 2;
@@ -178,7 +179,7 @@ static int cmd_set(int argc, char **argv)
     {"kbd-target", DP_K_KBD_TARGET, 1}, {"video-target", DP_K_VID_TARGET, 1},
     {"coupled", DP_K_COUPLED, 1}, {"capture", DP_K_CAPTURE_EN, 1},
     {"hb-period-ms", DP_K_HB_PERIOD, 2}, {"out-policy", DP_K_OUT_POLICY, 1},
-    {"kbd-leds", DP_K_PK_LED_MODE, 1},
+    {"kbd-leds", DP_K_PK_LED_MODE, 1}, {"console-screen", DP_K_CON_SCREEN, 1},
   };
   if (!strcmp(name, "kbd-led-rgb")) {
     unsigned c[4];
@@ -283,6 +284,8 @@ static int cmd_listen(int argc, char **argv)
                (hb.video_flags & 4) ? " capture" : "");
       else
         printf("  video none");
+      static const char *const scr_names[] = {"editable", "no-video", "select", "?"};
+      printf("  screen %s", scr_names[hb.console_screen & 3]);
     }
     if (hb.phys_type) {
       printf("  phys");
@@ -659,16 +662,18 @@ static int cmd_relay(int argc, char **argv)
 static int cmd_text(int argc, char **argv)
 {
   if (argc < 1)
-    return fprintf(stderr, "usage: dutctl text IP [--fg N] [--bg N] [--force] [--jumbo] [--file F | LINE ...]\n"), 2;
+    return fprintf(stderr, "usage: dutctl text IP [--screen N] [--fg N] [--bg N] [--force] [--jumbo] [--file F | LINE ...]\n"
+                           "  --screen 0 editable (default), 1 no video, 2 select (palette/control only on 0)\n"), 2;
   static const uint32_t vga[16] = {0x000000, 0x0000AA, 0x00AA00, 0x00AAAA, 0xAA0000, 0xAA00AA, 0xAA5500,
                                    0xAAAAAA, 0x555555, 0x5555FF, 0x55FF55, 0x55FFFF, 0xFF5555, 0xFF55FF,
                                    0xFFFF55, 0xFFFFFF};
   static uint8_t mem[0x1031];
-  int fg = 15, bg = 1, jumbo = 0, force = 0, row = 0;
+  int fg = 15, bg = 1, jumbo = 0, force = 0, row = 0, screen = 0;
   const char *file = NULL;
   memset(mem, ' ', 0x800);
   for (int i = 1; i < argc; i++) {
-    if (!strcmp(argv[i], "--fg") && i + 1 < argc) fg = atoi(argv[++i]) & 15;
+    if (!strcmp(argv[i], "--screen") && i + 1 < argc) screen = atoi(argv[++i]) & 3;
+    else if (!strcmp(argv[i], "--fg") && i + 1 < argc) fg = atoi(argv[++i]) & 15;
     else if (!strcmp(argv[i], "--bg") && i + 1 < argc) bg = atoi(argv[++i]) & 15;
     else if (!strcmp(argv[i], "--jumbo")) jumbo = 1;
     else if (!strcmp(argv[i], "--force")) force = 1;
@@ -697,11 +702,15 @@ static int cmd_text(int argc, char **argv)
   mem[0x1030] = (uint8_t)force;
   int fd = udp_bind(0);
   struct sockaddr_in t = parse_target(argv[0], DP_PORT_TEXT);
-  size_t chunk = jumbo ? sizeof mem : 1024;
-  for (size_t off = 0; off < sizeof mem; off += chunk) {
-    size_t n = sizeof mem - off < chunk ? sizeof mem - off : chunk;
+  if (screen == 3)
+    return fprintf(stderr, "dutctl text: screen must be 0, 1 or 2\n"), 2;
+  /* screens 1/2 keep their own palettes (2 = power-LED colours): chars + attrs only */
+  size_t total = screen == 0 ? sizeof mem : 0x1000;
+  size_t chunk = jumbo ? total : 1024;
+  for (size_t off = 0; off < total; off += chunk) {
+    size_t n = total - off < chunk ? total - off : chunk;
     uint8_t pkt[DP_HDR_LEN + 4 + sizeof mem];
-    dp_put16(pkt + DP_HDR_LEN, (uint16_t)off);
+    dp_put16(pkt + DP_HDR_LEN, (uint16_t)(((unsigned)screen << 13) | off));
     dp_put16(pkt + DP_HDR_LEN + 2, 0);
     memcpy(pkt + DP_HDR_LEN + 4, mem + off, n);
     size_t len = dp_encode_hdr(pkt, DP_T_TEXT_WRITE, (uint16_t)(4 + n), DP_DUT_ANY);
@@ -724,7 +733,7 @@ static void usage(void)
           "  dutctl jtag-idcode IP\n"
           "  dutctl xvc IP [--port 2542]\n"
           "  dutctl relay TTY COMMAND...\n"
-          "  dutctl text IP [--fg N] [--bg N] [--force] [--jumbo] [--file F | LINE ...]\n"
+          "  dutctl text IP [--screen N] [--fg N] [--bg N] [--force] [--jumbo] [--file F | LINE ...]\n"
           "  dutctl video IP [--frames N] [--out PREFIX] [--enable] [--require-complete]\n");
 }
 
