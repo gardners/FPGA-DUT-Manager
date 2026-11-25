@@ -307,3 +307,75 @@ const char *dp_key_name(int key)
 {
   return (key >= 0 && key < 80) ? key_names[key] : "?";
 }
+
+/* ---------------------------------------------------------- thumbnails */
+size_t dp_encode_thumb_request(uint8_t *b, uint8_t scale, uint8_t div)
+{
+  b[0] = DP_TH_VERSION;
+  b[1] = DP_TH_SUB_REQ;
+  dp_put16(b + 2, DP_MAGIC);
+  b[4] = scale;
+  b[5] = div;
+  b[6] = b[7] = 0;
+  return DP_TH_REQ_LEN;
+}
+
+int dp_decode_thumb(const uint8_t *p, size_t len, dp_thumb_t *t)
+{
+  memset(t, 0, sizeof *t);
+  if (len < DP_TH_REQ_LEN || p[0] != DP_TH_VERSION || dp_get16(p + 2) != DP_MAGIC)
+    return -1;
+  t->subtype = p[1];
+  if (t->subtype == DP_TH_SUB_REQ) {
+    t->scale = p[4];
+    t->div = p[5];
+    return 0;
+  }
+  if (len < DP_TH_HDR_LEN || (t->subtype != DP_TH_SUB_LINES && t->subtype != DP_TH_SUB_NOSRC))
+    return -1;
+  t->machine = p[4];
+  t->flags = p[5];
+  t->scale = p[6];
+  t->encoding = p[7];
+  t->frame = dp_get32(p + 8);
+  t->row = dp_get16(p + 12);
+  t->nlines = dp_get16(p + 14);
+  t->width = dp_get16(p + 16);
+  t->height = dp_get16(p + 18);
+  t->payload_bytes = dp_get16(p + 20);
+  t->payload = p + DP_TH_HDR_LEN;
+  if (t->subtype == DP_TH_SUB_NOSRC)
+    return t->machine < 32 ? 0 : -1;
+  if (t->machine >= 32 || (size_t)DP_TH_HDR_LEN + t->payload_bytes > len || t->encoding > DP_ENC_RLE24 ||
+      !(t->width == DP_TH_MAX_W || t->width == DP_TH_MAX_W / 2) || t->height > DP_TH_MAX_H ||
+      t->nlines == 0 || t->row + t->nlines > t->height)
+    return -1;
+  return 0;
+}
+
+int dp_thumb_lines(const dp_thumb_t *t, uint8_t *out, size_t cap)
+{
+  size_t w3 = 3u * t->width, need = w3 * t->nlines, i = 0, o = 0;
+  if (t->subtype != DP_TH_SUB_LINES || need > cap)
+    return -1;
+  if (t->encoding == DP_ENC_RAW) {
+    if (t->payload_bytes != need)
+      return -1;
+    memcpy(out, t->payload, need);
+    return t->nlines;
+  }
+  for (unsigned l = 0; l < t->nlines; l++) {
+    size_t end = o + w3;
+    while (o < end) {
+      if (i + 4 > t->payload_bytes)
+        return -1;
+      uint8_t c = t->payload[i];
+      if (c == 0 || o + 3u * c > end) /* runs never cross a line end */
+        return -1;
+      for (uint8_t k = 0; k < c; k++, o += 3)
+        memcpy(out + o, t->payload + i + 1, 3);
+      i += 4;
+    }
+  }
+  return i == t->payload_bytes ? (int)t->nlines : -1;
+}

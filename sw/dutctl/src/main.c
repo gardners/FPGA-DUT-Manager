@@ -11,12 +11,16 @@
  *   dutctl jtag-idcode IP                      read JTAG IDCODE over UDP
  *   dutctl xvc IP [--port 2542]                XVC 1.0 server for Vivado
  *   dutctl relay TTY COMMAND...                Arduino relay controller
+ *   dutctl thumbs IFACE [--request] [--force IP] thumbnail relay -> PPM (AF_PACKET)
  *
  * LGPL-2.1-or-later. */
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
 #include <arpa/inet.h>
+#include <linux/if_packet.h>
+#include <net/if.h>
+#include <sys/ioctl.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <netinet/in.h>
@@ -857,7 +861,8 @@ static void usage(void)
           "  dutctl xvc IP [--port 2542]\n"
           "  dutctl relay TTY COMMAND...\n"
           "  dutctl text IP [--screen N] [--fg N] [--bg N] [--force] [--jumbo] [--file F | LINE ...]\n"
-          "  dutctl video IP [--frames N] [--out PREFIX] [--enable] [--require-complete]\n");
+          "  dutctl video IP [--frames N] [--out PREFIX] [--enable] [--require-complete]\n"
+          "  dutctl thumbs IFACE [--out PREFIX] [--pictures N] [--request] [--force IP] [--scale 1|2]\n");
 }
 
 
@@ -924,6 +929,164 @@ static int cmd_video(int argc, char **argv)
   return (done < frames || (require && incomplete)) ? 1 : 0;
 }
 
+/* ------------------------------------------------------------- thumbnails */
+/* dutctl thumbs: receive thumbnail relay frames (raw Ethernet 0x88B5, ADR
+ * 0005 section 10) on an interface and write every machine's latest complete
+ * picture as PREFIX-mNN.ppm. Needs CAP_NET_RAW (or root) for AF_PACKET.
+ * Pictures arrive when a board is asked: --request broadcasts requests like a
+ * console on its select screen; --force IP sets key 0x0041 on that board to
+ * this interface's MAC (and clears it on exit). */
+typedef struct {
+  uint32_t frame;
+  int active;
+  uint16_t width, height, rows;
+  uint8_t have[DP_TH_MAX_H];
+  uint8_t rgb[3 * DP_TH_MAX_W * DP_TH_MAX_H];
+} th_pic_t;
+
+static int th_write_ppm(const char *path, const th_pic_t *p)
+{
+  FILE *f = fopen(path, "wb");
+  if (!f)
+    return -1;
+  fprintf(f, "P6\n%u %u\n255\n", p->width, p->height);
+  for (unsigned y = 0; y < p->height; y++)
+    fwrite(p->rgb + 3u * p->width * y, 3, p->width, f);
+  return fclose(f);
+}
+
+static int cmd_thumbs(int argc, char **argv)
+{
+  if (argc < 1)
+    return fprintf(stderr, "usage: dutctl thumbs IFACE [--out PREFIX] [--pictures N] [--timeout S]\n"
+                           "         [--request] [--force IP] [--scale 1|2] [--div N]\n"
+                           "  writes PREFIX-mNN.ppm (default prefix 'thumb') for each machine's latest\n"
+                           "  complete thumbnail; --request broadcasts requests every 250 ms, --force IP\n"
+                           "  points that board's relay at this interface (key 0x0041). Needs CAP_NET_RAW.\n"),
+           2;
+  const char *ifname = argv[0], *prefix = "thumb", *force_ip = NULL;
+  long want = 0, timeout_s = 10;
+  int request = 0, scale = DP_TH_SCALE_HALF, div = 2;
+  for (int i = 1; i < argc; i++) {
+    if (!strcmp(argv[i], "--out") && i + 1 < argc) prefix = argv[++i];
+    else if (!strcmp(argv[i], "--pictures") && i + 1 < argc) want = strtol(argv[++i], NULL, 0);
+    else if (!strcmp(argv[i], "--timeout") && i + 1 < argc) timeout_s = strtol(argv[++i], NULL, 0);
+    else if (!strcmp(argv[i], "--request")) request = 1;
+    else if (!strcmp(argv[i], "--force") && i + 1 < argc) force_ip = argv[++i];
+    else if (!strcmp(argv[i], "--scale") && i + 1 < argc) scale = (int)strtol(argv[++i], NULL, 0);
+    else if (!strcmp(argv[i], "--div") && i + 1 < argc) div = (int)strtol(argv[++i], NULL, 0);
+    else return fprintf(stderr, "dutctl thumbs: unknown option %s\n", argv[i]), 2;
+  }
+  if ((scale != 1 && scale != 2) || div < 1 || div > 15)
+    return fprintf(stderr, "dutctl thumbs: --scale 1 or 2, --div 1..15\n"), 2;
+  int fd = socket(AF_PACKET, SOCK_RAW, htons(DP_ETH_THUMB));
+  if (fd < 0)
+    return perror("dutctl thumbs: AF_PACKET socket (needs CAP_NET_RAW)"), 1;
+  struct ifreq ifr;
+  memset(&ifr, 0, sizeof ifr);
+  snprintf(ifr.ifr_name, sizeof ifr.ifr_name, "%s", ifname);
+  if (ioctl(fd, SIOCGIFINDEX, &ifr) < 0)
+    return perror("dutctl thumbs: interface"), 1;
+  int ifindex = ifr.ifr_ifindex;
+  if (ioctl(fd, SIOCGIFHWADDR, &ifr) < 0)
+    return perror("dutctl thumbs: interface MAC"), 1;
+  uint8_t mymac[6];
+  memcpy(mymac, ifr.ifr_hwaddr.sa_data, 6);
+  struct sockaddr_ll sll = {.sll_family = AF_PACKET, .sll_protocol = htons(DP_ETH_THUMB), .sll_ifindex = ifindex};
+  if (bind(fd, (struct sockaddr *)&sll, sizeof sll) < 0)
+    return perror("dutctl thumbs: bind"), 1;
+  int big = 16 << 20;
+  setsockopt(fd, SOL_SOCKET, SO_RCVBUF, &big, sizeof big);
+  if (force_ip) {
+    uint8_t v[8];
+    memcpy(v, mymac, 6);
+    v[6] = (uint8_t)scale;
+    v[7] = (uint8_t)div;
+    if (mgmt_set(force_ip, DP_K_THUMB_FORCE, v, 8) != 0)
+      return fprintf(stderr, "dutctl thumbs: setting the forced destination failed\n"), 1;
+  }
+  static th_pic_t pics[32];
+  static uint8_t buf[9100], lines[3 * DP_TH_MAX_W * 64];
+  uint32_t nosrc = 0, seen = 0;
+  long done = 0, frames = 0, bad = 0;
+  signal(SIGINT, on_sig);
+  double end = now_s() + timeout_s, next_req = 0;
+  while (!g_stop && now_s() < end && (want == 0 || done < want)) {
+    if (request && now_s() >= next_req) {
+      uint8_t f[64] = {0};
+      memset(f, 0xFF, 6);
+      memcpy(f + 6, mymac, 6);
+      dp_put16(f + 12, DP_ETH_THUMB);
+      dp_encode_thumb_request(f + 14, (uint8_t)scale, (uint8_t)div);
+      struct sockaddr_ll to = sll;
+      to.sll_halen = 6;
+      memset(to.sll_addr, 0xFF, 6);
+      if (sendto(fd, f, 60, 0, (struct sockaddr *)&to, sizeof to) < 0)
+        perror("dutctl thumbs: request");
+      next_req = now_s() + 0.25;
+    }
+    struct pollfd p = {.fd = fd, .events = POLLIN};
+    if (poll(&p, 1, 50) <= 0)
+      continue;
+    ssize_t n = recv(fd, buf, sizeof buf, 0);
+    if (n < 14 + DP_TH_REQ_LEN || dp_get16(buf + 12) != DP_ETH_THUMB)
+      continue;
+    dp_thumb_t t;
+    if (dp_decode_thumb(buf + 14, (size_t)n - 14, &t) < 0) {
+      bad++;
+      continue;
+    }
+    if (t.subtype == DP_TH_SUB_REQ)
+      continue;
+    seen |= 1u << t.machine;
+    if (t.subtype == DP_TH_SUB_NOSRC) {
+      if (!(nosrc & (1u << t.machine)))
+        printf("machine %u: present, no source\n", t.machine);
+      nosrc |= 1u << t.machine;
+      continue;
+    }
+    frames++;
+    if (t.nlines > 64 || dp_thumb_lines(&t, lines, sizeof lines) < 0) {
+      bad++;
+      continue;
+    }
+    th_pic_t *pc = &pics[t.machine];
+    if (!pc->active || pc->frame != t.frame || pc->width != t.width) {
+      memset(pc->have, 0, sizeof pc->have);
+      pc->active = 1;
+      pc->frame = t.frame;
+      pc->width = t.width;
+      pc->height = t.height;
+      pc->rows = 0;
+    }
+    for (unsigned l = 0; l < t.nlines; l++) {
+      unsigned y = t.row + l;
+      if (!pc->have[y])
+        pc->rows++;
+      pc->have[y] = 1;
+      memcpy(pc->rgb + 3u * pc->width * y, lines + 3u * t.width * l, 3u * t.width);
+    }
+    if (pc->rows == pc->height) {
+      char path[512];
+      snprintf(path, sizeof path, "%s-m%02u.ppm", prefix, t.machine);
+      if (th_write_ppm(path, pc) < 0)
+        fprintf(stderr, "dutctl thumbs: cannot write %s\n", path);
+      else
+        printf("machine %u picture %u: %ux%u -> %s\n", t.machine, t.frame, pc->width, pc->height, path);
+      nosrc &= ~(1u << t.machine);
+      pc->active = 0;
+      done++;
+    }
+  }
+  if (force_ip) {
+    uint8_t off[8] = {0, 0, 0, 0, 0, 0, 1, 2};
+    mgmt_set(force_ip, DP_K_THUMB_FORCE, off, 8);
+  }
+  close(fd);
+  printf("%ld pictures, %ld relay frames, %ld malformed; machines seen %08x\n", done, frames, bad, seen);
+  return (want && done < want) ? 1 : 0;
+}
+
 int main(int argc, char **argv)
 {
   if (argc < 2) {
@@ -943,6 +1106,7 @@ int main(int argc, char **argv)
   if (!strcmp(c, "relay")) return cmd_relay(argc, argv);
   if (!strcmp(c, "text")) return cmd_text(argc, argv);
   if (!strcmp(c, "video")) return cmd_video(argc, argv);
+  if (!strcmp(c, "thumbs")) return cmd_thumbs(argc, argv);
   usage();
   return 2;
 }

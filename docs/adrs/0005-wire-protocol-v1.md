@@ -77,7 +77,7 @@ Sent per DUT at ~50 Hz (configurable period; 20 ms default), and expedited
 | 29 | 1 | topo_count |
 | 30 | 1 | dip_switches |
 | 31 | 1 | link_flags: b0 eth link up, b1 1000 Mb/s, b2 full duplex, b3 chain up-link ok, b4 chain down-link ok, b5 is master, b6 reserved (was DUT ID conflict; IDs cannot collide since ADR 0011 amendment) |
-| 32 | 4 | capabilities: b0 uart, b1 jtag, b2 kbd device, b3 phys kbd host, b4 hdmi capture, b5 chain, b6 audio |
+| 32 | 4 | capabilities: b0 uart, b1 jtag, b2 kbd device, b3 phys kbd host, b4 hdmi capture, b5 chain, b6 audio, b7 thumbnails (section 10) |
 | 36 | 4 | config_generation |
 | 40 | 1 | target_flags: b0 kbd 3V3 sense, b1 JTAG VREF sense, b2 outputs enabled, b3 sense valid |
 | 41 | 1 | kbd_owner: 0 UDP, 1 physical |
@@ -170,6 +170,7 @@ Keys (whole values, never toggles):
 | 0x0034 | 12 | host LED vector for mode 2: LED0 R,G,B, LED1 R,G,B, LED2 R,G,B, LED3 R,G,B (LED0/1 drive LED, LED2/3 power LED) |
 | 0x0035 | 1 | console screen (issue 0029): 0 auto (select while choosing; else passthrough of HDMI IN to HDMI OUT when the video target is one of this board's DUTs and its video is present (issue 0032); else editable when text is forced or video is present, else no video), 1 editable, 2 no video, 3 select (1..3 force a console screen and disable passthrough) |
 | 0x0040 | 1 | Ethernet capture enable (phase 2) |
+| 0x0041 | 8 | thumbnail relay forced destination (section 10): MAC(6), scale(1: 1 = 1/2, 2 = 1/4), frame divisor(1: 1..15). MAC 00:00:00:00:00:00 = off (default). A group (multicast/broadcast) MAC, another scale or divisor -> bad value. Board-wide |
 | 0x0050 | 2 | heartbeat period ms |
 | 0x0060 | 1 | target output enable policy: 0 auto (sense), 1 force on, 2 force off |
 
@@ -322,3 +323,73 @@ to 124 bytes; decoders must accept >= 100)
 ## 9. Audio (port 6505)
 
 Phase 4; defined before implementation.
+
+## 10. Thumbnail relay (raw Ethernet, EtherType 0x88B5)
+
+Issues 0035 (local capture, frame store) and 0038 (relay); owner
+decisions 2026-11-25. Not IP/UDP: raw Ethernet frames with the IEEE
+local-experimental EtherType 0x88B5, so they never leave the lab segment.
+Every frame body (after the 14-byte Ethernet header) starts with
+`version` (1), `subtype` and `magic` 0x4D36 ("M6", so other users of the
+experimental EtherType are ignored). Receivers drop other versions.
+
+Thumbnails: the centre 640x400 of the active picture (x offset
+(h_active - 640)/2, y offset (v_active - 400)/2: 40/40 at 480p, 40/88 at
+576p), averaged over 2x2 boxes (scale 1/2 -> 320x200) or 4x4 boxes (1/4 ->
+160x100), RGB888, every `div`-th source frame (2 = 30 Hz from 60 Hz).
+
+**Request** (subtype 1), broadcast (ff:ff:ff:ff:ff:ff), 8 bytes:
+
+| Off | Size | Field |
+|---|---|---|
+| 0 | 1 | version = 1 |
+| 1 | 1 | subtype = 1 |
+| 2 | 2 | magic 0x4D36 |
+| 4 | 1 | scale: 1 = 1/2 (320x200), 2 = 1/4 (160x100) |
+| 5 | 1 | frame divisor (1..15) |
+| 6 | 2 | reserved (0) |
+
+A board whose console shows the select screen sends one about every
+250 ms, from its DUT0 MAC, with scale 1/2 when it has seen <= 4 machines,
+else 1/4, and divisor 2. Every board that hears a request (broadcast or to
+one of its MACs, good FCS) streams its thumbnails for the next ~1 s,
+**unicast to the request's source MAC** (latest request wins), at the
+requested scale and divisor. Management key 0x0041 forces streaming to a
+given MAC instead (host screenshots). Bulk thumbnail frames never go to a
+group MAC. A board stores its own thumbnails directly; they never loop
+through the network.
+
+**Lines** (subtype 2) and **present, no source** (subtype 3), unicast,
+22-byte header:
+
+| Off | Size | Field |
+|---|---|---|
+| 0 | 1 | version = 1 |
+| 1 | 1 | subtype: 2 lines, 3 present, no source |
+| 2 | 2 | magic 0x4D36 |
+| 4 | 1 | machine number 0..31 (DUT ID nibble * 2 + half, issue 0029) |
+| 5 | 1 | flags: b0 source present (lines follow), b1 last frame of this picture |
+| 6 | 1 | scale: 1 = 1/2, 2 = 1/4 (0 for subtype 3) |
+| 7 | 1 | encoding: 0 RAW888, 1 RLE24 (all lines of this frame) |
+| 8 | 4 | picture number (per sender; increments per picture) |
+| 12 | 2 | first row of this frame |
+| 14 | 2 | line count n |
+| 16 | 2 | width: 320 or 160 (0 for subtype 3) |
+| 18 | 2 | height: rows in the picture, <= 200 (fewer when the source has fewer than 400 lines) |
+| 20 | 2 | payload bytes |
+| 22 | p | n lines, top to bottom. RAW888: R, G, B per pixel, left to right. RLE24: (count u8 1..255, R, G, B) tuples as raster (section 8); runs never cross a line end |
+
+Rules:
+
+* Per line the sender uses RLE24 only when strictly smaller than RAW888.
+  Lines share a frame while their encoding is the same and the payload stays
+  within 8000 bytes, so frames are variable-length, up to 14 + 22 + 8000
+  bytes (jumbo; receivers need an MTU of ~8100).
+* A picture is complete when rows 0..height-1 all arrived in frames with
+  good FCS; the receiver then shows its new buffer. A lost frame means that
+  picture is never shown (the next one replaces it). No retransmission.
+* A board with no video for one of its machines sends "present, no source"
+  (subtype 3) for it about once a second while it is streaming; receivers
+  mark the machine seen.
+* RAW888 at 1/2 scale and 30 Hz is ~46 Mb/s per source, 1/4 scale ~12 Mb/s
+  (less with RLE24).

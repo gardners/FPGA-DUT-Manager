@@ -56,6 +56,23 @@ def vectors():
     for name, p in v:  # self-check: round trip
         if name.startswith("raster") and name != "raster_badver":
             assert P.decode_raster(p[8:])["pixels"] in (px, b"", rle_px)
+    # thumbnail relay (ADR 0005 s10): request, RAW888 1/4-scale lines,
+    # RLE24 1/2-scale lines, no-source, unknown version
+    src = P.mac("02:4D:36:35:00:11")
+    v.append(("thumb_req", P.thumb_request(src, P.TH_SCALE_QUARTER, 3)))
+    q = [bytes(((x * 5 + y) & 255) for x in range(480)) for y in range(2)]
+    v.append(("thumb_raw", P.thumb_frame(P.mac("02:00:00:00:00:aa"), src, 3, 0x01020304, 10, q,
+                                         P.TH_SCALE_QUARTER, 100, enc=P.TH_ENC_RAW)))
+    h = [bytes([9, 8, 7]) * 300 + bytes([1, 2, 3]) * 20 for _ in range(3)]
+    t = P.thumb_frame(P.mac("02:00:00:00:00:aa"), src, 31, 7, 197, h, P.TH_SCALE_HALF, 200,
+                      flags=P.TH_FLAG_PRESENT | P.TH_FLAG_LAST)
+    assert t[14 + 7] == P.TH_ENC_RLE24
+    v.append(("thumb_rle", t))
+    v.append(("thumb_nosrc", P.thumb_nosrc(P.mac("02:00:00:00:00:aa"), src, 12)))
+    v.append(("thumb_badver", t[:14] + bytes([2]) + t[15:]))
+    for name, p in v[-5:-1]:
+        d = P.decode_thumb(p[14:])
+        assert d["sub"] != P.TH_SUB_LINES or d["lines"] in (q, h)
     hist = bytes(507) + b"HELLO"
     snap = dict(boot_id=0x11223344, snap_seq=5, rx_seq=5, tx_accepted=5, tx_emitted=5,
                 tx_free=2043, framing_errors=1, rx_overflows=0, tx_rejects=2, clear_gen=0,

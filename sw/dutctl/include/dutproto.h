@@ -57,6 +57,7 @@ enum dp_key {
   DP_K_PK_LED_HOST = 0x0034, /* 12-byte LED vector (LED0 R,G,B .. LED3 R,G,B) */
   DP_K_CON_SCREEN = 0x0035,  /* console screen: 0 auto, 1 editable, 2 no video, 3 select */
   DP_K_CAPTURE_EN = 0x0040,
+  DP_K_THUMB_FORCE = 0x0041, /* thumbnail relay to MAC(6) scale(1) div(1); MAC 0 = off */
   DP_K_HB_PERIOD = 0x0050,
   DP_K_OUT_POLICY = 0x0060,
 };
@@ -214,5 +215,37 @@ enum {
   DP_CON_PASSTHROUGH = 3, /* HDMI IN passed through (issue 0032) */
 };
 const char *dp_con_shown_name(int v); /* "editable" .. "passthrough", "?" */
+
+/* ---------------------------------------------------------------------
+ * Thumbnail relay (ADR 0005 section 10, issues 0035/0038): raw Ethernet,
+ * EtherType 0x88B5. Bodies below are the bytes after the 14-byte Ethernet
+ * header. */
+#define DP_ETH_THUMB 0x88B5
+#define DP_TH_VERSION 1
+#define DP_TH_HDR_LEN 22
+#define DP_TH_REQ_LEN 8
+#define DP_TH_MAX_W 320
+#define DP_TH_MAX_H 200
+#define DP_CAP_THUMBS (1u << 7) /* heartbeat capabilities bit */
+enum { DP_TH_SUB_REQ = 1, DP_TH_SUB_LINES = 2, DP_TH_SUB_NOSRC = 3 };
+enum { DP_TH_SCALE_HALF = 1, DP_TH_SCALE_QUARTER = 2 };
+enum { DP_TH_FLAG_PRESENT = 1, DP_TH_FLAG_LAST = 2 };
+
+typedef struct {
+  uint8_t subtype;        /* DP_TH_SUB_* */
+  uint8_t scale, div;     /* request: scale and frame divisor; lines: scale */
+  uint8_t machine, flags, encoding; /* DP_ENC_RAW (RAW888) / DP_ENC_RLE24 */
+  uint32_t frame;         /* picture number */
+  uint16_t row, nlines, width, height, payload_bytes;
+  const uint8_t *payload; /* points into the caller's buffer */
+} dp_thumb_t;
+
+/* Request body (8 bytes) into buf; returns its length. */
+size_t dp_encode_thumb_request(uint8_t *buf, uint8_t scale, uint8_t div);
+/* Decode a body (after the Ethernet header); 0 ok, -1 malformed / other. */
+int dp_decode_thumb(const uint8_t *body, size_t len, dp_thumb_t *t);
+/* Expand a lines frame into RGB888 rows (nlines * width * 3 bytes into out).
+ * Returns the number of lines, -1 if malformed. */
+int dp_thumb_lines(const dp_thumb_t *t, uint8_t *out, size_t cap);
 
 #endif

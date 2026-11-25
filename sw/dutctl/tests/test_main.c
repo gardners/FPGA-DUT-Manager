@@ -405,6 +405,51 @@ static void test_rasterframe(void)
   CHECK(rf_flush(&a, &f) == 0);
 }
 
+/* ------------------------------------------------------------ thumbnails */
+static void test_thumbs(void)
+{
+  const vec_t *v;
+  dp_thumb_t t;
+  static uint8_t px[3 * DP_TH_MAX_W * 8];
+  uint8_t req[8];
+  v = vec("thumb_req");
+  CHECK(v->len == 22 && dp_get16(v->data + 12) == DP_ETH_THUMB);
+  CHECK(!memcmp(v->data, "\xff\xff\xff\xff\xff\xff", 6));
+  CHECK(dp_encode_thumb_request(req, DP_TH_SCALE_QUARTER, 3) == 8 && !memcmp(req, v->data + 14, 8));
+  CHECK(dp_decode_thumb(v->data + 14, v->len - 14, &t) == 0);
+  CHECK(t.subtype == DP_TH_SUB_REQ && t.scale == 2 && t.div == 3);
+
+  v = vec("thumb_raw");
+  CHECK(dp_decode_thumb(v->data + 14, v->len - 14, &t) == 0);
+  CHECK(t.subtype == DP_TH_SUB_LINES && t.machine == 3 && t.frame == 0x01020304 && t.row == 10);
+  CHECK(t.nlines == 2 && t.width == 160 && t.height == 100 && t.scale == DP_TH_SCALE_QUARTER);
+  CHECK(t.encoding == DP_ENC_RAW && t.payload_bytes == 960 && t.flags == DP_TH_FLAG_PRESENT);
+  CHECK(dp_thumb_lines(&t, px, sizeof px) == 2);
+  int ok = 1;
+  for (int y = 0; y < 2; y++)
+    for (int x = 0; x < 480; x++)
+      ok &= px[480 * y + x] == ((x * 5 + y) & 255);
+  CHECK(ok);
+  CHECK(dp_decode_thumb(v->data + 14, v->len - 15, &t) < 0); /* truncated */
+
+  v = vec("thumb_rle");
+  CHECK(dp_decode_thumb(v->data + 14, v->len - 14, &t) == 0);
+  CHECK(t.machine == 31 && t.row == 197 && t.nlines == 3 && t.width == 320 && t.height == 200);
+  CHECK(t.encoding == DP_ENC_RLE24 && t.flags == (DP_TH_FLAG_PRESENT | DP_TH_FLAG_LAST));
+  CHECK(t.payload_bytes == 3 * 4 * 3); /* 255 + 45 + 20 per line */
+  CHECK(dp_thumb_lines(&t, px, sizeof px) == 3);
+  CHECK(px[0] == 9 && px[3 * 299 + 2] == 7 && px[3 * 300] == 1 && px[3 * 960 - 1] == 3);
+  CHECK(px[3 * 320 * 2 + 3 * 319 + 2] == 3);
+
+  v = vec("thumb_nosrc");
+  CHECK(dp_decode_thumb(v->data + 14, v->len - 14, &t) == 0);
+  CHECK(t.subtype == DP_TH_SUB_NOSRC && t.machine == 12 && t.payload_bytes == 0);
+  CHECK(dp_thumb_lines(&t, px, sizeof px) < 0);
+
+  v = vec("thumb_badver");
+  CHECK(dp_decode_thumb(v->data + 14, v->len - 14, &t) < 0);
+}
+
 int main(int argc, char **argv)
 {
   load_vectors(argc > 1 ? argv[1] : "vectors.txt");
@@ -413,6 +458,7 @@ int main(int argc, char **argv)
   test_uart_merge();
   test_xvc();
   test_rasterframe();
+  test_thumbs();
   printf("dutctl tests: %d checks, %d failures\n", checks, failures);
   return failures ? 1 : 0;
 }
