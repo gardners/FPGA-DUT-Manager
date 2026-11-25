@@ -6,8 +6,8 @@ with **straight strips of male-to-female jumpers** (or crimped housings):
 | Harness | Mimas end | Other end |
 |---|---|---|
 | JTAG + UART to a MEGA65 | 2 strips of 5 (columns A and B), rows 3-7 | JB1: rows 1-2, skip row 3 (pins 5/6), rows 4-6 |
-| DUT keyboard to a MEGA65 | 1 strip of 5, column A rows 22-26 | J5: pins 8, 9, 1, 10, 2 |
-| Physical keyboard (master only) | 1 strip of 5, P12 column B rows 21-25 | keyboard: pins 2, 8, 9, 1, 10 |
+| DUT keyboard to a MEGA65 | rows 8-12, both columns (J5 in order) + 1 single jumper | J5 2x5 straight; pin 2 jumper to row 13 B |
+| Physical keyboard (master only) | P12 rows 14-18, both columns (in order) + 1 single jumper | keyboard 2x5 straight; pin 2 jumper to row 15 |
 
 **DUT0 uses P12, DUT1 uses P13, at identical positions.**
 
@@ -57,39 +57,49 @@ odd pins, column B = JB1 even pins.
 | 7 | spare | J19 / C22 | 11 (n.c.) | TMS (out) | H19 / B22 | 12 |
 
 The column-A wires for rows 6-7 land
-on JB1 n.c. pins and can be left out. If VIO sensing is wanted, run one
-extra jumper from JB1 pin 6 to Mimas row 6 column A instead of pin 9.
+on JB1 n.c. pins and can be left out. For VIO sensing, run one extra jumper
+from JB1 pin 6 (VIO) to Mimas row 6 column A (a 1-10 kOhm series resistor
+avoids back-feeding the Mimas when only the MEGA65 is powered); the
+heartbeat then shows `vio=1` when the MEGA65 is on.
 
 The supervisor treats the DUT as powered when **either** VIO (if wired) or
 the keyboard harness's 3.3 V is present, and keeps TCK/TMS/TDI/UART-out
 tri-stated otherwise — so connect the keyboard harness too, or JTAG stays
 off.
 
-## 2. DUT keyboard (per DUT): Mimas column A rows 22-26 -> J5
+## 2. DUT keyboard (per DUT): Mimas rows 8-12 -> J5, in order
 
-| Mimas row (column A) | Signal | DUT0 / DUT1 ball | J5 pin |
-|---|---|---|---|
-| 22 | KIO8 (in, clock from MEGA65) | H17 / A15 | 8 |
-| 23 | KIO9 (in, LED data from MEGA65) | G17 / C14 | 9 |
-| 24 | GND | — | 1 |
-| 25 | KIO10 (out, key data to MEGA65) | G15 / A13 | 10 |
-| 26 | 3.3 V sense (in) | J15 / C13 | 2 |
+The Mimas block mirrors J5 row for row (column A = odd pins, column B = even
+pins). Only J5 pins 1, 8, 9, 10 use the strips; J5's keyboard-JTAG pins 3-7
+are not wired. J5 pin 2 (the MEGA65's 3.3 V) cannot share a row with GND on
+the Mimas, so it is **one separate jumper** to a sense input.
 
-The MEGA65's own 3.3 V only goes to a sense input; it is never connected to
-the Mimas 3.3 V.
+| Mimas row | Column A | J5 | Column B | J5 |
+|---|---|---|---|---|
+| 8 | GND | 1 | (empty — pin 2 goes to row 13 B) | — |
+| 9 | (empty) | 3 | (empty) | 4 |
+| 10 | (empty) | 5 | (empty) | 6 |
+| 11 | (empty) | 7 | KIO8 in — K19 / C19 | 8 |
+| 12 | KIO9 in — L19 / D17 | 9 | KIO10 out — L20 / C17 | 10 |
+| 13 | — | | **3.3 V sense in — L21 / A20** | **2 (separate jumper)** |
 
-## 3. Physical keyboard (master supervisor only): P12 column B rows 21-25
+(Balls: DUT0 on P12 / DUT1 on P13.) Row 9 is the Mimas 3.3 V row: leave
+those housing positions empty. The MEGA65's 3.3 V only reaches the sense
+input; it is never connected to the Mimas supply.
 
-| Mimas row (column B) | Signal | Ball | Keyboard connector pin |
-|---|---|---|---|
-| 21 | 3.3 V (VADJ, supplies the keyboard) | — | 2 |
-| 22 | KIO8 (MK-I clock / MK-II SDA) | H18 | 8 |
-| 23 | KIO9 (MK-I LED data / MK-II SCL) | G18 | 9 |
-| 24 | GND | — | 1 |
-| 25 | KIO10 (MK-I key data in) | G16 | 10 |
+## 3. Physical keyboard (master supervisor only): P12 rows 14-18, in order
 
-The keyboard type (MK-I or MK-II) is detected automatically; `dutctl
-listen` reports it. No keyboard JTAG wires are needed.
+| Mimas row | Column A | Keyboard pin | Column B | Keyboard pin |
+|---|---|---|---|---|
+| 14 | GND | 1 | (empty — pin 2 goes to row 15) | — |
+| 15 | (empty; 3.3 V row) | 3 | (empty; 3.3 V row) | 4 |
+| 16 | (empty) | 5 | (empty) | 6 |
+| 17 | (empty) | 7 | KIO8 (MK-I clock / MK-II SDA) — M20 | 8 |
+| 18 | KIO9 (MK-I LED data / MK-II SCL) — M18 | 9 | KIO10 (MK-I key data) — L18 | 10 |
+
+Keyboard pin 2 (its 3.3 V supply) is **one separate jumper** to row 15 (either
+column; 3.3 V VADJ, a power pin). The keyboard type (MK-I or MK-II) is
+detected automatically; `dutctl listen` reports it.
 
 ## Cautions
 

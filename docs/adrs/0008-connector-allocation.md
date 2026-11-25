@@ -125,3 +125,20 @@ VIO sense moves to row 6 column A (JB1 pin 9 position, n.c. on the MEGA65;
 optional extra jumper from JB1 pin 6). "DUT powered" is now VIO **or** the
 keyboard cable's 3.3 V, so the keyboard harness alone enables JTAG/UART
 outputs.
+
+## Amendment 3 2026-11-25 (owner): keyboard blocks mirror J5
+
+Supersedes the keyboard rows of amendment 2. Each keyboard harness is two
+straight 1x5 strips that keep the J5 2x5 order (Mimas column A = odd pins,
+B = even); only J5 pin 2 (3.3 V) is a separate jumper, because the Mimas
+has no row with GND and a signal/supply side by side.
+
+| Header | Rows | Function |
+|---|---|---|
+| P12 / P13 | 8-12 (+ row 13 B) | DUT0 / DUT1 keyboard: 8A GND, 11B KIO8, 12A KIO9, 12B KIO10; 13B 3V3 sense |
+| P12 | 14-18 (+ row 15) | physical keyboard: 14A GND, 17B KIO8, 18A KIO9, 18B KIO10; pin 2 to row 15 (VADJ) |
+
+Consequence: rows 10-13 and 16-19 are no longer free for the chain link
+(ADR 0007); its pins must be reallocated in phase 3 (rows 22-33 are free on
+both headers but have no clock-capable pins, which the forwarded chain
+clock may need — to be decided then).
