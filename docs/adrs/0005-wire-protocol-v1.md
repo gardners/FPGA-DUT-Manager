@@ -291,7 +291,7 @@ to 124 bytes; decoders must accept >= 100)
 
 | Off | Size | Field |
 |---|---|---|
-| 108 | 1 | video_flags: b0 TMDS clock present, b1 locked (aligned + decoding), b2 capture enabled, b3 DVI (no data islands seen) |
+| 108 | 1 | video_flags: b0 TMDS clock present, b1 locked (aligned + decoding), b2 capture enabled, b3 HDMI mode seen (video/data-island preambles; 0 = DVI source), b4 data islands seen (InfoFrames/audio), both over the last two frames and only while locked (issue 0040; guard bands and islands never count as pixels), b5-b7 reserved (0) |
 | 109 | 1 | HDMI OUT shown: 0 editable, 1 no video, 2 select (console screens, issue 0029), 3 passthrough of HDMI IN (issue 0032) |
 | 110 | 2 | h_total |
 | 112 | 2 | v_total |

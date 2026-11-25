@@ -1,6 +1,16 @@
 # Digilent dvi2rgb (DVI 1.0 sink for Xilinx 7-series)
 
-Imported for issue 0022 (HDMI/DVI capture input), unmodified.
+Imported for issue 0022 (HDMI/DVI capture input). Modified since (marked
+"FPGA-DUT-Manager change" in the source; everything else is upstream):
+
+* 2026-11-25, issue 0040, `src/dvi2rgb.vhd`: generic `kHdmiAware` (default
+  false = upstream behaviour) and outputs `vid_pHdmi`, `vid_pIsland`. With
+  `kHdmiAware` the video DE comes from our `hdl/src/video/hdmi_rx_period.vhd`
+  (LGPL-2.1-or-later), which drops HDMI video guard bands and data islands
+  from DE using the per-channel control decode, and takes HSYNC/VSYNC from
+  the TERC4 characters inside data islands (upstream holds the last control
+  value there, moving the HSYNC edge). The upstream `pHSync`/`pVSync`
+  assignments moved into the `not kHdmiAware` branch.
 
 * Upstream: https://github.com/Digilent/vivado-library, `ip/dvi2rgb/src`
 * Commit: see `UPSTREAM_COMMIT`

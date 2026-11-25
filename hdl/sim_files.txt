@@ -46,6 +46,7 @@ hdl/src/video/ddc_edid.vhd
 hdl/src/top/supervisor_core.vhd
 hdl/src/platform/xc7/xc7_prims_pkg.vhd
 hdl/src/video/hdmi_framer.vhd
+hdl/src/video/hdmi_rx_period.vhd
 hdl/src/platform/xc7/dvi_tx_xc7.vhd
 hdl/sim/dna_port_model.vhd
 hdl/src/platform/xc7/dna_xc7.vhd

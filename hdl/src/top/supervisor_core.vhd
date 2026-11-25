@@ -73,6 +73,9 @@ entity supervisor_core is
     vid_present, vid_locked : in std_logic := '0';
     vid_h_total, vid_v_total, vid_h_active, vid_v_active : in unsigned(15 downto 0) := (others => '0');
     vid_pixel_hz : in unsigned(31 downto 0) := (others => '0');
+    -- HDMI IN source sends HDMI (preambles/guard bands) / data islands
+    -- (InfoFrames, audio), seen in the last two frames (issue 0040)
+    vid_hdmi, vid_islands : in std_logic := '0';
     -- HDMI IN pixel stream (pixel clock domain) for raster capture (issue 0023)
     vin_pclk  : in  std_logic := '0';
     vin_rgb   : in  std_logic_vector(23 downto 0) := (others => '0');
@@ -535,7 +538,8 @@ begin
   vid_ok  <= vid_locked = '1' and vid_present = '1';
   vid_b0  <= '1' when vid_ok else '0';
   vid_b1  <= '1' when vid_ok and vid_h_active /= 0 and vid_v_active /= 0 else '0';
-  bstat.vid_flags   <= "000000" & vid_b1 & vid_b0;
+  -- b3 HDMI mode, b4 data islands (issue 0040; only while locked)
+  bstat.vid_flags   <= "000" & (vid_b1 and vid_islands) & (vid_b1 and vid_hdmi) & '0' & vid_b1 & vid_b0;
   bstat.vid_h_total  <= vid_h_total  when vid_ok else (others => '0');
   bstat.vid_v_total  <= vid_v_total  when vid_ok else (others => '0');
   bstat.vid_h_active <= vid_h_active when vid_ok else (others => '0');

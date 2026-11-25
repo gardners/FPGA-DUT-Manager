@@ -85,6 +85,8 @@ architecture rtl of mimas_a7_top is
   signal vin_ht, vin_vt, vin_ha, vin_va : unsigned(15 downto 0);
   signal vin_hz : unsigned(31 downto 0);
   signal vin_lock_s : std_logic_vector(1 downto 0) := "00";
+  signal vin_hdmi, vin_island : std_logic;
+  signal vin_hdmi_s, vin_island_s : std_logic_vector(1 downto 0) := "00";
   signal idc_rdy : std_logic;
   signal good, bad : unsigned(15 downto 0);
   signal link_flags : std_logic_vector(7 downto 0);
@@ -175,6 +177,7 @@ begin
       vid_present => vin_present, vid_locked => vin_lock_s(1),
       vid_h_total => vin_ht, vid_v_total => vin_vt, vid_h_active => vin_ha,
       vid_v_active => vin_va, vid_pixel_hz => vin_hz,
+      vid_hdmi => vin_hdmi_s(1), vid_islands => vin_island_s(1),
       vin_pclk => vin_pclk, vin_rgb => vin_rgb, vin_de => vin_de, vin_hs => vin_hs,
       vin_vs => vin_vs,
       text_forced => t_force, con_screen => con_screen, con_slots => con_slots,
@@ -188,7 +191,7 @@ begin
               ddc_scl => hdmi_rx_scl, ddc_sda => hdmi_rx_sda,
               ref_clk => clk_ref, ref_rst => not locked,
               pclk => vin_pclk, rgb => vin_rgb, de => vin_de, hs => vin_hs, vs => vin_vs,
-              locked => vin_locked);
+              locked => vin_locked, hdmi_seen => vin_hdmi, island_seen => vin_island);
   vmeas : entity work.video_meas
     port map (pclk => vin_pclk, de => vin_de, hs => vin_hs, vs => vin_vs, clk => clk_sys,
               h_total => vin_ht, v_total => vin_vt, h_active => vin_ha, v_active => vin_va,
@@ -198,6 +201,8 @@ begin
   begin
     if rising_edge(clk_sys) then
       vin_lock_s <= vin_lock_s(0) & vin_locked;
+      vin_hdmi_s <= vin_hdmi_s(0) & vin_hdmi;        -- quasi-static (issue 0040)
+      vin_island_s <= vin_island_s(0) & vin_island;
     end if;
   end process;
 

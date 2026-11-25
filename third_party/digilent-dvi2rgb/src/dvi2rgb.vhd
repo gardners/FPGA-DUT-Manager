@@ -69,6 +69,9 @@ entity dvi2rgb is
       kClkRange : natural := 2;  -- MULT_F = kClkRange*5 (choose >=120MHz=1, >=60MHz=2, >=40MHz=3)
       kEdidFileName : string := "dgl_720p_cea.data";  -- Select EDID file to use
       kDebug : boolean := true;
+      -- FPGA-DUT-Manager change (issue 0040): HDMI-aware DE (guard bands and
+      -- data islands are not video), see hdl/src/video/hdmi_rx_period.vhd
+      kHdmiAware : boolean := false;
       -- 7-series specific
       kIDLY_TapValuePs : natural := 78; --delay in ps per tap
       kIDLY_TapWidth : natural := 5); --number of bits for IDELAYE2 tap counter   
@@ -89,6 +92,11 @@ entity dvi2rgb is
       vid_pVDE : out std_logic;
       vid_pHSync : out std_logic;
       vid_pVSync : out std_logic;
+      -- FPGA-DUT-Manager change (issue 0040): HDMI preambles / data islands
+      -- seen in the last two frames (PixelClk_int domain, quasi-static;
+      -- '0' unless kHdmiAware)
+      vid_pHdmi : out std_logic;
+      vid_pIsland : out std_logic;
       
       PixelClk : out std_logic; --pixel-clock recovered from the DVI interface
       
@@ -262,9 +270,22 @@ end generate DataDecoders;
 pData(23 downto 16) <= pDataIn(2); -- red is channel 2
 pData(7 downto 0) <= pDataIn(1); -- green is channel 1
 pData(15 downto 8) <= pDataIn(0); -- blue is channel 0
+-- FPGA-DUT-Manager change (issue 0040): with kHdmiAware, only real video
+-- characters drive DE (begin)
+GenerateDviDE: if not kHdmiAware generate
+pVDE <= pDE(0); -- since channels are aligned, all of them are either active or blanking at once
 pHSync <= pC0(0); -- channel 0 carries control signals too
 pVSync <= pC1(0); -- channel 0 carries control signals too
-pVDE <= pDE(0); -- since channels are aligned, all of them are either active or blanking at once
+vid_pHdmi <= '0';
+vid_pIsland <= '0';
+end generate GenerateDviDE;
+GenerateHdmiDE: if kHdmiAware generate
+   HdmiPeriodX: entity work.hdmi_rx_period
+      port map (clk => PixelClk_int, de_in => pDE(0), hs_in => pC0(0), vs_in => pC1(0),
+                d0 => pDataIn(0), ctl => pC1(2) & pC0(2) & pC1(1) & pC0(1),
+                de_out => pVDE, hs_out => pHSync, vs_out => pVSync, hdmi_seen => vid_pHdmi, island_seen => vid_pIsland);
+end generate GenerateHdmiDE;
+-- FPGA-DUT-Manager change (issue 0040) (end)
 
 -- Clock outputs
 SerialClk <= SerialClk_int; -- fast 5x pixel clock for advanced use only

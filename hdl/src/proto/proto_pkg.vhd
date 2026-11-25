@@ -87,6 +87,13 @@ package proto_pkg is
   constant JS_BAD_FMT   : std_logic_vector(7 downto 0) := x"03";
   constant JS_UNPOWERED : std_logic_vector(7 downto 0) := x"04";
 
+  -- heartbeat byte 108, video_flags bits (ADR 0005 section 8)
+  constant VF_CLOCK   : natural := 0;   -- TMDS clock present
+  constant VF_LOCKED  : natural := 1;   -- aligned + decoding
+  constant VF_CAPTURE : natural := 2;   -- capture enabled
+  constant VF_HDMI    : natural := 3;   -- HDMI preambles seen (issue 0040)
+  constant VF_ISLANDS : natural := 4;   -- data islands seen (issue 0040)
+
   -- defaults
   -- heartbeat byte 109, HDMI OUT shown: 0 editable, 1 no video, 2 select
   -- (console screens, issue 0029), 3 passthrough of HDMI IN (issue 0032)
