@@ -1,6 +1,9 @@
 /* dutctl - command line control of Mimas A7 DUT supervisors.
  *
- *   dutctl listen [-t SECONDS]                 decode heartbeats
+ *   dutctl listen [-t SECONDS] [-n COUNT] [--kv]
+ *                                              decode heartbeats (--kv: key=value)
+ *   dutctl mgmt IP KEY [HEXVALUE] [--cmd-id N] [--dut N]
+ *                                              raw MGMT_SET, prints the ack
  *   dutctl set IP NAME VALUE                   management (see `dutctl help`)
  *   dutctl kbd IP [KEY ...]                    hold keys (none = all up)
  *   dutctl uart IP [--baud N] [--clear] [--from-start]
@@ -216,6 +219,66 @@ static int cmd_set(int argc, char **argv)
 }
 
 /* ------------------------------------------------------------- keyboard */
+/* Raw MGMT_SET: any key, any value (hex, possibly empty), chosen cmd_id
+ * and dut index; prints the ack as key=value. Used by scripts to check
+ * rejections (bad key / length / value) and duplicate detection.
+ * Exit 0 when an ack arrived (whatever its status), 1 when none did. */
+static int cmd_mgmt(int argc, char **argv)
+{
+  if (argc < 2)
+    return fprintf(stderr, "usage: dutctl mgmt IP KEY [HEXVALUE] [--cmd-id N] [--dut N] [--timeout-ms N]\n"
+                           "  prints: dut=D key=K cmd_id=C status=S (0 ok 1 bad-key 2 bad-length\n"
+                           "  3 bad-value 4 duplicate) cfg_gen=G, or 'noack' (exit 1)\n"), 2;
+  const char *ip = argv[0];
+  uint16_t key = (uint16_t)strtoul(argv[1], NULL, 0);
+  const char *hex = "";
+  long cmd = -1, dut = DP_DUT_ANY, tmo = 1000;
+  for (int i = 2; i < argc; i++) {
+    if (!strcmp(argv[i], "--cmd-id") && i + 1 < argc) cmd = strtol(argv[++i], NULL, 0);
+    else if (!strcmp(argv[i], "--dut") && i + 1 < argc) dut = strtol(argv[++i], NULL, 0);
+    else if (!strcmp(argv[i], "--timeout-ms") && i + 1 < argc) tmo = strtol(argv[++i], NULL, 0);
+    else if (i == 2) hex = argv[i];
+    else return fprintf(stderr, "dutctl mgmt: unexpected %s\n", argv[i]), 2;
+  }
+  uint8_t v[256];
+  size_t hl = strlen(hex);
+  if (hl % 2 || hl / 2 > sizeof v)
+    return fprintf(stderr, "dutctl mgmt: HEXVALUE must have an even number of hex characters\n"), 2;
+  for (size_t i = 0; i < hl / 2; i++) {
+    unsigned b;
+    if (sscanf(hex + 2 * i, "%2x", &b) != 1)
+      return fprintf(stderr, "dutctl mgmt: bad hex\n"), 2;
+    v[i] = (uint8_t)b;
+  }
+  if (cmd < 0) {
+    srand((unsigned)(time(NULL) ^ getpid()));
+    cmd = rand() & 0xFFFF;
+  }
+  int fd = udp_bind(0);
+  struct sockaddr_in t = parse_target(ip, DP_PORT_MGMT);
+  uint8_t pkt[DP_MAX_PACKET], rx[DP_MAX_PACKET];
+  size_t n = dp_encode_mgmt_set(pkt, (uint8_t)dut, (uint16_t)cmd, key, v, (uint16_t)(hl / 2));
+  if (!n)
+    return fprintf(stderr, "dutctl mgmt: encode failed\n"), 2;
+  int tries = (int)(tmo / 200) > 0 ? (int)(tmo / 200) : 1;
+  for (int attempt = 0; attempt < tries; attempt++) {
+    sendto(fd, pkt, n, 0, (struct sockaddr *)&t, sizeof t);
+    dp_hdr_t h;
+    if (udp_recv(fd, rx, sizeof rx, 200, &t, DP_T_MGMT_ACK, &h, NULL) > 0) {
+      dp_ack_t a;
+      if (dp_decode_ack(rx + DP_HDR_LEN, h.length, &a) == 0 && a.cmd_id == (uint16_t)cmd) {
+        printf("dut=%u key=0x%04x cmd_id=%u status=%u cfg_gen=%u\n", h.dut, a.key, a.cmd_id, a.status,
+               a.cfg_gen);
+        close(fd);
+        return 0;
+      }
+    }
+  }
+  printf("noack\n");
+  close(fd);
+  return 1;
+}
+
 static int cmd_kbd(int argc, char **argv)
 {
   if (argc < 1)
@@ -242,17 +305,56 @@ static int cmd_kbd(int argc, char **argv)
 }
 
 /* ------------------------------------------------------------- listen */
+/* One heartbeat as space-separated key=value pairs (for scripts such as
+ * scripts/hwtest.sh). t = seconds since listen started (monotonic). Field
+ * names follow ADR 0005 section 3; numbers decimal except the hex ids. */
+static void print_hb_kv(const char *ip, const dp_hdr_t *h, const dp_heartbeat_t *hb, double t)
+{
+  printf("t=%.6f ip=%s dut=%u plen=%u seq=%u boot=%08x build=%08x dna=%016llx topo_index=%u "
+         "topo_count=%u dip=%u link_flags=%u caps=%u cfg_gen=%u target_flags=%u kbd_owner=%u "
+         "kbd_policy=%u selected=%u phys_change=%u phys_type=%u jtag_status=%u jtag_next_seq=%u "
+         "uart_rx_seq=%u uart_tx_acc=%u rx_rejects=%u tx_drops=%u addr_src=%u dut_id=%u",
+         t, ip, h->dut, h->length, hb->hb_seq, hb->boot_id, hb->build_id, (unsigned long long)hb->dna,
+         hb->topo_index, hb->topo_count, hb->dip, hb->link_flags, hb->caps, hb->cfg_gen,
+         hb->target_flags, hb->kbd_owner, hb->kbd_policy, hb->selected, hb->phys_change, hb->phys_type,
+         hb->jtag_status, hb->jtag_next_seq, hb->uart_rx_seq, hb->uart_tx_acc, hb->rx_rejects,
+         hb->tx_drops, hb->addr_src, hb->dut_id);
+  printf(" has_video=%u", hb->has_video);
+  if (hb->has_video)
+    printf(" video_flags=%u console_screen=%u h_total=%u v_total=%u h_active=%u v_active=%u "
+           "pixel_clock_hz=%u frames_captured=%u raster_lines_dropped=%u tmds_decode_errors=%u",
+           hb->video_flags, hb->console_screen, hb->h_total, hb->v_total, hb->h_active, hb->v_active,
+           hb->pixel_clock_hz, hb->frames_captured, hb->raster_lines_dropped, hb->tmds_decode_errors);
+  printf(" has_link=%u", hb->has_link);
+  if (hb->has_link)
+    printf(" rx_phase_pos=%u rx_eye_width=%u rx_hunts=%u rx_bad_frames=%u rx_link_flags=%u",
+           hb->rx_phase_pos, hb->rx_eye_width, hb->rx_hunts, hb->rx_bad_frames, hb->rx_link_flags);
+  printf("\n");
+  fflush(stdout);
+}
+
 static int cmd_listen(int argc, char **argv)
 {
   double secs = 0;
-  for (int i = 0; i < argc; i++)
+  long count = 0, seen = 0;
+  int kv = 0;
+  for (int i = 0; i < argc; i++) {
     if (!strcmp(argv[i], "-t") && i + 1 < argc)
       secs = atof(argv[++i]);
+    else if (!strcmp(argv[i], "-n") && i + 1 < argc)
+      count = strtol(argv[++i], NULL, 0);
+    else if (!strcmp(argv[i], "--kv"))
+      kv = 1;
+    else
+      return fprintf(stderr, "usage: dutctl listen [-t SECONDS] [-n COUNT] [--kv]\n"), 2;
+  }
   int fd = udp_bind(DP_PORT_HB);
   signal(SIGINT, on_sig);
-  double end = secs > 0 ? now_s() + secs : 1e300;
+  signal(SIGTERM, on_sig);
+  double t0 = now_s();
+  double end = secs > 0 ? t0 + secs : 1e300;
   uint8_t buf[DP_MAX_PACKET];
-  while (!g_stop && now_s() < end) {
+  while (!g_stop && now_s() < end && (count <= 0 || seen < count)) {
     dp_hdr_t h;
     struct sockaddr_in src;
     int n = udp_recv(fd, buf, sizeof buf, 200, NULL, DP_T_HEARTBEAT, &h, &src);
@@ -263,6 +365,11 @@ static int cmd_listen(int argc, char **argv)
       continue;
     char ipb[32];
     inet_ntop(AF_INET, &src.sin_addr, ipb, sizeof ipb);
+    seen++;
+    if (kv) {
+      print_hb_kv(ipb, &h, &hb, now_s() - t0);
+      continue;
+    }
     static const char *const src_names[] = {"none", "dhcp", "fallback", "static"};
     printf("[DUT %2u %-8s] ", hb.dut_id, hb.addr_src < 4 ? src_names[hb.addr_src] : "?");
     printf("%-15s dut%d seq %-8u boot %08x build %08x dna %016llx dip %02x link %02x "
@@ -726,8 +833,9 @@ static void usage(void)
 {
   fprintf(stderr,
           "dutctl - Mimas A7 DUT supervisor control\n"
-          "  dutctl listen [-t SECONDS]\n"
+          "  dutctl listen [-t SECONDS] [-n COUNT] [--kv]\n"
           "  dutctl set IP NAME VALUE          (dutctl set for names)\n"
+          "  dutctl mgmt IP KEY [HEXVALUE] [--cmd-id N] [--dut N]   raw MGMT_SET\n"
           "  dutctl kbd IP [KEY ...]           keys by name (A, RETURN, F1...) or matrix number\n"
           "  dutctl uart IP [--baud N] [--clear] [--from-start]\n"
           "  dutctl jtag-idcode IP\n"
@@ -812,6 +920,7 @@ int main(int argc, char **argv)
   argv += 2;
   if (!strcmp(c, "listen")) return cmd_listen(argc, argv);
   if (!strcmp(c, "set")) return cmd_set(argc, argv);
+  if (!strcmp(c, "mgmt")) return cmd_mgmt(argc, argv);
   if (!strcmp(c, "kbd")) return cmd_kbd(argc, argv);
   if (!strcmp(c, "uart")) return cmd_uart(argc, argv);
   if (!strcmp(c, "jtag-idcode")) return cmd_jtag_idcode(argc, argv);
