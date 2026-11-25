@@ -67,7 +67,11 @@ entity supervisor_core is
     -- RGMII RX phase hunter (issue 0028): MMCM dynamic phase shift on clk_sys
     rx_ps_en    : out std_logic;
     rx_ps_done  : in  std_logic := '0';
-    rx_locked   : in  std_logic := '1'
+    rx_locked   : in  std_logic := '1';
+    -- HDMI IN measurement (clk_sys domain, issue 0022): heartbeat video block
+    vid_present, vid_locked : in std_logic := '0';
+    vid_h_total, vid_v_total, vid_h_active, vid_v_active : in unsigned(15 downto 0) := (others => '0');
+    vid_pixel_hz : in unsigned(31 downto 0) := (others => '0')
   );
 end entity;
 
@@ -482,6 +486,10 @@ begin
   bstat.rx_hunts    <= hu_hunts;
   bstat.rx_bad      <= hu_badcnt;
   bstat.rx_flags    <= "000000" & lock_s(2) & hu_hunting;
+  bstat.vid_flags   <= "000000" & vid_locked & vid_present;   -- b2 per DUT in net_tx
+  bstat.vid_h_total <= vid_h_total;  bstat.vid_v_total  <= vid_v_total;
+  bstat.vid_h_active <= vid_h_active; bstat.vid_v_active <= vid_v_active;
+  bstat.vid_pixel_hz <= vid_pixel_hz;
 
   ---------------------------------------------------------------- physical keyboard
   -- power LED colour = machine number k = 2 * DUT-ID nibble + half (P12 0,

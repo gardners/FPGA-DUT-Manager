@@ -34,6 +34,11 @@ entity mimas_a7_top is
     hdmi_tx_p    : out   std_logic_vector(2 downto 0);
     hdmi_tx_n    : out   std_logic_vector(2 downto 0);
     hdmi_tx_clk_p, hdmi_tx_clk_n : out std_logic;
+    -- HDMI IN (DVI sink, issue 0022)
+    hdmi_rx_p    : in    std_logic_vector(2 downto 0);
+    hdmi_rx_n    : in    std_logic_vector(2 downto 0);
+    hdmi_rx_clk_p, hdmi_rx_clk_n : in std_logic;
+    hdmi_rx_hpa  : out   std_logic;
     -- USB UART (FTDI channel A), unused in phase 1
     usb_uart_tx  : out   std_logic;
     usb_uart_rx  : in    std_logic;
@@ -66,6 +71,11 @@ architecture rtl of mimas_a7_top is
   signal phy_rst : std_logic := '0';
   signal rx_locked, rx_ps_en, rx_ps_done : std_logic;
   signal dna : std_logic_vector(63 downto 0);
+  signal vin_pclk, vin_de, vin_hs, vin_vs, vin_locked, vin_present : std_logic;
+  signal vin_rgb : std_logic_vector(23 downto 0);
+  signal vin_ht, vin_vt, vin_ha, vin_va : unsigned(15 downto 0);
+  signal vin_hz : unsigned(31 downto 0);
+  signal vin_lock_s : std_logic_vector(1 downto 0) := "00";
   signal idc_rdy : std_logic;
   signal good, bad : unsigned(15 downto 0);
   signal link_flags : std_logic_vector(7 downto 0);
@@ -136,7 +146,29 @@ begin
       buttons => btn, leds => core_leds, text_we => text_we, text_addr => text_addr, text_data => text_data,
       addr_src0 => src0, addr_src1 => src1, ep_enable_o => ep_en,
       stat_rx_good => good, stat_rx_bad => bad,
-      rx_ps_en => rx_ps_en, rx_ps_done => rx_ps_done, rx_locked => rx_locked);
+      rx_ps_en => rx_ps_en, rx_ps_done => rx_ps_done, rx_locked => rx_locked,
+      vid_present => vin_present, vid_locked => vin_lock_s(1),
+      vid_h_total => vin_ht, vid_v_total => vin_vt, vid_h_active => vin_ha,
+      vid_v_active => vin_va, vid_pixel_hz => vin_hz);
+
+  -- HDMI IN: DVI sink + measurement for the heartbeat video block (0022)
+  hrx : entity work.hdmi_rx_xc7
+    port map (tmds_clk_p => hdmi_rx_clk_p, tmds_clk_n => hdmi_rx_clk_n,
+              tmds_p => hdmi_rx_p, tmds_n => hdmi_rx_n, hpd => hdmi_rx_hpa,
+              ref_clk => clk_ref, ref_rst => not locked,
+              pclk => vin_pclk, rgb => vin_rgb, de => vin_de, hs => vin_hs, vs => vin_vs,
+              locked => vin_locked);
+  vmeas : entity work.video_meas
+    port map (pclk => vin_pclk, de => vin_de, hs => vin_hs, vs => vin_vs, clk => clk_sys,
+              h_total => vin_ht, v_total => vin_vt, h_active => vin_ha, v_active => vin_va,
+              hs_pol => open, vs_pol => open, frames => open,
+              pixel_hz => vin_hz, present => vin_present);
+  process (clk_sys)
+  begin
+    if rising_edge(clk_sys) then
+      vin_lock_s <= vin_lock_s(0) & vin_locked;
+    end if;
+  end process;
 
   ---------------------------------------------------------------- video
   vclk : entity work.clocks_video_xc7

@@ -27,6 +27,7 @@ SYNTH_SOURCES := \
 	$(REPO)/third_party/mega65-core/hdmi_tx_encoder.vhdl \
 	$(HDL_SRC)/video/font8x16_pkg.vhd \
 	$(HDL_SRC)/video/video_timing.vhd \
+	$(HDL_SRC)/video/video_meas.vhd \
 	$(HDL_SRC)/video/text_display.vhd \
 	$(HDL_SRC)/video/text_rx_tap.vhd \
 	$(HDL_SRC)/video/seg7_status.vhd \
@@ -37,4 +38,19 @@ SYNTH_SOURCES := \
 	$(HDL_SRC)/platform/xc7/dna_xc7.vhd \
 	$(HDL_SRC)/platform/xc7/clocks_video_xc7.vhd \
 	$(HDL_SRC)/platform/xc7/dvi_tx_xc7.vhd \
+	$(REPO)/third_party/digilent-dvi2rgb/src/DVI_Constants.vhd \
+	$(REPO)/third_party/digilent-dvi2rgb/src/SyncBase.vhd \
+	$(REPO)/third_party/digilent-dvi2rgb/src/SyncAsync.vhd \
+	$(REPO)/third_party/digilent-dvi2rgb/src/SyncAsyncReset.vhd \
+	$(REPO)/third_party/digilent-dvi2rgb/src/ResyncToBUFG.vhd \
+	$(REPO)/third_party/digilent-dvi2rgb/src/GlitchFilter.vhd \
+	$(REPO)/third_party/digilent-dvi2rgb/src/PhaseAlign.vhd \
+	$(REPO)/third_party/digilent-dvi2rgb/src/InputSERDES.vhd \
+	$(REPO)/third_party/digilent-dvi2rgb/src/ChannelBond.vhd \
+	$(REPO)/third_party/digilent-dvi2rgb/src/TMDS_Decoder.vhd \
+	$(REPO)/third_party/digilent-dvi2rgb/src/TMDS_Clocking.vhd \
+	$(REPO)/third_party/digilent-dvi2rgb/src/TWI_SlaveCtl.vhd \
+	$(REPO)/third_party/digilent-dvi2rgb/src/EEPROM_8b.vhd \
+	$(REPO)/third_party/digilent-dvi2rgb/src/dvi2rgb.vhd \
+	$(HDL_SRC)/platform/xc7/hdmi_rx_xc7.vhd \
 	$(HDL_SRC)/top/mimas_a7_top.vhd

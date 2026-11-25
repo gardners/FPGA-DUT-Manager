@@ -32,6 +32,8 @@ create_project -in_memory -part xc7a50tfgg484-1
 read_vhdl -vhdl2008 [concat [list $out/build_id_pkg.vhd] $srcs]
 read_xdc $repo/boards/mimas_a7/mimas_a7.xdc
 read_xdc $repo/boards/mimas_a7/mimas_a7_vivado_timing.xdc
+# Digilent dvi2rgb's own constraints, scoped to its module (issue 0022)
+read_xdc -ref dvi2rgb $repo/third_party/digilent-dvi2rgb/src/dvi2rgb.xdc
 set sargs [list -top mimas_a7_top]
 foreach g $gen { lappend sargs -generic $g }
 synth_design {*}$sargs

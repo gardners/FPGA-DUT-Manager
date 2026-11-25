@@ -8,7 +8,11 @@ set clk_tx90 [get_clocks -of_objects [get_pins clk/mmcm/CLKOUT1]]
 set clk_ref  [get_clocks -of_objects [get_pins clk/mmcm/CLKOUT2]]
 set clk_pix  [get_clocks -of_objects [get_pins vclk/mmcm/CLKOUT0]]
 set clk_pix5 [get_clocks -of_objects [get_pins vclk/mmcm/CLKOUT1]]
+# HDMI IN: 27 MHz TMDS clock (MEGA65 modes, issue 0022); dvi2rgb's MMCM
+# derives the pixel and 5x serial clocks from it.
+create_clock -period 37.037 -name hdmi_rx_clk [get_ports hdmi_rx_clk_p]
 set_clock_groups -asynchronous \
+  -group [get_clocks -include_generated_clocks hdmi_rx_clk] \
   -group [list $clk_sys $clk_tx90] \
   -group $clk_ref \
   -group [list $clk_pix $clk_pix5] \
@@ -31,7 +35,7 @@ set_input_delay -clock rgmii_rxc -clock_fall -max -1.55 -add_delay $rgmii_in
 set_input_delay -clock rgmii_rxc -clock_fall -min -1.95 -add_delay $rgmii_in
 
 # DUT-facing and front-panel I/O are slow/asynchronous.
-set_false_path -to   [get_ports {dut*_* pk_kio8 pk_kio9 led[*] seg[*] seg_en[*] usb_uart_tx phy_rst_n phy_mdc phy_mdio}]
+set_false_path -to   [get_ports {dut*_* pk_kio8 pk_kio9 led[*] seg[*] seg_en[*] usb_uart_tx phy_rst_n phy_mdc phy_mdio hdmi_rx_hpa}]
 set_false_path -from [get_ports {dut*_* pk_kio8 pk_kio9 pk_kio10 dip[*] btn[*] usb_uart_rx phy_mdio}]
 
 # RGMII TX (issue 0019): TXC is forwarded by an ODDR clocked from clk_tx90

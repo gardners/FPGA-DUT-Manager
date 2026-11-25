@@ -88,6 +88,10 @@ package net_pkg is
     rx_hunts    : unsigned(15 downto 0);
     rx_bad      : unsigned(15 downto 0);
     rx_flags    : std_logic_vector(7 downto 0);   -- b0 hunting, b1 RX MMCM locked
+    -- HDMI IN (issue 0022), heartbeat video block
+    vid_flags   : std_logic_vector(7 downto 0);   -- b0 clock present, b1 locked
+    vid_h_total, vid_v_total, vid_h_active, vid_v_active : unsigned(15 downto 0);
+    vid_pixel_hz : unsigned(31 downto 0);
   end record;
 
   -- UART snapshot counters (latched by uart_bridge on snap_ack)

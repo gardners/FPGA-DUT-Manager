@@ -415,7 +415,14 @@ begin
               pf(92) <= x"00"; pf(93) <= x"00";
               pf(106) <= st.addr_src; pf(107) <= st.dut_id;
               for i in 0 to 11 loop pf(94 + i) <= b(st.dut_leds, i); end loop;
-              -- 108..131 video block: zeros until HDMI capture exists (ADR 0005 s8)
+              -- 108..131 video block (ADR 0005 s8): HDMI IN measurement;
+              -- frames_captured / lines dropped / decode errors 0 until capture
+              pf(108) <= bstat.vid_flags(7 downto 3) & bcfg.capture_en(d) & bstat.vid_flags(1 downto 0);
+              pf(110) <= bu(bstat.vid_h_total, 0);  pf(111) <= bu(bstat.vid_h_total, 1);
+              pf(112) <= bu(bstat.vid_v_total, 0);  pf(113) <= bu(bstat.vid_v_total, 1);
+              pf(114) <= bu(bstat.vid_h_active, 0); pf(115) <= bu(bstat.vid_h_active, 1);
+              pf(116) <= bu(bstat.vid_v_active, 0); pf(117) <= bu(bstat.vid_v_active, 1);
+              for i in 0 to 3 loop pf(118 + i) <= bu(bstat.vid_pixel_hz, i); end loop;
               -- 132..139 link block (ADR 0005 s3a)
               pf(132) <= bstat.rx_phase; pf(133) <= bstat.rx_eye;
               pf(134) <= bu(bstat.rx_hunts, 0); pf(135) <= bu(bstat.rx_hunts, 1);
