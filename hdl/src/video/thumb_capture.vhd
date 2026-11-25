@@ -112,6 +112,8 @@ architecture rtl of thumb_capture is
   signal act : std_logic := '0';
   signal am  : unsigned(4 downto 0) := (others => '0');
   signal ab, aq : std_logic := '0';
+  signal sh_v, sh_b : std_logic := '0';
+  signal sh_m : unsigned(4 downto 0) := (others => '0');
   signal frames_r : unsigned(31 downto 0) := (others => '0');
   signal skip_r : unsigned(15 downto 0) := (others => '0');
   signal tag : std_logic_vector(1 downto 0);
@@ -328,7 +330,13 @@ begin
       if f_valid = '1' then
         case tag is
           when T_START =>
-            b := not cur(to_integer(machine));
+            -- the buffer just completed may not show in cur yet (START
+            -- follows END at once): remember it here
+            if sh_v = '1' and sh_m = machine then
+              b := not sh_b;
+            else
+              b := not cur(to_integer(machine));
+            end if;
             if act = '1' then
               skip_r <= skip_r + 1;          -- previous frame lost its END
             end if;
@@ -345,6 +353,7 @@ begin
             if act = '1' then
               if info(8) = '1' and unsigned(info(7 downto 0)) /= 0 then
                 done         <= '1';
+                sh_v <= '1'; sh_m <= am; sh_b <= ab;
                 done_machine <= am;
                 done_buf     <= ab;
                 done_quarter <= aq;
