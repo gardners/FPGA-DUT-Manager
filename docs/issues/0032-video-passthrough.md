@@ -97,3 +97,14 @@ Hardware test plan (lead; not run by the sub-agent):
    replug: passthrough again (no holdoff after a stable session).
 4. Hotkey select / `console-screen 3` during passthrough: select screen
    shows; passthrough resumes when the selection ends.
+
+## 2026-11-25 hardware (lead, self-loop only)
+
+Merged; e7393132 on the HDMI OUT->IN loopback: passthrough attempts at
+~1, 2, 4, 8, 8... s, each drops our own signal ~20 ms and falls back to the
+console; never latched. Found and fixed: interrupted frames changed the
+per-frame v_active (350, 406) so dutctl video called them complete;
+video_meas now publishes geometry only when two frames agree (600-frame
+capture: 597 complete, 3 INCOMPLETE). hwtest forces the editable screen
+while capturing and requires 720x480. Real-source passthrough test pending
+(MEGA65 or PC on HDMI IN).
