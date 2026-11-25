@@ -67,3 +67,33 @@ immediate fallback, no holdoff after a user drop, self-loop model: attempt
 spacing doubles and never latches, recovery, PLL watchdog);
 `tb_supervisor_core` (request on auto with video present; heartbeat 109 = 3
 then 0 after key 0x0035 = 1). `make test` exit 0.
+
+## 2026-11-25 Vivado (build b6f76df)
+
+`TIMING MET: WNS 0.197 ns, WHS 0.017 ns` (worst path in clk_sys, as
+before; RGMII RX static 0.370 / 0.363). New clocks auto-derived: p1 27 MHz
+(WNS 28.3), p5 135 MHz (WNS 3.81), vin PixelClk -> p1 (decoded stream into
+the encoder) +19.65 ns, p1<->p5 +2.42 / +4.52 ns; console pair into the TX
+unchanged (con_pix5_raw +3.74). No critical warnings, DRC clean.
+Resources: 9759 LUTs (+38), 12492 FFs (+87), 1 PLLE2 (new), BUFGCTRL 12
+(+1: two muxes, the console 5x BUFG is gone), MMCMs unchanged (4/5).
+Bitstream: `build/bits/supervisor-b6f76df.bit` in the sub-agent worktree.
+
+Hardware test plan (lead; not run by the sub-agent):
+
+1. Self-loop as cabled (OUT -> IN), auto screen: `dutctl listen` should
+   show `screen editable` (video present) and never `passthrough`
+   (attempts fail inside the 16 ms reset window, before the heartbeat can
+   report 3); a monitor teed off HDMI OUT drops sync at growing intervals
+   (1, 2, 4, 8, 8 ... s plus video_meas latency). It must never stick
+   black or frozen; `dutctl set console-screen 1` stops the attempts at
+   once. hwtest's console/capture checks should force a screen first or
+   they race the attempts (capture itself is unaffected: the RX relocks).
+2. Real source: MEGA65 (or any 25..45 MHz DVI source) into HDMI IN, monitor
+   on HDMI OUT, video target = this board's DUT: after ~2 s (video_meas
+   latency + 100 ms debounce + 16 ms reset) the monitor shows the source;
+   heartbeat 109 = 3.
+3. Unplug HDMI IN: console back within ~20 ms (no hang), `no-video`;
+   replug: passthrough again (no holdoff after a stable session).
+4. Hotkey select / `console-screen 3` during passthrough: select screen
+   shows; passthrough resumes when the selection ends.
