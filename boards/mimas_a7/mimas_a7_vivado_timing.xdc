@@ -14,17 +14,21 @@ set_clock_groups -asynchronous \
   -group [list $clk_pix $clk_pix5] \
   -group [get_clocks -include_generated_clocks rgmii_rxc]
 
-# RGMII RX: the RTL8211E sends data edge-aligned with RXC (RXDLY strap off);
-# the capture clock is the RX MMCM output shifted by RX_PHASE (rgmii_xc7).
-# Allow +/-0.5 ns skew at the pins on both edges. For 0 < phase < 360 the
-# default edge pairing (launch on an RXC edge, capture on the next shifted
-# edge of the same sense) is the intended one; tune RX_PHASE / RX_IDELAY so
-# setup and hold slack on the IDDR inputs balance.
+# RGMII RX (issue 0019): the RX sample phase was calibrated on hardware
+# (scan: eye ~56..191 deg, centre ~124 deg, ~3 ns wide). Vivado's model of the
+# same capture is ~1.7 ns off in position and far more pessimistic in width
+# (slow-max vs fast-min corners), so a datasheet-style +/-0.5 ns window never
+# meets even though the board has ~1.5 ns margin each side. These delays
+# describe the *measured* data timing at the pins instead: data changes
+# 1.75 ns +/- 0.2 ns before the RXC edge. That puts the model's centre on the
+# calibrated phase (~+0.37 ns setup and hold at 123.75 deg) so the router does
+# not chase paths it cannot change (IDDRs sit in the ILOGIC tiles). Re-derive
+# if RX_PHASE_STEPS or the RX path changes: shift both values together.
 set rgmii_in [get_ports {rgmii_rxd[*] rgmii_rx_ctl}]
-set_input_delay -clock rgmii_rxc -max  0.5 $rgmii_in
-set_input_delay -clock rgmii_rxc -min -0.5 $rgmii_in
-set_input_delay -clock rgmii_rxc -clock_fall -max  0.5 -add_delay $rgmii_in
-set_input_delay -clock rgmii_rxc -clock_fall -min -0.5 -add_delay $rgmii_in
+set_input_delay -clock rgmii_rxc -max -1.55 $rgmii_in
+set_input_delay -clock rgmii_rxc -min -1.95 $rgmii_in
+set_input_delay -clock rgmii_rxc -clock_fall -max -1.55 -add_delay $rgmii_in
+set_input_delay -clock rgmii_rxc -clock_fall -min -1.95 -add_delay $rgmii_in
 
 # DUT-facing and front-panel I/O are slow/asynchronous.
 set_false_path -to   [get_ports {dut*_* pk_kio8 pk_kio9 led[*] seg[*] seg_en[*] usb_uart_tx phy_rst_n phy_mdc phy_mdio}]
