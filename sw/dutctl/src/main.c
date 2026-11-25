@@ -260,6 +260,12 @@ static int cmd_listen(int argc, char **argv)
       printf("  kbd type %u  rx phase %u eye %u hunts %u bad %u%s", hb.phys_type, hb.rx_phase_pos,
              hb.rx_eye_width, hb.rx_hunts, hb.rx_bad_frames,
              (hb.rx_link_flags & 1) ? " HUNTING" : "");
+    if (hb.phys_type) {
+      printf("  phys");
+      for (int k = 0; k < 80; k++)
+        if (hb.kbd_phys[k / 8] & (1u << (k % 8)))
+          printf(" %s", dp_key_name(k));
+    }
     printf("\n");
     fflush(stdout);
   }

@@ -131,6 +131,8 @@ architecture rtl of supervisor_core is
   signal pk_stb, pk_present : std_logic;
   signal pk_type : std_logic_vector(1 downto 0);
   signal pk_commit : std_logic_vector(31 downto 0);
+  signal pk_leds : std_logic_vector(95 downto 0);
+  signal pk_machine : unsigned(4 downto 0);
   signal pk_change : unsigned(15 downto 0) := (others => '0');
   signal hb_exp : std_logic := '0';
   signal kbd_eff : kbd_arr_t;
@@ -482,6 +484,14 @@ begin
   bstat.rx_flags    <= "000000" & lock_s(2) & hu_hunting;
 
   ---------------------------------------------------------------- physical keyboard
+  -- power LED colour = machine number k = 2 * DUT-ID nibble + half (P12 0,
+  -- P13 1); gentle red pulse when the selected DUT is not powered (owner)
+  pk_machine <= unsigned((id0(3 downto 0) & '0') + 0) when sel_kbd(0) = '0' else
+                unsigned((id1(3 downto 0) & '1') + 0);
+  pkl : entity work.kbd_led_status
+    port map (clk => clk_sys, dut_leds => dut_leds(to_integer(sel_kbd(0 downto 0))),
+              connected => powered(to_integer(sel_kbd(0 downto 0))),
+              machine => pk_machine, leds => pk_leds);
   pkh : entity work.kbd_phys_host
     generic map (MK1_HALF_CYCLES => CLK_HZ / 625_000,          -- 1.6 us
                  MK2_QUARTER_CYCLES => CLK_HZ / 1_000_000,     -- 250 kHz SCL
@@ -489,8 +499,8 @@ begin
     port map (clk => clk_sys, kio8_o => pk_kio8, kio8_oe => pk_kio8_oe,
               kio8_i => pk_kio8_in, kio9_o => pk_kio9, kio9_oe => pk_kio9_oe,
               kio10 => pk_kio10,
-              -- keyboard LEDs show the selected target's own LEDs
-              leds => dut_leds(to_integer(sel_kbd(0 downto 0))),
+              -- drive LEDs: selected target's own; power LED: machine colour
+              leds => pk_leds,
               pressed => pk_keys, strobe => pk_stb, kbd_type => pk_type,
               kbd_commit => pk_commit);
   pk_present <= '1' when pk_type /= "00" else '0';

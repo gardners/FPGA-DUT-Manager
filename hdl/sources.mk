@@ -16,6 +16,7 @@ SYNTH_SOURCES := \
 	$(HDL_SRC)/kbd/kbd_mk2_host.vhd \
 	$(HDL_SRC)/kbd/kbd_phys_host.vhd \
 	$(HDL_SRC)/kbd/kbd_arbiter.vhd \
+	$(HDL_SRC)/kbd/kbd_led_status.vhd \
 	$(HDL_SRC)/eth/eth_mac_rx.vhd \
 	$(HDL_SRC)/eth/eth_mac_tx.vhd \
 	$(HDL_SRC)/net/dhcp_client.vhd \
