@@ -121,6 +121,7 @@ architecture rtl of net_tx is
   signal hb_seq  : u32_arr_t := (others => (others => '0'));
   signal sent    : unsigned(31 downto 0) := (others => '0');
   signal rr      : std_logic := '0';      -- round robin between DUTs
+  signal jr_nb   : unsigned(31 downto 0) := (others => '0');  -- JRESP TDO bytes (S_LATCH)
 
   function b(v : std_logic_vector; i : natural) return byte_t is
     -- byte i counting from the most significant byte (big-endian)
@@ -310,7 +311,12 @@ begin
 
         when S_LATCH =>
           -- uart_bridge latches its snapshot counters on the cycle after
-          -- snap_ack; wait for them before using snap(d)
+          -- snap_ack; wait for them before using snap(d). Also precompute
+          -- the JTAG response byte count (timing, issue 0019).
+          jr_nb <= (others => '0');
+          if jr_status(d) = JS_DONE then
+            jr_nb <= shift_right(j_bits(d) + 7, 3);
+          end if;
           state <= S_PREP;
 
         when S_PREP =>
@@ -345,10 +351,7 @@ begin
             when K_JRESP =>
               dmac := jr(d).mac; dip := jr(d).ip; dport := jr(d).port_n; sport := PORT_JTAG;
               typ := T_JTAG_RESP;
-              nbytes := (others => '0');
-              if jr_status(d) = JS_DONE then
-                nbytes := shift_right(j_bits(d) + 7, 3);
-              end if;
+              nbytes := jr_nb;
               plen := JRESP_FIXED_LEN + to_integer(nbytes(11 downto 0));
               tl   := to_integer(nbytes(11 downto 0));
               for i in 0 to 3 loop
