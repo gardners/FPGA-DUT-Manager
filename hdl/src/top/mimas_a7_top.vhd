@@ -105,7 +105,7 @@ begin
       clk_sys => clk_sys, clk_tx90 => clk_tx90,
       rgmii_txc => rgmii_txc, rgmii_tx_ctl => rgmii_tx_ctl, rgmii_txd => rgmii_txd,
       rgmii_rxc => rgmii_rxc, rgmii_rx_ctl => rgmii_rx_ctl, rgmii_rxd => rgmii_rxd,
-      clk_rx => clk_rx, rx_dv => rx_dv, rx_er => rx_er, rxd => rxd,
+      clk_rx => clk_rx, rx_locked => open, rx_dv => rx_dv, rx_er => rx_er, rxd => rxd,
       tx_en => tx_en, tx_er => '0', txd => txd);
 
   link_flags <= "000000" & '1' & '1' when good /= 0 else x"00";

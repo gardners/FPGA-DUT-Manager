@@ -12,10 +12,14 @@ set_clock_groups -asynchronous \
   -group [list $clk_sys $clk_tx90] \
   -group $clk_ref \
   -group [list $clk_pix $clk_pix5] \
-  -group [get_clocks rgmii_rxc]
+  -group [get_clocks -include_generated_clocks rgmii_rxc]
 
 # RGMII RX: the RTL8211E sends data edge-aligned with RXC (RXDLY strap off);
-# IDELAYE2 adds ~2 ns. Allow +/-0.5 ns skew at the pins on both edges.
+# the capture clock is the RX MMCM output shifted by RX_PHASE (rgmii_xc7).
+# Allow +/-0.5 ns skew at the pins on both edges. For 0 < phase < 360 the
+# default edge pairing (launch on an RXC edge, capture on the next shifted
+# edge of the same sense) is the intended one; tune RX_PHASE / RX_IDELAY so
+# setup and hold slack on the IDDR inputs balance.
 set rgmii_in [get_ports {rgmii_rxd[*] rgmii_rx_ctl}]
 set_input_delay -clock rgmii_rxc -max  0.5 $rgmii_in
 set_input_delay -clock rgmii_rxc -min -0.5 $rgmii_in
@@ -25,3 +29,15 @@ set_input_delay -clock rgmii_rxc -clock_fall -min -0.5 -add_delay $rgmii_in
 # DUT-facing and front-panel I/O are slow/asynchronous.
 set_false_path -to   [get_ports {dut*_* pk_kio8 pk_kio9 led[*] seg[*] seg_en[*] usb_uart_tx phy_rst_n phy_mdc phy_mdio}]
 set_false_path -from [get_ports {dut*_* pk_kio8 pk_kio9 pk_kio10 dip[*] btn[*] usb_uart_rx phy_mdio}]
+
+# RGMII TX (issue 0019): TXC is forwarded by an ODDR clocked from clk_tx90
+# (+90 deg), TXD/TX_CTL by ODDRs on clk_sys, so data is centred on TXC as the
+# RTL8211E needs with TXDLY strapped off. PHY input requirements (RGMII v2.0
+# without internal delay): setup >= 1.0 ns, hold >= 0.8 ns at the pins.
+create_generated_clock -name rgmii_txc -source [get_pins phy/o_clk/C] \
+  -multiply_by 1 [get_ports rgmii_txc]
+set rgmii_out [get_ports {rgmii_txd[*] rgmii_tx_ctl}]
+set_output_delay -clock rgmii_txc -max  1.0 $rgmii_out
+set_output_delay -clock rgmii_txc -min -0.8 $rgmii_out
+set_output_delay -clock rgmii_txc -clock_fall -max  1.0 -add_delay $rgmii_out
+set_output_delay -clock rgmii_txc -clock_fall -min -0.8 -add_delay $rgmii_out
