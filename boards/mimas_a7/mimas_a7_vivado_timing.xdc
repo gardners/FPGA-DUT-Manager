@@ -11,6 +11,12 @@ set clk_pix5 [get_clocks -of_objects [get_pins vclk/mmcm/CLKOUT1]]
 # HDMI IN: 27 MHz TMDS clock (MEGA65 modes, issue 0022); dvi2rgb's MMCM
 # derives the pixel and 5x serial clocks from it.
 create_clock -period 37.037 -name hdmi_rx_clk [get_ports hdmi_rx_clk_p]
+# HDMI OUT passthrough (issue 0032): the TX clocks are BUFGCTRL muxes of the
+# console pair (clk_pix/clk_pix5) and a PLL on the recovered pixel clock
+# (auto-derived from hdmi_rx_clk, so in its group). Vivado propagates both
+# through the muxes; the console->TX and HDMI IN->TX paths are timed inside
+# each group, the cross pairings (only possible during a switch, with the TX
+# in reset) are cut by these groups.
 set_clock_groups -asynchronous \
   -group [get_clocks -include_generated_clocks hdmi_rx_clk] \
   -group [list $clk_sys $clk_tx90] \

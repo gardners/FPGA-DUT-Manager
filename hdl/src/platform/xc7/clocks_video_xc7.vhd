@@ -1,5 +1,7 @@
 -- 100 MHz -> 27 MHz pixel and 135 MHz (5x) TMDS bit-pair clock.
 -- VCO = 100 / 5 * 54 = 1080 MHz; /40 = 27, /8 = 135.
+-- clk_pix (BUFG) clocks the console logic; the unbuffered outputs go to the
+-- TX clock muxes (video_out_clk_xc7, issue 0032).
 library ieee;
 use ieee.std_logic_1164.all;
 use work.xc7_prims_pkg.all;
@@ -8,7 +10,8 @@ entity clocks_video_xc7 is
   port (
     clk100    : in  std_logic;
     clk_pix   : out std_logic;
-    clk_pix5  : out std_logic;
+    pix_raw   : out std_logic;   -- 27 MHz, unbuffered (BUFGCTRL input)
+    pix5_raw  : out std_logic;   -- 135 MHz, unbuffered (BUFGCTRL input)
     locked    : out std_logic
   );
 end entity;
@@ -28,5 +31,6 @@ begin
       CLKIN1 => clk100, PWRDWN => '0', RST => '0', CLKFBIN => fb_g);
   bfb : BUFG port map (O => fb_g, I => fb);
   b0  : BUFG port map (O => clk_pix, I => c0);
-  b1  : BUFG port map (O => clk_pix5, I => c1);
+  pix_raw  <= c0;
+  pix5_raw <= c1;
 end architecture;

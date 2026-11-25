@@ -5,6 +5,7 @@
 -- HDMI IN: video_timing at 27 MHz, 720 x 8 active of 858 x 12, negative
 -- syncs, pixel pattern R = x, G = y, B = (7x + 31y + 5) mod 256 (raster
 -- capture, issue 0023; the scenario enables capture and rebuilds frames).
+-- Passthrough request (issue 0032) is looped back as shown.
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -38,6 +39,8 @@ architecture tb of tb_supervisor_core is
   signal vx, vy : unsigned(10 downto 0);
   signal vde, vhs, vvs : std_logic;
   signal vrgb : std_logic_vector(23 downto 0);
+  signal pt_req : std_logic;
+  signal pt_seen : boolean := false;
 begin
   clk_sys <= not clk_sys after 4 ns when not done;
   clk_rx  <= not clk_rx after 4.0016 ns when not done;   -- 200 ppm offset
@@ -69,7 +72,10 @@ begin
       vid_h_total => to_unsigned(858, 16), vid_v_total => to_unsigned(12, 16),
       vid_h_active => to_unsigned(720, 16), vid_v_active => to_unsigned(8, 16),
       vid_pixel_hz => to_unsigned(27_027_027, 32),
-      vin_pclk => pclk, vin_rgb => vrgb, vin_de => vde, vin_hs => vhs, vin_vs => vvs);
+      vin_pclk => pclk, vin_rgb => vrgb, vin_de => vde, vin_hs => vhs, vin_vs => vvs,
+      -- passthrough (0032): shown as soon as requested (no clock switch here)
+      pt_request => pt_req, pt_active => pt_req);
+  pt_seen <= true when pt_req = '1';
 
   urx(0) <= utx(0);
   urx(1) <= '1';
@@ -164,7 +170,11 @@ begin
     report "captured " & integer'image(captured) & " frames; rx good " &
       integer'image(to_integer(good)) & " bad " & integer'image(to_integer(bad));
     assert bad = 0 report "RX CRC errors/drops" severity failure;
-    assert good = 25 report "expected 25 good RX frames" severity failure;
+    assert good = 26 report "expected 26 good RX frames" severity failure;
+    -- video present, video target DUT0, auto screen: passthrough requested
+    -- until the last frame forces the editable screen (key 0x0035)
+    assert pt_seen report "passthrough never requested" severity failure;
+    assert pt_req = '0' report "passthrough requested with a forced screen" severity failure;
     report "tb_supervisor_core PASSED (frame-level); run core_scenario.py check";
     done <= true;
     wait;

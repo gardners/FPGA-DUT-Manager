@@ -86,6 +86,8 @@ def scenario():
     f.append((1000, P.with_fcs(P.eth(BCAST, HOST_MAC, 0x0806, P.arp_request(HOST_MAC, HOST_IP, DUT_IP[1])))))
     f.append((5, udp_to(1, P.PORT_KBD, P.kbd_set(0, [1]))))   # dut field mismatch -> reject on DUT1
     f.append((5, udp_to(1, P.PORT_MGMT, P.mgmt_set(1, 9, 0x0050, struct.pack(">H", 1)))))
+    # console screen forced to editable: passthrough (issue 0032) ends
+    f.append((600, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 12, P.K_CON_SCREEN, b"\x01"))))
     return f
 
 
@@ -163,12 +165,13 @@ def check(path):
         err("DUT1 MGMT ack %r" % acks1)
     want = [(1, 0x0010, 0), (2, 0x0050, 0), (2, 0x0050, 4), (3, 0x7777, 1),
             (4, P.K_PK_LED_MODE, 0), (5, P.K_PK_LED_MODE, 3), (6, P.K_PK_LED_HOST, 0),
-            (7, P.K_PK_LED_HOST, 2), (10, 0x0004, 0), (11, 0x0003, 0), (8, K_CAPTURE_EN, 0)]
+            (7, P.K_PK_LED_HOST, 2), (10, 0x0004, 0), (11, 0x0003, 0), (8, K_CAPTURE_EN, 0),
+            (12, P.K_CON_SCREEN, 0)]
     got = [(a["cmd_id"], a["key"], a["status"]) for a in acks]
     if got != want:
         err("MGMT acks %r != %r" % (got, want))
-    elif acks[-1]["cfg_gen"] != 7:   # baud, hb period, LED mode, LED vector, dest x2, capture
-        err("cfg_gen %d != 7" % acks[-1]["cfg_gen"])
+    elif acks[-1]["cfg_gen"] != 9:   # baud, hb period, LED mode, LED vector, dest x2, capture,
+        err("cfg_gen %d != 9" % acks[-1]["cfg_gen"])   # DUT1 hb period, console screen
 
     jr = [P.decode_jtag_resp(d["body"]) for d in parsed
           if d.get("kind") == "udp" and d.get("ptype") == P.T_JTAG_RESP]
@@ -235,6 +238,15 @@ def check(path):
             break
     if not hb0 or not hb0[-1]["video_flags"] & 4:
         err("DUT0 heartbeat does not show capture enabled")
+    # HDMI OUT shown (byte 109, issue 0032): passthrough (3) while the video
+    # target's video is present on auto, editable (0) once key 0x0035 = 1
+    shown = [h["console_screen"] for h in hb0]
+    first0 = shown.index(0) if 0 in shown else None
+    if 3 not in shown or first0 is None or any(x != 0 for x in shown[first0:]) or \
+       any(x != 3 for x in shown[:first0]):
+        err("DUT0 heartbeat console_screen sequence %r (want 3 ... then 0)" % shown)
+    else:
+        print("console shown (byte 109): %r" % shown)
     if not hb1 or hb1[-1]["addr_src"] != 2 or hb1[-1]["dut_id"] != 0x11:
         err("DUT1 heartbeat missing or addr_src/dut_id wrong")
 

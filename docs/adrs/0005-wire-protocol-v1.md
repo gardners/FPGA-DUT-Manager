@@ -152,7 +152,7 @@ Keys (whole values, never toggles):
 | 0x0032 | 1 | coupled selection (1 = default) |
 | 0x0033 | 1 | physical keyboard LEDs (master): 0 status (power LED = machine colour, red pulse when the selected DUT is unpowered; default), 1 pass through the selected DUT's LED vector, 2 host vector (key 0x0034) |
 | 0x0034 | 12 | host LED vector for mode 2: LED0 R,G,B, LED1 R,G,B, LED2 R,G,B, LED3 R,G,B (LED0/1 drive LED, LED2/3 power LED) |
-| 0x0035 | 1 | console screen (issue 0029): 0 auto (select while choosing, editable when text is forced or video is present, else no video), 1 editable, 2 no video, 3 select |
+| 0x0035 | 1 | console screen (issue 0029): 0 auto (select while choosing; else passthrough of HDMI IN to HDMI OUT when the video target is one of this board's DUTs and its video is present (issue 0032); else editable when text is forced or video is present, else no video), 1 editable, 2 no video, 3 select (1..3 force a console screen and disable passthrough) |
 | 0x0040 | 1 | Ethernet capture enable (phase 2) |
 | 0x0050 | 2 | heartbeat period ms |
 | 0x0060 | 1 | target output enable policy: 0 auto (sense), 1 force on, 2 force off |
@@ -292,7 +292,7 @@ to 124 bytes; decoders must accept >= 100)
 | Off | Size | Field |
 |---|---|---|
 | 108 | 1 | video_flags: b0 TMDS clock present, b1 locked (aligned + decoding), b2 capture enabled, b3 DVI (no data islands seen) |
-| 109 | 1 | console screen shown: 0 editable, 1 no video, 2 select (issue 0029) |
+| 109 | 1 | HDMI OUT shown: 0 editable, 1 no video, 2 select (console screens, issue 0029), 3 passthrough of HDMI IN (issue 0032) |
 | 110 | 2 | h_total |
 | 112 | 2 | v_total |
 | 114 | 2 | h_active |

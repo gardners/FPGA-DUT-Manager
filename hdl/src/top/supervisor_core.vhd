@@ -81,7 +81,11 @@ entity supervisor_core is
     -- select-screen slot presence out
     text_forced : in  std_logic := '0';
     con_screen  : out unsigned(1 downto 0);
-    con_slots   : out std_logic_vector(9 downto 0)
+    con_slots   : out std_logic_vector(9 downto 0);
+    -- HDMI OUT passthrough (issue 0032): wanted (registered) / shown (from
+    -- the platform's switch sequencer, clk_sys domain)
+    pt_request  : out std_logic;
+    pt_active   : in  std_logic := '0'
   );
 end entity;
 
@@ -163,6 +167,7 @@ architecture rtl of supervisor_core is
   signal m0, m1 : unsigned(4 downto 0);        -- machine numbers of DUT0/DUT1
   signal slots : std_logic_vector(9 downto 0);
   signal scr : unsigned(1 downto 0);
+  signal pt_req_r : std_logic := '0';
   signal pk_machine : unsigned(4 downto 0);
   signal pk_change : unsigned(15 downto 0) := (others => '0');
   signal hb_exp : std_logic := '0';
@@ -596,7 +601,9 @@ begin
   end generate;
   con_slots <= slots;
   -- console screen: forced by management, else select while choosing,
-  -- editable when the host forced text or video is present, else no video
+  -- editable when the host forced text or video is present, else no video.
+  -- With video present on auto the HDMI OUT normally shows passthrough
+  -- instead (pt_request below); this screen is then the fallback.
   scr <= "00" when bcfg.con_screen = x"01" else
          "01" when bcfg.con_screen = x"02" else
          "10" when bcfg.con_screen = x"03" else
@@ -604,7 +611,25 @@ begin
          "00" when text_forced = '1' or vid_b1 = '1' else
          "01";
   con_screen <= scr;
-  bstat.con_shown <= "000000" & std_logic_vector(scr);
+  -- passthrough (issue 0032): the auto screen choice with the video target
+  -- one of this board's DUTs (phase 1: both share the one HDMI IN) and its
+  -- video present; a forced screen, forced text or the select screen keep
+  -- the console. Registered (text_forced comes from another clock domain;
+  -- video_pt_ctrl debounces the request).
+  process (clk_sys)
+  begin
+    if rising_edge(clk_sys) then
+      if bcfg.con_screen /= x"01" and bcfg.con_screen /= x"02" and bcfg.con_screen /= x"03" and
+         hk_sel = '0' and text_forced = '0' and vid_b1 = '1' and sel_vid < 2 then
+        pt_req_r <= '1';
+      else
+        pt_req_r <= '0';
+      end if;
+    end if;
+  end process;
+  pt_request <= pt_req_r;
+  bstat.con_shown <= CON_SHOWN_PASSTHROUGH when pt_active = '1' else
+                     "000000" & std_logic_vector(scr);
 
   -- selection: management writes or front-panel buttons (last writer wins);
   -- phase 1 has no chain, so targets are this board's two DUTs (0, 1).

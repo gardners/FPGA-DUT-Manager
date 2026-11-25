@@ -88,6 +88,10 @@ package proto_pkg is
   constant JS_UNPOWERED : std_logic_vector(7 downto 0) := x"04";
 
   -- defaults
+  -- heartbeat byte 109, HDMI OUT shown: 0 editable, 1 no video, 2 select
+  -- (console screens, issue 0029), 3 passthrough of HDMI IN (issue 0032)
+  constant CON_SHOWN_PASSTHROUGH : std_logic_vector(7 downto 0) := x"03";
+
   constant DEFAULT_BAUD_INC : unsigned(31 downto 0) := x"0418_9375"; -- 2 Mbaud @125 MHz
   constant DEFAULT_IP_BASE  : std_logic_vector(31 downto 0) := x"C0A8_4110"; -- 192.168.65.16
 end package;

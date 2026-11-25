@@ -31,6 +31,7 @@ SYNTH_SOURCES := \
 	$(HDL_SRC)/video/font8x16_pkg.vhd \
 	$(HDL_SRC)/video/video_timing.vhd \
 	$(HDL_SRC)/video/video_meas.vhd \
+	$(HDL_SRC)/video/video_pt_ctrl.vhd \
 	$(HDL_SRC)/video/text_display.vhd \
 	$(HDL_SRC)/video/text_rx_tap.vhd \
 	$(HDL_SRC)/video/seg7_status.vhd \
@@ -42,6 +43,7 @@ SYNTH_SOURCES := \
 	$(HDL_SRC)/platform/xc7/rgmii_xc7.vhd \
 	$(HDL_SRC)/platform/xc7/dna_xc7.vhd \
 	$(HDL_SRC)/platform/xc7/clocks_video_xc7.vhd \
+	$(HDL_SRC)/platform/xc7/video_out_clk_xc7.vhd \
 	$(HDL_SRC)/platform/xc7/dvi_tx_xc7.vhd \
 	$(REPO)/third_party/digilent-dvi2rgb/src/DVI_Constants.vhd \
 	$(REPO)/third_party/digilent-dvi2rgb/src/SyncBase.vhd \
