@@ -69,6 +69,8 @@ architecture rtl of thumb_rx_tap is
   signal in_pl : std_logic := '0';
   signal bad : std_logic := '0';
   signal sane : std_logic := '0';
+  signal enc_raw, chk, room_r : std_logic := '0';
+  signal chk_cnt : unsigned(7 downto 0) := (others => '0');
   signal bi : unsigned(1 downto 0) := (others => '0');      -- byte in tuple/pixel
   signal tup : std_logic_vector(31 downto 0) := (others => '0');
   signal pix : unsigned(15 downto 0) := (others => '0');    -- pixels in this line
@@ -104,14 +106,14 @@ begin
     variable i : natural;
     variable b : std_logic_vector(7 downto 0);
     variable room : boolean;
-    variable cnt : unsigned(7 downto 0);
     variable np : unsigned(15 downto 0);
     variable pushed : boolean;
   begin
     if rising_edge(clk) then
       m0 <= mac0; m1 <= mac1;
       f_we <= '0';
-      room := f_used < DEPTH - 3;            -- always leave room for END
+      room := room_r = '1';                  -- always leave room for END
+      if f_used < DEPTH - 5 then room_r <= '1'; else room_r <= '0'; end if;
       pushed := false;
       case st is
         when S_IDLE =>
@@ -120,7 +122,7 @@ begin
             idx <= (others => '0');
             crc <= (others => '1');
             okd0 <= '1'; okd1 <= '1'; okb <= '1'; hdr_ok <= '1';
-            in_pl <= '0'; bad <= '0'; line_pend <= '0'; mbad <= '0';
+            in_pl <= '0'; bad <= '0'; line_pend <= '0'; mbad <= '0'; chk <= '0';
           end if;
 
         when S_PRE =>
@@ -154,6 +156,7 @@ begin
               when 19 => rdiv <= b;                                          -- request: divisor
               when 20 => scale <= b;
               when 21 => enc <= b;
+                         if b = TH_ENC_RAW then enc_raw <= '1'; else enc_raw <= '0'; end if;
               when 25 => frame8 <= b;
               when 26 => row(15 downto 8) <= unsigned(b);
               when 27 => row(7 downto 0) <= unsigned(b);
@@ -194,22 +197,23 @@ begin
                 end if;
               when others => null;
             end case;
-            -- payload: pixels (RAW888, 3 bytes) or tuples (RLE24, 4 bytes)
+            -- payload: pixels (RAW888, 3 bytes) or tuples (RLE24, 4 bytes).
+            -- The run is pushed at its last byte; its checks (count, line
+            -- end, line count) follow a cycle later (chk; timing): a bad
+            -- run only marks the frame bad, whose rows are never counted.
             if in_pl = '1' and i >= 36 then
               if left = 1 then in_pl <= '0'; end if;
               left <= left - 1;
               tup <= tup(23 downto 0) & b;
-              if (enc = TH_ENC_RAW and bi = 2) or bi = 3 then
+              if (enc_raw = '1' and bi = 2) or bi = 3 then
                 bi <= (others => '0');
-                if enc = TH_ENC_RAW then cnt := x"01"; else cnt := unsigned(tup(23 downto 16)); end if;
-                np := pix + cnt;
-                if cnt = 0 or np > width or ldone >= nlines then
-                  bad <= '1';
-                elsif bad = '0' then
+                chk <= '1';
+                if enc_raw = '1' then chk_cnt <= x"01"; else chk_cnt <= unsigned(tup(23 downto 16)); end if;
+                if bad = '0' then
                   if room then
                     f_we  <= '1';
                     pushed := true;
-                    if enc = TH_ENC_RAW then
+                    if enc_raw = '1' then
                       f_din <= G_RUN & "00" & x"01" & tup(15 downto 0) & b;
                     else
                       f_din <= G_RUN & "00" & tup(23 downto 0) & b;
@@ -218,15 +222,22 @@ begin
                     bad <= '1';
                   end if;
                 end if;
-                if np = width then
-                  pix   <= (others => '0');
-                  ldone <= ldone + 1;
-                  if ldone + 1 < nlines then line_pend <= '1'; end if;
-                else
-                  pix <= np;
-                end if;
               else
                 bi <= bi + 1;
+              end if;
+            end if;
+            if chk = '1' then
+              chk <= '0';
+              np := pix + chk_cnt;
+              if chk_cnt = 0 or np > width or ldone >= nlines then
+                bad <= '1';
+              end if;
+              if np = width then
+                pix   <= (others => '0');
+                ldone <= ldone + 1;
+                if ldone + 1 < nlines then line_pend <= '1'; end if;
+              else
+                pix <= np;
               end if;
             end if;
             -- next line's LINE tag in a cycle without a RUN push

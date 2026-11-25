@@ -47,23 +47,26 @@ architecture rtl of mem_arbiter is
   signal pending: natural range 0 to TAG_DEPTH := 0;   -- reads not yet returned
   signal room   : std_logic;
 begin
-  -- round-robin pick: first valid port after the last one served
+  -- round-robin pick: first valid port after the last one served. Written
+  -- as two fixed-priority encoders (ports above `last`, then all ports)
+  -- rather than (last + k) mod N: far fewer logic levels for N = 5
+  -- (thumbnail ports, timing).
   process (reqs, last)
-    variable g : port_t;
-    variable f : std_logic;
-    variable p : natural;
+    variable gh, ga : port_t;
+    variable fh, fa : std_logic;
   begin
-    g := 0;
-    f := '0';
-    for k in 1 to N loop
-      p := (last + k) mod N;
-      if f = '0' and reqs(p).valid = '1' then
-        g := p;
-        f := '1';
+    gh := 0; fh := '0';
+    ga := 0; fa := '0';
+    for p in N - 1 downto 0 loop
+      if reqs(p).valid = '1' then
+        ga := p; fa := '1';
+        if p > last then
+          gh := p; fh := '1';
+        end if;
       end if;
     end loop;
-    grant <= g;
-    any_v <= f;
+    if fh = '1' then grant <= gh; else grant <= ga; end if;
+    any_v <= fa;
   end process;
 
   room <= '1' when pending < TAG_DEPTH - 1 else '0';

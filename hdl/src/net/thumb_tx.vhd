@@ -111,8 +111,9 @@ architecture rtl of thumb_tx is
   signal lb_we : std_logic := '0';
   signal lb_wa, lb_ra : unsigned(6 downto 0) := (others => '0');
   signal lb_wd, lb_q : std_logic_vector(127 downto 0);
+  signal lb_qr : std_logic_vector(127 downto 0) := (others => '0');
   -- pixel walker
-  type wk_t is (K_B, K_C, K_E);
+  type wk_t is (K_B, K_B2, K_C, K_E);
   signal wk : wk_t := K_B;
   signal emit : std_logic := '0';            -- 0 scan, 1 emit
   signal p : unsigned(8 downto 0) := (others => '0');
@@ -230,6 +231,7 @@ begin
   begin
     if rising_edge(clk) then
       lb_we <= '0';
+      lb_qr <= lb_q;
       pb_we <= '0';
       if pkt_taken = '1' then pv <= '0'; end if;
 
@@ -327,10 +329,12 @@ begin
         when S_SCAN | S_EMIT =>
           case wk is
             when K_B =>
-              wk <= K_C;                   -- line buffer latency
+              wk <= K_B2;                  -- line buffer latency
+            when K_B2 =>
+              wk <= K_C;                   -- output register (lb_qr, timing)
             when K_C =>
               b  := to_integer(p(1 downto 0));
-              px := lb_q(32 * b + 23 downto 32 * b);
+              px := lb_qr(32 * b + 23 downto 32 * b);
               lb_ra <= resize(shift_right(p + 1, 2), 7);
               flush := p /= 0 and (px /= run_px or run_n = 255);
               if p = 0 or flush then
