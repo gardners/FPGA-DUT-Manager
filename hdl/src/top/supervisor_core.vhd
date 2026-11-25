@@ -541,8 +541,11 @@ begin
   process (clk_sys)   -- registered (timing: feeds net_tx's frame selection)
   begin
     if rising_edge(clk_sys) then
+      -- never to a broadcast/multicast telemetry destination: ~570 Mb/s of
+      -- raster would flood the whole segment (issue 0023 hardware note)
       if sel_vid < 2 and bcfg.capture_en(cap_dut) = '1' and ep_enable(cap_dut) = '1' and
-         ip_eff(cap_dut) /= x"00000000" then
+         ip_eff(cap_dut) /= x"00000000" and cfg(cap_dut).dest_ip /= x"FFFFFFFF" and
+         cfg(cap_dut).dest_mac(40) = '0' then
         cap_on <= '1';
       else
         cap_on <= '0';
