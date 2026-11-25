@@ -9,19 +9,19 @@ new session runs on the build box: it has Vivado and sits on the same
 
 * Branch **`feature/foundation`** (pushed) holds all integrated work. Not
   merged to `main` (owner merges after hardware confirmation).
-* Minion branches (pushed by sub-agents just before the hand-off; review and
-  merge into `feature/foundation` if good):
+* Sub-agent work (their pushes were blocked, so the lead cherry-picked their
+  commits into `feature/foundation`):
   * MK-II keyboard (issue 0009): **not implemented**. The sub-agent only
     produced a protocol analysis (I2C transactions, expander addresses and
     registers, full bit-to-matrix mapping, caps/shift-lock, LEDs, R6
     auto-detect, upstream quirks), now on `feature/foundation` as a dated
     note in `docs/issues/0009-physical-keyboard-host.md`. Implement from it.
-  * **`feature/dutctl-video`** — issue 0024: raster decoder, frame
-    assembler, `dutctl capture` / `dutctl video`, Python raster
-    encoder/decoder in `tests/netproto.py`, vectors and C tests.
-  Check each branch's issue file for its own dated status note. If a branch
-  is missing, the sub-agent did not finish pushing; its worktree was on the
-  laptop under `.claude/worktrees/` and is lost unless the owner copies it.
+  * dutctl video (issue 0024): **partly done, merged** into
+    `feature/foundation` — raster encode/decode in Python and C, RLE24
+    helpers, heartbeat video block, vectors, 112 passing C checks. Still to
+    do: frame assembler (`rasterframe.c`), `dutctl capture` / `dutctl video`.
+    The sub-agent found 10 ambiguities in ADR 0005 section 8, listed in
+    `docs/issues/0021-raster-packet-format.md` — resolve them first.
 * m65 (mega65-tools) Mimas A7 JTAG support: `docs/handover/m65-mimas-a7-jtag.patch`
   (git format-patch of commit a5becdd on local branch `mimas-a7-jtag`,
   based on mega65-tools 44c63d2). Apply with `git am` on a branch of a clean
@@ -109,7 +109,7 @@ First Vivado build: **clk_sys WNS −5.233 ns** (2537 endpoints) and
 | 0020 | `scripts/hwtest.sh` smoke test (now possible: build box is on the board's segment) |
 | 0022 | `hdmi_rx` 27 MHz DVI (ISERDESE2/IDELAY, bitslip, deskew, decode, lock/geometry); test with our `dvi_tx_xc7` as source |
 | 0023 | raster capture: async FIFO → 16 KiB packet ring with commit → raster-first scheduler; capture enable key 0x0040; heartbeat video block (ADR 0005 §8) |
-| 0024 | review/merge `feature/dutctl-video`; use its Python raster decoder in the capture system test |
+| 0021/0024 | resolve the ADR ambiguities; finish frame assembler + `dutctl capture/video`; use the Python raster decoder in the capture system test |
 | 0009 | implement MK-II host from the analysis in the issue note; then switch `supervisor_core` to a `kbd_phys_host` wrapper |
 | 0025 | README.md |
 
