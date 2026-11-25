@@ -7,6 +7,8 @@
 #include "uartstream.h"
 #include "xvc.h"
 #include "rasterframe.h"
+#include "pngwrite.h"
+#include "screenshot.h"
 
 static int failures, checks;
 #define CHECK(c)                                                                   \
@@ -450,6 +452,153 @@ static void test_thumbs(void)
   CHECK(dp_decode_thumb(v->data + 14, v->len - 14, &t) < 0);
 }
 
+/* ------------------------------------------------------------ PNG writer */
+static uint32_t rd32(const uint8_t *p) { return dp_get32(p); }
+
+/* Parse a PNG written by pw_png_encode: check signature, chunk CRCs, IHDR,
+ * the stored-block zlib stream and its Adler-32; inflate into raw. Returns
+ * the number of stored blocks, -1 on any error. */
+static int png_check(const uint8_t *png, size_t n, unsigned w, unsigned h, uint8_t *raw, size_t rawcap)
+{
+  if (n < 8 || memcmp(png, "\x89PNG\r\n\x1a\n", 8))
+    return -1;
+  size_t pos = 8, rl = 0;
+  int blocks = 0, seen_end = 0, chunk = 0;
+  while (pos + 12 <= n) {
+    uint32_t len = rd32(png + pos);
+    const uint8_t *type = png + pos + 4, *d = png + pos + 8;
+    if (pos + 12 + len > n || rd32(d + len) != pw_crc32(0, type, 4 + len))
+      return -1;
+    if (chunk == 0) {
+      if (memcmp(type, "IHDR", 4) || len != 13 || rd32(d) != w || rd32(d + 4) != h || d[8] != 8 || d[9] != 2 ||
+          d[10] || d[11] || d[12])
+        return -1;
+    } else if (!memcmp(type, "IDAT", 4)) {
+      if (len < 6 || d[0] != 0x78 || ((d[0] << 8) | d[1]) % 31 || (d[1] & 0x20))
+        return -1;
+      size_t z = 2;
+      int final = 0;
+      while (!final) {
+        if (z + 5 > len - 4 || (d[z] & 6))
+          return -1; /* not a stored block */
+        final = d[z] & 1;
+        unsigned bl = d[z + 1] | d[z + 2] << 8, nl = d[z + 3] | d[z + 4] << 8;
+        if ((bl ^ nl) != 0xFFFF || z + 5 + bl > len - 4 || rl + bl > rawcap)
+          return -1;
+        memcpy(raw + rl, d + z + 5, bl);
+        rl += bl;
+        z += 5 + bl;
+        blocks++;
+      }
+      if (z + 4 != len || rd32(d + z) != pw_adler32(1, raw, rl))
+        return -1;
+    } else if (!memcmp(type, "IEND", 4)) {
+      seen_end = len == 0 && pos + 12 == n;
+    } else
+      return -1;
+    pos += 12 + len;
+    chunk++;
+  }
+  if (!seen_end || rl != (size_t)h * (1 + 3 * w))
+    return -1;
+  return blocks;
+}
+
+static void test_png(const char *out_path)
+{
+  /* reference checksums */
+  CHECK(pw_crc32(0, (const uint8_t *)"123456789", 9) == 0xCBF43926u);
+  CHECK(pw_crc32(pw_crc32(0, (const uint8_t *)"1234", 4), (const uint8_t *)"56789", 5) == 0xCBF43926u);
+  CHECK(pw_adler32(1, (const uint8_t *)"Wikipedia", 9) == 0x11E60398u);
+  static uint8_t ones[100000];
+  memset(ones, 0xFF, sizeof ones);
+  /* long run: exercises the deferred modulo (zlib: adler32 of 100000 x 0xff) */
+  uint32_t a = 1;
+  for (size_t i = 0; i < sizeof ones; i++) {
+    uint32_t lo = a & 0xFFFF, hi = a >> 16;
+    lo = (lo + 0xFF) % 65521;
+    hi = (hi + lo) % 65521;
+    a = hi << 16 | lo;
+  }
+  CHECK(pw_adler32(1, ones, sizeof ones) == a);
+
+  CHECK(pw_png_size(0, 5) == 0 && pw_png_size(5, 0) == 0);
+  uint8_t tiny[3 * 3 * 2];
+  for (int i = 0; i < 18; i++)
+    tiny[i] = (uint8_t)(i * 13);
+  uint8_t small[256], raw[64];
+  size_t n = pw_png_encode(small, sizeof small, tiny, 3, 2);
+  CHECK(n == pw_png_size(3, 2) && n == 8 + 25 + 12 + (2 + 5 + 20 + 4) + 12);
+  CHECK(pw_png_encode(small, n - 1, tiny, 3, 2) == 0); /* too small */
+  CHECK(png_check(small, n, 3, 2, raw, sizeof raw) == 1);
+  CHECK(raw[0] == 0 && !memcmp(raw + 1, tiny, 9) && raw[10] == 0 && !memcmp(raw + 11, tiny + 9, 9));
+
+  /* 720x480 (a real screenshot): 1038720 raw bytes = 16 stored blocks */
+  enum { W = 720, H = 480 };
+  static uint8_t img[3 * W * H], back[H * (1 + 3 * W)];
+  for (int y = 0; y < H; y++)
+    for (int x = 0; x < W; x++) {
+      uint8_t *p = img + 3 * (W * y + x);
+      p[0] = (uint8_t)x;
+      p[1] = (uint8_t)y;
+      p[2] = (uint8_t)(x ^ y);
+    }
+  size_t sz = pw_png_size(W, H);
+  uint8_t *png = malloc(sz);
+  CHECK(png && pw_png_encode(png, sz, img, W, H) == sz);
+  int blocks = png ? png_check(png, sz, W, H, back, sizeof back) : -1;
+  CHECK(blocks == (int)((sizeof back + 65534) / 65535));
+  int ok = blocks > 0;
+  for (int y = 0; ok && y < H; y++)
+    ok = back[y * (1 + 3 * W)] == 0 && !memcmp(back + y * (1 + 3 * W) + 1, img + 3 * W * y, 3 * W);
+  CHECK(ok);
+  free(png);
+  /* written file for the Python (zlib) cross-check in the Makefile */
+  if (out_path)
+    CHECK(pw_write_png(out_path, img, W, H) == 0);
+}
+
+/* ------------------------------------------------------------ screenshot targets */
+static void test_screenshot_targets(void)
+{
+  /* console digits: box "1" is machine 0 ... box "0" is machine 9 */
+  const char *digits = "1234567890";
+  for (int m = 0; m < 10; m++) {
+    CHECK(ss_digit_machine(digits[m]) == m);
+    CHECK(ss_machine_digit(m) == digits[m]);
+  }
+  CHECK(ss_digit_machine('a') < 0 && ss_digit_machine('/') < 0 && ss_machine_digit(10) < 0);
+  /* supervisor_core: m0 = id0(3:0) & '0', m1 = id1(3:0) & '1' */
+  CHECK(ss_machine_of(0x00) == 0 && ss_machine_of(0x10) == 1);
+  CHECK(ss_machine_of(0x03) == 6 && ss_machine_of(0x14) == 9 && ss_machine_of(0x1F) == 31);
+
+  /* board A (DNA 1): dut0 0x00 (m0), dut1 0x10 (m1), video target dut1, locked;
+   * board B (DNA 2): dut0 0x01 (m2), dut1 0x11 (m3), video target dut0, no video */
+  ss_ep_t eps[4] = {
+    {.addr = 1, .ep = 0, .dut_id = 0x00, .selected = 0x11, .dna = 1, .caps = 0x1F, .has_video = 1, .video_flags = 3},
+    {.addr = 2, .ep = 1, .dut_id = 0x10, .selected = 0x11, .dna = 1, .caps = 0x1F, .has_video = 1, .video_flags = 3},
+    {.addr = 3, .ep = 0, .dut_id = 0x01, .selected = 0x00, .dna = 2, .caps = 0x1F, .has_video = 1, .video_flags = 0},
+    {.addr = 4, .ep = 1, .dut_id = 0x11, .selected = 0x00, .dna = 2, .caps = 0x1F, .has_video = 1, .video_flags = 0},
+  };
+  int cnt;
+  CHECK(ss_find_machine(eps, 4, ss_digit_machine('2'), &cnt) == 1 && cnt == 1);
+  CHECK(ss_find_machine(eps, 4, 3, &cnt) == 3 && cnt == 1);
+  CHECK(ss_find_machine(eps, 4, 7, &cnt) == -1 && cnt == 0);
+  CHECK(ss_find_addr(eps, 4, 3) == 2 && ss_find_addr(eps, 4, 9) == -1);
+  CHECK(!ss_is_video_target(&eps[0]) && ss_is_video_target(&eps[1]));
+  CHECK(ss_is_video_target(&eps[2]) && !ss_is_video_target(&eps[3]));
+  CHECK(ss_sibling(eps, 4, 0) == 1 && ss_sibling(eps, 4, 3) == 2);
+  CHECK(ss_can_capture(&eps[1]) && !ss_can_capture(&eps[2])); /* B: not locked */
+  int idx[4];
+  CHECK(ss_capturable(eps, 4, idx, 4) == 1 && idx[0] == 1);
+  eps[2].video_flags = 3; /* B locks: two candidates */
+  CHECK(ss_capturable(eps, 4, idx, 4) == 2 && idx[0] == 1 && idx[1] == 2);
+  eps[1].caps = 0x0F; /* no HDMI capture capability */
+  CHECK(ss_capturable(eps, 4, idx, 4) == 1 && idx[0] == 2);
+  eps[2].selected = 0xF0; /* video target elsewhere / none */
+  CHECK(ss_board_video_target(&eps[2]) == -1 && ss_capturable(eps, 4, idx, 4) == 0);
+}
+
 int main(int argc, char **argv)
 {
   load_vectors(argc > 1 ? argv[1] : "vectors.txt");
@@ -459,6 +608,8 @@ int main(int argc, char **argv)
   test_xvc();
   test_rasterframe();
   test_thumbs();
+  test_png(argc > 2 ? argv[2] : NULL);
+  test_screenshot_targets();
   printf("dutctl tests: %d checks, %d failures\n", checks, failures);
   return failures ? 1 : 0;
 }

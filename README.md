@@ -58,7 +58,8 @@ decisions are in [`docs/adrs/`](docs/adrs/0000-index.md), open work in
   bands and data islands such as audio never reach the picture), our own
   EDID, live passthrough to HDMI OUT, and raster capture: `dutctl video`
   reassembles complete, pixel-exact frames (verified on an HDMI loopback,
-  jumbo frames). `dutctl screenshot` (issue 0042) is in progress.
+  jumbo frames). `dutctl -S` saves a PNG screenshot (issue 0042), checked
+  with a real source (a HewnWeb board) on HDMI IN.
 * **DDR3** (256 MiB, Xilinx MIG): calibrates and passes its start-up
   self-test. It is used only as a thumbnail store; nothing else depends on
   it.
@@ -93,8 +94,43 @@ make jtagload             # load it (or: make jtagload-good for bits/known-good.
 make dutctl
 sw/dutctl/build/dutctl listen -t 5
 sw/dutctl/build/dutctl text <ip> "Hello"
+sw/dutctl/build/dutctl -S 2              # screenshot of machine 1 (console digit 2)
 make relay-flash PORT=/dev/ttyACM0   # relay controller (arduino-cli)
 ```
+
+### `dutctl` commands
+
+Run `dutctl` without arguments for the list, or a command without arguments
+for its options.
+
+| Command | What |
+|---|---|
+| `listen [-t S] [--kv]` | decode heartbeats |
+| `set IP NAME VALUE`, `mgmt IP KEY [HEX]` | management keys (named / raw) |
+| `kbd IP [KEY ...]` | hold MEGA65 keys on a DUT |
+| `uart IP` | interactive UART bridge |
+| `jtag-idcode IP`, `xvc IP` | JTAG over UDP, XVC server for Vivado |
+| `relay TTY COMMAND...` | Arduino relay controller (DUT power) |
+| `text IP ...` | write the HDMI console text screens |
+| `video IP [--enable]` | raw raster capture to PPM frames |
+| `thumbs IFACE` | thumbnail relay pictures (raw Ethernet) |
+| `screenshot [TARGET] [-o FILE]` (alias `-S`) | one complete frame as PNG/PPM |
+
+**Screenshots** (issue 0042):
+`dutctl screenshot [TARGET] [-o FILE.png|.ppm] [--screen auto|editable|novideo|select] [--timeout S]`,
+or `dutctl -S ...` as in m65. TARGET is an endpoint IP or a console digit
+(1-9, 0 = machine 0-9, as on the select screen); without one, the only
+machine that can be captured right now is used (if several can, they are
+listed). Only a board's video target DUT can be captured; the video target
+is not changed. The command points that DUT's telemetry at this host
+(unicast, found from the route to the board), enables capture, waits for
+one complete frame (10 s default), then restores capture enable to its
+previous state, the telemetry destination to broadcast (the default; the
+protocol cannot read the old value) and, if `--screen` forced one, the auto
+console screen, also on errors and Ctrl-C. The default file is
+`mega65-screenshot-NNNNNN.png`, the lowest free number in the current
+directory (never overwritten). PNGs are uncompressed (stored deflate), about
+1 MB at 720x480.
 
 Hardware notes: power the Mimas from its DC jack (USB power alone is not
 enough for the full design); install the udev rule with
