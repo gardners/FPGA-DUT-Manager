@@ -157,6 +157,7 @@ endif
 # install (see scripts/vivado_wrapper).
 vivado:
 	@mkdir -p $(BUILD)/vivado
+	@rm -f $(BUILD)/vivado/timing_verdict.txt $(BUILD)/vivado/supervisor.bit
 	cd $(BUILD)/vivado && $(REPO)/scripts/vivado_wrapper -mode batch -notrace \
 	    -log vivado.log -journal vivado.jou -source $(REPO)/vivado/build.tcl
 

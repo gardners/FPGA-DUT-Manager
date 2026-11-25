@@ -11,6 +11,7 @@
 --       RXC is 25 MHz and the MMCM will not lock (issue 0018).
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 use work.xc7_prims_pkg.all;
 
 entity rgmii_xc7 is
