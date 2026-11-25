@@ -17,6 +17,11 @@ hdl/src/mem/mem_pkg.vhd
 hdl/sim/mem_model.vhd
 hdl/src/common/sync_bit.vhd
 hdl/src/common/dpram.vhd
+hdl/src/common/async_fifo.vhd
+hdl/sim/mem_mux_model.vhd
+hdl/src/video/thumb_pkg.vhd
+hdl/src/video/thumb_capture.vhd
+hdl/src/video/thumb_status.vhd
 hdl/src/video/raster_pkg.vhd
 hdl/src/video/raster_capture.vhd
 hdl/src/uart/uart_tx.vhd
