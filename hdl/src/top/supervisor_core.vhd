@@ -85,7 +85,11 @@ entity supervisor_core is
     -- HDMI OUT passthrough (issue 0032): wanted (registered) / shown (from
     -- the platform's switch sequencer, clk_sys domain)
     pt_request  : out std_logic;
-    pt_active   : in  std_logic := '0'
+    pt_active   : in  std_logic := '0';
+    -- machine number of the video target when it is one of this board's
+    -- DUTs (HDMI OUT SPD InfoFrame, issue 0037)
+    vid_machine    : out unsigned(4 downto 0);
+    vid_machine_ok : out std_logic
   );
 end entity;
 
@@ -596,6 +600,8 @@ begin
               selecting => hk_sel, choose => hk_cho, k => hk_k, cancel => hk_can);
   m0 <= unsigned(id0(3 downto 0) & '0');
   m1 <= unsigned(id1(3 downto 0) & '1');
+  vid_machine    <= m1 when sel_vid(0) = '1' else m0;
+  vid_machine_ok <= '1' when sel_vid < 2 else '0';
   g_slots : for k in 0 to 9 generate
     slots(k) <= '1' when m0 = k or m1 = k else '0';
   end generate;

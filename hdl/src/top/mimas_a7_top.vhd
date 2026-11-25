@@ -10,7 +10,11 @@ use work.common_pkg.all;
 
 entity mimas_a7_top is
   generic (
-    RX_PHASE_STEPS : integer := 22     -- RGMII RX clock phase, 5.625 deg steps (issue 0019 scan)
+    RX_PHASE_STEPS : integer := 22;    -- RGMII RX clock phase, 5.625 deg steps (issue 0019 scan)
+    -- HDMI OUT sends HDMI (video guard bands, AVI + SPD InfoFrames, issue
+    -- 0037); false = the original pure DVI stream
+    HDMI_OUT       : boolean := true;
+    CON_VIC        : natural := 3        -- console 720x480p60: VIC 3 (16:9), 2 = 4:3
   );
   port (
     clk100       : in    std_logic;
@@ -103,6 +107,9 @@ architecture rtl of mimas_a7_top is
   signal ep_en : std_logic_vector(1 downto 0);
   signal have_ip : std_logic;
   signal vrst_s : std_logic_vector(1 downto 0) := "11";
+  signal vid_machine : unsigned(4 downto 0);
+  signal vid_machine_ok : std_logic;
+  signal tx_vic : std_logic_vector(6 downto 0);
   attribute ASYNC_REG : string;
   attribute ASYNC_REG of vrst_s : signal is "TRUE";
 begin
@@ -171,7 +178,8 @@ begin
       vin_pclk => vin_pclk, vin_rgb => vin_rgb, vin_de => vin_de, vin_hs => vin_hs,
       vin_vs => vin_vs,
       text_forced => t_force, con_screen => con_screen, con_slots => con_slots,
-      pt_request => pt_req, pt_active => pt_active);
+      pt_request => pt_req, pt_active => pt_active,
+      vid_machine => vid_machine, vid_machine_ok => vid_machine_ok);
 
   -- HDMI IN: DVI sink + measurement for the heartbeat video block (0022)
   hrx : entity work.hdmi_rx_xc7
@@ -242,11 +250,21 @@ begin
               clk_pix => clk_pix, x => vx, y => vy, de_in => v_de, hs_in => v_hs, vs_in => v_vs,
               r => t_r, g => t_g, b => t_b, de_out => t_de, hs_out => t_hs, vs_out => t_vs,
               force_text => t_force, screen => con_screen, slots => con_slots);
+  -- AVI VIC (issue 0037): the console mode, or for passthrough the CTA code
+  -- of the measured HDMI IN geometry (720x480 -> 3, 720x576 -> 18, both
+  -- 16:9 like the console; anything else 0 = no VIC). Quasi-static clk_sys
+  -- values; the framer samples them per frame (async clock groups).
+  tx_vic <= std_logic_vector(to_unsigned(CON_VIC, 7)) when pt_sel = '0' else
+            "0000011" when vin_ha = 720 and vin_va = 480 else
+            "0010010" when vin_ha = 720 and vin_va = 576 else
+            "0000000";
   dvi : entity work.dvi_tx_xc7
+    generic map (HDMI => HDMI_OUT)
     port map (pixel_clk => tx_pix, serial_clk => tx_pix5, rst => vrst,
               r => o_r, g => o_g, b => o_b, hs => o_hs, vs => o_vs, de => o_de,
               tmds_p => hdmi_tx_p, tmds_n => hdmi_tx_n,
-              tmds_clk_p => hdmi_tx_clk_p, tmds_clk_n => hdmi_tx_clk_n);
+              tmds_clk_p => hdmi_tx_clk_p, tmds_clk_n => hdmi_tx_clk_n,
+              vic => tx_vic, machine => vid_machine, machine_ok => vid_machine_ok);
 
   have_ip <= '1' when (src0 /= x"00" or ep_en(0) = '0') and (src1 /= x"00" or ep_en(1) = '0') else '0';
   seg7 : entity work.seg7_status
