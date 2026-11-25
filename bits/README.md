@@ -10,7 +10,8 @@ Board must run from the DC jack (USB power alone browns out).
 
 | Build id | Commit | Verified on hardware (2026-11-25) | Notes |
 |---|---|---|---|
-| 83113773 | 8311377 | hwcheck PASS both DUTs; 200-ping burst 0% loss | **known-good**; timing MET (internal); RGMII RX MMCM at 123.75 deg |
+| e54a2e92 | e54a2e9 | hwcheck PASS both DUTs | **known-good**; all timing MET (RX constrained to measured eye); jumper-strip wiring (ADR 0008 am. 2); MEGA KVM boot screen |
+| 83113773 | 8311377 | hwcheck PASS both DUTs; 200-ping burst 0% loss | timing MET (internal); RGMII RX MMCM at 123.75 deg |
 | cd2f921d | cd2f921 | DHCP both DUTs (0 / 0x10), heartbeats, console position OK | keyboard pins on P12 rows 6-9; 480p60; WNS -0.42 |
 | a4b00fb9 | a4b00fb | DHCP both DUTs, ping, seg7 `0-10` | console LEFT 18 (3 px too far right) |
 | 6e7991b4 | 6e7991b | DHCP, heartbeats (DUT 0 only, old ID scheme) | 480p60, LEFT 0 (left edge cropped) |
