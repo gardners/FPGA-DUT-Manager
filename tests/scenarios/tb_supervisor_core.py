@@ -115,6 +115,11 @@ def check(path):
        or reqs[0]["xid"] != XID[0]:
         err("REQUEST wrong: %r" % reqs)
 
+    for d in parsed:
+        if d.get("kind") == "udp" and d.get("ptype") in (P.T_HEARTBEAT, P.T_UART_SNAP) and \
+           d["ip_src"] == bytes(4):
+            err("telemetry sent before the endpoint had an address")
+
     arps = [d for d in parsed if d.get("kind") == "arp"]
     if len(arps) != 2:
         err("expected 2 ARP replies, got %d" % len(arps))

@@ -262,14 +262,15 @@ begin
           elsif icmp.pend = '1' then k := K_ICMP; dd := icmp.dut;
           elsif dhcp(0).req = '1' and ep_enable(0) = '1' then k := K_DHCP; dd := 0;
           elsif dhcp(1).req = '1' and ep_enable(1) = '1' then k := K_DHCP; dd := 1;
-          elsif snap_req(0) = '1' and ep_enable(0) = '1' and (rr = '0' or snap_req(1) = '0') then k := K_SNAP; dd := 0;
-          elsif snap_req(1) = '1' and ep_enable(1) = '1' then k := K_SNAP; dd := 1;
-          elsif hb_due(0) = '1' and ep_enable(0) = '1' and (rr = '0' or hb_due(1) = '0') then k := K_HB; dd := 0;
-          elsif hb_due(1) = '1' and ep_enable(1) = '1' then k := K_HB; dd := 1;
+          elsif snap_req(0) = '1' and ep_enable(0) = '1' and ip_eff(0) /= x"00000000" and (rr = '0' or snap_req(1) = '0') then k := K_SNAP; dd := 0;
+          elsif snap_req(1) = '1' and ep_enable(1) = '1' and ip_eff(1) /= x"00000000" then k := K_SNAP; dd := 1;
+          elsif hb_due(0) = '1' and ep_enable(0) = '1' and ip_eff(0) /= x"00000000" and (rr = '0' or hb_due(1) = '0') then k := K_HB; dd := 0;
+          elsif hb_due(1) = '1' and ep_enable(1) = '1' and ip_eff(1) /= x"00000000" then k := K_HB; dd := 1;
           end if;
-          -- a disabled endpoint (DUT ID conflict) drops its periodic traffic
+          -- a disabled (DUT ID conflict) or not yet addressed endpoint drops
+          -- its periodic traffic (DHCP required, ADR 0011)
           for i in 0 to 1 loop
-            if ep_enable(i) = '0' then
+            if ep_enable(i) = '0' or ip_eff(i) = x"00000000" then
               hb_due(i) <= '0';
             end if;
           end loop;

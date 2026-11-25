@@ -24,9 +24,9 @@ a node number (ADR 0005 draft) need per-board configuration and collide easily.
   ARP/DHCP/telemetry) and the heartbeat of the P12 half sets an
   `id_conflict` flag (heartbeat `link_flags` bit 6).
 * **DHCP client** per endpoint (RFC 2131 subset): DISCOVER → OFFER → REQUEST
-  → ACK; option 61 client id = MAC; option 12 host name `m65dut-NN`
+  → ACK; option 61 client id = MAC; option 12 host name `m65dutNN`
   (NN = DUT ID, decimal, 2 digits); options requested: subnet, router, lease.
-  Renew by unicast REQUEST at T1 = lease/2; on expiry fall back to DISCOVER.
+  Renew at T1 (option 58, else lease/2) by broadcast REQUEST with ciaddr (as hardweb does), retried every 4 s; on expiry fall back to DISCOVER.
   NAK → restart. Retries with exponential back-off 1, 2, 4, 8 s (cap 16 s).
 * **DHCP is required by default** (owner, 2026-11-25): an endpoint without a
   lease does nothing (no ARP, no telemetry) except DHCP; the seven-segment
