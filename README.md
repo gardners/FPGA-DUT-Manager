@@ -44,38 +44,31 @@ decisions are in [`docs/adrs/`](docs/adrs/0000-index.md), open work in
 
 ## Progress (2026-11-25)
 
-**Working on hardware** (Vivado bitstream, JTAG-loaded into SRAM):
+**Working on hardware** (Vivado bitstreams; known-good images in `bits/`,
+`scripts/hwtest.sh` smoke test 61/0):
 
-* Gigabit Ethernet (RTL8211E, RGMII), ARP, ICMP echo, per-DUT DHCP clients
-  with deterministic MACs; DUT IDs from the DIP switches (`0x0n` / `0x1m`).
-* Heartbeats and management writes (`dutctl listen`, `dutctl set`).
-* HDMI 80x25 text console at 720x480p60, written over UDP (`dutctl text`).
-* Seven-segment status (`dHCP` while waiting for leases, then the DUT IDs).
-* Command-line Vivado build in a few minutes (`make bitstream`), JTAG load
-  (`make jtagload`), hardware-verified images kept in `bits/`.
+* Gigabit Ethernet with a self-calibrating RGMII RX phase, ARP, ICMP,
+  per-DUT DHCP; DUT IDs `0x0n` / `0x1m` from the DIP switches; device DNA.
+* Heartbeats with link and video blocks; every management key (accepts
+  valid, rejects invalid values with the right status).
+* HDMI console at 720x480p60 with three screens (editable / no video /
+  select), written over UDP (`dutctl text --screen`).
+* **HDMI capture**: 27 MHz DVI input (Digilent dvi2rgb) and raster
+  transport; `dutctl video` reassembles complete, pixel-exact frames
+  (verified on an HDMI loopback, jumbo frames).
+* Physical MK-I keyboard: KVM hotkey (both SHIFTs 1 s + MEGA, or a quick
+  LSHIFT/MEGA train, then 1-9, 0) and power-LED status colours.
+* Seven-segment status; SPI flash programming (`make flash`).
 
-**Implemented and passing simulation, not yet tried on hardware:**
+**Implemented, waiting for hardware to test:** JTAG/XVC and UART to a
+powered MEGA65, MK-I keyboard emulation towards DUTs, MK-II keyboard host,
+relay controller.
 
-* UART bridge with snapshots; JTAG engine plus `dutctl xvc` proxy.
-* MK-I keyboard emulation towards DUTs (checked against mega65-core's own
-  host decoder); physical keyboard host for MK-I and MK-II with
-  auto-detection; keyboard ownership arbiter.
-* Relay controller firmware (Arduino) and its `dutctl relay` client.
-* `dutctl` raster/RLE24 codec and heartbeat video block (frame assembly and
-  `dutctl capture`/`video` still to do).
+**In progress:** video passthrough to HDMI OUT (0032); then EDID
+emulation, MEGA65 bring-up (0002/0010).
 
-**In progress / next:**
-
-* Timing closure (0019) done; the RGMII RX phase is calibrated and
-  self-correcting (0028: hunts only after 3 bad frames, verified on hardware
-  recovering from a deliberately wrong phase with LAN background traffic).
-* Hardware smoke-test script (0020), HDMI capture and raster transport
-  (0022-0024), physical keyboard wiring trial (0009), m65 support for the
-  Mimas JTAG adaptor (0010, patch ready).
-
-**Not started:** supervisor chain link (0011), audio, EDID/HPD control,
-FPGA DNA board identity (0007), DUT adapter board (0008), 100 Mb/s Ethernet
-(0018, low priority).
+**Not started:** supervisor chain link (0011), audio, status screen (0017),
+DUT adapter board (0008), 100 Mb/s Ethernet (0018, low priority).
 
 ## Quick start
 
