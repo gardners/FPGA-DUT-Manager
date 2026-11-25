@@ -62,9 +62,34 @@ begin
     -- timeout cancels
     hotkey(120); ticks(320);
     assert sel = '0' and n_can = 2 report "timeout cancel" severity failure;
-    -- MEGA without SHIFTs held does nothing
+    -- MEGA without SHIFTs held does nothing (after the earlier presses'
+    -- one-handed train has expired: the scaled-down hold keeps them close)
+    ticks(600);
     tap(61);
     assert sel = '0' report "MEGA alone selected" severity failure;
+    -- one-handed: alternate LSHIFT / MEGA 12 times quickly (6 each) -> select
+    ticks(600);                        -- let any earlier train expire
+    for i in 1 to 6 loop
+      keys(15) <= '1'; ticks(20); keys(15) <= '0'; ticks(20);
+      keys(61) <= '1'; ticks(20); keys(61) <= '0'; ticks(20);
+    end loop;
+    assert sel = '1' report "one-handed train did not select" severity failure;
+    -- any other key (A = 10) cancels
+    tap(10);
+    assert sel = '0' and n_can = 3 report "other key did not cancel" severity failure;
+    -- too slow a train (300 ms between presses) does nothing
+    ticks(600);
+    for i in 1 to 6 loop
+      keys(15) <= '1'; ticks(20); keys(15) <= '0'; ticks(130);
+      keys(61) <= '1'; ticks(20); keys(61) <= '0'; ticks(130);
+    end loop;
+    assert sel = '0' report "slow train selected" severity failure;
+    -- LSHIFT only, fast: needs >= 4 MEGA presses too
+    ticks(600);
+    for i in 1 to 12 loop
+      keys(15) <= '1'; ticks(10); keys(15) <= '0'; ticks(10);
+    end loop;
+    assert sel = '0' report "LSHIFT-only train selected" severity failure;
     report "tb_kvm_hotkey PASSED";
     done <= true;
     wait;
