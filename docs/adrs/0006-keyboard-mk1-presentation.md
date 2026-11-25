@@ -36,8 +36,10 @@ MEGA65 mainboards (R3 onwards) share one 3-signal keyboard connector:
 * Bitmap canonical form everywhere inside the supervisor and on the wire:
   80 bits, index = MEGA65 matrix key number, **1 = pressed**. Inversion to
   active-low happens only at the MK-I serial boundary.
-* The physical keyboard needs +5 V and GND from the supervisor side cable,
-  never from a DUT (design brief §6).
+* The physical keyboard is powered with **+3.3 V** and GND from the
+  supervisor side cable, never from a DUT (design brief §6). (Corrected
+  2026-11-25 by the owner: an earlier draft said +5 V. The MK-II board and
+  its TCA9555 expanders run at 3.3 V, matching the 3.3 V FPGA banks.)
 * CAPS LOCK (key 72) is a latched state on the real keyboard. For UDP control
   it is just a bit the host sets; MK-II latching logic stays in the physical
   host path.
