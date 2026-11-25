@@ -22,8 +22,10 @@ pre-V4 Numato Mimas A7 boards (XC7A50T-1FGG484). Start with
   where appropriate — but don't oversubscribe CPU *or RAM* (JOBS=10 nextpnr
   compiles ran the laptop out of memory). `JOBS` defaults to
   min(nproc/2, available GB/3).
-* **Bitstreams currently come from Vivado** on the owner's build box
-  (`make vivado`, then `make jtagload BIT=...` here). The openXC7 toolchain
+* **Bitstreams come from Vivado by default** (owner decision, ADR 0001
+  amendment): the owner runs `make bitstream` (= `make vivado`) on the build
+  box; load here with `make jtagload BIT=...`. `FLOW=openxc7` keeps the
+  open-source flow available. The openXC7 toolchain
   build is paused at nextpnr by owner decision; nvc/openFPGALoader/yosys/
   prjxray are built.
 * Hardware-facing actions on the attached board (JTAG load, flash) are fine

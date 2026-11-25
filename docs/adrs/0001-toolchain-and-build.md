@@ -1,6 +1,6 @@
 # ADR 0001: Open-source toolchain in `tools/`, Vivado-portable VHDL
 
-Status: Accepted (2026-11-25)
+Status: Accepted (2026-11-25); amended same day — **Vivado is the default bitstream flow**
 
 ## Context
 
@@ -41,3 +41,15 @@ a single heavy job at a time.
   on hardware; Vivado timing is the reference when available.
 * A fresh toolchain build at JOBS=1 takes on the order of hours.
 * Bumping a pin requires editing `scripts/build-toolchain.sh` and this ADR.
+
+## Amendment (2026-11-25): Vivado by default
+
+The first Vivado bitstream (owner's build box, `make vivado`) worked on
+hardware (video, DHCP) while the openXC7 build was still compiling and then
+ran the laptop out of RAM. Owner decision: build with Vivado by default.
+
+* `make bitstream` = `make vivado` (FLOW=vivado); `make jtagload`/`flash`
+  load `build/vivado/supervisor.bit` unless `BIT=` is given.
+* The open-source flow stays in the tree (`FLOW=openxc7`), the VHDL stays
+  portable, and nvc remains the simulator. The openXC7 toolchain build is
+  paused at nextpnr (issue 0001).

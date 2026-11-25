@@ -5,11 +5,12 @@
 #   make toolchain   # build pinned nvc, GHDL, yosys+ghdl plugin, nextpnr,
 #                    # prjxray, openFPGALoader and the xc7a50t chipdb into tools/
 #   make test        # all VHDL unit tests (nvc) and C host-tool tests
-#   make bitstream   # build/mimas_a7/supervisor.bit
+#   make bitstream   # FLOW=vivado (default): build/vivado/supervisor.bit
+#                    # FLOW=openxc7: build/mimas_a7/supervisor.bit
 #   make jtagload    # load bitstream into FPGA SRAM over the Mimas USB JTAG
 #   make flash       # write bitstream to the Mimas SPI flash
 #   make dutctl      # build the Linux control CLI
-#   make vivado      # Vivado batch build on a machine with Vivado
+#   make vivado      # same as make bitstream FLOW=vivado (needs Vivado)
 #
 # JOBS controls toolchain compile parallelism (default: min(nproc/2, free GB/3)).
 
@@ -139,8 +140,17 @@ $(BITDIR)/supervisor.bit: $(BITDIR)/supervisor.frames
 	$(FRAMES2BIT) --part_file $(PRJXRAY_DB)/$(FAMILY)/$(PART)/part.yaml \
 	    --part_name $(PART) --frm_file $< --output_file $@
 
+# Default flow is Vivado (owner decision 2026-11-25, ADR 0001); the
+# open-source flow remains available with FLOW=openxc7.
+FLOW ?= vivado
+ifeq ($(FLOW),vivado)
+DEFAULT_BIT := $(BUILD)/vivado/supervisor.bit
+bitstream: vivado
+else
+DEFAULT_BIT := $(BITDIR)/supervisor.bit
 bitstream: $(BITDIR)/supervisor.bit
 	@ls -l $<
+endif
 
 # Vivado build (timing sign-off / alternative bitstream) on a machine with
 # Vivado installed; needs nothing from tools/. VIVADODIR may point at the
@@ -161,7 +171,7 @@ detect: check-board | $(STAMPS)/openfpgaloader
 	$(OFL) $(CABLE_ARGS) --detect
 
 # BIT=path loads another bitstream (e.g. build/vivado/supervisor.bit)
-BIT ?= $(BITDIR)/supervisor.bit
+BIT ?= $(DEFAULT_BIT)
 jtagload: $(BIT) check-board | $(STAMPS)/openfpgaloader
 	$(OFL) $(CABLE_ARGS) --write-sram $(BIT)
 
