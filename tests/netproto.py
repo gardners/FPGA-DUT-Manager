@@ -145,8 +145,13 @@ def decode_heartbeat(b):
         (f["video_flags"], _, f["h_total"], f["v_total"], f["h_active"], f["v_active"],
          f["pixel_clock_hz"], f["frames_captured"], f["raster_lines_dropped"],
          f["tmds_decode_errors"], _) = struct.unpack(">BBHHHHIIHHH", b[100:124])
+    if len(b) >= 132:  # link block (ADR 0005 section 3a), bytes 132..139 of the datagram
+        (f["rx_phase_pos"], f["rx_eye_width"], f["rx_hunts"], f["rx_bad_frames"],
+         f["rx_link_flags"]) = struct.unpack(">BBHHBx", b[124:132])
     return f
 
+
+LINK_FIELDS = ("rx_phase_pos", "rx_eye_width", "rx_hunts", "rx_bad_frames", "rx_link_flags")
 
 VIDEO_FIELDS = ("video_flags", "h_total", "v_total", "h_active", "v_active", "pixel_clock_hz",
                 "frames_captured", "raster_lines_dropped", "tmds_decode_errors")
@@ -251,6 +256,10 @@ def encode_heartbeat(dut, f):
         b += struct.pack(">BBHHHHIIHHH", f["video_flags"], 0, f["h_total"], f["v_total"],
                          f["h_active"], f["v_active"], f["pixel_clock_hz"], f["frames_captured"],
                          f["raster_lines_dropped"], f["tmds_decode_errors"], 0)
+    if "rx_phase_pos" in f:  # link block (needs the video block) -> 132-byte payload
+        assert len(b) == 124
+        b += struct.pack(">BBHHBB", f["rx_phase_pos"], f["rx_eye_width"], f["rx_hunts"],
+                         f["rx_bad_frames"], f["rx_link_flags"], 0)
     return custom(T_HEARTBEAT, dut, b)
 
 

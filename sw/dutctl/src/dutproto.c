@@ -141,6 +141,17 @@ int dp_decode_heartbeat(const uint8_t *p, size_t len, dp_heartbeat_t *hb)
     hb->pixel_clock_hz = hb->frames_captured = 0;
     hb->raster_lines_dropped = hb->tmds_decode_errors = 0;
   }
+  hb->has_link = len >= 132;
+  if (hb->has_link) {
+    hb->rx_phase_pos = p[124];
+    hb->rx_eye_width = p[125];
+    hb->rx_hunts = dp_get16(p + 126);
+    hb->rx_bad_frames = dp_get16(p + 128);
+    hb->rx_link_flags = p[130];
+  } else {
+    hb->rx_phase_pos = hb->rx_eye_width = hb->rx_link_flags = 0;
+    hb->rx_hunts = hb->rx_bad_frames = 0;
+  }
   return 0;
 }
 

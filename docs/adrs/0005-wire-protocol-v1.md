@@ -98,7 +98,23 @@ Sent per DUT at ~50 Hz (configurable period; 20 ms default), and expedited
 | 106 | 1 | addr_src: 0 none yet, 1 DHCP, 2 fallback, 3 static (ADR 0011) |
 | 107 | 1 | dut_id (0x0n P12 / 0x1m P13 from DIP switches, ADR 0011) |
 
-Total 108 bytes (header + 100).
+Total 108 bytes (header + 100). Since 2026-11-25 the supervisor always
+appends the video block (section 8; zeros until HDMI capture exists) and
+the link block (section 3a): 140 bytes on the wire (header + 132).
+Decoders must accept >= 100 and use the blocks only when present.
+
+### 3a. Heartbeat link block (bytes 132..139; payload >= 132)
+
+RGMII RX self-calibration status (issue 0028).
+
+| Off | Size | Field |
+|---|---|---|
+| 132 | 1 | rx_phase_pos: RX sample phase, positions of 5.625 deg from the power-up phase |
+| 133 | 1 | rx_eye_width: passing positions found by the last hunt (0 = never hunted) |
+| 134 | 2 | rx_hunts: hunts since configuration |
+| 136 | 2 | rx_bad_frames: frames seen (RX_CTL >= 64 cycles) without a good FCS |
+| 138 | 1 | rx_link_flags: b0 hunting, b1 RX MMCM locked |
+| 139 | 1 | reserved |
 
 ## 4. Management (port 6500)
 

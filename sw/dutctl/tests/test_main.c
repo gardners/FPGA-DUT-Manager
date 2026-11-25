@@ -119,6 +119,14 @@ static void test_decoders(void)
   CHECK(hb.h_total == 864 && hb.v_total == 625 && hb.h_active == 720 && hb.v_active == 576);
   CHECK(hb.pixel_clock_hz == 27000000 && hb.frames_captured == 0x01020304);
   CHECK(hb.raster_lines_dropped == 5 && hb.tmds_decode_errors == 6);
+  CHECK(!hb.has_link);
+
+  v = vec("heartbeat_link");
+  CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && h.length == 132 && h.dut == 1);
+  CHECK(dp_decode_heartbeat(v->data + 8, h.length, &hb) == 0);
+  CHECK(hb.has_video && hb.video_flags == 7 && hb.tmds_decode_errors == 6);
+  CHECK(hb.has_link && hb.rx_phase_pos == 3 && hb.rx_eye_width == 24);
+  CHECK(hb.rx_hunts == 2 && hb.rx_bad_frames == 300 && hb.rx_link_flags == 2);
 
   v = vec("snapshot");
   CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && h.type == DP_T_UART_SNAP);

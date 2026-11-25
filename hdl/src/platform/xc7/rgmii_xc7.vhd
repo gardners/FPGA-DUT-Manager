@@ -34,6 +34,8 @@ entity rgmii_xc7 is
     -- GMII side
     clk_rx    : out std_logic;
     rx_locked : out std_logic;   -- RX MMCM locked (clk_sys domain)
+    ps_en     : in  std_logic := '0';   -- dynamic phase shift (clk_sys): +1 fine
+    ps_done   : out std_logic;          -- step (VCO/56 = 17.9 ps), issue 0028
     rx_dv     : out std_logic;
     rx_er     : out std_logic;
     rxd       : out std_logic_vector(7 downto 0);
@@ -70,16 +72,17 @@ begin
               D1 => '1', D2 => '0', R => '0', S => '0');
 
   ---------------------------------------------------------------- RX
-  rmmcm : MMCME2_BASE
+  rmmcm : MMCME2_ADV
     generic map (
       CLKIN1_PERIOD => 8.0, DIVCLK_DIVIDE => 1, CLKFBOUT_MULT_F => 8.0,
-      CLKOUT0_DIVIDE_F => 8.0, CLKOUT0_PHASE => real(RX_PHASE_STEPS) * 5.625)
+      CLKOUT0_DIVIDE_F => 8.0, CLKOUT0_PHASE => real(RX_PHASE_STEPS) * 5.625,
+      CLKOUT0_USE_FINE_PS => true)
     port map (
-      CLKOUT0 => rx_c0, CLKOUT0B => open, CLKOUT1 => open, CLKOUT1B => open,
-      CLKOUT2 => open, CLKOUT2B => open, CLKOUT3 => open, CLKOUT3B => open,
-      CLKOUT4 => open, CLKOUT5 => open, CLKOUT6 => open,
-      CLKFBOUT => rx_fb, CLKFBOUTB => open, LOCKED => rx_lock,
-      CLKIN1 => rgmii_rxc, PWRDWN => '0', RST => mmcm_rst, CLKFBIN => rx_fb_g);
+      CLKOUT0 => rx_c0, CLKFBOUT => rx_fb, LOCKED => rx_lock, PSDONE => ps_done,
+      CLKIN1 => rgmii_rxc, CLKIN2 => '0', CLKINSEL => '1', CLKFBIN => rx_fb_g,
+      RST => mmcm_rst, PWRDWN => '0',
+      PSCLK => clk_sys, PSEN => ps_en, PSINCDEC => '1',
+      DCLK => '0', DEN => '0', DWE => '0', DADDR => (others => '0'), DI => (others => '0'));
   bfb : BUFG port map (O => rx_fb_g, I => rx_fb);
   bg  : BUFG port map (O => rxc_g, I => rx_c0);
   clk_rx <= rxc_g;

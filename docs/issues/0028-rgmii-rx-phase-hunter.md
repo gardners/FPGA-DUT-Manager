@@ -35,3 +35,14 @@ Plan (lead's refinements):
   (no periodic re-centring). It then runs one complete scan of all phase
   positions and settles in the middle of the longest passing run, then
   goes back to watching.
+
+## 2026-11-25 implemented (simulation)
+
+rx_frame_observer (clk_rx) + rx_phase_hunter (clk_sys) in supervisor_core;
+RX MMCM is now MMCME2_ADV with CLKOUT0_USE_FINE_PS (PSCLK = clk_sys,
+17.9 ps steps, 7 per 5.625-deg position, 448 per circle). Heartbeat link
+block (ADR 0005 s3a, payload 132) reports phase/eye/hunts/bad frames;
+`dutctl listen` prints them. tb_rx_phase_hunter: good start (no hunt),
+drift (centred, width 21), wrap-around eye, no traffic (back to origin),
+reset. Hardware test pending: force a hunt by starting from a bad phase
+(build with RX_PHASE_STEPS outside the eye, e.g. 40) and check it recovers.

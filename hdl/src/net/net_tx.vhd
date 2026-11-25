@@ -93,7 +93,7 @@ architecture rtl of net_tx is
   type state_t is (S_IDLE, S_LATCH, S_PREP, S_CSUM, S_START, S_WRITE, S_WAIT_MAC);
   signal state : state_t := S_IDLE;
 
-  constant PF_MAX : natural := 108;
+  constant PF_MAX : natural := 140;   -- heartbeat: 8 + 132
   type pf_t is array (0 to PF_MAX - 1) of byte_t;
   type hdr_t is array (0 to 41) of byte_t;
   signal hdr   : hdr_t := (others => (others => '0'));
@@ -414,6 +414,12 @@ begin
               pf(92) <= x"00"; pf(93) <= x"00";
               pf(106) <= st.addr_src; pf(107) <= st.dut_id;
               for i in 0 to 11 loop pf(94 + i) <= b(st.dut_leds, i); end loop;
+              -- 108..131 video block: zeros until HDMI capture exists (ADR 0005 s8)
+              -- 132..139 link block (ADR 0005 s3a)
+              pf(132) <= bstat.rx_phase; pf(133) <= bstat.rx_eye;
+              pf(134) <= bu(bstat.rx_hunts, 0); pf(135) <= bu(bstat.rx_hunts, 1);
+              pf(136) <= bu(bstat.rx_bad, 0);   pf(137) <= bu(bstat.rx_bad, 1);
+              pf(138) <= bstat.rx_flags;        pf(139) <= x"00";
             when others => null;
           end case;
 

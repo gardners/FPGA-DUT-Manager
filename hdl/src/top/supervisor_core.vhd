@@ -63,7 +63,11 @@ entity supervisor_core is
     addr_src0, addr_src1 : out std_logic_vector(7 downto 0);
     ep_enable_o : out std_logic_vector(1 downto 0);
     -- debug
-    stat_rx_good, stat_rx_bad : out unsigned(15 downto 0)
+    stat_rx_good, stat_rx_bad : out unsigned(15 downto 0);
+    -- RGMII RX phase hunter (issue 0028): MMCM dynamic phase shift on clk_sys
+    rx_ps_en    : out std_logic;
+    rx_ps_done  : in  std_logic := '0';
+    rx_locked   : in  std_logic := '1'
   );
 end entity;
 
@@ -85,6 +89,13 @@ architecture rtl of supervisor_core is
   signal len0, len1 : unsigned(11 downto 0);
   signal s_good, s_crc, s_drop : std_logic;
   signal good_t, bad_t : std_logic := '0';
+  signal ob_good_t, ob_bad_t : std_logic;
+  signal ob_g_s, ob_b_s : std_logic_vector(2 downto 0) := "000";
+  signal hu_good, hu_bad, hu_rst, hu_hunting : std_logic := '0';
+  signal lock_s : std_logic_vector(2 downto 0) := "000";
+  signal hu_pos, hu_eye : unsigned(7 downto 0);
+  signal hu_hunts : unsigned(15 downto 0);
+  signal hu_badcnt : unsigned(15 downto 0) := (others => '0');
   signal good_s, bad_s : std_logic_vector(2 downto 0) := "000";
   signal cnt_good, cnt_bad : unsigned(15 downto 0) := (others => '0');
 
@@ -204,6 +215,28 @@ begin
       end if;
     end if;
   end process;
+
+  ---------------------------------------------------------------- RX phase hunter
+  obs : entity work.rx_frame_observer
+    port map (clk => clk_rx, rx_dv => rx_dv, stat_good => s_good, stat_drop => s_drop,
+              tog_good => ob_good_t, tog_bad => ob_bad_t);
+  process (clk_sys)
+  begin
+    if rising_edge(clk_sys) then
+      ob_g_s <= ob_g_s(1 downto 0) & ob_good_t;
+      ob_b_s <= ob_b_s(1 downto 0) & ob_bad_t;
+      hu_good <= ob_g_s(2) xor ob_g_s(1);
+      hu_bad  <= ob_b_s(2) xor ob_b_s(1);
+      if hu_bad = '1' then hu_badcnt <= hu_badcnt + 1; end if;
+      lock_s <= lock_s(1 downto 0) & rx_locked;
+      hu_rst <= lock_s(1) and not lock_s(2);   -- MMCM (re)locked: phase = default
+    end if;
+  end process;
+  hunter : entity work.rx_phase_hunter
+    generic map (TIMEOUT_CYC => CLK_HZ / 10)
+    port map (clk => clk_sys, rst => hu_rst, ev_good => hu_good, ev_bad => hu_bad,
+              ps_en => rx_ps_en, ps_inc => open, ps_done => rx_ps_done,
+              position => hu_pos, eye_width => hu_eye, hunting => hu_hunting, hunts => hu_hunts);
 
   ---------------------------------------------------------------- MAC RX
   mrx : entity work.eth_mac_rx
@@ -438,6 +471,11 @@ begin
   bstat.kbd_phys    <= pk_keys;
   bstat.phys_change <= pk_change;
   bstat.phys_type   <= "000000" & pk_type;     -- 0 none, 1 MK-I, 2 MK-II
+  bstat.rx_phase    <= std_logic_vector(hu_pos);
+  bstat.rx_eye      <= std_logic_vector(hu_eye);
+  bstat.rx_hunts    <= hu_hunts;
+  bstat.rx_bad      <= hu_badcnt;
+  bstat.rx_flags    <= "000000" & lock_s(2) & hu_hunting;
 
   ---------------------------------------------------------------- physical keyboard
   pkh : entity work.kbd_phys_host

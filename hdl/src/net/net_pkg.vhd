@@ -80,6 +80,12 @@ package net_pkg is
     kbd_phys    : std_logic_vector(79 downto 0);
     phys_change : unsigned(15 downto 0);
     phys_type   : std_logic_vector(7 downto 0);
+    -- RGMII RX phase hunter (issue 0028), heartbeat link block
+    rx_phase    : std_logic_vector(7 downto 0);
+    rx_eye      : std_logic_vector(7 downto 0);
+    rx_hunts    : unsigned(15 downto 0);
+    rx_bad      : unsigned(15 downto 0);
+    rx_flags    : std_logic_vector(7 downto 0);   -- b0 hunting, b1 RX MMCM locked
   end record;
 
   -- UART snapshot counters (latched by uart_bridge on snap_ack)

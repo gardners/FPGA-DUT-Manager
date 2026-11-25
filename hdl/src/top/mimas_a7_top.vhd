@@ -64,6 +64,7 @@ architecture rtl of mimas_a7_top is
   signal core_leds : std_logic_vector(7 downto 0);
   signal rst_cnt : unsigned(21 downto 0) := (others => '0');
   signal phy_rst : std_logic := '0';
+  signal rx_locked, rx_ps_en, rx_ps_done : std_logic;
   signal idc_rdy : std_logic;
   signal good, bad : unsigned(15 downto 0);
   signal link_flags : std_logic_vector(7 downto 0);
@@ -110,7 +111,8 @@ begin
       clk_sys => clk_sys, clk_tx90 => clk_tx90,
       rgmii_txc => rgmii_txc, rgmii_tx_ctl => rgmii_tx_ctl, rgmii_txd => rgmii_txd,
       rgmii_rxc => rgmii_rxc, rgmii_rx_ctl => rgmii_rx_ctl, rgmii_rxd => rgmii_rxd,
-      clk_rx => clk_rx, rx_locked => open, rx_dv => rx_dv, rx_er => rx_er, rxd => rxd,
+      clk_rx => clk_rx, rx_locked => rx_locked, ps_en => rx_ps_en, ps_done => rx_ps_done,
+      rx_dv => rx_dv, rx_er => rx_er, rxd => rxd,
       tx_en => tx_en, tx_er => '0', txd => txd);
 
   link_flags <= "000000" & '1' & '1' when good /= 0 else x"00";
@@ -129,7 +131,8 @@ begin
       pk_kio8_in => pk_kio8, pk_kio10 => pk_kio10,
       buttons => btn, leds => core_leds, text_we => text_we, text_addr => text_addr, text_data => text_data,
       addr_src0 => src0, addr_src1 => src1, ep_enable_o => ep_en,
-      stat_rx_good => good, stat_rx_bad => bad);
+      stat_rx_good => good, stat_rx_bad => bad,
+      rx_ps_en => rx_ps_en, rx_ps_done => rx_ps_done, rx_locked => rx_locked);
 
   ---------------------------------------------------------------- video
   vclk : entity work.clocks_video_xc7

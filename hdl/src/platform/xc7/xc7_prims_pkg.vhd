@@ -32,6 +32,32 @@ package xc7_prims_pkg is
     );
   end component;
 
+  -- MMCME2_ADV, for the dynamic (fine) phase shift used by the RGMII RX
+  -- phase hunter (issue 0028). Only the ports used are declared; Vivado ties
+  -- the rest to their defaults.
+  component MMCME2_ADV
+    generic (
+      BANDWIDTH           : string  := "OPTIMIZED";
+      CLKFBOUT_MULT_F     : real    := 5.0;
+      CLKFBOUT_PHASE      : real    := 0.0;
+      CLKIN1_PERIOD       : real    := 0.0;
+      CLKOUT0_DIVIDE_F    : real    := 1.0;
+      CLKOUT0_PHASE       : real    := 0.0;
+      CLKOUT0_USE_FINE_PS : boolean := false;
+      COMPENSATION        : string  := "ZHOLD";
+      DIVCLK_DIVIDE       : integer := 1;
+      STARTUP_WAIT        : boolean := false
+    );
+    port (
+      CLKOUT0, CLKFBOUT, LOCKED, PSDONE : out std_logic;
+      CLKIN1, CLKIN2, CLKINSEL, CLKFBIN, RST, PWRDWN : in std_logic;
+      PSCLK, PSEN, PSINCDEC : in std_logic;
+      DCLK, DEN, DWE : in std_logic;
+      DADDR : in std_logic_vector(6 downto 0);
+      DI    : in std_logic_vector(15 downto 0)
+    );
+  end component;
+
   component ODDR
     generic (
       DDR_CLK_EDGE : string := "OPPOSITE_EDGE";

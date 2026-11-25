@@ -33,7 +33,8 @@ package proto_pkg is
   constant T_TEXT_WRITE: std_logic_vector(7 downto 0) := x"50";
 
   -- payload lengths (after the 8-byte common header)
-  constant HB_PAYLOAD_LEN   : natural := 100;
+  -- 100 fixed + 24 video block + 8 link block (ADR 0005 sections 3, 3a, 8)
+  constant HB_PAYLOAD_LEN   : natural := 132;
   constant ACK_PAYLOAD_LEN  : natural := 10;
   constant SNAP_PAYLOAD_LEN : natural := 680;
   constant JRESP_FIXED_LEN  : natural := 16;

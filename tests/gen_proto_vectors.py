@@ -33,6 +33,9 @@ def vectors():
                pixel_clock_hz=27000000, frames_captured=0x01020304, raster_lines_dropped=5,
                tmds_decode_errors=6)
     v.append(("heartbeat_video", P.encode_heartbeat(0, hbv)))
+    hbl = dict(hbv, rx_phase_pos=3, rx_eye_width=24, rx_hunts=2, rx_bad_frames=300,
+               rx_link_flags=0x02)
+    v.append(("heartbeat_link", P.encode_heartbeat(1, hbl)))
     # raster: 720-px active line, pixel x = (x & 0xFF, (x >> 8) ^ line, (3 * x) & 0xFF)
     px = b"".join(bytes([x & 0xFF, (x >> 8) ^ 5, (3 * x) & 0xFF]) for x in range(720))
     v.append(("raster_active", P.encode_raster(

@@ -199,6 +199,13 @@ def check(path):
         err("DUT1 rx_rejects %d != 1" % hb1[-1]["rx_rejects"])
     if hb0 and (hb0[-1]["addr_src"] != 1 or hb0[-1]["dut_id"] != 0):
         err("DUT0 heartbeat addr_src/dut_id %r" % ((hb0[-1]["addr_src"], hb0[-1]["dut_id"]),))
+    for d, h in hbs:
+        if "rx_hunts" not in h or "video_flags" not in h:
+            err("heartbeat without video/link block (expected 132-byte payload)")
+            break
+        if h["rx_hunts"] != 0 or h["rx_phase_pos"] != 0 or h["video_flags"] != 0:
+            err("link/video block unexpected: %r" % ({k: h[k] for k in P.LINK_FIELDS},))
+            break
     if not hb1 or hb1[-1]["addr_src"] != 2 or hb1[-1]["dut_id"] != 0x11:
         err("DUT1 heartbeat missing or addr_src/dut_id wrong")
 

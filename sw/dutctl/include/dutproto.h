@@ -108,6 +108,12 @@ typedef struct {
   uint16_t h_total, v_total, h_active, v_active;
   uint32_t pixel_clock_hz, frames_captured;
   uint16_t raster_lines_dropped, tmds_decode_errors;
+  /* link block (ADR 0005 section 3a); valid only when has_link (payload >= 132) */
+  uint8_t has_link;
+  uint8_t rx_phase_pos;  /* RX sample phase, positions of 5.625 deg from power-up */
+  uint8_t rx_eye_width;  /* passing positions in the last hunt (0 = never hunted) */
+  uint16_t rx_hunts, rx_bad_frames;
+  uint8_t rx_link_flags; /* b0 hunting, b1 RX MMCM locked */
 } dp_heartbeat_t;
 
 typedef struct {
