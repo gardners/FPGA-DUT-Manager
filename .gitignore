@@ -7,3 +7,4 @@
 /sw/dutctl/build/
 *.o
 work/
+/.claude/worktrees/
