@@ -12,6 +12,7 @@
  *   dutctl xvc IP [--port 2542]                XVC 1.0 server for Vivado
  *   dutctl relay TTY COMMAND...                Arduino relay controller
  *   dutctl thumbs IFACE [--request] [--force IP] thumbnail relay -> PPM (AF_PACKET)
+ *   dutctl screenshot [TARGET] [-o FILE]        one frame -> PNG/PPM (alias -S)
  *
  * LGPL-2.1-or-later. */
 #ifndef _GNU_SOURCE
@@ -23,6 +24,7 @@
 #include <sys/ioctl.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <ifaddrs.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <poll.h>
@@ -30,6 +32,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <termios.h>
@@ -37,7 +40,9 @@
 #include <unistd.h>
 
 #include "dutproto.h"
+#include "pngwrite.h"
 #include "rasterframe.h"
+#include "screenshot.h"
 #include "uartstream.h"
 #include "xvc.h"
 
@@ -119,13 +124,23 @@ static int udp_recv(int fd, uint8_t *buf, size_t cap, int timeout_ms, const stru
 }
 
 /* ------------------------------------------------------------- management */
-static int mgmt_set(const char *ip, uint16_t key, const uint8_t *val, uint16_t vlen)
+/* MGMT_SET with retries; prints the ack unless quiet. Returns 0 when the
+ * key was applied (ok / duplicate), 1 otherwise. */
+static int mgmt_set_q(const char *ip, uint16_t key, const uint8_t *val, uint16_t vlen, int quiet)
 {
   int fd = udp_bind(0);
   struct sockaddr_in t = parse_target(ip, DP_PORT_MGMT);
   uint8_t pkt[64], rx[DP_MAX_PACKET];
-  srand((unsigned)(time(NULL) ^ getpid()));
-  uint16_t cmd = (uint16_t)rand();
+  /* seed once: consecutive sets in one process need different cmd_ids (a
+   * repeat of the last applied id is acked as a duplicate, not applied) */
+  static int seeded;
+  static uint16_t next_cmd;
+  if (!seeded) {
+    srand((unsigned)(time(NULL) ^ getpid()));
+    next_cmd = (uint16_t)rand();
+    seeded = 1;
+  }
+  uint16_t cmd = next_cmd++;
   size_t n = dp_encode_mgmt_set(pkt, DP_DUT_ANY, cmd, key, val, vlen);
   for (int attempt = 0; attempt < 5; attempt++) {
     sendto(fd, pkt, n, 0, (struct sockaddr *)&t, sizeof t);
@@ -135,16 +150,23 @@ static int mgmt_set(const char *ip, uint16_t key, const uint8_t *val, uint16_t v
       dp_ack_t a;
       if (dp_decode_ack(rx + DP_HDR_LEN, h.length, &a) == 0 && a.cmd_id == cmd) {
         static const char *const st[] = {"ok", "bad key", "bad length", "bad value", "duplicate"};
-        printf("dut%d key 0x%04x: %s (config generation %u)\n", h.dut, a.key,
-               a.status < 5 ? st[a.status] : "?", a.cfg_gen);
+        int good = a.status == DP_ACK_OK || a.status == DP_ACK_DUPLICATE;
+        if (!quiet || !good)
+          fprintf(quiet ? stderr : stdout, "dut%d key 0x%04x: %s (config generation %u)\n", h.dut, a.key,
+                  a.status < 5 ? st[a.status] : "?", a.cfg_gen);
         close(fd);
-        return (a.status == DP_ACK_OK || a.status == DP_ACK_DUPLICATE) ? 0 : 1;
+        return good ? 0 : 1;
       }
     }
   }
-  fprintf(stderr, "no MGMT_ACK from %s\n", ip);
+  fprintf(stderr, "no MGMT_ACK from %s (key 0x%04x)\n", ip, key);
   close(fd);
   return 1;
+}
+
+static int mgmt_set(const char *ip, uint16_t key, const uint8_t *val, uint16_t vlen)
+{
+  return mgmt_set_q(ip, key, val, vlen, 0);
 }
 
 static int parse_mac(const char *s, uint8_t m[6])
@@ -881,7 +903,9 @@ static void usage(void)
           "  dutctl relay TTY COMMAND...\n"
           "  dutctl text IP [--screen N] [--fg N] [--bg N] [--force] [--jumbo] [--file F | LINE ...]\n"
           "  dutctl video IP [--frames N] [--out PREFIX] [--enable] [--require-complete]\n"
-          "  dutctl thumbs IFACE [--out PREFIX] [--pictures N] [--request] [--force IP] [--scale 1|2]\n");
+          "  dutctl thumbs IFACE [--out PREFIX] [--pictures N] [--request] [--force IP] [--scale 1|2]\n"
+          "  dutctl screenshot [IP|DIGIT] [-o FILE.png|.ppm] [--screen auto|editable|novideo|select]\n"
+          "                    [--timeout S]     one frame from a video target (alias: dutctl -S)\n");
 }
 
 
@@ -1106,6 +1130,368 @@ static int cmd_thumbs(int argc, char **argv)
   return (want && done < want) ? 1 : 0;
 }
 
+/* ------------------------------------------------------------- screenshot */
+/* dutctl screenshot [TARGET] (issue 0042): one complete frame from a board's
+ * video target DUT, written as PNG or PPM. The management protocol has no
+ * read, so what this changes is put back to known values afterwards:
+ * capture enable to its state in the heartbeat (video_flags b2), the
+ * telemetry destination to broadcast (the default), the console screen to
+ * auto (only if --screen forced it). */
+static struct {
+  int armed;            /* something was changed: restore at exit */
+  char ip[INET_ADDRSTRLEN];
+  uint8_t cap_prev;     /* capture enable before */
+  int screen_forced;
+} g_shot;
+
+static void shot_restore(void)
+{
+  if (!g_shot.armed)
+    return;
+  g_shot.armed = 0;
+  static const uint8_t bc_ip[4] = {0xff, 0xff, 0xff, 0xff};
+  static const uint8_t bc_mac[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+  uint8_t zero = 0;
+  int bad = 0;
+  bad |= mgmt_set_q(g_shot.ip, DP_K_CAPTURE_EN, &g_shot.cap_prev, 1, 1);
+  if (g_shot.screen_forced)
+    bad |= mgmt_set_q(g_shot.ip, DP_K_CON_SCREEN, &zero, 1, 1);
+  bad |= mgmt_set_q(g_shot.ip, DP_K_DEST_IP, bc_ip, 4, 1);
+  bad |= mgmt_set_q(g_shot.ip, DP_K_DEST_MAC, bc_mac, 6, 1);
+  if (bad)
+    fprintf(stderr, "dutctl screenshot: WARNING: restoring the settings of %s failed; restore by hand:\n"
+                    "  dutctl mgmt %s 0x0040 %02x; dutctl mgmt %s 0x0003 ffffffff; "
+                    "dutctl mgmt %s 0x0004 ffffffffffff%s%s%s\n",
+            g_shot.ip, g_shot.ip, g_shot.cap_prev, g_shot.ip, g_shot.ip,
+            g_shot.screen_forced ? "; dutctl mgmt " : "", g_shot.screen_forced ? g_shot.ip : "",
+            g_shot.screen_forced ? " 0x0035 00" : "");
+}
+
+/* This host's address and MAC on the route to dst (network order). */
+static int local_addr_for(struct in_addr dst, struct in_addr *src, uint8_t mac[6], char *ifname, size_t ifcap)
+{
+  int fd = socket(AF_INET, SOCK_DGRAM, 0);
+  if (fd < 0)
+    return -1;
+  struct sockaddr_in t = {.sin_family = AF_INET, .sin_port = htons(DP_PORT_MGMT), .sin_addr = dst};
+  struct sockaddr_in me;
+  socklen_t ml = sizeof me;
+  int r = connect(fd, (struct sockaddr *)&t, sizeof t) == 0 && getsockname(fd, (struct sockaddr *)&me, &ml) == 0;
+  close(fd);
+  if (!r || me.sin_addr.s_addr == htonl(INADDR_ANY))
+    return -1;
+  *src = me.sin_addr;
+  struct ifaddrs *ifs, *i;
+  if (getifaddrs(&ifs) < 0)
+    return -1;
+  int found = 0;
+  for (i = ifs; i && !found; i = i->ifa_next)
+    if (i->ifa_addr && i->ifa_addr->sa_family == AF_INET &&
+        ((struct sockaddr_in *)i->ifa_addr)->sin_addr.s_addr == src->s_addr) {
+      snprintf(ifname, ifcap, "%s", i->ifa_name);
+      found = 1;
+    }
+  freeifaddrs(ifs);
+  if (!found)
+    return -1;
+  char path[128], line[64];
+  snprintf(path, sizeof path, "/sys/class/net/%s/address", ifname);
+  FILE *f = fopen(path, "r");
+  if (!f)
+    return -1;
+  r = fgets(line, sizeof line, f) && parse_mac(line, mac) == 0;
+  fclose(f);
+  if (!r)
+    return -1;
+  static const uint8_t z[6];
+  return (memcmp(mac, z, 6) && !(mac[0] & 1)) ? 0 : -1; /* loopback / multicast MAC: unusable */
+}
+
+static const char *ep_ip(const ss_ep_t *e, char *buf)
+{
+  struct in_addr a = {.s_addr = e->addr};
+  return inet_ntop(AF_INET, &a, buf, INET_ADDRSTRLEN);
+}
+
+/* "machine 1 (console 2, dut1 203.28.176.87)" */
+static const char *ep_desc(const ss_ep_t *e, char *buf, size_t cap)
+{
+  char ipb[INET_ADDRSTRLEN];
+  int m = ss_machine_of(e->dut_id), d = ss_machine_digit(m);
+  if (d >= 0)
+    snprintf(buf, cap, "machine %d (console %c, dut%u %s)", m, d, e->ep, ep_ip(e, ipb));
+  else
+    snprintf(buf, cap, "machine %d (dut%u %s)", m, e->ep, ep_ip(e, ipb));
+  return buf;
+}
+
+static int has_ext(const char *path, const char *ext)
+{
+  size_t l = strlen(path), e = strlen(ext);
+  return l > e && !strcasecmp(path + l - e, ext);
+}
+
+static int cmd_screenshot(int argc, char **argv)
+{
+  static const char *const usage_txt =
+      "usage: dutctl screenshot [TARGET] [-o FILE] [--screen auto|editable|novideo|select] [--timeout S]\n"
+      "       dutctl -S [TARGET] [options]           (same; like m65 -S)\n"
+      "  TARGET: an endpoint IPv4 address, or a console digit 1-9, 0 (machine 0-9,\n"
+      "  as on the select screen); none = the only machine that can be captured.\n"
+      "  Only a board's video target DUT can be captured (it is not changed).\n"
+      "  Points the DUT's telemetry at this host, enables capture, waits for one\n"
+      "  complete frame (default timeout 10 s), then restores capture, broadcast\n"
+      "  telemetry and (with --screen) the auto console screen, also on errors\n"
+      "  and Ctrl-C. FILE: .png or .ppm; default mega65-screenshot-NNNNNN.png\n"
+      "  (lowest free number in the current directory, never overwritten).\n";
+  const char *target = NULL, *out = NULL;
+  double timeout_s = 10;
+  int screen = -1;
+  for (int i = 0; i < argc; i++) {
+    if ((!strcmp(argv[i], "-o") || !strcmp(argv[i], "--out")) && i + 1 < argc)
+      out = argv[++i];
+    else if (!strcmp(argv[i], "--timeout") && i + 1 < argc)
+      timeout_s = atof(argv[++i]);
+    else if (!strcmp(argv[i], "--screen") && i + 1 < argc) {
+      static const char *const names[] = {"auto", "editable", "novideo", "select"};
+      const char *s = argv[++i];
+      for (int k = 0; k < 4; k++)
+        if (!strcmp(s, names[k]) || (!strcmp(s, "no-video") && k == 2))
+          screen = k;
+      if (screen < 0)
+        return fprintf(stderr, "dutctl screenshot: --screen auto|editable|novideo|select\n"), 2;
+    } else if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help"))
+      return fputs(usage_txt, stderr), 2;
+    else if (argv[i][0] != '-' && !target)
+      target = argv[i];
+    else
+      return fprintf(stderr, "dutctl screenshot: unexpected %s\n%s", argv[i], usage_txt), 2;
+  }
+  if (out && !has_ext(out, ".png") && !has_ext(out, ".ppm"))
+    return fprintf(stderr, "dutctl screenshot: FILE must end in .png or .ppm\n"), 2;
+  if (timeout_s <= 0)
+    timeout_s = 10;
+  int want_machine = -1;
+  struct in_addr want_addr = {0};
+  if (target) {
+    if (strlen(target) == 1 && ss_digit_machine(target[0]) >= 0)
+      want_machine = ss_digit_machine(target[0]);
+    else if (inet_pton(AF_INET, target, &want_addr) != 1)
+      return fprintf(stderr, "dutctl screenshot: TARGET must be an IPv4 address or a digit 1-9, 0\n"), 2;
+    else if (want_addr.s_addr == htonl(INADDR_BROADCAST) || IN_MULTICAST(ntohl(want_addr.s_addr)) ||
+             want_addr.s_addr == htonl(INADDR_ANY))
+      return fprintf(stderr, "dutctl screenshot: TARGET must be a unicast endpoint address\n"), 2;
+  }
+
+  struct sigaction sa = {0};
+  sa.sa_handler = on_sig; /* no SA_RESTART: poll() returns at once */
+  sigaction(SIGINT, &sa, NULL);
+  sigaction(SIGTERM, &sa, NULL);
+  sigaction(SIGHUP, &sa, NULL);
+
+  /* 1. heartbeats: who is where, which DUT is each board's video target */
+  enum { MAX_EP = 64 };
+  static ss_ep_t eps[MAX_EP];
+  int neps = 0;
+  {
+    int fd = udp_bind(DP_PORT_HB);
+    uint8_t buf[DP_MAX_PACKET];
+    double end = now_s() + 1.5;
+    while (!g_stop && now_s() < end) {
+      dp_hdr_t h;
+      struct sockaddr_in src;
+      if (udp_recv(fd, buf, sizeof buf, 100, NULL, DP_T_HEARTBEAT, &h, &src) < 0)
+        continue;
+      dp_heartbeat_t hb;
+      if (dp_decode_heartbeat(buf + DP_HDR_LEN, h.length, &hb) < 0)
+        continue;
+      int k = ss_find_addr(eps, neps, src.sin_addr.s_addr);
+      if (k < 0) {
+        if (neps == MAX_EP)
+          continue;
+        k = neps++;
+      }
+      ss_ep_t *e = &eps[k];
+      e->addr = src.sin_addr.s_addr;
+      e->ep = h.dut;
+      e->dut_id = hb.dut_id;
+      e->selected = hb.selected;
+      e->dna = hb.dna;
+      e->boot_id = hb.boot_id;
+      e->caps = hb.caps;
+      e->has_video = hb.has_video;
+      e->video_flags = hb.video_flags;
+      e->console_screen = hb.console_screen;
+      e->h_active = hb.h_active;
+      e->v_active = hb.v_active;
+    }
+    close(fd);
+  }
+  if (g_stop)
+    return 130;
+  char d1[96], d2[96];
+  int k;
+  if (want_machine >= 0) {
+    int cnt;
+    k = ss_find_machine(eps, neps, want_machine, &cnt);
+    if (k < 0)
+      return fprintf(stderr, "dutctl screenshot: no heartbeat from machine %d (console %s) in 1.5 s\n",
+                     want_machine, target), 1;
+    if (cnt > 1)
+      fprintf(stderr, "dutctl screenshot: warning: %d endpoints claim machine %d; using %s\n", cnt,
+              want_machine, ep_desc(&eps[k], d1, sizeof d1));
+  } else if (target) {
+    k = ss_find_addr(eps, neps, want_addr.s_addr);
+    if (k < 0)
+      return fprintf(stderr, "dutctl screenshot: no heartbeat from %s in 1.5 s (is it an endpoint, "
+                             "and are its heartbeats sent to this host?)\n", target), 1;
+  } else {
+    int idx[MAX_EP];
+    int c = ss_capturable(eps, neps, idx, MAX_EP);
+    if (c == 0)
+      return fprintf(stderr, "dutctl screenshot: no machine can be captured (%d endpoints heard; "
+                             "none is its board's video target with video locked)\n", neps), 1;
+    if (c > 1) {
+      fprintf(stderr, "dutctl screenshot: %d machines can be captured; choose one as TARGET:\n", c);
+      for (int i = 0; i < c && i < MAX_EP; i++)
+        fprintf(stderr, "  %s\n", ep_desc(&eps[idx[i]], d1, sizeof d1));
+      return 1;
+    }
+    k = idx[0];
+  }
+  ss_ep_t *e = &eps[k];
+  ep_desc(e, d1, sizeof d1);
+  if (!ss_is_video_target(e)) {
+    int vt = ss_board_video_target(e), s = ss_sibling(eps, neps, k);
+    if (vt < 0)
+      fprintf(stderr, "dutctl screenshot: %s is not its board's video target; that board has no local "
+                      "video target (selected 0x%02x)\n", d1, e->selected);
+    else if (s >= 0)
+      fprintf(stderr, "dutctl screenshot: %s is not its board's video target; the video target on that "
+                      "board is %s\n", d1, ep_desc(&eps[s], d2, sizeof d2));
+    else
+      fprintf(stderr, "dutctl screenshot: %s is not its board's video target; the video target on that "
+                      "board is its dut%d\n", d1, vt);
+    return 1;
+  }
+  if (!(e->caps & (1u << 4)))
+    return fprintf(stderr, "dutctl screenshot: %s has no HDMI capture (capability b4 clear)\n", d1), 1;
+  if (!e->has_video || !(e->video_flags & DP_VF_LOCKED))
+    fprintf(stderr, "dutctl screenshot: warning: %s reports no locked video; trying anyway\n", d1);
+
+  char ip[INET_ADDRSTRLEN], ifname[IF_NAMESIZE + 1];
+  ep_ip(e, ip);
+  struct in_addr me;
+  uint8_t mac[6];
+  if (local_addr_for((struct in_addr){.s_addr = e->addr}, &me, mac, ifname, sizeof ifname) < 0)
+    return fprintf(stderr, "dutctl screenshot: cannot find this host's address/MAC towards %s\n", ip), 1;
+
+  /* 2. raster socket first, then point the DUT at this host and enable */
+  int fd = udp_bind(DP_PORT_RASTER);
+  int big = 8 << 20;
+  setsockopt(fd, SOL_SOCKET, SO_RCVBUF, &big, sizeof big);
+  snprintf(g_shot.ip, sizeof g_shot.ip, "%s", ip);
+  g_shot.cap_prev = (e->has_video && (e->video_flags & DP_VF_CAPTURE)) ? 1 : 0;
+  g_shot.screen_forced = screen > 0;
+  g_shot.armed = 1;
+  atexit(shot_restore);
+  int rc = 1;
+  uint8_t ipv[4], one = 1, scr = (uint8_t)(screen > 0 ? screen : 0);
+  memcpy(ipv, &me.s_addr, 4);
+  double settle = now_s();
+  if (screen > 0) {
+    if (mgmt_set_q(ip, DP_K_CON_SCREEN, &scr, 1, 1))
+      goto out;
+    settle = now_s() + 0.5; /* on a self-loop the receiver re-locks after a screen change */
+  }
+  if (mgmt_set_q(ip, DP_K_DEST_MAC, mac, 6, 1) || mgmt_set_q(ip, DP_K_DEST_IP, ipv, 4, 1) ||
+      mgmt_set_q(ip, DP_K_CAPTURE_EN, &one, 1, 1))
+    goto out;
+
+  /* 3. one complete frame */
+  {
+    static rf_asm_t a;
+    static uint8_t buf[DP_RASTER_MAX_PACKET + 64];
+    rf_init(&a);
+    struct sockaddr_in t = {.sin_family = AF_INET, .sin_addr.s_addr = e->addr};
+    double end = now_s() + timeout_s;
+    rf_frame_t f;
+    long frames = 0, incomplete = 0, best = 0;
+    int got = 0;
+    while (!g_stop && now_s() < end) {
+      dp_hdr_t h;
+      if (udp_recv(fd, buf, sizeof buf, 100, &t, DP_T_RASTER, &h, NULL) < 0)
+        continue;
+      dp_raster_t r;
+      if (dp_decode_raster(buf + DP_HDR_LEN, h.length, &r) < 0 || rf_feed(&a, &r, &f) != 1)
+        continue;
+      if (now_s() < settle)
+        continue;
+      frames++;
+      if (!f.complete) {
+        incomplete++;
+        if (f.lines_received > best)
+          best = f.lines_received;
+        continue;
+      }
+      got = 1;
+      break;
+    }
+    if (!got) {
+      if (g_stop)
+        fprintf(stderr, "dutctl screenshot: interrupted\n");
+      else
+        fprintf(stderr, "dutctl screenshot: no complete frame from %s in %g s (%ld frames, %ld incomplete, "
+                        "best %ld lines; late packets %u)\n", d1, timeout_s, frames, incomplete, best, a.late);
+      rc = g_stop ? 130 : 1;
+      goto out;
+    }
+    /* restore before writing: the board does not need to wait for the disk */
+    close(fd);
+    fd = -1;
+    shot_restore();
+
+    /* 4. write */
+    char path[64];
+    int ofd = -1;
+    if (out)
+      ofd = open(out, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    else
+      for (int n = 0; n < 1000000; n++) {
+        snprintf(path, sizeof path, "mega65-screenshot-%06d.png", n);
+        ofd = open(path, O_WRONLY | O_CREAT | O_EXCL, 0644);
+        if (ofd >= 0 || errno != EEXIST)
+          break;
+      }
+    const char *file = out ? out : path;
+    FILE *fp = ofd >= 0 ? fdopen(ofd, "wb") : NULL;
+    if (!fp) {
+      fprintf(stderr, "dutctl screenshot: cannot create %s: %s\n", file, strerror(errno));
+      if (ofd >= 0)
+        close(ofd);
+      goto out;
+    }
+    int ok;
+    if (has_ext(file, ".ppm"))
+      ok = fprintf(fp, "P6\n%u %u\n255\n", f.width, f.height) > 0 &&
+           fwrite(f.rgb, 3, (size_t)f.width * f.height, fp) == (size_t)f.width * f.height;
+    else
+      ok = pw_write_png_fp(fp, f.rgb, f.width, f.height) == 0;
+    long size = ok ? ftell(fp) : -1;
+    if (fclose(fp) != 0 || !ok) {
+      fprintf(stderr, "dutctl screenshot: writing %s failed\n", file);
+      goto out;
+    }
+    printf("%s: %ux%u, %ld bytes, frame %u, %s\n", file, f.width, f.height, size, f.frame, d1);
+    rc = 0;
+  }
+out:
+  if (fd >= 0)
+    close(fd);
+  shot_restore();
+  return rc;
+}
+
 int main(int argc, char **argv)
 {
   if (argc < 2) {
@@ -1126,6 +1512,7 @@ int main(int argc, char **argv)
   if (!strcmp(c, "text")) return cmd_text(argc, argv);
   if (!strcmp(c, "video")) return cmd_video(argc, argv);
   if (!strcmp(c, "thumbs")) return cmd_thumbs(argc, argv);
+  if (!strcmp(c, "screenshot") || !strcmp(c, "-S")) return cmd_screenshot(argc, argv);
   usage();
   return 2;
 }

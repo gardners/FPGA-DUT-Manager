@@ -6,7 +6,7 @@ CFLAGS ?= -O2 -g
 CFLAGS += -std=c11 -Wall -Wextra -Werror -Iinclude
 LDLIBS += -lm
 
-LIB_SRC := src/dutproto.c src/uartstream.c src/xvc.c src/rasterframe.c
+LIB_SRC := src/dutproto.c src/uartstream.c src/xvc.c src/rasterframe.c src/pngwrite.c src/screenshot.c
 LIB_OBJ := $(LIB_SRC:src/%.c=$(BUILD)/%.o)
 
 .PHONY: all test clean install
@@ -25,7 +25,8 @@ $(BUILD)/vectors.txt: $(REPO)/tests/gen_proto_vectors.py $(REPO)/tests/netproto.
 	python3 -I $< $@
 
 test: $(BUILD)/test_main $(BUILD)/vectors.txt $(BUILD)/dutctl
-	$(BUILD)/test_main $(BUILD)/vectors.txt
+	$(BUILD)/test_main $(BUILD)/vectors.txt $(BUILD)/test.png
+	python3 -I tests/check_png.py $(BUILD)/test.png
 
 $(BUILD):
 	mkdir -p $@
