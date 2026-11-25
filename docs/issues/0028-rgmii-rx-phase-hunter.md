@@ -1,6 +1,6 @@
 # 0028: Self-calibrating RGMII RX phase (FCS-driven hunter)
 
-Status: Open
+Status: Done (2026-11-25)
 Opened: 2026-11-25
 
 Owner idea (2026-11-25): watch live traffic; when frames appear but fail
@@ -62,3 +62,6 @@ reset. Hardware test pending: force a hunt by starting from a bad phase
   frames, hwcheck PASS) but measured eye 10 and settled at ~73 deg: quiet
   positions inside the eye timed out as fails and split the run. Timeout
   raised to 10 s per position (fail only when truly silent).
+* 10 s timeout: unassisted recovery from 225 deg settled at +45 positions
+  = 118 deg (centre 123.75), eye 18, 86 bad frames, hwcheck PASS. Default
+  build a9a18703: idle (phase 0, 0 hunts, 0 bad), known-good.

@@ -10,7 +10,8 @@ Board must run from the DC jack (USB power alone browns out).
 
 | Build id | Commit | Verified on hardware (2026-11-25) | Notes |
 |---|---|---|---|
-| 198c4519 | 198c451 | hwcheck PASS both DUTs | **known-good**; timing MET; keyboard pin 2 in column B (row 22 B sense / 15 B supply) |
+| a9a18703 | a9a1870 | hwcheck PASS both DUTs; hunter idle (phase 0, 0 bad) | **known-good**; RX phase hunter (0028); harness columns swapped (ADR 0008 am. 5) |
+| 198c4519 | 198c451 | hwcheck PASS both DUTs | timing MET; keyboard pin 2 in column B (row 22 B sense / 15 B supply) |
 | 681af897 | 681af89 | hwcheck PASS both DUTs | timing MET; keyboard blocks reversed (ADR 0008 am. 4) |
 | 8efc02b0 | 8efc02b | hwcheck PASS both DUTs | timing MET; keyboard blocks mirror J5 (ADR 0008 am. 3) |
 | e54a2e92 | e54a2e9 | hwcheck PASS both DUTs | all timing MET (RX constrained to measured eye); jumper-strip wiring (ADR 0008 am. 2); MEGA KVM boot screen |
