@@ -43,3 +43,8 @@ management.
   `sudo get-edid | parse-edid`; note parse-edid 3.0.2 prints DTD modelines
   without numbers, a known bug — edid-decode is the reference), and
   `xrandr` should offer only 720x480 / 720x576.
+* Vivado build dffd2896: TIMING MET (WNS 0.150 ns, WHS 0.032 ns); total
+  9708 LUTs / 12402 FFs / 20.5 BRAM. The EDID store maps to 12 RAM64M
+  (LUTRAM, because of the update port). `make test` exit 0 (20 HDL
+  testbenches). Not yet loaded on hardware (HDMI IN is on the loopback
+  cable); bitstream in build/bits/supervisor-dffd2896.bit of the worktree.
