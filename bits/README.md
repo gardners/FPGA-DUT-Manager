@@ -10,7 +10,8 @@ Board must run from the DC jack (USB power alone browns out).
 
 | Build id | Commit | Verified on hardware (2026-11-25) | Notes |
 |---|---|---|---|
-| 41289d54 | 41289d5 | hwcheck PASS both DUTs | **known-good**; checksum pipelined, WNS +0.28 ns |
+| 98e1fce8 | 98e1fce | hwcheck PASS both DUTs; MK-I keyboard detected; DNA read | **known-good**; keyboard power-LED status, device DNA |
+| 41289d54 | 41289d5 | hwcheck PASS both DUTs | checksum pipelined, WNS +0.28 ns |
 | a9a18703 | a9a1870 | hwcheck PASS both DUTs; hunter idle (phase 0, 0 bad) | RX phase hunter (0028); harness columns swapped (ADR 0008 am. 5) |
 | 198c4519 | 198c451 | hwcheck PASS both DUTs | timing MET; keyboard pin 2 in column B (row 22 B sense / 15 B supply) |
 | 681af897 | 681af89 | hwcheck PASS both DUTs | timing MET; keyboard blocks reversed (ADR 0008 am. 4) |
