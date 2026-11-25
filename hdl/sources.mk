@@ -34,6 +34,8 @@ SYNTH_SOURCES := \
 	$(HDL_SRC)/video/text_display.vhd \
 	$(HDL_SRC)/video/text_rx_tap.vhd \
 	$(HDL_SRC)/video/seg7_status.vhd \
+	$(HDL_SRC)/video/edid_pkg.vhd \
+	$(HDL_SRC)/video/ddc_edid.vhd \
 	$(HDL_SRC)/top/supervisor_core.vhd \
 	$(HDL_SRC)/platform/xc7/xc7_prims_pkg.vhd \
 	$(HDL_SRC)/platform/xc7/clocks_xc7.vhd \

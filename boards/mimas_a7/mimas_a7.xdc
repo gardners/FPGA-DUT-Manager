@@ -129,8 +129,11 @@ set_property -dict {PACKAGE_PIN K18 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW PULLUP
 set_property -dict {PACKAGE_PIN H22 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW PULLUP TRUE} [get_ports pk_kio9]
 set_property -dict {PACKAGE_PIN J22 IOSTANDARD LVCMOS33 PULLDOWN TRUE} [get_ports pk_kio10]
 
-## HDMI IN (bank 35, TMDS_33 via IP4776; DVI sink, issue 0022). DDC
-## (J2/H2) left unconnected for now (no EDID emulation); HPD asserted.
+## HDMI IN (bank 35, TMDS_33 via IP4776; DVI sink, issue 0022). HPD
+## asserted. DDC (issue 0033): EDID at 0x50, SDA open drain, SCL input only.
+## The source supplies the DDC pull-ups (HDMI: 1.5-2 k to +5 V on its side
+## of the IP4776 level shifter); the weak PULLUPs only stop an unplugged
+## input from floating.
 set_property -dict {PACKAGE_PIN K4 IOSTANDARD TMDS_33} [get_ports hdmi_rx_clk_p]
 set_property -dict {PACKAGE_PIN J4 IOSTANDARD TMDS_33} [get_ports hdmi_rx_clk_n]
 set_property -dict {PACKAGE_PIN K1 IOSTANDARD TMDS_33} [get_ports {hdmi_rx_p[0]}]
@@ -140,3 +143,5 @@ set_property -dict {PACKAGE_PIN L1 IOSTANDARD TMDS_33} [get_ports {hdmi_rx_n[1]}
 set_property -dict {PACKAGE_PIN P2 IOSTANDARD TMDS_33} [get_ports {hdmi_rx_p[2]}]
 set_property -dict {PACKAGE_PIN N2 IOSTANDARD TMDS_33} [get_ports {hdmi_rx_n[2]}]
 set_property -dict {PACKAGE_PIN G2 IOSTANDARD LVCMOS33} [get_ports hdmi_rx_hpa]
+set_property -dict {PACKAGE_PIN J2 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports hdmi_rx_scl]
+set_property -dict {PACKAGE_PIN H2 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW PULLUP TRUE} [get_ports hdmi_rx_sda]

@@ -39,6 +39,8 @@ entity mimas_a7_top is
     hdmi_rx_n    : in    std_logic_vector(2 downto 0);
     hdmi_rx_clk_p, hdmi_rx_clk_n : in std_logic;
     hdmi_rx_hpa  : out   std_logic;
+    hdmi_rx_scl  : in    std_logic;    -- DDC: EDID served at 0x50 (issue 0033)
+    hdmi_rx_sda  : inout std_logic;
     -- USB UART (FTDI channel A), unused in phase 1
     usb_uart_tx  : out   std_logic;
     usb_uart_rx  : in    std_logic;
@@ -165,6 +167,7 @@ begin
   hrx : entity work.hdmi_rx_xc7
     port map (tmds_clk_p => hdmi_rx_clk_p, tmds_clk_n => hdmi_rx_clk_n,
               tmds_p => hdmi_rx_p, tmds_n => hdmi_rx_n, hpd => hdmi_rx_hpa,
+              ddc_scl => hdmi_rx_scl, ddc_sda => hdmi_rx_sda,
               ref_clk => clk_ref, ref_rst => not locked,
               pclk => vin_pclk, rgb => vin_rgb, de => vin_de, hs => vin_hs, vs => vin_vs,
               locked => vin_locked);

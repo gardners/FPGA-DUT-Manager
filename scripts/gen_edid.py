@@ -1,0 +1,149 @@
+#!/usr/bin/env python3
+"""Generate the HDMI IN EDID (issue 0033) and hdl/src/video/edid_pkg.vhd.
+
+The supervisor's HDMI IN serves this EDID on DDC (I2C address 0x50) so that
+sources pick one of the two 27 MHz modes we capture:
+
+  * 720x480p60  (CEA-861 VIC 2 / 3): 858x525 total, -H -V, 59.94 Hz
+  * 720x576p50  (CEA-861 VIC 17 / 18): 864x625 total, -H -V, 50 Hz
+
+Layout: EDID 1.3 base block (DTD1 = preferred mode, DTD2 = the other mode,
+range limits 50-60 Hz / 31-32 kHz / max 30 MHz, monitor name "MEGA KVM"; no
+established or standard timings) plus one CEA-861 extension with a video data
+block listing VICs 2, 3, 17, 18. There is deliberately *no* HDMI vendor-
+specific data block: without it sources treat the sink as DVI and send no
+data islands, which dvi2rgb (a DVI decoder) needs to keep HSYNC/VSYNC right
+(pass --hdmi to add one when the receiver learns TERC4). CEA-861 says sinks
+must accept 640x480p60 (VIC 1); it is omitted on purpose, we only capture
+27 MHz modes.
+
+The manufacturer ID "MGK" is not a registered PNP ID; it only has to be
+syntactically valid.
+
+Usage:
+  scripts/gen_edid.py                  # rewrite hdl/src/video/edid_pkg.vhd
+  scripts/gen_edid.py --bin edid.bin   # also write the raw 256 bytes
+                                       # (for edid-decode / parse-edid)
+  scripts/gen_edid.py --preferred 576  # make 720x576p50 the preferred mode
+"""
+import argparse
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+PKG = ROOT / "hdl/src/video/edid_pkg.vhd"
+NAME = "MEGA KVM"     # = common_pkg.PRODUCT_NAME
+
+# (name, pclk_hz, h_active, h_front, h_sync, h_back, v_active, v_front,
+#  v_sync, v_back, h_pos, v_pos) -- CEA-861-D tables 3/4
+MODES = {
+    480: ("720x480p60", 27_000_000, 720, 16, 62, 60, 480, 9, 6, 30, False, False),
+    576: ("720x576p50", 27_000_000, 720, 12, 64, 68, 576, 5, 5, 39, False, False),
+}
+VICS = {480: (2, 3), 576: (17, 18)}
+
+
+def checksum(block):
+    return (-sum(block)) & 0xFF
+
+
+def dtd(mode, size_mm=(320, 240)):
+    _, pclk, ha, hf, hs, hb, va, vf, vs, vb, hpos, vpos = mode
+    hbl, vbl = hf + hs + hb, vf + vs + vb
+    p = pclk // 10_000
+    w, h = size_mm
+    flags = 0x18 | (0x04 if vpos else 0) | (0x02 if hpos else 0)  # digital separate sync
+    return bytes([
+        p & 0xFF, p >> 8,
+        ha & 0xFF, hbl & 0xFF, ((ha >> 8) << 4) | (hbl >> 8),
+        va & 0xFF, vbl & 0xFF, ((va >> 8) << 4) | (vbl >> 8),
+        hf & 0xFF, hs & 0xFF, ((vf & 0xF) << 4) | (vs & 0xF),
+        ((hf >> 8) << 6) | ((hs >> 8) << 4) | ((vf >> 4) << 2) | (vs >> 4),
+        w & 0xFF, h & 0xFF, ((w >> 8) << 4) | (h >> 8),
+        0, 0, flags])
+
+
+def text_descriptor(tag, text):
+    t = text.encode("ascii")[:13]
+    if len(t) < 13:
+        t += b"\n" + b" " * (12 - len(t))
+    return bytes([0, 0, 0, tag, 0]) + t
+
+
+def edid(preferred=480, hdmi=False):
+    other = 576 if preferred == 480 else 480
+    mfg = "MGK"
+    m = sum((ord(c) - 64) << s for c, s in zip(mfg, (10, 5, 0)))
+    b = bytearray(b"\x00\xFF\xFF\xFF\xFF\xFF\xFF\x00")
+    b += bytes([m >> 8, m & 0xFF])          # manufacturer (big-endian)
+    b += bytes([0x65, 0x00])                # product code 0x0065 (LE)
+    b += bytes([1, 0, 0, 0])                # serial number 1
+    b += bytes([47, 2026 - 1990])           # week 47 of 2026
+    b += bytes([1, 3])                      # EDID 1.3
+    b += bytes([0x80, 32, 24, 0x78, 0x0A])  # digital, 32x24 cm, gamma 2.2, RGB + preferred in DTD1
+    b += bytes([0xEE, 0x91, 0xA3, 0x54, 0x4C, 0x99, 0x26, 0x0F, 0x50, 0x54])  # sRGB chromaticity
+    b += bytes(3)                           # no established timings
+    b += b"\x01\x01" * 8                    # no standard timings
+    b += dtd(MODES[preferred])
+    b += dtd(MODES[other])
+    # range limits: V 50-60 Hz, H 31-32 kHz, max pixel clock 30 MHz, no GTF
+    b += bytes([0, 0, 0, 0xFD, 0, 50, 60, 31, 32, 3, 0x00, 0x0A]) + b" " * 6
+    b += text_descriptor(0xFC, NAME)
+    b += bytes([1])                         # one extension block
+    b.append(checksum(b))
+    assert len(b) == 128
+
+    # CEA-861 extension, revision 3
+    svd = [VICS[preferred][0] | 0x80, VICS[preferred][1], *VICS[other]]
+    blocks = bytes([(2 << 5) | len(svd)] + svd)          # video data block
+    if hdmi:
+        # HDMI VSDB: IEEE OUI 00-0C-03, physical address 1.0.0.0
+        blocks += bytes([(3 << 5) | 5, 0x03, 0x0C, 0x00, 0x10, 0x00])
+    e = bytearray([0x02, 0x03, 4 + len(blocks), 0x02])  # 2 native DTDs, no audio/YCbCr
+    e += blocks
+    e += bytes(127 - len(e))
+    e.append(checksum(e))
+    assert len(e) == 128
+    return bytes(b + e)
+
+
+def decode_dtd(d):
+    """Return (pclk_hz, h_active, h_total, v_active, v_total, h_sync_pos, v_sync_pos)."""
+    pclk = (d[0] | d[1] << 8) * 10_000
+    ha = d[2] | (d[4] >> 4) << 8
+    hbl = d[3] | (d[4] & 0xF) << 8
+    va = d[5] | (d[7] >> 4) << 8
+    vbl = d[6] | (d[7] & 0xF) << 8
+    return pclk, ha, ha + hbl, va, va + vbl, bool(d[17] & 2), bool(d[17] & 4)
+
+
+def vhdl_package(data, args):
+    out = ["-- GENERATED by scripts/gen_edid.py %s-- do not edit." % (" ".join(args) + " " if args else ""),
+           "-- HDMI IN EDID (issue 0033): 720x480p60 + 720x576p50, DVI, 256 bytes.",
+           "-- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.",
+           "library ieee;", "use ieee.std_logic_1164.all;", "use work.common_pkg.all;", "",
+           "package edid_pkg is",
+           "  constant EDID_DEFAULT : byte_array_t(0 to 255) := ("]
+    for i in range(0, 256, 8):
+        sep = "," if i + 8 < 256 else ""
+        out.append("    " + ", ".join('x"%02X"' % v for v in data[i:i + 8]) + sep)
+    out += ["  );", "end package;", ""]
+    return "\n".join(out)
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    ap.add_argument("--preferred", type=int, choices=(480, 576), default=480)
+    ap.add_argument("--hdmi", action="store_true", help="add an HDMI VSDB")
+    ap.add_argument("--bin", help="also write the raw EDID bytes here")
+    ap.add_argument("--pkg", default=str(PKG), help="VHDL package to write")
+    a = ap.parse_args()
+    data = edid(a.preferred, a.hdmi)
+    extra = (["--preferred %d" % a.preferred] if a.preferred != 480 else []) + \
+        (["--hdmi"] if a.hdmi else [])
+    Path(a.pkg).write_text(vhdl_package(data, extra))
+    if a.bin:
+        Path(a.bin).write_bytes(data)
+
+
+if __name__ == "__main__":
+    main()
