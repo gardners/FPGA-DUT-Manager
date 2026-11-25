@@ -235,8 +235,12 @@ def check(path):
     if hb0 and (hb0[-1]["addr_src"] != 1 or hb0[-1]["dut_id"] != 0):
         err("DUT0 heartbeat addr_src/dut_id %r" % ((hb0[-1]["addr_src"], hb0[-1]["dut_id"]),))
     for d, h in hbs:
-        if "rx_hunts" not in h or "video_flags" not in h:
-            err("heartbeat without video/link block (expected 132-byte payload)")
+        if "rx_hunts" not in h or "video_flags" not in h or "mem_flags" not in h:
+            err("heartbeat without video/link/memory block (expected 144-byte payload)")
+            break
+        # testbench: no memory subsystem attached (status inputs at defaults)
+        if (h["mem_flags"], h["mem_errors"], h["mem_dq_fail"], h["mem_first_err"]) != (0, 0, 0, 0xFFFFFFFF):
+            err("memory block unexpected: %r" % ({k: h[k] for k in P.MEM_FIELDS},))
             break
         if h["rx_hunts"] != 0 or h["rx_phase_pos"] != 0:
             err("link block unexpected: %r" % ({k: h[k] for k in P.LINK_FIELDS},))

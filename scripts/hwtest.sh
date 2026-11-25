@@ -135,6 +135,12 @@ for d in "${eps[@]}"; do
 	else report FAIL "hb dut$d link block" "has_link $(field "$l" has_link) link_flags $(field "$l" link_flags) (payload $plen)"; fi
 	(($(field "$l" has_video))) && report PASS "hb dut$d video block" "payload $plen" ||
 		report FAIL "hb dut$d video block" "absent (payload $plen)"
+	# DDR3 memory block (issue 0034): calibrated + self-test done + passed = 13
+	if (($(field "$l" has_mem))); then
+		mf=$(field "$l" mem_flags)
+		md="mem_flags $mf errors $(field "$l" mem_errors) dq_fail $(printf %04x "$(field "$l" mem_dq_fail)") first_err $(printf %x "$(field "$l" mem_first_err)") ($(field "$l" mem_test_kib) KiB)"
+		(((mf & 13) == 13)) && report PASS "hb dut$d ddr3 self-test" "$md" || report FAIL "hb dut$d ddr3 self-test" "$md (b0 calibrated, b1 running, b2 done, b3 pass)"
+	else report FAIL "hb dut$d memory block" "absent (payload $plen)"; fi
 done
 if ((${#eps[@]} == 2)); then
 	same=1

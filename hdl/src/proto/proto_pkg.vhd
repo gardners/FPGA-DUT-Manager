@@ -42,8 +42,9 @@ package proto_pkg is
   constant CAP_THUMBS : natural := 7;
 
   -- payload lengths (after the 8-byte common header)
-  -- 100 fixed + 24 video block + 8 link block (ADR 0005 sections 3, 3a, 8)
-  constant HB_PAYLOAD_LEN   : natural := 132;
+  -- 100 fixed + 24 video block + 8 link block + 12 memory block
+  -- (ADR 0005 sections 3, 3a, 3b, 8)
+  constant HB_PAYLOAD_LEN   : natural := 144;
   constant ACK_PAYLOAD_LEN  : natural := 10;
   constant SNAP_PAYLOAD_LEN : natural := 680;
   constant JRESP_FIXED_LEN  : natural := 16;

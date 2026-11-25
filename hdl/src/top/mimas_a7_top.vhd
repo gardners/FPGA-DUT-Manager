@@ -11,7 +11,11 @@ use work.mem_pkg.all;
 
 entity mimas_a7_top is
   generic (
-    RX_PHASE_STEPS : integer := 22     -- RGMII RX clock phase, 5.625 deg steps (issue 0019 scan)
+    RX_PHASE_STEPS : integer := 22;    -- RGMII RX clock phase, 5.625 deg steps (issue 0019 scan)
+    -- issue 0036 bring-up without DDR3: 1 = the live select screen reads a
+    -- generated test pattern instead of the frame store (machines 0..9 seen,
+    -- even ones fresh at 160x100 -> 4x3 thumbnails and colour bars)
+    MOSAIC_DEMO    : integer := 0
   );
   port (
     clk100       : in    std_logic;
@@ -58,7 +62,23 @@ entity mimas_a7_top is
     dut0_kio8, dut0_kio9, dut0_kb_sense : in  std_logic;
     dut0_kio10                          : out std_logic;
     dut1_kio8, dut1_kio9, dut1_kb_sense : in  std_logic;
-    dut1_kio10                          : out std_logic
+    dut1_kio10                          : out std_logic;
+    -- DDR3 frame store (issue 0034; pins/IO standards from the MIG XDC)
+    ddr3_dq      : inout std_logic_vector(15 downto 0);
+    ddr3_dqs_p   : inout std_logic_vector(1 downto 0);
+    ddr3_dqs_n   : inout std_logic_vector(1 downto 0);
+    ddr3_addr    : out   std_logic_vector(13 downto 0);
+    ddr3_ba      : out   std_logic_vector(2 downto 0);
+    ddr3_ras_n   : out   std_logic;
+    ddr3_cas_n   : out   std_logic;
+    ddr3_we_n    : out   std_logic;
+    ddr3_reset_n : out   std_logic;
+    ddr3_ck_p    : out   std_logic_vector(0 downto 0);
+    ddr3_ck_n    : out   std_logic_vector(0 downto 0);
+    ddr3_cke     : out   std_logic_vector(0 downto 0);
+    ddr3_cs_n    : out   std_logic_vector(0 downto 0);
+    ddr3_dm      : out   std_logic_vector(1 downto 0);
+    ddr3_odt     : out   std_logic_vector(0 downto 0)
   );
 end entity;
 
@@ -104,8 +124,27 @@ architecture rtl of mimas_a7_top is
   signal ep_en : std_logic_vector(1 downto 0);
   signal have_ip : std_logic;
   signal vrst_s : std_logic_vector(1 downto 0) := "11";
+  -- live select screen (issue 0036)
+  signal mos_req : mem_req_t;
+  signal mos_rsp : mem_rsp_t := MEM_RSP_IDLE;
+  signal ddr_ok, mos_en, m_on, m_quad : std_logic;
+  signal th_seen, th_fresh, th_buf, th_scale : std_logic_vector(31 downto 0);
+  signal core_th_seen, core_th_fresh, core_th_cur, core_th_q : std_logic_vector(31 downto 0);
+  signal m_r, m_g, m_b : std_logic_vector(7 downto 0);
+  signal sel_slots : std_logic_vector(9 downto 0);
   attribute ASYNC_REG : string;
   attribute ASYNC_REG of vrst_s : signal is "TRUE";
+  -- DDR3 frame store (issue 0034): client ports of the arbiter. Port 0 is
+  -- the start-up self-test; thumbnail writer/reader ports go after it.
+  constant MEM_PORTS : positive := 5;   -- 0 self-test, 1 mosaic reader, 2..4 thumbnails (0035/0038)
+  constant MEM_TEST_BITS : positive := 16;       -- self-test 2**16 words = 1 MiB
+  signal mem_reqs : mem_req_arr_t(0 to MEM_PORTS - 1);
+  signal mem_rsps : mem_rsp_arr_t(0 to MEM_PORTS - 1);
+  signal mem_req  : mem_req_t;
+  signal mem_rsp  : mem_rsp_t;
+  signal mem_stat : mem_status_t;
+  -- self-test region: the top 1 MiB, clear of the thumbnail store (low 16 MiB)
+  constant MEM_TEST_BASE : natural := 2 ** MEM_AW - 2 ** MEM_TEST_BITS;
 begin
   -- The 100 MHz oscillator (H4) and the HDMI IN clock (K4) share clock region
   -- X1Y1, which has one MMCM; HDMI IN needs it (dedicated route), so the
@@ -173,11 +212,33 @@ begin
       vin_vs => vin_vs,
       text_forced => t_force, con_screen => con_screen, con_slots => con_slots,
       pt_request => pt_req, pt_active => pt_active,
-      -- thumbnails (0035/0038): until the DDR3 frame store (0034) is merged
-      -- the ports go to a stub that never accepts (ready = '0'): nothing is
-      -- stored or relayed, everything else works
-      thumb_mem_req => open, thumb_mem_rsp => (others => MEM_RSP_IDLE),
-      thumb_seen => open, thumb_fresh => open, thumb_cur => open, thumb_quarter => open);
+      mem_status => mem_stat,
+      -- thumbnails (0035/0038): DDR3 arbiter ports 2 (local capture
+      -- writer), 3 (relay receive writer), 4 (relay sender reader)
+      thumb_mem_req => mem_reqs(2 to 4), thumb_mem_rsp => mem_rsps(2 to 4),
+      thumb_seen => core_th_seen, thumb_fresh => core_th_fresh, thumb_cur => core_th_cur,
+      thumb_quarter => core_th_q);
+
+  ---------------------------------------------------------------- DDR3
+  -- Nothing waits on DDR3: until calibration the subsystem holds ready='0'
+  -- and the self-test idles; the heartbeat memory block shows the state.
+  ddr : entity work.ddr3_xc7
+    port map (sys_clk => clk_ref, sys_rst => not locked, clk => clk_sys,
+              req => mem_req, rsp => mem_rsp, calibrated => mem_stat.calibrated,
+              ddr3_dq => ddr3_dq, ddr3_dqs_p => ddr3_dqs_p, ddr3_dqs_n => ddr3_dqs_n,
+              ddr3_addr => ddr3_addr, ddr3_ba => ddr3_ba, ddr3_ras_n => ddr3_ras_n,
+              ddr3_cas_n => ddr3_cas_n, ddr3_we_n => ddr3_we_n, ddr3_reset_n => ddr3_reset_n,
+              ddr3_ck_p => ddr3_ck_p, ddr3_ck_n => ddr3_ck_n, ddr3_cke => ddr3_cke,
+              ddr3_cs_n => ddr3_cs_n, ddr3_dm => ddr3_dm, ddr3_odt => ddr3_odt);
+  marb : entity work.mem_arbiter
+    generic map (N => MEM_PORTS)
+    port map (clk => clk_sys, reqs => mem_reqs, rsps => mem_rsps, req => mem_req, rsp => mem_rsp);
+  mtest : entity work.mem_selftest
+    generic map (BASE_WORD => MEM_TEST_BASE, WORD_BITS => MEM_TEST_BITS)
+    port map (clk => clk_sys, start => mem_stat.calibrated, req => mem_reqs(0), rsp => mem_rsps(0),
+              running => mem_stat.st_running, done => mem_stat.st_done, pass => mem_stat.st_pass,
+              errors => mem_stat.errors, dq_fail => mem_stat.dq_fail, first_err => mem_stat.first_err);
+  mem_stat.test_kib <= to_unsigned(2 ** MEM_TEST_BITS / 64, 16);   -- 16-byte words -> KiB
 
   -- HDMI IN: DVI sink + measurement for the heartbeat video block (0022)
   hrx : entity work.hdmi_rx_xc7
@@ -240,6 +301,56 @@ begin
   o_vs <= p_vs when pt_sel = '1' else t_vs;
   vtim : entity work.video_timing
     port map (clk => clk_pix, x => vx, y => vy, de => v_de, hs => v_hs, vs => v_vs, frame_start => v_fs);
+  -- Live-thumbnail select screen (issue 0036): the mosaic reader is DDR3
+  -- arbiter port 1 and runs once the DDR3 has calibrated. Per-machine
+  -- status from the thumbnail capture/relay (0035/0038); this board's own
+  -- slots also count as seen.
+  g_nomem : if MOSAIC_DEMO = 0 generate
+    ddr_ok      <= mem_stat.calibrated;
+    th_seen     <= core_th_seen or (x"00000" & "00" & con_slots);
+    th_fresh    <= core_th_fresh;
+    th_buf      <= core_th_cur;
+    th_scale    <= core_th_q;
+    mem_reqs(1) <= mos_req;
+    mos_rsp     <= mem_rsps(1);
+  end generate;
+  g_demo : if MOSAIC_DEMO /= 0 generate
+    signal pv : std_logic_vector(1 downto 0) := "00";
+    signal pa0, pa1 : unsigned(MEM_AW - 1 downto 0) := (others => '0');
+  begin
+    ddr_ok   <= '1';
+    mem_reqs(1) <= MEM_REQ_IDLE;
+    th_seen  <= x"000003FF";
+    th_fresh <= x"00000155";
+    th_buf   <= x"00000044";
+    th_scale <= (others => '1');
+    -- pattern "memory": R = machine * 24 + buf * 12, G = row * 2, B = column
+    process (clk_sys)
+      variable c : unsigned(9 downto 0);
+    begin
+      if rising_edge(clk_sys) then
+        pv <= pv(0) & mos_req.valid;
+        pa0 <= mos_req.addr; pa1 <= pa0;
+        mos_rsp.ready <= '1';
+        mos_rsp.rvalid <= pv(1);
+        for i in 0 to 3 loop
+          c := resize(pa1(6 downto 0) & to_unsigned(i, 2), 10);
+          mos_rsp.rdata(32 * i + 31 downto 32 * i) <= x"00"
+            & std_logic_vector(to_unsigned((to_integer(pa1(20 downto 16)) * 24
+                                            + to_integer(pa1(15 downto 15)) * 12) mod 256, 8))
+            & std_logic_vector(pa1(13 downto 7) & '0')
+            & std_logic_vector(c(7 downto 0));
+        end loop;
+      end if;
+    end process;
+  end generate;
+  mos_en <= ddr_ok when con_screen = "10" else '0';
+  sel_slots <= con_slots or th_seen(9 downto 0);
+  mosaic : entity work.mosaic_display
+    port map (clk_sys => clk_sys, mem_req => mos_req, mem_rsp => mos_rsp, enable => mos_en,
+              slots => con_slots, seen => th_seen, fresh => th_fresh, cur_buf => th_buf,
+              scale => th_scale, clk_pix => clk_pix, x => vx, y => vy, de => v_de,
+              r => m_r, g => m_g, b => m_b, mos_on => m_on, mos_quad => m_quad);
   text : entity work.text_display
     -- shifted right: the owner's monitor hides the first ~15 px (issue 0027)
     generic map (LEFT => 15,
@@ -247,7 +358,8 @@ begin
     port map (wr_clk => clk_rx, wr_en => text_we, wr_addr => text_addr, wr_data => text_data,
               clk_pix => clk_pix, x => vx, y => vy, de_in => v_de, hs_in => v_hs, vs_in => v_vs,
               r => t_r, g => t_g, b => t_b, de_out => t_de, hs_out => t_hs, vs_out => t_vs,
-              force_text => t_force, screen => con_screen, slots => con_slots);
+              force_text => t_force, screen => con_screen, slots => sel_slots,
+              mos_on => m_on, mos_quad => m_quad, mos_r => m_r, mos_g => m_g, mos_b => m_b);
   dvi : entity work.dvi_tx_xc7
     port map (pixel_clk => tx_pix, serial_clk => tx_pix5, rst => vrst,
               r => o_r, g => o_g, b => o_b, hs => o_hs, vs => o_vs, de => o_de,

@@ -17,7 +17,8 @@ if [[ ${#TBS[@]} -eq 0 ]]; then
 	mapfile -t TBS < <(cd "$REPO/hdl/tb" && ls tb_*.vhd | sed 's/\.vhd$//')
 fi
 
-NVC_OPTS=(--std=2008 -L "$WORK" --work=work:"$WORK/work")
+# heap for testbenches with large memories (mem_model, frame captures)
+NVC_OPTS=(--std=2008 -H "${NVC_HEAP:-512m}" -L "$WORK" --work=work:"$WORK/work")
 "$NVC" "${NVC_OPTS[@]}" -a --relaxed "${SRCS[@]}" "$REPO"/hdl/tb/tb_*.vhd
 pass=0; fail=0; failed=()
 for tb in "${TBS[@]}"; do
@@ -30,7 +31,7 @@ for tb in "${TBS[@]}"; do
 	fi
 	gens=()
 	[[ -f $hook ]] && gens=(-gVEC_IN="${tb}_in.txt" -gCAP_OUT="${tb}_out.txt")
-	if "$NVC" -H 256m "${NVC_OPTS[@]}" -e "$tb" "${gens[@]}" -r --exit-severity=error \
+	if "$NVC" "${NVC_OPTS[@]}" -e "$tb" "${gens[@]}" -r --exit-severity=error \
 		> "$WORK/$tb.log" 2>&1 &&
 		{ [[ ! -f $hook ]] || python3 -I "$hook" check "$WORK/${tb}_out.txt" >> "$WORK/$tb.log" 2>&1; }; then
 		grep -E 'PASSED|Note|captured' "$WORK/$tb.log" | tail -4

@@ -10,7 +10,8 @@ Board must run from the DC jack (USB power alone browns out).
 
 | Build id | Commit | Verified on hardware (2026-11-25) | Notes |
 |---|---|---|---|
-| e7393132 | e739313 | hwtest 61/0; self-loop: passthrough attempts back off to 8 s, never latch; 600-frame capture 597 complete / 3 INCOMPLETE (no bogus sizes) | **known-good**; video passthrough (0032), stable geometry |
+| c2b6d912 | c2b6d91 | hwtest 63/0; DDR3 calibrates, self-test 1 MiB 0 errors on both endpoints; select screen (console-screen 3) captured over the self-loop: 2x2 mosaic, colour bars for machines 0/1, frowns for empty slots | **known-good**; DDR3 frame store (0034), mosaic select screen (0036) |
+| e7393132 | e739313 | hwtest 61/0; self-loop: passthrough attempts back off to 8 s, never latch; 600-frame capture 597 complete / 3 INCOMPLETE (no bogus sizes) | video passthrough (0032), stable geometry |
 | c0fbba73 | c0fbba7 | hwtest.sh 61 PASS / 0 FAIL (EDID itself not readable on the loopback) | EDID "MEGA KVM" 480p60/576p50 on HDMI IN (0033) |
 | d29ea748 | d29ea74 | **hwtest.sh 61 PASS / 0 FAIL incl. raster capture**; owner: one-handed hotkey works | no raster to broadcast; one-handed hotkey |
 | 1bd43fca | 1bd43fc | hwcheck PASS; **HDMI loopback capture: complete 720x480 frames via dutctl video, pixel-exact colours** | raster capture (0023) |

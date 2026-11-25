@@ -329,6 +329,10 @@ static void print_hb_kv(const char *ip, const dp_hdr_t *h, const dp_heartbeat_t 
   if (hb->has_link)
     printf(" rx_phase_pos=%u rx_eye_width=%u rx_hunts=%u rx_bad_frames=%u rx_link_flags=%u",
            hb->rx_phase_pos, hb->rx_eye_width, hb->rx_hunts, hb->rx_bad_frames, hb->rx_link_flags);
+  printf(" has_mem=%u", hb->has_mem);
+  if (hb->has_mem)
+    printf(" mem_flags=%u mem_errors=%u mem_dq_fail=%u mem_test_kib=%u mem_first_err=%u",
+           hb->mem_flags, hb->mem_errors, hb->mem_dq_fail, hb->mem_test_kib, hb->mem_first_err);
   printf("\n");
   fflush(stdout);
 }
@@ -392,6 +396,18 @@ static int cmd_listen(int argc, char **argv)
       else
         printf("  video none");
       printf("  screen %s", dp_con_shown_name(hb.console_screen));
+    }
+    if (hb.has_mem) {
+      if (!(hb.mem_flags & DP_MEM_CALIBRATED))
+        printf("  ddr3 UNCALIBRATED");
+      else if (hb.mem_flags & DP_MEM_ST_DONE) {
+        if (hb.mem_flags & DP_MEM_ST_PASS)
+          printf("  ddr3 ok (%u KiB tested)", hb.mem_test_kib);
+        else
+          printf("  ddr3 FAIL %u errors dq %04x first %06x", hb.mem_errors, hb.mem_dq_fail,
+                 hb.mem_first_err);
+      } else
+        printf("  ddr3 %s", (hb.mem_flags & DP_MEM_ST_RUNNING) ? "testing" : "calibrated");
     }
     if (hb.phys_type) {
       printf("  phys");

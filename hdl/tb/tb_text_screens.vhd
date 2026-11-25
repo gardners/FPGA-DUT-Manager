@@ -63,11 +63,11 @@ begin
     screen <= "10";
     expect(cx(2, 0), cy(2, 0), x"000000", "screen 2 background");
     expect(cx(OVX, 0), cy(11, 0), x"FF0000", "box 1 (machine 0) red");
-    expect(cx(OVX + 7 * 3 + 4, 8), cy(13, 15), x"00FF00", "box 4 (machine 3) green, last cell");
+    expect(cx(OVX + 7 * 3 + 4, 8), cy(13, 15), x"00FE00", "box 4 (machine 3) green, last cell");
     expect(cx(OVX + 7 * 7, 0), cy(11, 0), x"7F0000", "box 8 (machine 7) half red");
     expect(cx(OVX + 5, 0), cy(12, 0), x"000000", "gap between boxes");
     expect(cx(OVX + 7 * 3 - 1, 8), cy(12, 2), x"000000", "last gap pixel before box 4");
-    expect(cx(OVX + 7 * 3, 0), cy(12, 2), x"00FF00", "first pixel of box 4");
+    expect(cx(OVX + 7 * 3, 0), cy(12, 2), x"00FE00", "first pixel of box 4");
     -- digit '1' in box 1: CP437 '1' row 5 (cy 5) has pixel 3 set -> black fg
     expect(cx(OVX + 2, 3), cy(12, 5), x"000000", "digit 1 foreground");
     expect(cx(OVX + 2, 0), cy(12, 5), x"FF0000", "digit 1 background");

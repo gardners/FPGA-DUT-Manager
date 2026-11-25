@@ -36,6 +36,9 @@ def vectors():
     hbl = dict(hbv, rx_phase_pos=3, rx_eye_width=24, rx_hunts=2, rx_bad_frames=300,
                rx_link_flags=0x02)
     v.append(("heartbeat_link", P.encode_heartbeat(1, hbl)))
+    hbm = dict(hbl, mem_flags=P.MEM_CALIBRATED | P.MEM_ST_DONE, mem_errors=513, mem_dq_fail=0x8001,
+               mem_test_kib=1024, mem_first_err=0x00ABCDEF)
+    v.append(("heartbeat_mem", P.encode_heartbeat(0, hbm)))
     # raster: 720-px active line, pixel x = (x & 0xFF, (x >> 8) ^ line, (3 * x) & 0xFF)
     px = b"".join(bytes([x & 0xFF, (x >> 8) ^ 5, (3 * x) & 0xFF]) for x in range(720))
     v.append(("raster_active", P.encode_raster(

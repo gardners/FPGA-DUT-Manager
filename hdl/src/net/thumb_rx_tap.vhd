@@ -94,7 +94,7 @@ architecture rtl of thumb_rx_tap is
            std_logic_vector(h(7 downto 0));
   end function;
 begin
-  fifo : entity work.async_fifo generic map (FIFO_AW, 36)
+  fifo : entity work.async_fifo_bram generic map (FIFO_AW, 36)
     port map (wclk => clk, we => f_we, din => f_din, wused => f_used,
               rclk => sclk, rvalid => f_valid, dout => f_dout, pop => f_pop);
   frames <= nfr;

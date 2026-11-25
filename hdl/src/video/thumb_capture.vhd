@@ -126,7 +126,7 @@ begin
     port map (clk_a => pclk, we_a => lb_we, addr_a => lb_wa, din_a => lb_wd,
               clk_b => pclk, addr_b => lb_ra, dout_b => lb_q);
 
-  fifo : entity work.async_fifo generic map (FIFO_AW, DW)
+  fifo : entity work.async_fifo_bram generic map (FIFO_AW, DW)
     port map (wclk => pclk, we => f_we, din => f_din, wused => f_used,
               rclk => clk, rvalid => f_valid, dout => f_dout, pop => f_pop);
 

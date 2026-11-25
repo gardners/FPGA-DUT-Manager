@@ -5,8 +5,12 @@ SYNTH_SOURCES := \
 	$(HDL_SRC)/common/common_pkg.vhd \
 	$(HDL_SRC)/mem/mem_pkg.vhd \
 	$(HDL_SRC)/common/sync_bit.vhd \
-	$(HDL_SRC)/common/dpram.vhd \
 	$(HDL_SRC)/common/async_fifo.vhd \
+	$(HDL_SRC)/mem/mem_arbiter.vhd \
+	$(HDL_SRC)/mem/mem_selftest.vhd \
+	$(HDL_SRC)/mem/mem_app_bridge.vhd \
+	$(HDL_SRC)/common/dpram.vhd \
+	$(HDL_SRC)/common/async_fifo_bram.vhd \
 	$(HDL_SRC)/video/thumb_pkg.vhd \
 	$(HDL_SRC)/video/thumb_capture.vhd \
 	$(HDL_SRC)/video/thumb_status.vhd \
@@ -40,6 +44,8 @@ SYNTH_SOURCES := \
 	$(HDL_SRC)/video/video_timing.vhd \
 	$(HDL_SRC)/video/video_meas.vhd \
 	$(HDL_SRC)/video/video_pt_ctrl.vhd \
+	$(HDL_SRC)/video/mosaic_pkg.vhd \
+	$(HDL_SRC)/video/mosaic_display.vhd \
 	$(HDL_SRC)/video/text_display.vhd \
 	$(HDL_SRC)/video/text_rx_tap.vhd \
 	$(HDL_SRC)/video/seg7_status.vhd \
@@ -53,6 +59,7 @@ SYNTH_SOURCES := \
 	$(HDL_SRC)/platform/xc7/clocks_video_xc7.vhd \
 	$(HDL_SRC)/platform/xc7/video_out_clk_xc7.vhd \
 	$(HDL_SRC)/platform/xc7/dvi_tx_xc7.vhd \
+	$(HDL_SRC)/platform/xc7/ddr3_xc7.vhd \
 	$(REPO)/third_party/digilent-dvi2rgb/src/DVI_Constants.vhd \
 	$(REPO)/third_party/digilent-dvi2rgb/src/SyncBase.vhd \
 	$(REPO)/third_party/digilent-dvi2rgb/src/SyncAsync.vhd \

@@ -132,6 +132,14 @@ static void test_decoders(void)
   CHECK(hb.has_video && hb.video_flags == 7 && hb.tmds_decode_errors == 6);
   CHECK(hb.has_link && hb.rx_phase_pos == 3 && hb.rx_eye_width == 24);
   CHECK(hb.rx_hunts == 2 && hb.rx_bad_frames == 300 && hb.rx_link_flags == 2);
+  CHECK(!hb.has_mem);
+
+  v = vec("heartbeat_mem");
+  CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && h.length == 144 && h.dut == 0);
+  CHECK(dp_decode_heartbeat(v->data + 8, h.length, &hb) == 0);
+  CHECK(hb.has_link && hb.rx_bad_frames == 300 && hb.has_mem);
+  CHECK(hb.mem_flags == (DP_MEM_CALIBRATED | DP_MEM_ST_DONE) && hb.mem_errors == 513);
+  CHECK(hb.mem_dq_fail == 0x8001 && hb.mem_test_kib == 1024 && hb.mem_first_err == 0x00ABCDEF);
 
   v = vec("snapshot");
   CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && h.type == DP_T_UART_SNAP);

@@ -153,8 +153,16 @@ def decode_heartbeat(b):
     if len(b) >= 132:  # link block (ADR 0005 section 3a), bytes 132..139 of the datagram
         (f["rx_phase_pos"], f["rx_eye_width"], f["rx_hunts"], f["rx_bad_frames"],
          f["rx_link_flags"]) = struct.unpack(">BBHHBx", b[124:132])
+    if len(b) >= 144:  # memory block (ADR 0005 section 3b), bytes 140..151 of the datagram
+        (f["mem_flags"], f["mem_errors"], f["mem_dq_fail"], f["mem_test_kib"],
+         f["mem_first_err"]) = struct.unpack(">BxHHHI", b[132:144])
     return f
 
+
+MEM_FIELDS = ("mem_flags", "mem_errors", "mem_dq_fail", "mem_test_kib", "mem_first_err")
+# mem_flags bits: b0 DDR3 calibrated, b1 self-test running, b2 self-test done,
+# b3 self-test passed (valid when done)
+MEM_CALIBRATED, MEM_ST_RUNNING, MEM_ST_DONE, MEM_ST_PASS = 1, 2, 4, 8
 
 LINK_FIELDS = ("rx_phase_pos", "rx_eye_width", "rx_hunts", "rx_bad_frames", "rx_link_flags")
 
@@ -271,6 +279,10 @@ def encode_heartbeat(dut, f):
         assert len(b) == 124
         b += struct.pack(">BBHHBB", f["rx_phase_pos"], f["rx_eye_width"], f["rx_hunts"],
                          f["rx_bad_frames"], f["rx_link_flags"], 0)
+    if "mem_flags" in f:  # memory block (needs the link block) -> 144-byte payload
+        assert len(b) == 132
+        b += struct.pack(">BBHHHI", f["mem_flags"], 0, f["mem_errors"], f["mem_dq_fail"],
+                         f["mem_test_kib"], f["mem_first_err"])
     return custom(T_HEARTBEAT, dut, b)
 
 

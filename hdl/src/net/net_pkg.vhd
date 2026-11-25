@@ -4,6 +4,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.common_pkg.all;
 use work.proto_pkg.all;
+use work.mem_pkg.all;
 
 package net_pkg is
   subtype mac_t is std_logic_vector(47 downto 0);
@@ -98,6 +99,8 @@ package net_pkg is
     vid_h_total, vid_v_total, vid_h_active, vid_v_active : unsigned(15 downto 0);
     vid_pixel_hz : unsigned(31 downto 0);
     con_shown   : std_logic_vector(7 downto 0);   -- console screen shown: 0 editable, 1 no video, 2 select
+    -- DDR3 frame store (issue 0034), heartbeat memory block
+    mem         : mem_status_t;
   end record;
 
   -- UART snapshot counters (latched by uart_bridge on snap_ack)
