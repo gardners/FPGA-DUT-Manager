@@ -1,6 +1,6 @@
 # 0021: Raster and audio packet formats
 
-Status: Done (format defined; implementation in 0023/0024)
+Status: Done (2026-11-25: version 1 layout + rules in ADR 0005 s8)
 Opened: 2026-11-25
 
 Define ADR 0005 section 8 (raster: frame/line numbers, geometry, sync positions, flags, encoding, UART fast-path history; audio later) before implementing capture and the host receiver.
@@ -30,4 +30,15 @@ To resolve in ADR 0005 section 8 before/while implementing capture (0023):
    state the max and supported widths (dutctl uses 3120 for 1024 px).
 10. Heartbeat length once capture exists (always 124?) and whether its
     h_total/v_total are the same measurement as in raster packets.
-Status: Reopened (format defined, details above pending).
+
+
+## 2026-11-25 resolved
+
+Owner: none of these are critical; add a version field at the start.
+Raster header revised (nothing had shipped): byte 8 raster_version = 1,
+encoding/flags moved forward, v_active added (#1), header 52 bytes. Rules
+for #2-#10 written into ADR 0005 section 8 (b4 = line 0, frame increments
+at line 0, vertical blanking belongs to the preceding frame, VSYNC sampled
+at x = 0, b5 on the first packet after a drop, history padded at the
+start, max 1024 px = 3124-byte datagram, heartbeat always has the video
+block). Python + C codecs and vectors updated (unknown versions rejected).

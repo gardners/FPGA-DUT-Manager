@@ -159,20 +159,24 @@ int dp_decode_raster(const uint8_t *p, size_t len, dp_raster_t *r)
 {
   if (len < DP_RASTER_HDR_LEN - DP_HDR_LEN)
     return -1;
-  r->frame = dp_get32(p + 0);
-  r->line = dp_get16(p + 4);
-  r->h_total = dp_get16(p + 6);
-  r->v_total = dp_get16(p + 8);
-  r->active_count = dp_get16(p + 10);
-  r->hs_start = dp_get16(p + 12);
-  r->hs_end = dp_get16(p + 14);
-  r->flags = p[16];
-  r->encoding = p[17];
-  r->payload_bytes = dp_get16(p + 18);
-  r->uart_rx_seq = dp_get32(p + 20);
-  memcpy(r->uart_rx_history, p + 24, 16);
-  r->payload = p + 40;
-  if ((size_t)40 + r->payload_bytes > len || r->active_count > DP_RASTER_MAX_PX)
+  r->version = p[0];
+  if (r->version != DP_RASTER_VERSION)
+    return -1;
+  r->encoding = p[1];
+  r->flags = p[2];
+  r->frame = dp_get32(p + 4);
+  r->line = dp_get16(p + 8);
+  r->h_total = dp_get16(p + 10);
+  r->v_total = dp_get16(p + 12);
+  r->active_count = dp_get16(p + 14);
+  r->v_active = dp_get16(p + 16);
+  r->hs_start = dp_get16(p + 18);
+  r->hs_end = dp_get16(p + 20);
+  r->payload_bytes = dp_get16(p + 22);
+  r->uart_rx_seq = dp_get32(p + 24);
+  memcpy(r->uart_rx_history, p + 28, 16);
+  r->payload = p + 44;
+  if ((size_t)44 + r->payload_bytes > len || r->active_count > DP_RASTER_MAX_PX)
     return -1;
   if (r->encoding == DP_ENC_RAW && r->payload_bytes != 3u * r->active_count)
     return -1;

@@ -65,7 +65,8 @@ enum dp_jtag_status { DP_JS_DONE = 0, DP_JS_BUSY, DP_JS_BAD_SEQ, DP_JS_BAD_FMT, 
 #define DP_UART_TX_MAX 1024
 #define DP_CLK_HZ 125000000.0
 #define DP_MAX_PACKET 2200 /* control plane; raster uses DP_RASTER_MAX_PACKET */
-#define DP_RASTER_HDR_LEN 48
+#define DP_RASTER_HDR_LEN 52 /* common 8 + raster 44 (ADR 0005 section 8) */
+#define DP_RASTER_VERSION 1
 #define DP_RASTER_MAX_PX 1024
 #define DP_RASTER_MAX_PACKET (DP_RASTER_HDR_LEN + 3 * DP_RASTER_MAX_PX)
 
@@ -117,8 +118,9 @@ typedef struct {
 } dp_heartbeat_t;
 
 typedef struct {
+  uint8_t version; /* raster format version (DP_RASTER_VERSION) */
   uint32_t frame;
-  uint16_t line, h_total, v_total, active_count, hs_start, hs_end;
+  uint16_t line, h_total, v_total, active_count, v_active, hs_start, hs_end;
   uint8_t flags, encoding;
   uint16_t payload_bytes;
   uint32_t uart_rx_seq;

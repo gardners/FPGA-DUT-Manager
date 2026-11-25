@@ -183,11 +183,13 @@ def rle24_decode(data):
     return bytes(out)
 
 
-RASTER_HDR = ">IHHHHHHBBH I16s".replace(" ", "")  # 40 bytes after the common header
+RASTER_VERSION = 1
+RASTER_HDR = ">BBBxIHHHHHHHHI16s"  # 44 bytes after the common header (ADR 0005 s8)
+RASTER_MAX_PX = 1024
 
 
 def encode_raster(dut, frame, line, h_total, v_total, pixels, hs_start=0, hs_end=0, flags=0,
-                  uart_rx_seq=0, uart_hist=b"", rle=False):
+                  uart_rx_seq=0, uart_hist=b"", rle=False, v_active=0):
     """pixels: raw RGB888 bytes (empty for blanking lines). rle=True uses RLE24 only when
     strictly smaller than raw (ADR rule)."""
     assert len(pixels) % 3 == 0 and len(uart_hist) <= 16
@@ -198,8 +200,8 @@ def encode_raster(dut, frame, line, h_total, v_total, pixels, hs_start=0, hs_end
         if len(r) < len(pixels):
             enc, payload = ENC_RLE24, r
     hist = bytes(16 - len(uart_hist)) + uart_hist
-    b = struct.pack(RASTER_HDR, frame, line, h_total, v_total, active, hs_start, hs_end,
-                    flags, enc, len(payload), uart_rx_seq, hist)
+    b = struct.pack(RASTER_HDR, RASTER_VERSION, enc, flags, frame, line, h_total, v_total,
+                    active, v_active, hs_start, hs_end, len(payload), uart_rx_seq, hist)
     return custom(T_RASTER, dut, b + payload)
 
 
@@ -207,10 +209,14 @@ def decode_raster(b):
     """b: datagram body after the 8-byte common header. Returns dict incl. 'pixels'
     (always raw RGB888, RLE24 expanded)."""
     f = {}
-    (f["frame"], f["line"], f["h_total"], f["v_total"], f["active_count"], f["hs_start"],
-     f["hs_end"], f["flags"], f["encoding"], f["payload_bytes"], f["uart_rx_seq"],
-     f["uart_rx_history"]) = struct.unpack(RASTER_HDR, b[:40])
-    data = b[40:40 + f["payload_bytes"]]
+    (f["version"], f["encoding"], f["flags"], f["frame"], f["line"], f["h_total"], f["v_total"],
+     f["active_count"], f["v_active"], f["hs_start"], f["hs_end"], f["payload_bytes"],
+     f["uart_rx_seq"], f["uart_rx_history"]) = struct.unpack(RASTER_HDR, b[:44])
+    if f["version"] != RASTER_VERSION:
+        raise ValueError("unknown raster format version %d" % f["version"])
+    if f["active_count"] > RASTER_MAX_PX:
+        raise ValueError("raster line wider than %d px" % RASTER_MAX_PX)
+    data = b[44:44 + f["payload_bytes"]]
     if len(data) != f["payload_bytes"]:
         raise ValueError("raster payload truncated")
     f["pixels"] = rle24_decode(data) if f["encoding"] == ENC_RLE24 else data

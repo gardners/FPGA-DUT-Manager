@@ -154,10 +154,11 @@ static void test_decoders(void)
   static uint8_t px[3 * DP_RASTER_MAX_PX];
   dp_raster_t r;
   v = vec("raster_active");
-  CHECK(v->len == 2208 && dp_parse_hdr(v->data, v->len, &h) == 0 && h.type == DP_T_RASTER);
+  CHECK(v->len == 2212 && dp_parse_hdr(v->data, v->len, &h) == 0 && h.type == DP_T_RASTER);
   CHECK(dp_decode_raster(v->data + 8, h.length, &r) == 0);
   CHECK(r.frame == 0x89ABCDEF && r.line == 5 && r.h_total == 864 && r.v_total == 625);
-  CHECK(r.active_count == 720 && r.hs_start == 732 && r.hs_end == 796);
+  CHECK(r.version == 1 && r.active_count == 720 && r.v_active == 576);
+  CHECK(r.hs_start == 732 && r.hs_end == 796);
   CHECK(r.flags == (DP_RF_ACTIVE | DP_RF_LOCKED | DP_RF_HSYNC_POL) && r.encoding == DP_ENC_RAW);
   CHECK(r.payload_bytes == 2160 && r.uart_rx_seq == 1000);
   CHECK(!memcmp(r.uart_rx_history + 8, "READY.\r\n", 8) && r.uart_rx_history[7] == 0);
@@ -169,7 +170,7 @@ static void test_decoders(void)
   CHECK(dp_decode_raster(v->data + 8, h.length - 1, &r) < 0); /* truncated */
 
   v = vec("raster_blank");
-  CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && h.length == 40 && h.dut == 1);
+  CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && h.length == 44 && h.dut == 1);
   CHECK(dp_decode_raster(v->data + 8, h.length, &r) == 0);
   CHECK(r.frame == 7 && r.line == 600 && r.active_count == 0 && r.payload_bytes == 0);
   CHECK(r.flags == (DP_RF_VSYNC | DP_RF_LOCKED | DP_RF_DROPPED) && r.uart_rx_seq == 0xFFFFFFFFu);
@@ -181,6 +182,10 @@ static void test_decoders(void)
   CHECK(r.flags == (DP_RF_ACTIVE | DP_RF_FIRST | DP_RF_LOCKED) && r.line == 0 && r.frame == 8);
   CHECK(dp_raster_pixels(&r, px, sizeof px) == 320);
   CHECK(px[0] == 0x10 && px[899 * 1] == 0x30 && px[900] == 1 && px[959] == 3);
+
+  v = vec("raster_badver"); /* unknown raster format version is rejected */
+  CHECK(dp_parse_hdr(v->data, v->len, &h) == 0);
+  CHECK(dp_decode_raster(v->data + 8, h.length, &r) < 0);
 
   /* malformed */
   uint8_t bad[16] = {0x4D, 0x36, 1, 1, 0, 9, 0, 0};

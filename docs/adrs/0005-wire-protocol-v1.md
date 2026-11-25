@@ -240,27 +240,48 @@ One datagram per source raster line (active and, if enabled, blanking),
 only while capture is enabled for that DUT (key 0x0040, default off).
 Jumbo frames required for active lines (720 px RGB888 = 2160 bytes).
 
+Raster format **version 1** (revised 2026-11-25 before any FPGA
+implementation; the leading version byte lets the layout change
+independently of PROTO_VERSION — receivers drop unknown versions).
+
 | Off | Size | Field |
 |---|---|---|
-| 8 | 4 | frame (increments at each frame start, wraps) |
-| 12 | 2 | line: 0 = first active line of the frame; blanking lines continue after the last active line |
-| 14 | 2 | h_total (pixels per line incl. blanking) |
-| 16 | 2 | v_total (lines per frame, 0 until measured) |
-| 18 | 2 | active_count (active pixels on this line; 0 for blanking lines) |
-| 20 | 2 | hs_start (pixel position where HSYNC asserts, relative to the first active pixel = 0, modulo h_total) |
-| 22 | 2 | hs_end (position where HSYNC deasserts; half-open) |
-| 24 | 1 | flags: b0 VSYNC asserted at this line's first pixel, b1 VSYNC polarity (1 = active high), b2 HSYNC polarity, b3 active line, b4 first line of frame, b5 lines were dropped before this one (ring overflow), b6 source locked |
-| 25 | 1 | encoding: 0 raw RGB888, 1 RLE24 (optional, later) |
-| 26 | 2 | payload_bytes |
-| 28 | 4 | uart_rx_seq (same counter as UART snapshots, ADR 0005 section 6) |
-| 32 | 16 | uart_rx_history: latest 16 RX bytes, oldest first, zero padded |
-| 48 | n | pixels: raw = R, G, B per pixel, left to right |
+| 8 | 1 | raster_version = 1 |
+| 9 | 1 | encoding: 0 raw RGB888, 1 RLE24 |
+| 10 | 1 | flags: b0 VSYNC active, b1 VSYNC polarity (1 = active high), b2 HSYNC polarity, b3 active line, b4 line 0, b5 lines were dropped since the previous packet sent, b6 source locked |
+| 11 | 1 | reserved (0) |
+| 12 | 4 | frame (increments when line 0 is sent; wraps) |
+| 16 | 2 | line: 0 = first active line; active lines 0..v_active-1, then the vertical blanking lines v_active..v_total-1 of the same frame |
+| 18 | 2 | h_total (pixels per line incl. blanking, measured) |
+| 20 | 2 | v_total (lines per frame incl. blanking, 0 until measured) |
+| 22 | 2 | active_count (pixels on this line after decoding; 0 for blanking lines) |
+| 24 | 2 | v_active (active lines per frame, 0 until measured) |
+| 26 | 2 | hs_start (pixel position where HSYNC becomes active, first active pixel = 0, modulo h_total) |
+| 28 | 2 | hs_end (position where HSYNC becomes inactive; half-open) |
+| 30 | 2 | payload_bytes |
+| 32 | 4 | uart_rx_seq (same counter as UART snapshots, section 6) |
+| 36 | 16 | uart_rx_history: latest 16 RX bytes, oldest first; zero padded at the start when fewer were received |
+| 52 | n | pixels: raw = R, G, B per pixel, left to right; RLE24 = (count u8 1..255, R, G, B) tuples |
 
-Receiver rules: lines are identified by (frame, line); a frame is complete
-when lines 0 .. v_active-1 all arrived with matching active_count; anything
-missing marks the frame incomplete (CI must reject it). RLE24 (encoding 1):
-repeated (count u8 1..255, R, G, B) tuples, used only when strictly smaller
-than raw.
+Rules (resolving the issue 0021 questions):
+
+* Common-header length = 44 + payload_bytes. Maximum line width 1024 px:
+  payload <= 3072, datagram <= 3124 bytes (+ 28 IP/UDP); the host needs a
+  jumbo MTU >= 3200 (a 720-px raw line is 2212 + 28).
+* Flag b0 is VSYNC as sampled at this line's x = 0 position (the first
+  active pixel's position, also for blanking lines). b4 marks line 0.
+  The vertical blanking (including the VSYNC lines) belongs to the frame
+  whose active lines precede it.
+* A frame is complete when lines 0..v_active-1 all arrived and every one
+  has active_count = the frame's h_active (all equal); anything missing
+  marks it incomplete (CI must reject it).
+* b5 is set on the first packet sent after one or more lines were dropped
+  (ring overflow), and only on that packet.
+* RLE24 is used only when strictly smaller than raw; active_count always
+  counts decoded pixels.
+* The heartbeat always carries the video block (payload >= 132 with the
+  link block); its h_total/v_total/h_active/v_active are the same
+  measurement as in raster packets.
 
 ### Heartbeat video block (bytes 108..131, appended; heartbeat payload grows
 to 124 bytes; decoders must accept >= 100)
