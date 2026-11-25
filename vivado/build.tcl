@@ -36,3 +36,14 @@ report_drc -file $out/drc.rpt
 report_clock_interaction -file $out/clock_interaction.rpt
 report_utilization -file $out/utilization.rpt
 write_bitstream -force $out/supervisor.bit
+
+# One-line verdict (also in timing_verdict.txt): worst setup/hold slack and
+# unconstrained endpoints across all clocks.
+set wns [get_property SLACK [get_timing_paths -max_paths 1 -nworst 1 -setup]]
+set whs [get_property SLACK [get_timing_paths -max_paths 1 -nworst 1 -hold]]
+set verdict [expr {($wns ne "" && $wns >= 0 && $whs ne "" && $whs >= 0) ? "MET" : "NOT MET"}]
+set msg "TIMING $verdict: WNS $wns ns, WHS $whs ns (details in timing.rpt)"
+puts "\n*** $msg ***\n"
+set fh [open $out/timing_verdict.txt w]
+puts $fh $msg
+close $fh

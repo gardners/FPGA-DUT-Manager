@@ -38,6 +38,9 @@ entity mimas_a7_top is
     dut0_tdo, dut0_uart_from, dut0_vio_sense   : in  std_logic;
     dut1_tck, dut1_tms, dut1_tdi, dut1_uart_to : out std_logic;
     dut1_tdo, dut1_uart_from, dut1_vio_sense   : in  std_logic;
+    -- physical keyboard (master), P12 X block
+    pk_kio8, pk_kio9 : out std_logic;
+    pk_kio10         : in  std_logic;
     -- K block
     dut0_kio8, dut0_kio9, dut0_kb_sense : in  std_logic;
     dut0_kio10                          : out std_logic;
@@ -115,7 +118,8 @@ begin
       jtck => jtck, jtms => jtms, jtdi => jtdi, jtdo => jtdo, jtag_oe => joe,
       utx => utx, utx_oe => uoe, urx => urx,
       kio8 => kio8, kio9 => kio9, kio10 => kio10, kio10_oe => kio10_oe,
-      leds => core_leds, text_we => text_we, text_addr => text_addr, text_data => text_data,
+      pk_kio8 => pk_kio8, pk_kio9 => pk_kio9, pk_kio10 => pk_kio10,
+      buttons => btn, leds => core_leds, text_we => text_we, text_addr => text_addr, text_data => text_data,
       addr_src0 => src0, addr_src1 => src1, ep_enable_o => ep_en,
       stat_rx_good => good, stat_rx_bad => bad);
 
@@ -165,8 +169,7 @@ begin
   dut0_kio10 <= kio10(0) when kio10_oe(0) = '1' else 'Z';
   dut1_kio10 <= kio10(1) when kio10_oe(1) = '1' else 'Z';
 
-  -- front panel: LED0 = MMCM locked, LED1 = PHY out of reset,
-  -- LED2/3 = DUT0/1 powered, LED7..4 = RX frame counter low bits
-  led <= std_logic_vector(good(3 downto 0)) & vio(1) & vio(0) & phy_rst & locked;
+  -- front panel: green LEDs show the selected target (supervisor_core)
+  led <= core_leds;
   usb_uart_tx <= '1';
 end architecture;

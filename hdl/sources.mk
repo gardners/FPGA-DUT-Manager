@@ -12,6 +12,8 @@ SYNTH_SOURCES := \
 	$(HDL_SRC)/uart/uart_bridge.vhd \
 	$(HDL_SRC)/jtag/jtag_engine.vhd \
 	$(HDL_SRC)/kbd/kbd_mk1_device.vhd \
+	$(HDL_SRC)/kbd/kbd_mk1_host.vhd \
+	$(HDL_SRC)/kbd/kbd_arbiter.vhd \
 	$(HDL_SRC)/eth/eth_mac_rx.vhd \
 	$(HDL_SRC)/eth/eth_mac_tx.vhd \
 	$(HDL_SRC)/net/dhcp_client.vhd \

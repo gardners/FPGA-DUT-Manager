@@ -45,7 +45,11 @@ entity supervisor_core is
     kio9      : in  std_logic_vector(1 downto 0);
     kio10     : out std_logic_vector(1 downto 0);
     kio10_oe  : out std_logic_vector(1 downto 0);
+    -- physical keyboard (master's own, P12 X block; MK-I for now, issue 0009)
+    pk_kio8, pk_kio9 : out std_logic;
+    pk_kio10  : in  std_logic;
     -- front panel
+    buttons   : in  std_logic_vector(3 downto 0);   -- 0 prev, 1 next target
     leds      : out std_logic_vector(7 downto 0);
     -- text display write port (clk_rx domain, ADR 0012)
     text_we   : out std_logic;
@@ -107,6 +111,19 @@ architecture rtl of supervisor_core is
   -- keyboard
   signal kbd_udp : kbd_arr_t;
   signal kbd_strobe : std_logic_vector(1 downto 0);
+  -- physical keyboard and arbitration (brief section 10)
+  signal pk_keys, pk_prev : std_logic_vector(79 downto 0) := (others => '0');
+  signal pk_stb, pk_present : std_logic;
+  signal pk_commit : std_logic_vector(31 downto 0);
+  signal pk_change : unsigned(15 downto 0) := (others => '0');
+  signal hb_exp : std_logic := '0';
+  signal kbd_eff : kbd_arr_t;
+  signal kbd_owner, route : std_logic_vector(1 downto 0);
+  signal sel_kbd, sel_vid : unsigned(3 downto 0) := (others => '0');
+  signal bcfg_kt, bcfg_vt : std_logic_vector(7 downto 0) := x"FF";
+  signal btn_s1, btn_s2, btn_prev : std_logic_vector(3 downto 0) := (others => '0');
+  signal deb : unsigned(19 downto 0) := (others => '0');
+  signal blink : unsigned(24 downto 0) := (others => '0');
   type leds_arr_t is array (0 to 1) of std_logic_vector(95 downto 0);
   signal dut_leds : leds_arr_t;
   signal kbd_leds_stb : std_logic_vector(1 downto 0);
@@ -264,7 +281,7 @@ begin
   ntx : entity work.net_tx
     port map (
       clk => clk_sys, tick_1ms => tick_1ms, cfg => cfg, bcfg => bcfg,
-      bstat => bstat, dstat => dstat, hb_expedite => '0',
+      bstat => bstat, dstat => dstat, hb_expedite => hb_exp,
       ip_eff => ip_eff, ep_enable => ep_enable, dhcp => dhcp_tx, dhcp_taken => dhcp_taken,
       arp => arp, arp_taken => arp_taken,
       icmp => icmp, icmp_len => icmp_len, icmp_raddr => icmp_raddr,
@@ -367,7 +384,7 @@ begin
     kd : entity work.kbd_mk1_device
       generic map (SYNC_CYCLES => (CLK_HZ / 1000) * 61 / 10000)
       port map (
-        clk => clk_sys, keys_pressed => kbd_udp(i),
+        clk => clk_sys, keys_pressed => kbd_eff(i),
         kio8_in => kio8(i), kio9_in => kio9(i), kio10_out => kio10(i),
         leds => dut_leds(i), leds_strobe => kbd_leds_stb(i),
         frame_count => kbd_frames(i));
@@ -375,8 +392,15 @@ begin
 
     -- status for heartbeat (phase 1: UDP always owns the keyboard)
     dstat(i).target_flags  <= "0000" & '1' & out_en(i) & vio_s(i) & kb_s(i);
-    dstat(i).kbd_owner     <= x"00";
-    dstat(i).kbd_eff       <= kbd_udp(i);
+    route(i) <= pk_present when sel_kbd = i else '0';
+    arb : entity work.kbd_arbiter
+      port map (clk => clk_sys, udp_strobe => kbd_strobe(i), udp_keys => kbd_udp(i),
+                phys_route => route(i),
+                phys_keys => pk_keys, policy => cfg(i).kbd_policy,
+                override => cfg(i).kbd_override, effective => kbd_eff(i),
+                udp_stored => open, owner_phys => kbd_owner(i));
+    dstat(i).kbd_owner     <= "0000000" & kbd_owner(i);
+    dstat(i).kbd_eff       <= kbd_eff(i);
     dstat(i).kbd_udp       <= kbd_udp(i);
     dstat(i).dut_leds      <= dut_leds(i);
     dstat(i).jtag_status   <= "0000" & not powered(i) & jab(i) & jready(i) & jbusy(i);
@@ -401,11 +425,77 @@ begin
   bstat.dip         <= dip;
   bstat.link_flags  <= link_flags(7) & (not ep_enable(1)) & link_flags(5 downto 0);
   bstat.caps        <= x"00000007";     -- uart, jtag, kbd device
-  bstat.selected    <= bcfg.vid_target(3 downto 0) & bcfg.kbd_target(3 downto 0);
-  bstat.kbd_phys    <= (others => '0');
-  bstat.phys_change <= (others => '0');
-  bstat.phys_type   <= x"00";
+  bstat.selected    <= std_logic_vector(sel_vid) & std_logic_vector(sel_kbd);
+  bstat.kbd_phys    <= pk_keys;
+  bstat.phys_change <= pk_change;
+  bstat.phys_type   <= x"01" when pk_present = '1' else x"00";
+
+  ---------------------------------------------------------------- physical keyboard
+  pkh : entity work.kbd_mk1_host
+    generic map (HALF_CYCLES => CLK_HZ / 625_000)
+    port map (clk => clk_sys, kio8 => pk_kio8, kio9 => pk_kio9, kio10 => pk_kio10,
+              -- keyboard LEDs show the selected target's own LEDs
+              leds => dut_leds(to_integer(sel_kbd(0 downto 0))),
+              pressed => pk_keys, strobe => pk_stb, present => pk_present,
+              kbd_commit => pk_commit);
+
+  -- selection: management writes or front-panel buttons (last writer wins);
+  -- phase 1 has no chain, so targets are this board's two DUTs (0, 1).
+  -- Expedited heartbeat on every physical bitmap change (brief section 13).
+  process (clk_sys)
+  begin
+    if rising_edge(clk_sys) then
+      hb_exp <= '0';
+      blink  <= blink + 1;
+      if pk_stb = '1' then
+        pk_prev <= pk_keys;
+        if pk_keys /= pk_prev then
+          pk_change <= pk_change + 1;
+          hb_exp    <= '1';
+        end if;
+      end if;
+      bcfg_kt <= bcfg.kbd_target;
+      bcfg_vt <= bcfg.vid_target;
+      if bcfg.kbd_target /= bcfg_kt then
+        sel_kbd <= unsigned(bcfg.kbd_target(3 downto 0));
+        if bcfg.coupled = '1' then sel_vid <= unsigned(bcfg.kbd_target(3 downto 0)); end if;
+      end if;
+      if bcfg.vid_target /= bcfg_vt then
+        sel_vid <= unsigned(bcfg.vid_target(3 downto 0));
+      end if;
+      -- buttons: sample every ~8 ms (debounce), act on press
+      deb <= deb + 1;
+      if deb = 0 then
+        btn_s1 <= buttons;
+        btn_s2 <= btn_s1;
+        btn_prev <= btn_s2;
+        if btn_s2(1) = '1' and btn_prev(1) = '0' then
+          -- next (wraps within this board's two targets until the chain exists)
+          if sel_kbd < 1 then
+            sel_kbd <= sel_kbd + 1; sel_vid <= sel_kbd + 1;
+          else
+            sel_kbd <= (others => '0'); sel_vid <= (others => '0');
+          end if;
+        elsif btn_s2(0) = '1' and btn_prev(0) = '0' then
+          if sel_kbd > 0 then
+            sel_kbd <= sel_kbd - 1; sel_vid <= sel_kbd - 1;
+          else
+            sel_kbd <= to_unsigned(1, 4); sel_vid <= to_unsigned(1, 4);
+          end if;
+        end if;
+      end if;
+    end if;
+  end process;
 
   -- front panel: LED0 heartbeat-ish activity, LED1/2 DUT powered, LED7 rx
-  leds(7 downto 0) <= std_logic_vector(cnt_good(3 downto 0)) & "00" & vio_s(1) & vio_s(0);
+  -- green LEDs: selected target one-hot; steady when keyboard and video
+  -- selections agree, blinking (keyboard target) when they differ (brief)
+  process (sel_kbd, sel_vid, blink)
+  begin
+    leds <= (others => '0');
+    leds(to_integer(sel_vid(2 downto 0))) <= '1';
+    if sel_kbd /= sel_vid then
+      leds(to_integer(sel_kbd(2 downto 0))) <= blink(blink'high);
+    end if;
+  end process;
 end architecture;

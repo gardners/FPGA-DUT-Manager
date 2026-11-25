@@ -157,11 +157,13 @@ check-board:
 detect: check-board | $(STAMPS)/openfpgaloader
 	$(OFL) $(CABLE_ARGS) --detect
 
-jtagload: $(BITDIR)/supervisor.bit check-board | $(STAMPS)/openfpgaloader
-	$(OFL) $(CABLE_ARGS) --write-sram $<
+# BIT=path loads another bitstream (e.g. build/vivado/supervisor.bit)
+BIT ?= $(BITDIR)/supervisor.bit
+jtagload: $(BIT) check-board | $(STAMPS)/openfpgaloader
+	$(OFL) $(CABLE_ARGS) --write-sram $(BIT)
 
-flash: $(BITDIR)/supervisor.bit check-board | $(STAMPS)/openfpgaloader
-	$(OFL) $(CABLE_ARGS) --write-flash $<
+flash: $(BIT) check-board | $(STAMPS)/openfpgaloader
+	$(OFL) $(CABLE_ARGS) --write-flash $(BIT)
 
 # ---------------------------------------------------------------- host software
 dutctl:

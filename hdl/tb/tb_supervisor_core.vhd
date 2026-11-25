@@ -46,7 +46,9 @@ begin
       jtck => jtck, jtms => jtms, jtdi => jtdi, jtdo => jtdo, jtag_oe => joe,
       utx => utx, utx_oe => uoe, urx => urx,
       kio8 => "00", kio9 => "00", kio10 => kio10, kio10_oe => kio10_oe,
-      leds => leds, stat_rx_good => good, stat_rx_bad => bad);
+      pk_kio8 => open, pk_kio9 => open, pk_kio10 => '0', buttons => "0000",
+      leds => leds, text_we => open, text_addr => open, text_data => open,
+      addr_src0 => open, addr_src1 => open, ep_enable_o => open, stat_rx_good => good, stat_rx_bad => bad);
 
   urx(0) <= utx(0);
   urx(1) <= '1';
