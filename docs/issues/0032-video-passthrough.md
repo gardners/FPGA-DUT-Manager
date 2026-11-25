@@ -108,3 +108,7 @@ video_meas now publishes geometry only when two frames agree (600-frame
 capture: 597 complete, 3 INCOMPLETE). hwtest forces the editable screen
 while capturing and requires 720x480. Real-source passthrough test pending
 (MEGA65 or PC on HDMI IN).
+
+## 2026-11-25 real source (lead)
+
+A HewnWeb board (DVI, 720x480p60) is now on HDMI IN. The heartbeat shows `video locked 720x480 of 858x525 27.000 MHz DVI capture  screen passthrough`, so passthrough is live with a real source, and `dutctl -S` captures its picture (docs/images/screenshot-hewnweb-hdmi-in.png). The owner has not yet confirmed what HDMI OUT shows on the monitor.
