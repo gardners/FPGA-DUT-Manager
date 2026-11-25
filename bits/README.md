@@ -10,7 +10,8 @@ Board must run from the DC jack (USB power alone browns out).
 
 | Build id | Commit | Verified on hardware (2026-11-25) | Notes |
 |---|---|---|---|
-| 8efc02b0 | 8efc02b | hwcheck PASS both DUTs | **known-good**; timing MET; keyboard blocks mirror J5 (ADR 0008 am. 3) |
+| 681af897 | 681af89 | hwcheck PASS both DUTs | **known-good**; timing MET; keyboard blocks reversed (ADR 0008 am. 4) |
+| 8efc02b0 | 8efc02b | hwcheck PASS both DUTs | timing MET; keyboard blocks mirror J5 (ADR 0008 am. 3) |
 | e54a2e92 | e54a2e9 | hwcheck PASS both DUTs | all timing MET (RX constrained to measured eye); jumper-strip wiring (ADR 0008 am. 2); MEGA KVM boot screen |
 | 83113773 | 8311377 | hwcheck PASS both DUTs; 200-ping burst 0% loss | timing MET (internal); RGMII RX MMCM at 123.75 deg |
 | cd2f921d | cd2f921 | DHCP both DUTs (0 / 0x10), heartbeats, console position OK | keyboard pins on P12 rows 6-9; 480p60; WNS -0.42 |
