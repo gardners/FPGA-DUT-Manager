@@ -20,8 +20,10 @@
 -- pf(44..107) = BOOTP bytes 236..299.
 --
 -- Raster (issue 0023, ADR 0005 s8 v1): a committed line from raster_capture
--- has absolute priority at frame boundaries (it is checked first whenever a
--- new frame is chosen). One datagram per line: segment A = headers + the
+-- has priority at frame boundaries (it wins whenever a new frame is chosen,
+-- except that a raster frame never follows a raster frame while other
+-- traffic is waiting: control traffic keeps flowing even when the source
+-- needs more than the link). One datagram per line: segment A = headers + the
 -- 52-byte raster header (incl. the latest 16 UART RX bytes, copied from the
 -- history port into a shift register in S_HIST), segment B = the pixels
 -- streamed from the ring (24-bit words, shifted out R, G, B). Lines arriving
@@ -152,6 +154,7 @@ architecture rtl of net_tx is
   signal ph, pr  : integer range 0 to 2 := 0;
   signal rast_frames : unsigned(31 downto 0) := (others => '0');
   signal rast_drops  : unsigned(15 downto 0) := (others => '0');
+  signal last_rast   : std_logic := '0';    -- previous frame built was raster
 
   function b(v : std_logic_vector; i : natural) return byte_t is
     -- byte i counting from the most significant byte (big-endian)
@@ -306,8 +309,7 @@ begin
       case state is
         when S_IDLE =>
           k := K_NONE; dd := 0;
-          if rast_valid = '1' and rast_en = '1' then k := K_RAST; dd := rast_dut;
-          elsif arp.pend = '1' then k := K_ARP; dd := arp.dut;
+          if arp.pend = '1' then k := K_ARP; dd := arp.dut;
           elsif jr(0).pend = '1' and (rr = '0' or jr(1).pend = '0') then k := K_JRESP; dd := 0;
           elsif jr(1).pend = '1' then k := K_JRESP; dd := 1;
           elsif ack.pend = '1' then k := K_ACK; dd := ack.dut;
@@ -318,6 +320,11 @@ begin
           elsif snap_req(1) = '1' and ep_enable(1) = '1' and ip_eff(1) /= x"00000000" then k := K_SNAP; dd := 1;
           elsif hb_due(0) = '1' and ep_enable(0) = '1' and ip_eff(0) /= x"00000000" and (rr = '0' or hb_due(1) = '0') then k := K_HB; dd := 0;
           elsif hb_due(1) = '1' and ep_enable(1) = '1' and ip_eff(1) /= x"00000000" then k := K_HB; dd := 1;
+          end if;
+          -- raster first; but never two raster frames in a row while other
+          -- traffic waits (a source above ~1 Gb/s would starve it otherwise)
+          if rast_valid = '1' and rast_en = '1' and (last_rast = '0' or k = K_NONE) then
+            k := K_RAST; dd := rast_dut;
           end if;
           -- a disabled (DUT ID conflict) or not yet addressed endpoint drops
           -- its periodic traffic (DHCP required, ADR 0011)
@@ -332,6 +339,7 @@ begin
             state    <= S_DISCARD;
           elsif k /= K_NONE and pend_valid = '0' then
             rr    <= not rr;
+            if k = K_RAST then last_rast <= '1'; else last_rast <= '0'; end if;
             kind  <= k;
             d     <= dd;
             state <= S_LATCH;
