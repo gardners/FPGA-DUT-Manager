@@ -137,12 +137,9 @@ file; nothing else is needed from the laptop.
   wiring JTAG+UART, a DUT keyboard and the physical keyboard).
 * Done: DUT IDs 0x0n/0x1m (0026), 480p60 console + LEFT 15 (0027), MEGA KVM
   boot screen, README on main, MK-II host merged (untested on hardware).
-* **In progress: issue 0028 RX phase hunter** — implemented, simulated,
-  heartbeat link block added (protocol change done in all 4 places). Commit
-  7235a32 is **not yet built**. Next: `make bitstream` and, separately (in
-  sequence, not `a && b &`), a build with VIVADO_OUT=build/scan/h40
-  VIVADO_GENERICS="RX_PHASE_STEPS=40"; hwcheck both. The step-40 build must
-  recover by hunting (dutctl listen shows hunts/eye). If the default passes,
-  make it known-good and fast-forward main.
+* Issue 0028 RX phase hunter **done and verified on hardware** (recovers
+  unassisted from 225 deg to ~118 deg). Known-good a9a18703 = main. Harness
+  columns swapped (ADR 0008 amendment 5: cable pin 1 on column B).
+  clk_sys WNS is down to +0.02 ns: watch it on the next HDL additions.
 * After that: test JTAG/UART/keyboards on the owner's wiring; then the
   queue in the table above (0020 smoke test, 0022-0024 video, 0010 m65).
