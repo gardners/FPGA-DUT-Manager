@@ -98,7 +98,7 @@ begin
         lines := lines + 1;
       end if;
       de_prev := de_o;
-      exit when lines = 576;
+      exit when lines = 480;
     end loop;
     report "text frames accepted " & integer'image(to_integer(frames)) &
       ", control force=" & std_logic'image(force_text);

@@ -12,7 +12,7 @@ monitor. It must cost only a few BRAMs and no frame buffer.
 ## Decision
 
 * **Mode**: 80 × 25 character cells, 8 × 16 font (9-pixel cells as VGA text,
-  720 px wide), rendered into a 720 × 576 @ 50 Hz (27 MHz) DVI/HDMI raster,
+  720 px wide), rendered into a 720 × 480 @ 60 Hz (27 MHz; was 576p50, changed by issue 0027) DVI/HDMI raster,
   text area centred (88 lines top/bottom). Same mode as the MEGA65 PAL output
   so switching between text and pass-through does not change monitor mode.
 * **Memory** (one per supervisor, not per DUT):

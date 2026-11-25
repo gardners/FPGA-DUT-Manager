@@ -16,7 +16,7 @@ use work.font8x16_pkg.all;
 
 entity text_display is
   generic (
-    TOP    : natural := 88;     -- first text line ((576 - 400) / 2)
+    TOP    : natural := 40;     -- first text line ((480 - 400) / 2)
     LEFT   : natural := 0;      -- first text pixel column
     BANNER : string := " FPGA-DUT-Manager supervisor -- no video source"
   );

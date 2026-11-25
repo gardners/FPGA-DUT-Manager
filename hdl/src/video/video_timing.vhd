@@ -1,13 +1,14 @@
--- Raster timing generator. Default 720x576p50 (CEA-861 mode 17, 27 MHz,
--- 864 x 625, negative syncs), the MEGA65 PAL mode.
+-- Raster timing generator. Default 720x480p60 (CEA-861 mode 2/3, 27 MHz,
+-- 858 x 525, negative syncs), the MEGA65 NTSC mode (issue 0027).
+-- 720x576p50 (mode 17): H 12/64/68, V 576 5/5/39.
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity video_timing is
   generic (
-    H_ACTIVE : positive := 720; H_FP : positive := 12; H_SYNC : positive := 64; H_BP : positive := 68;
-    V_ACTIVE : positive := 576; V_FP : positive := 5;  V_SYNC : positive := 5;  V_BP : positive := 39;
+    H_ACTIVE : positive := 720; H_FP : positive := 16; H_SYNC : positive := 62; H_BP : positive := 60;
+    V_ACTIVE : positive := 480; V_FP : positive := 9;  V_SYNC : positive := 6;  V_BP : positive := 30;
     SYNC_POL : std_logic := '0'           -- level during sync
   );
   port (

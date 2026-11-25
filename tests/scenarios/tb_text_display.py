@@ -46,9 +46,9 @@ def frames():
 def expected():
     chars, attrs, pal = model()
     chars[80:85] = list(b"HELLO")
-    img = [[0] * 720 for _ in range(576)]
-    for y in range(88, 488):
-        row, cy = divmod(y - 88, 16)
+    img = [[0] * 720 for _ in range(480)]
+    for y in range(40, 440):
+        row, cy = divmod(y - 40, 16)
         for x in range(720):
             col, cx = divmod(x, 9)
             i = row * 80 + col
@@ -71,11 +71,11 @@ def gen(path):
 def check(path):
     rows = [ln.split() for ln in open(path)]
     errs = 0
-    if len(rows) != 576 or any(len(r) != 720 for r in rows):
+    if len(rows) != 480 or any(len(r) != 720 for r in rows):
         print("ERROR: frame size %d x %s" % (len(rows), set(len(r) for r in rows)))
         return 1
     exp = expected()
-    for y in range(576):
+    for y in range(480):
         for x in range(720):
             got = int(rows[y][x], 16)
             if got != exp[y][x]:
