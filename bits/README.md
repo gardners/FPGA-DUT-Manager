@@ -10,7 +10,8 @@ Board must run from the DC jack (USB power alone browns out).
 
 | Build id | Commit | Verified on hardware (2026-11-25) | Notes |
 |---|---|---|---|
-| b568335d | b568335 | hwcheck PASS; kbd-leds / kbd-led-rgb keys acked, bad value rejected | **known-good**; physical keyboard LED mode keys |
+| e59d3351 | e59d335 | hwcheck PASS; `video none` with no source | **known-good**; HDMI IN receiver (dvi2rgb) + video block, untested with a source |
+| b568335d | b568335 | hwcheck PASS; kbd-leds / kbd-led-rgb keys acked, bad value rejected | physical keyboard LED mode keys |
 | 98e1fce8 | 98e1fce | hwcheck PASS both DUTs; MK-I keyboard detected; DNA read | keyboard power-LED status, device DNA |
 | 41289d54 | 41289d5 | hwcheck PASS both DUTs | checksum pipelined, WNS +0.28 ns |
 | a9a18703 | a9a1870 | hwcheck PASS both DUTs; hunter idle (phase 0, 0 bad) | RX phase hunter (0028); harness columns swapped (ADR 0008 am. 5) |
