@@ -74,3 +74,13 @@ key 0x0035, heartbeat byte 109, `dutctl set console-screen`, `dutctl text
   give a double red blink (two quick blinks, ~0.8 s gap, repeat) so the
   selecting state is distinguishable from "not connected" (slow pulse)
   without a monitor.
+
+## 2026-11-25 owner: select-mode blink works; one-handed trigger, cancel on other keys
+
+* Owner confirmed the double-blink select indication on hardware.
+* New: quickly alternating LEFT SHIFT and MEGA — more than 10 presses
+  (at least 4 of each) within 2 s — also enters selection (one-handed,
+  and faster than the 1 s double-SHIFT hold).
+* New: in selection, pressing any key other than a digit, MEGA or LEFT
+  SHIFT cancels (exits selection without changing the target). ESC and
+  the 10 s timeout still cancel.
