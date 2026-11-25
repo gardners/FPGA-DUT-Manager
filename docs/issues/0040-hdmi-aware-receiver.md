@@ -62,3 +62,11 @@ Based on `feature/hdmi-spd` (0037) with `origin/feature/foundation` merged.
   The classifier knows when a packet starts (char after the leading guard),
   so a later parser can take channel 0 bit 2 / channels 1-2 nibbles from
   the TERC4 decode the same way as HS/VS.
+
+## 2026-11-25 Vivado (sub-agent)
+
+Build c103a3a (HDMI OUT with SPD/AVI + HDMI-aware RX): **TIMING MET, WNS
+0.192 ns, WHS 0.017 ns**. Bitstream `build/bits/supervisor-c103a3a7.bit` in
+the agent worktree; not loaded. On the self-loop expect `dutctl listen` to
+show `video locked 720x480 of 858x525 ... HDMI+islands` and hwtest's 720x480
+checks to pass again.
