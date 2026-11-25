@@ -38,3 +38,22 @@ Utilization (Slice LUTs / Registers / BRAM):
 | Slice LUTs                 | 7567 |     0 |          0 |     32600 | 23.21 |
 | Slice Registers            | 8107 |     0 |          0 |     65200 | 12.43 |
 | Slice Registers                            | 8107 |     0 |          0 |     65200 | 12.43 |
+
+## 2026-11-25 build box: net_tx/net_rx/ram_style changes
+
+Build 6e7991b4 (net_tx shift-register builder, net_rx S_PRE classification,
+text RAMs in BRAM, 480p60 console): **clk_sys WNS −5.233 → −1.262 ns**
+(668 endpoints). Worst path now net_rx `h_reg` → `jr_r(...).mac` CE (the
+JTAG reply latch). RX hold unchanged (−2.007 ns, 5 IDDR inputs): RXC goes
+IBUF → fabric route (1.97 ns) → BUFG → 1111-load net, 5.23 ns clock
+insertion vs 3.95 ns data (IBUF + IDELAY 26 taps). The IDDR therefore
+samples data launched on the *same* edge ~1.3 ns after it changes; Vivado's
+default edge pairing reports that as a hold violation. It works physically
+but the margin depends on the BUFG route, so the MMCM (or BUFIO) fix stays.
+
+Hardware: after the first successful load (da7897a1 heartbeats, ping, mgmt,
+text all OK), later loads of caf7ef9a, 6e7991b4 **and a fresh rebuild of
+da7897a1** were all silent on the network (no heartbeats, ARP unanswered).
+Since the known-good design also fails now, the cause is outside the
+design (board/PHY/cable/switch state) — waiting for owner observation.
+Bitstreams are now kept as build/bits/supervisor-<build id>.bit.
