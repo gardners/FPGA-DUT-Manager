@@ -66,8 +66,9 @@ decisions are in [`docs/adrs/`](docs/adrs/0000-index.md), open work in
 
 **In progress / next:**
 
-* Timing closure (issue 0019): internal clocks now meet timing; RGMII RX
-  capture moved to a phase-shifted MMCM and is being balanced.
+* Self-calibrating RGMII RX phase (issue 0028). Timing closure (0019) is
+  done: internal paths meet timing; the RX sample phase was calibrated by a
+  hardware scan (~3 ns eye).
 * Hardware smoke-test script (0020), HDMI capture and raster transport
   (0022-0024), physical keyboard wiring trial (0009), m65 support for the
   Mimas JTAG adaptor (0010, patch ready).
