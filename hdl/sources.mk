@@ -13,6 +13,8 @@ SYNTH_SOURCES := \
 	$(HDL_SRC)/jtag/jtag_engine.vhd \
 	$(HDL_SRC)/kbd/kbd_mk1_device.vhd \
 	$(HDL_SRC)/kbd/kbd_mk1_host.vhd \
+	$(HDL_SRC)/kbd/kbd_mk2_host.vhd \
+	$(HDL_SRC)/kbd/kbd_phys_host.vhd \
 	$(HDL_SRC)/kbd/kbd_arbiter.vhd \
 	$(HDL_SRC)/eth/eth_mac_rx.vhd \
 	$(HDL_SRC)/eth/eth_mac_tx.vhd \

@@ -79,3 +79,70 @@ still tested by `tb_kbd_mk1_host`.
 2. Write the expander model with 'H' pull-ups.
 3. Write the testbenches, then `kbd_phys_host` and its testbench.
 4. Add the new files to the source lists.
+
+## 2026-11-25 progress (MK-II host, auto-detect and integration; branch `feature/mk2-keyboard`)
+
+**Works in simulation (`make test`: 12 HDL testbenches + C + firmware pass):**
+
+* `hdl/src/kbd/kbd_mk2_host.vhd`: byte-level open-drain I2C master
+  (quarter-bit ticks, `QUARTER_CYCLES` = 125 -> 250 kHz SCL at 125 MHz; a
+  scan is ~1.1 ms). Same result interface as `kbd_mk1_host` plus `enable`.
+  Implements the analysis above: LED write to U1 (reg 6 = all outputs on the
+  first scan and every 2**`REINIT_LOG2` = 1024 scans, else reg 2), reads of
+  0x21..0x25, the full bit-to-key map, DEL/RETURN duplicated to 76/77, SHIFT
+  LOCK toggle ANDed into LSHIFT (15), CAPS LOCK latch (72) / raw key (78) /
+  re-toggle after `CAPS_HOLD` = 510 held scans, 4-bit LED PWM, commit id
+  "MKII". `present` = some expander ACKed its address in the last scan.
+  Upstream fixes applied: proper STOP after the LED write, SDA raised while
+  SCL is low before the repeated START, SCL open drain, slave ACK slots
+  released by the master. Deliberate deviation: led2_r compares nibble
+  ov(31:28) (upstream compared the 8 bits ov(31:24)).
+* `hdl/sim/i2c_expander_model.vhd`: behavioural TCA9555 (register pairs with
+  pointer toggle, ACK/NACK, `connected` input, counts of reg 6/reg 2 writes,
+  error count for START/STOP inside a byte).
+* `hdl/tb/tb_kbd_mk2_host.vhd`: every port bit of all five key expanders,
+  multi-key, GPIO lines ignored, SHIFT LOCK + LED, CAPS LOCK latch / bounce /
+  hold re-toggle + LED, exact PWM duty of all 12 LED nibbles at their U1 bit
+  positions, U1 config at start and periodically, key expanders never
+  written, no bus errors, bus released when disabled.
+* `hdl/src/kbd/kbd_phys_host.vhd`: R6 rule (start MK-II; KIO10 high -> MK-I
+  at once; KIO10 low for `MK2_DETECT_CYCLES` = CLK_HZ/8100 = 123 us -> MK-II).
+  Outputs o/oe per pin, all registered. `kbd_type` 0 none / 1 MK-I / 2 MK-II
+  feeds heartbeat `phys_type` (ADR 0005 already defines 2 = MK-II). An MK-II
+  port with no ACKs reports type 0 and an all-zero bitmap.
+  `tb_kbd_phys_host`: empty -> MK-II -> MK-I (`kbd_mk1_device`) -> MK-II ->
+  unplugged. Note: the detect time must exceed the longest run of '0' bits
+  in an MK-I frame (the 14-bit zero date stamp is 5600 clocks at 400
+  clocks/bit); a 3000-cycle test value flipped back to MK-II mid-frame.
+* `supervisor_core` uses `kbd_phys_host` (new ports `pk_kio8_oe`,
+  `pk_kio9_oe`, `pk_kio8_in`); `mimas_a7_top` makes `pk_kio8`/`pk_kio9`
+  `inout` with tri-state on the **same pins as before** (J20/J21, K21 for
+  KIO10). XDC: weak `PULLUP` on pk_kio8/9 so an empty port reads idle rather
+  than floating (a floating SDA could fake ACKs and key presses); timing XDC:
+  false path from them as well. `tb_supervisor_core` still passes.
+* Confirmed from `~/Projects/mega65/mega65-kbd-pcb` (MK-II KiCad): the parts
+  are TCA9555DBR (400 kHz max), and R13/R14 (1k) are SDA/SCL pull-ups on the
+  keyboard PCB.
+
+**Not done / not verified:** nothing on hardware (no Vivado build, no JTAG
+load from this session). Not synthesised here either (no Vivado/GHDL synth
+in this session); the lead should check timing of the new blocks in the next
+Vivado build.
+
+**Open questions for the owner (hardware facts):**
+
+1. How is the physical keyboard wired to J20/J21/K21 (P12 X block)? MK-II
+   needs KIO8 (SDA) **bidirectional** and both lines open drain. A
+   unidirectional buffer/level shifter in that path breaks MK-II; series
+   resistors are fine only if small: with the keyboard's 1k pull-ups, the low
+   level is 3.3 V * R/(R + 1k), e.g. 0.8 V at 330 ohm, near TCA9555 V_IL
+   (0.3 * VCC = 1.0 V). TODO in the adapter design (issue 0008) once known.
+2. Power: the MK-II PCB's parts and pull-ups are on +3.3V while ADR 0006 says
+   the physical keyboard takes +5 V from the supervisor cable. Which supply
+   pins of the keyboard connector does the supervisor cable provide, and does
+   the MK-II get its 3.3 V from them?
+3. Is the weak FPGA PULLUP on pk_kio8/pk_kio9 acceptable (the MK-I keyboard
+   is then also pulled up while the pins are driven push-pull; harmless)?
+
+**Next:** owner answers 1-3; lead runs `make bitstream` and tests with a real
+MK-II (and MK-I) keyboard; check `phys_type` = 2 in `dutctl listen`.

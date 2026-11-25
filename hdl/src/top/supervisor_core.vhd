@@ -45,8 +45,12 @@ entity supervisor_core is
     kio9      : in  std_logic_vector(1 downto 0);
     kio10     : out std_logic_vector(1 downto 0);
     kio10_oe  : out std_logic_vector(1 downto 0);
-    -- physical keyboard (master's own, P12 X block; MK-I for now, issue 0009)
-    pk_kio8, pk_kio9 : out std_logic;
+    -- physical keyboard (master's own, P12 X block): MK-I or MK-II, auto-
+    -- detected (kbd_phys_host, issue 0009). KIO8/KIO9 are push-pull for MK-I
+    -- and open drain (SDA/SCL) for MK-II: tri-state them at the top level.
+    pk_kio8, pk_kio9       : out std_logic;
+    pk_kio8_oe, pk_kio9_oe : out std_logic;
+    pk_kio8_in             : in  std_logic;
     pk_kio10  : in  std_logic;
     -- front panel
     buttons   : in  std_logic_vector(3 downto 0);   -- 0 prev, 1 next target
@@ -114,6 +118,7 @@ architecture rtl of supervisor_core is
   -- physical keyboard and arbitration (brief section 10)
   signal pk_keys, pk_prev : std_logic_vector(79 downto 0) := (others => '0');
   signal pk_stb, pk_present : std_logic;
+  signal pk_type : std_logic_vector(1 downto 0);
   signal pk_commit : std_logic_vector(31 downto 0);
   signal pk_change : unsigned(15 downto 0) := (others => '0');
   signal hb_exp : std_logic := '0';
@@ -428,16 +433,21 @@ begin
   bstat.selected    <= std_logic_vector(sel_vid) & std_logic_vector(sel_kbd);
   bstat.kbd_phys    <= pk_keys;
   bstat.phys_change <= pk_change;
-  bstat.phys_type   <= x"01" when pk_present = '1' else x"00";
+  bstat.phys_type   <= "000000" & pk_type;     -- 0 none, 1 MK-I, 2 MK-II
 
   ---------------------------------------------------------------- physical keyboard
-  pkh : entity work.kbd_mk1_host
-    generic map (HALF_CYCLES => CLK_HZ / 625_000)
-    port map (clk => clk_sys, kio8 => pk_kio8, kio9 => pk_kio9, kio10 => pk_kio10,
+  pkh : entity work.kbd_phys_host
+    generic map (MK1_HALF_CYCLES => CLK_HZ / 625_000,          -- 1.6 us
+                 MK2_QUARTER_CYCLES => CLK_HZ / 1_000_000,     -- 250 kHz SCL
+                 MK2_DETECT_CYCLES => CLK_HZ / 8_100)          -- 123 us
+    port map (clk => clk_sys, kio8_o => pk_kio8, kio8_oe => pk_kio8_oe,
+              kio8_i => pk_kio8_in, kio9_o => pk_kio9, kio9_oe => pk_kio9_oe,
+              kio10 => pk_kio10,
               -- keyboard LEDs show the selected target's own LEDs
               leds => dut_leds(to_integer(sel_kbd(0 downto 0))),
-              pressed => pk_keys, strobe => pk_stb, present => pk_present,
+              pressed => pk_keys, strobe => pk_stb, kbd_type => pk_type,
               kbd_commit => pk_commit);
+  pk_present <= '1' when pk_type /= "00" else '0';
 
   -- selection: management writes or front-panel buttons (last writer wins);
   -- phase 1 has no chain, so targets are this board's two DUTs (0, 1).

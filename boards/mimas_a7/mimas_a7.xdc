@@ -108,7 +108,10 @@ set_property -dict {PACKAGE_PIN G1 IOSTANDARD TMDS_33} [get_ports {hdmi_tx_p[2]}
 set_property -dict {PACKAGE_PIN F1 IOSTANDARD TMDS_33} [get_ports {hdmi_tx_n[2]}]
 
 ## Physical keyboard (master's own MEGA65 keyboard) on P12 X block rows 4-5.
-## MK-I protocol for now; MK-II (I2C, open drain) is issue 0009.
-set_property -dict {PACKAGE_PIN J20 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW} [get_ports pk_kio8]
-set_property -dict {PACKAGE_PIN J21 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW} [get_ports pk_kio9]
+## MK-I (push-pull clock/data) or MK-II (I2C SDA/SCL, open drain), auto-
+## detected by kbd_phys_host (issue 0009). The MK-II PCB has 1k pull-ups
+## (R13/R14); the weak PULLUPs here only stop an empty port from floating
+## (the keyboard is powered from the supervisor side, so no back-powering).
+set_property -dict {PACKAGE_PIN J20 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW PULLUP TRUE} [get_ports pk_kio8]
+set_property -dict {PACKAGE_PIN J21 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW PULLUP TRUE} [get_ports pk_kio9]
 set_property -dict {PACKAGE_PIN K21 IOSTANDARD LVCMOS33 PULLDOWN TRUE} [get_ports pk_kio10]
