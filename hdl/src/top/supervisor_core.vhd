@@ -233,7 +233,10 @@ begin
     end if;
   end process;
   hunter : entity work.rx_phase_hunter
-    generic map (TIMEOUT_CYC => CLK_HZ / 10)
+    -- 2 frames / 1 s per position: before DHCP the board only hears LAN
+    -- background broadcasts (a few per second); 4 frames / 100 ms failed on
+    -- hardware without extra traffic (issue 0028)
+    generic map (FRAMES_PER_POS => 2, TIMEOUT_CYC => CLK_HZ)
     port map (clk => clk_sys, rst => hu_rst, ev_good => hu_good, ev_bad => hu_bad,
               ps_en => rx_ps_en, ps_inc => open, ps_done => rx_ps_done,
               position => hu_pos, eye_width => hu_eye, hunting => hu_hunting, hunts => hu_hunts);

@@ -46,3 +46,15 @@ block (ADR 0005 s3a, payload 132) reports phase/eye/hunts/bad frames;
 drift (centred, width 21), wrap-around eye, no traffic (back to origin),
 reset. Hardware test pending: force a hunt by starting from a bad phase
 (build with RX_PHASE_STEPS outside the eye, e.g. 40) and check it recovers.
+
+## 2026-11-25 hardware
+
+* Default build c4f659ae: hwcheck PASS, link block phase 0 / hunts 0 / bad 0.
+* Build started outside the eye (RX_PHASE_STEPS=40, 225 deg): with
+  4 frames / 100 ms per position it did **not** recover on its own (before
+  DHCP only LAN background broadcasts arrive). With ~1000/s broadcast UDP
+  from the host for 30 s it recovered: 1 hunt, eye 24 positions (135 deg,
+  matching the build scan), settled +45 positions = 118 deg absolute
+  (calibrated centre 123.75 deg), 155 bad frames; hwcheck PASS.
+* Tuned to 2 frames / 1 s per position for quiet networks; re-test without
+  helper traffic.
