@@ -91,3 +91,19 @@ harnesses are interchangeable):
 
 Each node uses 2 chain ribbons + 2 DUT adapters (4 ribbons to MEGA65s). Spares:
 5 in P12 X, 6 across J/K blocks per DUT.
+
+## Amendment 2026-11-25 (owner): physical keyboard on P12 rows 6-9
+
+Keyboard JTAG is not needed; only KIO8-10, GND and 3.3 V. To keep the
+bench cable to two short strips, the physical keyboard uses P12 rows 6-9
+in a single 2x4 housing (rows 4-5 of the X block become spares):
+
+| P12 row | A (P) | B (N) |
+|---|---|---|
+| 6 | H20: J5 pin 7 (KB_TDO) — leave unwired | G20: J5 pin 8 KIO8 |
+| 7 | J19: J5 pin 9 KIO9 | H19: J5 pin 10 KIO10 |
+| 8 | GND: J5 pin 1 | GND |
+| 9 | VADJ 3.3 V: J5 pin 2 | VADJ 3.3 V |
+
+Keyboard side: a 2x2 housing on J5 pins 7-10 (pin 7 position empty) and a
+1x2 on pins 1-2. The keyboard supply comes from VADJ, not an FPGA pin.

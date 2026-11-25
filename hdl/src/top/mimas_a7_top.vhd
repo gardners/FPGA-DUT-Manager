@@ -139,8 +139,8 @@ begin
   vtim : entity work.video_timing
     port map (clk => clk_pix, x => vx, y => vy, de => v_de, hs => v_hs, vs => v_vs, frame_start => v_fs);
   text : entity work.text_display
-    -- shifted 2 cells right: the owner's monitor hides the first ~1.5 (issue 0027)
-    generic map (LEFT => 18)
+    -- shifted right: the owner's monitor hides the first ~15 px (issue 0027)
+    generic map (LEFT => 15)
     port map (wr_clk => clk_rx, wr_en => text_we, wr_addr => text_addr, wr_data => text_data,
               clk_pix => clk_pix, x => vx, y => vy, de_in => v_de, hs_in => v_hs, vs_in => v_vs,
               r => t_r, g => t_g, b => t_b, de_out => t_de, hs_out => t_hs, vs_out => t_vs,

@@ -107,11 +107,16 @@ set_property -dict {PACKAGE_PIN D1 IOSTANDARD TMDS_33} [get_ports {hdmi_tx_n[1]}
 set_property -dict {PACKAGE_PIN G1 IOSTANDARD TMDS_33} [get_ports {hdmi_tx_p[2]}]
 set_property -dict {PACKAGE_PIN F1 IOSTANDARD TMDS_33} [get_ports {hdmi_tx_n[2]}]
 
-## Physical keyboard (master's own MEGA65 keyboard) on P12 X block rows 4-5.
+## Physical keyboard (master's own MEGA65 keyboard) on P12 rows 6-9, one
+## 2x4 housing (owner 2026-11-25: simplest wiring, keyboard J5-style 2x5):
+##   row 6  A GPIO_3_P H20 = J5 pin 7 (KB_TDO, leave unwired)  B G20 = J5 pin 8 KIO8
+##   row 7  A GPIO_4_P J19 = J5 pin 9 KIO9                     B H19 = J5 pin 10 KIO10
+##   row 8  GND (both columns)  = J5 pin 1
+##   row 9  VADJ 3.3 V (both)   = J5 pin 2 (keyboard supply; not an FPGA pin)
 ## MK-I (push-pull clock/data) or MK-II (I2C SDA/SCL, open drain), auto-
 ## detected by kbd_phys_host (issue 0009). The MK-II PCB has 1k pull-ups
 ## (R13/R14); the weak PULLUPs here only stop an empty port from floating
 ## (the keyboard is powered from the supervisor side, so no back-powering).
-set_property -dict {PACKAGE_PIN J20 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW PULLUP TRUE} [get_ports pk_kio8]
-set_property -dict {PACKAGE_PIN J21 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW PULLUP TRUE} [get_ports pk_kio9]
-set_property -dict {PACKAGE_PIN K21 IOSTANDARD LVCMOS33 PULLDOWN TRUE} [get_ports pk_kio10]
+set_property -dict {PACKAGE_PIN G20 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW PULLUP TRUE} [get_ports pk_kio8]
+set_property -dict {PACKAGE_PIN J19 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW PULLUP TRUE} [get_ports pk_kio9]
+set_property -dict {PACKAGE_PIN H19 IOSTANDARD LVCMOS33 PULLDOWN TRUE} [get_ports pk_kio10]
