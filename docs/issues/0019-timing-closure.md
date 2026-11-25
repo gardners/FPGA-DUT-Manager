@@ -57,3 +57,24 @@ da7897a1** were all silent on the network (no heartbeats, ARP unanswered).
 Since the known-good design also fails now, the cause is outside the
 design (board/PHY/cable/switch state) — waiting for owner observation.
 Bitstreams are now kept as build/bits/supervisor-<build id>.bit.
+
+## 2026-11-25 RGMII RX on an MMCM; hardware phase scan
+
+RX clock now RXC -> MMCM (BUFG feedback) -> BUFG, phase `RX_PHASE_STEPS` x
+5.625 deg. Internal clocks all meet timing (clk_sys +0.13..0.23 ns after
+the net_tx/net_rx pipelining). Static RX analysis with +/-0.5 ns PHY skew
+predicted a centre near 202.5 deg with ~0.13 ns total margin — and
+202.5 deg did not work at all. Scan on the board (scripts/hwcheck.sh:
+DHCP, heartbeats, 20/20 pings, mgmt round trip on both endpoints):
+
+| step | 4 | 8 | 12 | 16 | 20 | 24 | 28 | 32 | 36 | 40..56 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| deg | 22.5 | 45 | 67.5 | 90 | 112.5 | 135 | 157.5 | 180 | 202.5 | 225..315 |
+| result | fail | fail | pass | pass | pass | pass | pass | pass | fail | fail |
+
+Eye ~56..191 deg = ~3.0 ns of the 4 ns UI; centre ~124 deg -> default
+step 22 (123.75 deg). The static model is off by ~1.7 ns in position and
+far too pessimistic in width (slow-max vs fast-min corners; one board at
+one temperature moves together), so the build verdict now covers internal
+paths only and reports RX static slack separately. Next: runtime phase
+hunting from FCS results (owner idea; issue 0028).

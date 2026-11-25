@@ -19,7 +19,7 @@ entity rgmii_xc7 is
     RX_IDELAY : integer := 0;         -- taps of ~78 ps (200 MHz reference)
     -- RX sample clock phase in MMCM steps of 5.625 deg (VCO 1000 MHz / 8).
     -- Calibrated on hardware by scanning builds (issue 0019).
-    RX_PHASE_STEPS : integer := 40
+    RX_PHASE_STEPS : integer := 22
   );
   port (
     clk_sys   : in  std_logic;   -- 125 MHz
