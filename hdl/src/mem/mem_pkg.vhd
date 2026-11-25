@@ -13,10 +13,13 @@
 -- writes byte i (bits 8i+7..8i) of the 16-byte word. A read issued after a
 -- write to the same address (same port) returns the written data.
 --
--- Thumbnail store layout (issue 0035): RGB565, 8 pixels per 16-byte word,
--- pixel 0 of a word in bits 15..0. One 256 KiB buffer per (machine, buf):
---   word address = (machine * 2 + buf) * 16384 + row * 64 + col / 8
--- (row stride 1 KiB; 360x240 uses 45 words of each row).
+-- Thumbnail store layout (issues 0035/0038; owner 2026-11-25: RGB888, RAM
+-- is plentiful): 32-bit xRGB, 4 pixels per 16-byte word, pixel i of a word
+-- in bits 32i+23..32i (R 23..16, G 15..8, B 7..0; top byte 0). One 512 KiB
+-- buffer per (machine, buf):
+--   word address = (machine * 2 + buf) * 32768 + row * 128 + col / 4
+-- (row stride 2 KiB, up to 512 x 256 pixels; a 320x200 tile uses 80
+-- words of rows 0..199, a 160x100 tile 40 words of rows 0..99).
 --
 -- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.
 library ieee;
@@ -47,26 +50,28 @@ package mem_pkg is
   constant MEM_RSP_IDLE : mem_rsp_t := ('0', '0', (others => '0'));
 
   -- thumbnail store
-  constant THUMB_W        : natural := 360;
-  constant THUMB_H        : natural := 240;
-  constant THUMB_ROW_WORDS: natural := 64;    -- row stride in 16-byte words
+  constant THUMB_W        : natural := 320;  -- 1/2-scale tile (centre 640x400)
+  constant THUMB_H        : natural := 200;
+  constant THUMB_Q_W      : natural := 160;  -- 1/4-scale tile
+  constant THUMB_Q_H      : natural := 100;
+  constant THUMB_ROW_WORDS: natural := 128;   -- row stride in 16-byte words
   constant THUMB_MACHINES : natural := 32;    -- machine numbers 0..31
-  constant THUMB_BUF_WORDS: natural := 16384; -- 256 KiB per buffer
+  constant THUMB_BUF_WORDS: natural := 32768; -- 512 KiB per buffer
 
   function thumb_addr(machine : unsigned(4 downto 0); buf : std_logic;
-                      row : unsigned(7 downto 0); word : unsigned(5 downto 0))
+                      row : unsigned(7 downto 0); word : unsigned(6 downto 0))
     return unsigned;
 end package;
 
 package body mem_pkg is
   function thumb_addr(machine : unsigned(4 downto 0); buf : std_logic;
-                      row : unsigned(7 downto 0); word : unsigned(5 downto 0))
+                      row : unsigned(7 downto 0); word : unsigned(6 downto 0))
     return unsigned is
     variable a : unsigned(MEM_AW - 1 downto 0) := (others => '0');
   begin
-    a(19 downto 14) := machine & buf;
-    a(13 downto 6)  := row;
-    a(5 downto 0)   := word;
+    a(20 downto 15) := machine & buf;
+    a(14 downto 7)  := row;
+    a(6 downto 0)   := word;
     return a;
   end function;
 end package body;
