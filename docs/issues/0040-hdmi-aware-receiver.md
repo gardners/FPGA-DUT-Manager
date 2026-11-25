@@ -70,3 +70,7 @@ Build c103a3a (HDMI OUT with SPD/AVI + HDMI-aware RX): **TIMING MET, WNS
 the agent worktree; not loaded. On the self-loop expect `dutctl listen` to
 show `video locked 720x480 of 858x525 ... HDMI+islands` and hwtest's 720x480
 checks to pass again.
+
+## 2026-11-25 hardware (lead)
+
+Merged into feature/foundation (523dd02). Build 523dd029: TIMING MET, WNS 0.221 ns. On the HDMI self-loop: video locked 720x480 of 858x525, flags HDMI+islands; hwtest 63/0 including complete 720x480 raster frames. Recorded as known-good. Still to check: the owner's monitor shows the SPD name; a real MEGA65 source.

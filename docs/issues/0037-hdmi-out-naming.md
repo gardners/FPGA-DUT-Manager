@@ -68,3 +68,7 @@ Bitstream in the worktree at `build/bits/supervisor-7282eba*.bit` (not loaded;
 the lead tests on hardware). To check on the monitor: the input/source info
 OSD should name the source "MEGA65 / MEGA KVM M<nn>" (or "MEGA KVM"), and the
 picture should be unchanged (full range, no overscan, 16:9).
+
+## 2026-11-25 hardware (lead)
+
+Merged into feature/foundation (523dd02). Build 523dd029: TIMING MET, WNS 0.221 ns. On the HDMI self-loop: video locked 720x480 of 858x525, flags HDMI+islands; hwtest 63/0 including complete 720x480 raster frames. Recorded as known-good. Still to check: the owner's monitor shows the SPD name; a real MEGA65 source.
