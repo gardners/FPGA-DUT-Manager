@@ -108,7 +108,8 @@ architecture rtl of net_rx is
   signal ra, ca  : unsigned(11 downto 0) := (others => '0');
   signal rd_on   : std_logic := '0';
   signal csum    : unsigned(15 downto 0) := (others => '0');
-  signal cidx    : integer range 0 to 10 := 0;
+  signal cidx    : integer range 0 to 11 := 0;
+  signal cw      : unsigned(15 downto 0) := (others => '0');  -- checksum word (pipelined)
   signal d       : integer range 0 to 1 := 0;
 
   signal cfg_r   : dut_cfg_arr_t := (default_cfg(x"0"), default_cfg(x"1"));
@@ -289,12 +290,18 @@ begin
           end if;
 
         when S_CSUM =>
-          -- IPv4 header checksum over bytes 14..33
+          -- IPv4 header checksum over bytes 14..33; word select and add in
+          -- separate cycles (timing, issue 0019)
           if cidx < 10 then
-            csum <= ones_add(csum, be16(h, 14 + 2 * cidx));
-            cidx <= cidx + 1;
-          else
+            cw <= be16(h, 14 + 2 * cidx);
+          end if;
+          if cidx >= 1 then
+            csum <= ones_add(csum, cw);
+          end if;
+          if cidx = 10 then
             state <= S_PRE;
+          else
+            cidx <= cidx + 1;
           end if;
 
         when S_PRE =>

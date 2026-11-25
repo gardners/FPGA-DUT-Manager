@@ -107,7 +107,8 @@ architecture rtl of net_tx is
   signal cnt      : unsigned(11 downto 0) := (others => '0');  -- bytes left in seg - 1
 
   signal csum  : unsigned(15 downto 0) := (others => '0');
-  signal cidx  : integer range 0 to 10 := 0;
+  signal cidx  : integer range 0 to 11 := 0;
+  signal cw    : unsigned(15 downto 0) := (others => '0');  -- checksum word (pipelined)
 
   signal widx  : unsigned(11 downto 0) := (others => '0');   -- byte being written
   signal bslot : std_logic := '0';
@@ -495,13 +496,19 @@ begin
           end if;
 
         when S_CSUM =>
+          -- word select and add in separate cycles (timing, issue 0019)
           if cidx < 10 then
-            csum <= ones_add(csum, unsigned(hdr(14 + 2 * cidx)) & unsigned(hdr(15 + 2 * cidx)));
-            cidx <= cidx + 1;
-          else
+            cw <= unsigned(hdr(14 + 2 * cidx)) & unsigned(hdr(15 + 2 * cidx));
+          end if;
+          if cidx >= 1 and cidx <= 10 then
+            csum <= ones_add(csum, cw);
+          end if;
+          if cidx = 11 then
             hdr(24) <= std_logic_vector(not csum(15 downto 8));
             hdr(25) <= std_logic_vector(not csum(7 downto 0));
             state     <= S_START;
+          else
+            cidx <= cidx + 1;
           end if;
 
         when S_START =>
