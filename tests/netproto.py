@@ -14,6 +14,9 @@ T_JTAG_REQ, T_JTAG_RESP = 0x40, 0x41
 T_RASTER = 0x60
 K_PK_LED_MODE, K_PK_LED_HOST = 0x0033, 0x0034  # physical keyboard LEDs (ADR 0005 s4)
 K_CON_SCREEN = 0x0035  # console screen: 0 auto, 1 editable, 2 no video, 3 select
+# heartbeat byte 109, what HDMI OUT shows (issues 0029, 0032)
+CON_SHOWN = {0: "editable", 1: "no-video", 2: "select", 3: "passthrough"}
+CON_PASSTHROUGH = 3
 PORT_MGMT, PORT_HB, PORT_KBD, PORT_UART, PORT_JTAG = 6500, 6501, 6502, 6503, 6507
 PORT_RASTER = 6504
 # raster flags (ADR 0005 section 8)

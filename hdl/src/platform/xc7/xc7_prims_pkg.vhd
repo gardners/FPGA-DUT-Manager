@@ -109,4 +109,35 @@ package xc7_prims_pkg is
   component IDELAYCTRL
     port (RDY : out std_logic; REFCLK, RST : in std_logic);
   end component;
+  -- PLL for the HDMI passthrough TX clocks (issue 0032)
+  component PLLE2_BASE
+    generic (
+      BANDWIDTH      : string  := "OPTIMIZED";
+      CLKFBOUT_MULT  : integer := 5;
+      CLKFBOUT_PHASE : real    := 0.0;
+      CLKIN1_PERIOD  : real    := 0.0;
+      CLKOUT0_DIVIDE : integer := 1;
+      CLKOUT1_DIVIDE : integer := 1;
+      DIVCLK_DIVIDE  : integer := 1;
+      REF_JITTER1    : real    := 0.01;
+      STARTUP_WAIT   : string  := "FALSE"
+    );
+    port (
+      CLKOUT0, CLKOUT1, CLKOUT2, CLKOUT3, CLKOUT4, CLKOUT5, CLKFBOUT, LOCKED : out std_logic;
+      CLKIN1, PWRDWN, RST, CLKFBIN : in std_logic
+    );
+  end component;
+
+  -- glitch-free global clock mux (console / passthrough TX clocks, 0032)
+  component BUFGCTRL
+    generic (
+      INIT_OUT     : integer := 0;
+      PRESELECT_I0 : boolean := false;
+      PRESELECT_I1 : boolean := false
+    );
+    port (
+      O : out std_logic;
+      CE0, CE1, I0, I1, IGNORE0, IGNORE1, S0, S1 : in std_logic
+    );
+  end component;
 end package;

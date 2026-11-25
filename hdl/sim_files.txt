@@ -35,6 +35,7 @@ third_party/mega65-core/hdmi_tx_encoder.vhdl
 hdl/src/video/font8x16_pkg.vhd
 hdl/src/video/video_timing.vhd
 hdl/src/video/video_meas.vhd
+hdl/src/video/video_pt_ctrl.vhd
 hdl/src/video/text_display.vhd
 hdl/src/video/text_rx_tap.vhd
 hdl/src/video/seg7_status.vhd

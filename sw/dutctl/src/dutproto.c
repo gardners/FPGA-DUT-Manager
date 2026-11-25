@@ -285,6 +285,12 @@ int dp_key_by_name(const char *name)
   return -1;
 }
 
+const char *dp_con_shown_name(int v)
+{
+  static const char *const names[] = {"editable", "no-video", "select", "passthrough"};
+  return (v >= 0 && v < 4) ? names[v] : "?";
+}
+
 const char *dp_key_name(int key)
 {
   return (key >= 0 && key < 80) ? key_names[key] : "?";

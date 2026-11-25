@@ -83,7 +83,14 @@ architecture rtl of mimas_a7_top is
   signal good, bad : unsigned(15 downto 0);
   signal link_flags : std_logic_vector(7 downto 0);
   -- video
-  signal clk_pix, clk_pix5, vlocked, vrst : std_logic;
+  signal clk_pix, vlocked, vrst : std_logic;
+  -- HDMI OUT passthrough (issue 0032)
+  signal con_pix_raw, con_pix5_raw, tx_pix, tx_pix5 : std_logic;
+  signal pt_req, pt_sel, pt_rst, pt_active, pt_pll_locked, pt_pll_rst, pt_pll_rst_a : std_logic;
+  signal p_rgb : std_logic_vector(23 downto 0) := (others => '0');
+  signal p_de, p_hs, p_vs : std_logic := '0';
+  signal o_r, o_g, o_b : std_logic_vector(7 downto 0);
+  signal o_de, o_hs, o_vs : std_logic;
   signal vx, vy : unsigned(10 downto 0);
   signal v_de, v_hs, v_vs, v_fs, t_de, t_hs, t_vs, t_force : std_logic;
   signal t_r, t_g, t_b : std_logic_vector(7 downto 0);
@@ -94,6 +101,8 @@ architecture rtl of mimas_a7_top is
   signal ep_en : std_logic_vector(1 downto 0);
   signal have_ip : std_logic;
   signal vrst_s : std_logic_vector(1 downto 0) := "11";
+  attribute ASYNC_REG : string;
+  attribute ASYNC_REG of vrst_s : signal is "TRUE";
 begin
   -- The 100 MHz oscillator (H4) and the HDMI IN clock (K4) share clock region
   -- X1Y1, which has one MMCM; HDMI IN needs it (dedicated route), so the
@@ -159,7 +168,8 @@ begin
       vid_v_active => vin_va, vid_pixel_hz => vin_hz,
       vin_pclk => vin_pclk, vin_rgb => vin_rgb, vin_de => vin_de, vin_hs => vin_hs,
       vin_vs => vin_vs,
-      text_forced => t_force, con_screen => con_screen, con_slots => con_slots);
+      text_forced => t_force, con_screen => con_screen, con_slots => con_slots,
+      pt_request => pt_req, pt_active => pt_active);
 
   -- HDMI IN: DVI sink + measurement for the heartbeat video block (0022)
   hrx : entity work.hdmi_rx_xc7
@@ -182,14 +192,43 @@ begin
 
   ---------------------------------------------------------------- video
   vclk : entity work.clocks_video_xc7
-    port map (clk100 => clk100_g, clk_pix => clk_pix, clk_pix5 => clk_pix5, locked => vlocked);
-  process (clk_pix5)
+    port map (clk100 => clk100_g, clk_pix => clk_pix, pix_raw => con_pix_raw,
+              pix5_raw => con_pix5_raw, locked => vlocked);
+
+  -- HDMI OUT source (issue 0032): the console (local clocks, below) or the
+  -- HDMI IN stream passed straight through in its recovered clock domain.
+  -- video_pt_ctrl (clk_sys) sequences the glitch-free clock switch with the
+  -- TX held in reset; the TX reset is synchronised in the TX serial domain.
+  ptc : entity work.video_pt_ctrl
+    port map (clk => clk_sys, req => pt_req, vin_locked => vin_locked,
+              pll_locked => pt_pll_locked, sel => pt_sel, tx_rst => pt_rst,
+              active => pt_active, pll_rst => pt_pll_rst);
+  pt_pll_rst_a <= pt_pll_rst or not vin_locked;
+  vout : entity work.video_out_clk_xc7
+    port map (con_pix => con_pix_raw, con_pix5 => con_pix5_raw, vin_pclk => vin_pclk,
+              pll_rst => pt_pll_rst_a, sel => pt_sel, pll_locked => pt_pll_locked,
+              tx_pix => tx_pix, tx_pix5 => tx_pix5);
+  process (tx_pix5)
   begin
-    if rising_edge(clk_pix5) then
-      vrst_s <= vrst_s(0) & not vlocked;
+    if rising_edge(tx_pix5) then
+      vrst_s <= vrst_s(0) & (pt_rst or not vlocked);
     end if;
   end process;
   vrst <= vrst_s(1);
+  -- decoded HDMI IN, registered once in its pixel domain
+  process (vin_pclk)
+  begin
+    if rising_edge(vin_pclk) then
+      p_rgb <= vin_rgb; p_de <= vin_de; p_hs <= vin_hs; p_vs <= vin_vs;
+    end if;
+  end process;
+  -- pt_sel only changes while the TX is in reset (video_pt_ctrl)
+  o_r  <= p_rgb(23 downto 16) when pt_sel = '1' else t_r;
+  o_g  <= p_rgb(15 downto 8)  when pt_sel = '1' else t_g;
+  o_b  <= p_rgb(7 downto 0)   when pt_sel = '1' else t_b;
+  o_de <= p_de when pt_sel = '1' else t_de;
+  o_hs <= p_hs when pt_sel = '1' else t_hs;
+  o_vs <= p_vs when pt_sel = '1' else t_vs;
   vtim : entity work.video_timing
     port map (clk => clk_pix, x => vx, y => vy, de => v_de, hs => v_hs, vs => v_vs, frame_start => v_fs);
   text : entity work.text_display
@@ -201,8 +240,8 @@ begin
               r => t_r, g => t_g, b => t_b, de_out => t_de, hs_out => t_hs, vs_out => t_vs,
               force_text => t_force, screen => con_screen, slots => con_slots);
   dvi : entity work.dvi_tx_xc7
-    port map (pixel_clk => clk_pix, serial_clk => clk_pix5, rst => vrst,
-              r => t_r, g => t_g, b => t_b, hs => t_hs, vs => t_vs, de => t_de,
+    port map (pixel_clk => tx_pix, serial_clk => tx_pix5, rst => vrst,
+              r => o_r, g => o_g, b => o_b, hs => o_hs, vs => o_vs, de => o_de,
               tmds_p => hdmi_tx_p, tmds_n => hdmi_tx_n,
               tmds_clk_p => hdmi_tx_clk_p, tmds_clk_n => hdmi_tx_clk_n);
 

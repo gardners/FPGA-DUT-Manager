@@ -117,7 +117,10 @@ static void test_decoders(void)
   CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && h.length == 124 && h.dut == 0);
   CHECK(dp_decode_heartbeat(v->data + 8, h.length, &hb) == 0);
   CHECK(hb.hb_seq == 42 && hb.dut_id == 7 && hb.has_video && hb.video_flags == 7);
-  CHECK(hb.console_screen == 2);
+  CHECK(hb.console_screen == DP_CON_PASSTHROUGH);
+  CHECK(strcmp(dp_con_shown_name(DP_CON_PASSTHROUGH), "passthrough") == 0);
+  CHECK(strcmp(dp_con_shown_name(DP_CON_SELECT), "select") == 0);
+  CHECK(strcmp(dp_con_shown_name(9), "?") == 0);
   CHECK(hb.h_total == 864 && hb.v_total == 625 && hb.h_active == 720 && hb.v_active == 576);
   CHECK(hb.pixel_clock_hz == 27000000 && hb.frames_captured == 0x01020304);
   CHECK(hb.raster_lines_dropped == 5 && hb.tmds_decode_errors == 6);

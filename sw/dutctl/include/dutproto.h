@@ -109,7 +109,7 @@ typedef struct {
   /* video block (ADR 0005 section 8); valid only when has_video (payload >= 124) */
   uint8_t has_video;
   uint8_t video_flags; /* b0 TMDS clock, b1 locked, b2 capture enabled, b3 DVI */
-  uint8_t console_screen; /* shown: 0 editable, 1 no video, 2 select (issue 0029) */
+  uint8_t console_screen; /* HDMI OUT shown: DP_CON_* (issues 0029, 0032) */
   uint16_t h_total, v_total, h_active, v_active;
   uint32_t pixel_clock_hz, frames_captured;
   uint16_t raster_lines_dropped, tmds_decode_errors;
@@ -191,5 +191,13 @@ uint32_t dp_baud_nco(double baud);
 /* MEGA65 matrix key names; returns key 0..79 or -1 */
 int dp_key_by_name(const char *name);
 const char *dp_key_name(int key);
+/* heartbeat byte 109 (console_screen): what HDMI OUT shows */
+enum {
+  DP_CON_EDITABLE = 0,
+  DP_CON_NO_VIDEO = 1,
+  DP_CON_SELECT = 2,
+  DP_CON_PASSTHROUGH = 3, /* HDMI IN passed through (issue 0032) */
+};
+const char *dp_con_shown_name(int v); /* "editable" .. "passthrough", "?" */
 
 #endif

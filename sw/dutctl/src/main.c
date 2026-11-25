@@ -162,7 +162,7 @@ static int cmd_set(int argc, char **argv)
             "         kbd-policy kbd-override kbd-target video-target coupled capture\n"
             "         hb-period-ms out-policy (0 auto, 1 on, 2 off)\n"
             "         kbd-leds (physical keyboard LEDs: 0 status colour, 1 DUT's, 2 host)\n"
-            "         console-screen (0 auto, 1 editable, 2 no video, 3 select)\n"
+            "         console-screen (0 auto incl. passthrough, 1 editable, 2 no video, 3 select)\n"
             "         kbd-led-rgb RRGGBB,RRGGBB,RRGGBB,RRGGBB (LED0..3 for kbd-leds 2;\n"
             "                     LED0/1 = drive LED, LED2/3 = power LED)\n");
     return 2;
@@ -391,8 +391,7 @@ static int cmd_listen(int argc, char **argv)
                (hb.video_flags & 4) ? " capture" : "");
       else
         printf("  video none");
-      static const char *const scr_names[] = {"editable", "no-video", "select", "?"};
-      printf("  screen %s", scr_names[hb.console_screen & 3]);
+      printf("  screen %s", dp_con_shown_name(hb.console_screen));
     }
     if (hb.phys_type) {
       printf("  phys");
