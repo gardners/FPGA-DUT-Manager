@@ -1,66 +1,100 @@
-# DUT cabling (supervisor ↔ MEGA65)
+# DUT and keyboard cabling (bench jumper strips)
 
-Each supervisor serves two DUTs: **DUT0 on P12**, **DUT1 on P13**, identical
-positions. Per DUT there are two Mimas blocks, J (rows 22–27) and K (rows
-28–33), and two MEGA65 connectors, JB1 (TE0790 socket, remove the TE0790)
-and J5 (keyboard; unplug the keyboard).
+Owner layout, 2026-11-25 (ADR 0008 amendment 2): everything can be bodged
+with **straight strips of male-to-female jumpers** (or crimped housings):
 
-A straight ribbon cannot be used (JB1 pin 12 TMS and J5 pin 2 3.3 V would
-land on Mimas GND rows), so there are two options:
+| Harness | Mimas end | Other end |
+|---|---|---|
+| JTAG + UART to a MEGA65 | 2 strips of 5 (columns A and B), rows 3-7 | JB1: rows 1-2, skip row 3 (pins 5/6), rows 4-6 |
+| DUT keyboard to a MEGA65 | 1 strip of 5, column A rows 22-26 | J5: pins 8, 9, 1, 10, 2 |
+| Physical keyboard (master only) | 1 strip of 5, P12 column B rows 21-25 | keyboard: pins 2, 8, 9, 1, 10 |
 
-* **Bench harness now**: female–female Dupont jumpers per the tables below.
-  Twist each signal with a ground where practical; keep ≤ 30 cm.
-* **DUT adapter (recommended, issue 0008)**: small board with two 2x6 headers
-  matching Mimas J/K blocks (straight 12-way ribbons from the Mimas), and a
-  2x6 "JB1" + 2x5 "J5" header so straight 12-/10-way ribbons go to the
-  MEGA65. Adds 47 Ω series resistors on every supervisor output, 1 kΩ series
-  on every input, and the sense circuits.
+**DUT0 uses P12, DUT1 uses P13, at identical positions.**
 
-## J block → MEGA65 JB1
+## Finding rows and columns on the Mimas
 
-| Mimas pin | DUT0 ball (P12) | DUT1 ball (P13) | Signal | Dir | MEGA65 JB1 pin |
-|---|---|---|---|---|---|
-| A22 | H17 | A15 | TCK | → | 4 |
-| B22 | H18 | A16 | TMS | → | 12 |
-| A23 | G17 | C14 | TDI | → | 10 |
-| B23 | G18 | C15 | TDO | ← | 8 |
-| A24/B24 | — | — | GND | | 1, 2 |
-| A25 | G15 | A13 | UART to DUT (DBG_UART_RX) | → | 7 |
-| B25 | G16 | A14 | UART from DUT (DBG_UART_TX) | ← | 3 |
-| A26 | J15 | C13 | VIO sense (via ≥10 kΩ) | ← | 6 |
-| B26 | H15 | B13 | spare (future PROG_B) | | — |
-| A27/B27 | — | — | GND | | 1, 2 |
+Each of P12/P13 is 2x40. A "row" is one pin pair; row 1 is the end whose
+two pins carry **VIN (raw DC-jack voltage, 12 V)** — never connect rows
+1-2. Column A carries the P side of each pair, column B the N side. Check
+with a meter before plugging anything in: rows 3, 8, 14, 20, 24, 27, 30, 33
+are GND on both columns; rows 9, 15, 21 are 3.3 V (VADJ) on both columns.
+Rows 34-39 are FPGA configuration / flash pins — stay clear.
 
-JB1 pins 5, 9, 11: leave unconnected.
+## MEGA65 connectors (R6 schematic; numbering odd/even = two rows)
 
-## K block → MEGA65 J5 (keyboard)
+JB1 (TE0790 socket, remove the TE0790), 2x6:
 
-| Mimas pin | DUT0 ball (P12) | DUT1 ball (P13) | Signal | Dir | MEGA65 J5 pin |
-|---|---|---|---|---|---|
-| A28 | K13 | D14 | KIO8 / KB_IO1 (clock+sync from MEGA65) | ← | 8 |
-| B28 | K14 | D15 | KIO9 / KB_IO2 (LED data from MEGA65) | ← | 9 |
-| A29 | M13 | E13 | KIO10 / KB_IO3 (key data to MEGA65) | → | 10 |
-| B29 | L13 | E14 | 3V3 sense (via ≥10 kΩ) | ← | 2 |
-| A30/B30 | — | — | GND | | 1 |
-| A31..B32 | | | spares | | — |
+```
+ 1 GND        2 GND
+ 3 UART_TX    4 TCK        (UART_TX = MEGA65 output)
+ 5 3.3V n.c.  6 VIO        (row skipped by the strip)
+ 7 UART_RX    8 TDO        (UART_RX = MEGA65 input)
+ 9 n.c.      10 TDI
+11 n.c.      12 TMS
+```
 
-J5 pins 3–7 (keyboard CPLD JTAG): leave unconnected.
+J5 (keyboard; unplug the keyboard ribbon), 2x5:
 
-## Physical keyboard (master only) → P12 X block
+```
+ 1 GND        2 3.3V (from the MEGA65)
+ 3 KB_JTAGEN  4 KB_TMS     (keyboard JTAG: not used)
+ 5 KB_TCK     6 KB_TDI
+ 7 KB_TDO     8 KIO8       (KIO8 clock from MEGA65)
+ 9 KIO9      10 KIO10      (KIO9 LED data from MEGA65, KIO10 key data to it)
+```
 
-| Mimas pin | Ball | Signal | Keyboard cable (J5-style) pin |
+## 1. JTAG + UART (per DUT): Mimas rows 3-7 -> JB1
+
+A direct map of JB1 with its 3.3 V/VIO row left out: Mimas column A = JB1
+odd pins, column B = JB1 even pins.
+
+| Mimas row | Column A | DUT0 / DUT1 ball | JB1 | Column B | DUT0 / DUT1 ball | JB1 |
+|---|---|---|---|---|---|---|
+| 3 | GND | — | 1 | GND | — | 2 |
+| 4 | UART from DUT (in) | J20 / F19 | 3 | TCK (out) | J21 / F20 | 4 |
+| 5 | UART to DUT (out) | K21 / E19 | 7 | TDO (in) | K22 / D19 | 8 |
+| 6 | VIO sense (in, optional) | H20 / D20 | 9 (n.c.) | TDI (out) | G20 / C20 | 10 |
+| 7 | spare | J19 / C22 | 11 (n.c.) | TMS (out) | H19 / B22 | 12 |
+
+The column-A wires for rows 6-7 land
+on JB1 n.c. pins and can be left out. If VIO sensing is wanted, run one
+extra jumper from JB1 pin 6 to Mimas row 6 column A instead of pin 9.
+
+The supervisor treats the DUT as powered when **either** VIO (if wired) or
+the keyboard harness's 3.3 V is present, and keeps TCK/TMS/TDI/UART-out
+tri-stated otherwise — so connect the keyboard harness too, or JTAG stays
+off.
+
+## 2. DUT keyboard (per DUT): Mimas column A rows 22-26 -> J5
+
+| Mimas row (column A) | Signal | DUT0 / DUT1 ball | J5 pin |
 |---|---|---|---|
-| A3/B3, A8/B8 | — | GND | 1 |
-| (VADJ via polyfuse, adapter) | — | 3.3 V supply to keyboard | 2 |
-| A4 | J20 | PK_IO1 (MK-I clock / MK-II SDA) | 8 |
-| B4 | J21 | PK_IO2 (MK-I LED data / MK-II SCL) | 9 |
-| A5 | K21 | PK_IO3 (MK-I key data / MK-II holds low) | 10 |
+| 22 | KIO8 (in, clock from MEGA65) | H17 / A15 | 8 |
+| 23 | KIO9 (in, LED data from MEGA65) | G17 / C14 | 9 |
+| 24 | GND | — | 1 |
+| 25 | KIO10 (out, key data to MEGA65) | G15 / A13 | 10 |
+| 26 | 3.3 V sense (in) | J15 / C13 | 2 |
 
-## Electrical rules (from design brief §5)
+The MEGA65's own 3.3 V only goes to a sense input; it is never connected to
+the Mimas 3.3 V.
 
-* All supervisor outputs toward a DUT are tri-stated unless that DUT's sense
-  input reads powered (`target output enable policy`, ADR 0005 key 0x0060).
-* Sense pins are inputs with no pull; the series resistor limits clamp current
-  if the DUT is powered and the Mimas is not. Measure residual voltages before
-  unattended use.
-* Never connect a MEGA65 3.3 V pin to a Mimas supply pin.
+## 3. Physical keyboard (master supervisor only): P12 column B rows 21-25
+
+| Mimas row (column B) | Signal | Ball | Keyboard connector pin |
+|---|---|---|---|
+| 21 | 3.3 V (VADJ, supplies the keyboard) | — | 2 |
+| 22 | KIO8 (MK-I clock / MK-II SDA) | H18 | 8 |
+| 23 | KIO9 (MK-I LED data / MK-II SCL) | G18 | 9 |
+| 24 | GND | — | 1 |
+| 25 | KIO10 (MK-I key data in) | G16 | 10 |
+
+The keyboard type (MK-I or MK-II) is detected automatically; `dutctl
+listen` reports it. No keyboard JTAG wires are needed.
+
+## Cautions
+
+* Keep strips short (<= 30 cm); add a ground wire alongside if signals
+  look noisy.
+* The later DUT adapter (issue 0008) adds series resistors and proper
+  sense circuits; until then a DUT powered while the supervisor is off can
+  back-power through the I/O protection diodes, so power the supervisor first.

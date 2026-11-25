@@ -107,3 +107,21 @@ in a single 2x4 housing (rows 4-5 of the X block become spares):
 
 Keyboard side: a 2x2 housing on J5 pins 7-10 (pin 7 position empty) and a
 1x2 on pins 1-2. The keyboard supply comes from VADJ, not an FPGA pin.
+
+## Amendment 2 2026-11-25 (owner): bench layout with straight jumper strips
+
+Supersedes the J/K block positions and amendment 1. Goal: each harness is
+straight strips of male-to-female jumpers (see docs/cabling/dut-cable.md).
+
+| Header | Rows / column | Function |
+|---|---|---|
+| P12 / P13 | rows 3-7, both columns | DUT0 / DUT1 JTAG + UART: JB1 rows 1, 2, 4, 5, 6 (JB1 row 3, 3.3 V/VIO, skipped) |
+| P12 / P13 | column A rows 22-26 | DUT0 / DUT1 keyboard: KIO8, KIO9, GND, KIO10, 3V3 sense |
+| P12 | column B rows 21-25 | physical keyboard: 3.3 V (VADJ), KIO8, KIO9, GND, KIO10 |
+| P12 / P13 | rows 10-13, 16-19 | chain link (unchanged, ADR 0007) |
+| P13 | column B rows 21-26, rows 28-33 | spare (relay outputs later) |
+
+VIO sense moves to row 6 column A (JB1 pin 9 position, n.c. on the MEGA65;
+optional extra jumper from JB1 pin 6). "DUT powered" is now VIO **or** the
+keyboard cable's 3.3 V, so the keyboard harness alone enables JTAG/UART
+outputs.

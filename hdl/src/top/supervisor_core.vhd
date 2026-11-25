@@ -317,11 +317,14 @@ begin
   begin
     sv : entity work.sync_bit port map (clk_sys, vio_sense(i), vio_s(i));
     sk : entity work.sync_bit port map (clk_sys, kb3v3_sense(i), kb_s(i));
-    powered(i) <= vio_s(i);
+    -- DUT powered: JB1 VIO or the keyboard cable's 3.3 V (both the MEGA65's
+    -- 3.3 V rail). The bench JTAG strip skips JB1's VIO row (ADR 0008
+    -- amendment 2), so the keyboard cable alone must enable the outputs.
+    powered(i) <= vio_s(i) or kb_s(i);
     -- output policy: 0 auto (sense), 1 force on, 2 force off
     out_en(i) <= '1' when cfg(i).out_policy = x"01" else
                  '0' when cfg(i).out_policy = x"02" else
-                 vio_s(i);
+                 powered(i);
     baud(i) <= cfg(i).baud_inc;
 
     dc : block
