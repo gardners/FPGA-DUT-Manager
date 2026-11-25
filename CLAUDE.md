@@ -29,6 +29,12 @@ pre-V4 Numato Mimas A7 boards (XC7A50T-1FGG484). Start with
   open-source flow available. The openXC7 toolchain
   build is paused at nextpnr by owner decision; nvc/openFPGALoader/yosys/
   prjxray are built.
+* **Build bitstreams early** (owner, 2026-11-25): a Vivado build takes only a
+  few minutes on the build box, so start `make bitstream` (in the background)
+  as soon as an HDL change is plausible — don't wait for every simulation
+  test first. It gives timing feedback and lets hardware testing start
+  sooner; run the simulations in parallel and still keep them green before
+  merging.
 * Hardware-facing actions on the attached board (JTAG load, flash) are fine
   for bring-up; never write the SPI flash before an SRAM load has been shown
   to work (brief §12).
