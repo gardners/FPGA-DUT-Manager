@@ -68,3 +68,33 @@ Implemented:
   foreign MAC, local machine, no-source, request), `tb_thumb_tx` (+
   scenario: every frame byte-for-byte against `netproto.thumb_packets`,
   budget split, no-source, requests, policy), system test.
+
+## 2026-11-25: merged with foundation (DDR3, mosaic, InfoFrames), timing met
+
+* Merged origin/feature/foundation twice (DDR3 0034 + mosaic 0036, then
+  0037/0040). Thumbnail ports are DDR3 arbiter ports 2..4 (MEM_PORTS = 5);
+  the mosaic's seen/fresh/cur_buf/scale come from thumb_status.
+* Timing closure: mem_arbiter round robin rewritten as two fixed-priority
+  encoders (the (last + k) mod N grant was 6 LUT levels at N = 5, into the
+  mosaic); capture writer request registered; tap run checks one cycle
+  after the push; thumb_tx registers line-buffer output and pixel; line
+  size/encoding registered before the packing decision; net_rx/net_tx
+  endpoint index replicated.
+* Vivado build 6c2c91fd: **TIMING MET, WNS +0.192 ns, WHS +0.009 ns**;
+  17822 LUTs (55 %), 32 BRAM tiles (43 %). `make test` green (28 HDL
+  testbenches, 174 dutctl checks, 27 relay checks). Not loaded on hardware.
+
+Hardware test plan (lead):
+1. Load 6c2c91fd; `scripts/hwtest.sh` must stay green (thumbnails are
+   off until requested or forced, raster unchanged). Heartbeat caps =
+   0x9F.
+2. Local: HDMI source on the video target, console on the select screen
+   (key 0x0035 = 3 or hotkey): the mosaic tile of that machine should show
+   the live picture (fresh), the other DUT colour bars or frown.
+3. Host screenshots: host NIC MTU >= 8100 (`ip link set IF mtu 9000`), then
+   `sudo dutctl thumbs IF --force BOARD_IP --pictures 3` -> thumb-mNN.ppm
+   (centre 640x400 at 320x200); `--scale 2` -> 160x100. Check `--request`
+   too (no key needed; stops ~1 s after the last request).
+4. Two boards: the one selecting should show the other board's machines
+   fresh within ~0.3 s (requests every 250 ms); watch a switch port
+   counter: bulk frames go only to the requester's port.
