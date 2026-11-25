@@ -136,6 +136,8 @@ architecture rtl of supervisor_core is
   signal pk_type : std_logic_vector(1 downto 0);
   signal pk_commit : std_logic_vector(31 downto 0);
   signal pk_leds, pk_leds_o : std_logic_vector(95 downto 0);
+  signal vid_ok : boolean;
+  signal vid_b0, vid_b1 : std_logic;
   signal pk_machine : unsigned(4 downto 0);
   signal pk_change : unsigned(15 downto 0) := (others => '0');
   signal hb_exp : std_logic := '0';
@@ -486,10 +488,18 @@ begin
   bstat.rx_hunts    <= hu_hunts;
   bstat.rx_bad      <= hu_badcnt;
   bstat.rx_flags    <= "000000" & lock_s(2) & hu_hunting;
-  bstat.vid_flags   <= "000000" & vid_locked & vid_present;   -- b2 per DUT in net_tx
-  bstat.vid_h_total <= vid_h_total;  bstat.vid_v_total  <= vid_v_total;
-  bstat.vid_h_active <= vid_h_active; bstat.vid_v_active <= vid_v_active;
-  bstat.vid_pixel_hz <= vid_pixel_hz;
+  -- b0 TMDS clock present = dvi2rgb's MMCM locked to it (its output free-runs
+  -- otherwise, so a measured frequency alone means nothing); b1 decoding =
+  -- also active video measured. Values read 0 while unlocked. b2 per DUT.
+  vid_ok  <= vid_locked = '1' and vid_present = '1';
+  vid_b0  <= '1' when vid_ok else '0';
+  vid_b1  <= '1' when vid_ok and vid_h_active /= 0 and vid_v_active /= 0 else '0';
+  bstat.vid_flags   <= "000000" & vid_b1 & vid_b0;
+  bstat.vid_h_total  <= vid_h_total  when vid_ok else (others => '0');
+  bstat.vid_v_total  <= vid_v_total  when vid_ok else (others => '0');
+  bstat.vid_h_active <= vid_h_active when vid_ok else (others => '0');
+  bstat.vid_v_active <= vid_v_active when vid_ok else (others => '0');
+  bstat.vid_pixel_hz <= vid_pixel_hz when vid_ok else (others => '0');
 
   ---------------------------------------------------------------- physical keyboard
   -- power LED colour = machine number k = 2 * DUT-ID nibble + half (P12 0,
