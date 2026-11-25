@@ -41,3 +41,13 @@ set_output_delay -clock rgmii_txc -max  1.0 $rgmii_out
 set_output_delay -clock rgmii_txc -min -0.8 $rgmii_out
 set_output_delay -clock rgmii_txc -clock_fall -max  1.0 -add_delay $rgmii_out
 set_output_delay -clock rgmii_txc -clock_fall -min -0.8 -add_delay $rgmii_out
+
+# RGMII RX is DDR: the IDDR rising edge captures data launched on RXC rising,
+# the falling edge data launched on RXC falling. Exclude the cross-edge
+# pairings Vivado would otherwise pick for a shifted capture clock
+# (UG903 centre-aligned DDR source-synchronous template).
+set rx_cap [get_clocks -of_objects [get_pins phy/rmmcm/CLKOUT0]]
+set_false_path -setup -rise_from [get_clocks rgmii_rxc] -fall_to $rx_cap
+set_false_path -setup -fall_from [get_clocks rgmii_rxc] -rise_to $rx_cap
+set_false_path -hold  -rise_from [get_clocks rgmii_rxc] -rise_to $rx_cap
+set_false_path -hold  -fall_from [get_clocks rgmii_rxc] -fall_to $rx_cap

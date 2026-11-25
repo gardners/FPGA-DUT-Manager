@@ -17,8 +17,9 @@ use work.xc7_prims_pkg.all;
 entity rgmii_xc7 is
   generic (
     RX_IDELAY : integer := 0;         -- taps of ~78 ps (200 MHz reference)
-    RX_PHASE  : real    := 202.5      -- RX sample clock phase, degrees (balanced
-                                      -- from Vivado setup/hold slack, 2026-11-25)
+    -- RX sample clock phase in MMCM steps of 5.625 deg (VCO 1000 MHz / 8).
+    -- Calibrated on hardware by scanning builds (issue 0019).
+    RX_PHASE_STEPS : integer := 40
   );
   port (
     clk_sys   : in  std_logic;   -- 125 MHz
@@ -72,7 +73,7 @@ begin
   rmmcm : MMCME2_BASE
     generic map (
       CLKIN1_PERIOD => 8.0, DIVCLK_DIVIDE => 1, CLKFBOUT_MULT_F => 8.0,
-      CLKOUT0_DIVIDE_F => 8.0, CLKOUT0_PHASE => RX_PHASE)
+      CLKOUT0_DIVIDE_F => 8.0, CLKOUT0_PHASE => real(RX_PHASE_STEPS) * 5.625)
     port map (
       CLKOUT0 => rx_c0, CLKOUT0B => open, CLKOUT1 => open, CLKOUT1B => open,
       CLKOUT2 => open, CLKOUT2B => open, CLKOUT3 => open, CLKOUT3B => open,

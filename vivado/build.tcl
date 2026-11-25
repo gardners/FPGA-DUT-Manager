@@ -3,7 +3,12 @@
 # Needs nothing from tools/. Outputs build/vivado/: supervisor.bit,
 # timing.rpt, utilization.rpt, drc.rpt, vivado.log.
 set repo [file normalize [file dirname [info script]]/..]
+# VIVADO_OUT overrides the output directory; VIVADO_GENERICS passes top-level
+# generics, e.g. "RX_PHASE_STEPS=40" (space-separated NAME=VALUE).
 set out  $repo/build/vivado
+if {[info exists ::env(VIVADO_OUT)] && $::env(VIVADO_OUT) ne ""} { set out [file normalize $::env(VIVADO_OUT)] }
+set gen {}
+if {[info exists ::env(VIVADO_GENERICS)]} { set gen $::env(VIVADO_GENERICS) }
 file mkdir $out
 
 # Source list: parse hdl/sources.mk so both flows use the same files.
@@ -27,7 +32,9 @@ create_project -in_memory -part xc7a50tfgg484-1
 read_vhdl -vhdl2008 [concat [list $out/build_id_pkg.vhd] $srcs]
 read_xdc $repo/boards/mimas_a7/mimas_a7.xdc
 read_xdc $repo/boards/mimas_a7/mimas_a7_vivado_timing.xdc
-synth_design -top mimas_a7_top
+set sargs [list -top mimas_a7_top]
+foreach g $gen { lappend sargs -generic $g }
+synth_design {*}$sargs
 opt_design
 place_design
 route_design
