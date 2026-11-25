@@ -112,7 +112,7 @@ architecture rtl of net_tx is
   type state_t is (S_IDLE, S_DISCARD, S_LATCH, S_HIST, S_PREP, S_CSUM, S_START, S_WRITE, S_WAIT_MAC);
   signal state : state_t := S_IDLE;
 
-  constant PF_MAX : natural := 140;   -- heartbeat: 8 + 132
+  constant PF_MAX : natural := 152;   -- heartbeat: 8 + 144
   type pf_t is array (0 to PF_MAX - 1) of byte_t;
   type hdr_t is array (0 to 41) of byte_t;
   signal hdr   : hdr_t := (others => (others => '0'));
@@ -530,6 +530,14 @@ begin
               pf(134) <= bu(bstat.rx_hunts, 0); pf(135) <= bu(bstat.rx_hunts, 1);
               pf(136) <= bu(bstat.rx_bad, 0);   pf(137) <= bu(bstat.rx_bad, 1);
               pf(138) <= bstat.rx_flags;        pf(139) <= x"00";
+              -- 140..151 memory block (ADR 0005 s3b, issue 0034)
+              pf(140) <= "0000" & bstat.mem.st_pass & bstat.mem.st_done &
+                         bstat.mem.st_running & bstat.mem.calibrated;
+              pf(141) <= x"00";
+              pf(142) <= bu(bstat.mem.errors, 0);   pf(143) <= bu(bstat.mem.errors, 1);
+              pf(144) <= bstat.mem.dq_fail(15 downto 8); pf(145) <= bstat.mem.dq_fail(7 downto 0);
+              pf(146) <= bu(bstat.mem.test_kib, 0); pf(147) <= bu(bstat.mem.test_kib, 1);
+              for i in 0 to 3 loop pf(148 + i) <= b(bstat.mem.first_err, i); end loop;
             when others => null;
           end case;
 

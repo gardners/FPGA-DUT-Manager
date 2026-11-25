@@ -46,6 +46,21 @@ package mem_pkg is
   constant MEM_REQ_IDLE : mem_req_t := ('0', '0', (others => '0'), (others => '0'), (others => '0'));
   constant MEM_RSP_IDLE : mem_rsp_t := ('0', '0', (others => '0'));
 
+  -- memory subsystem status for the heartbeat memory block (issue 0034,
+  -- ADR 0005 section 3b), clk_sys domain
+  type mem_status_t is record
+    calibrated : std_logic;
+    st_running : std_logic;                    -- self-test
+    st_done    : std_logic;
+    st_pass    : std_logic;
+    errors     : unsigned(15 downto 0);        -- failing words, saturating
+    dq_fail    : std_logic_vector(15 downto 0);-- bit i: DQ i read a wrong bit
+    test_kib   : unsigned(15 downto 0);        -- self-test region, KiB (0 = none)
+    first_err  : std_logic_vector(31 downto 0);-- word address, x"FFFFFFFF" none
+  end record;
+  constant MEM_STATUS_NONE : mem_status_t :=
+    ('0', '0', '0', '0', (others => '0'), (others => '0'), (others => '0'), (others => '1'));
+
   -- thumbnail store
   constant THUMB_W        : natural := 360;
   constant THUMB_H        : natural := 240;

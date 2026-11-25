@@ -9,6 +9,7 @@ use work.common_pkg.all;
 use work.proto_pkg.all;
 use work.net_pkg.all;
 use work.raster_pkg.all;
+use work.mem_pkg.all;
 
 entity supervisor_core is
   generic (
@@ -85,7 +86,9 @@ entity supervisor_core is
     -- HDMI OUT passthrough (issue 0032): wanted (registered) / shown (from
     -- the platform's switch sequencer, clk_sys domain)
     pt_request  : out std_logic;
-    pt_active   : in  std_logic := '0'
+    pt_active   : in  std_logic := '0';
+    -- DDR3 frame store status (issue 0034, clk_sys): heartbeat memory block
+    mem_status  : in  mem_status_t := MEM_STATUS_NONE
   );
 end entity;
 
@@ -525,6 +528,7 @@ begin
   bstat.rx_hunts    <= hu_hunts;
   bstat.rx_bad      <= hu_badcnt;
   bstat.rx_flags    <= "000000" & lock_s(2) & hu_hunting;
+  bstat.mem         <= mem_status;
   -- b0 TMDS clock present = dvi2rgb's MMCM locked to it (its output free-runs
   -- otherwise, so a measured frequency alone means nothing); b1 decoding =
   -- also active video measured. Values read 0 while unlocked. b2 per DUT.
