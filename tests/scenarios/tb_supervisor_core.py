@@ -154,8 +154,8 @@ def check(path):
     got = [(a["cmd_id"], a["key"], a["status"]) for a in acks]
     if got != want:
         err("MGMT acks %r != %r" % (got, want))
-    elif acks[-1]["cfg_gen"] != 2:
-        err("cfg_gen %d != 2" % acks[-1]["cfg_gen"])
+    elif acks[-1]["cfg_gen"] != 4:   # baud, hb period, LED mode, LED vector
+        err("cfg_gen %d != 4" % acks[-1]["cfg_gen"])
 
     jr = [P.decode_jtag_resp(d["body"]) for d in parsed
           if d.get("kind") == "udp" and d.get("ptype") == P.T_JTAG_RESP]
