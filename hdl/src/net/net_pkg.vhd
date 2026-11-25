@@ -32,6 +32,8 @@ package net_pkg is
     coupled    : std_logic;
     capture_en : std_logic_vector(1 downto 0);
     cfg_gen    : unsigned(31 downto 0);
+    pk_led_mode: std_logic_vector(7 downto 0);   -- 0 status colour, 1 DUT's LEDs, 2 host
+    pk_led_host: std_logic_vector(95 downto 0);  -- LED vector for mode 2 (MK-I order)
   end record;
 
   -- a pending reply addressed to a requester

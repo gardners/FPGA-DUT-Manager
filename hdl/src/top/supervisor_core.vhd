@@ -131,7 +131,7 @@ architecture rtl of supervisor_core is
   signal pk_stb, pk_present : std_logic;
   signal pk_type : std_logic_vector(1 downto 0);
   signal pk_commit : std_logic_vector(31 downto 0);
-  signal pk_leds : std_logic_vector(95 downto 0);
+  signal pk_leds, pk_leds_o : std_logic_vector(95 downto 0);
   signal pk_machine : unsigned(4 downto 0);
   signal pk_change : unsigned(15 downto 0) := (others => '0');
   signal hb_exp : std_logic := '0';
@@ -492,6 +492,9 @@ begin
     port map (clk => clk_sys, dut_leds => dut_leds(to_integer(sel_kbd(0 downto 0))),
               connected => powered(to_integer(sel_kbd(0 downto 0))),
               machine => pk_machine, leds => pk_leds);
+  pk_leds_o <= dut_leds(to_integer(sel_kbd(0 downto 0))) when bcfg.pk_led_mode = x"01" else
+               bcfg.pk_led_host when bcfg.pk_led_mode = x"02" else
+               pk_leds;
   pkh : entity work.kbd_phys_host
     generic map (MK1_HALF_CYCLES => CLK_HZ / 625_000,          -- 1.6 us
                  MK2_QUARTER_CYCLES => CLK_HZ / 1_000_000,     -- 250 kHz SCL
@@ -499,8 +502,8 @@ begin
     port map (clk => clk_sys, kio8_o => pk_kio8, kio8_oe => pk_kio8_oe,
               kio8_i => pk_kio8_in, kio9_o => pk_kio9, kio9_oe => pk_kio9_oe,
               kio10 => pk_kio10,
-              -- drive LEDs: selected target's own; power LED: machine colour
-              leds => pk_leds,
+              -- K_PK_LED_MODE: 0 status (machine colour), 1 DUT's own, 2 host
+              leds => pk_leds_o,
               pressed => pk_keys, strobe => pk_stb, kbd_type => pk_type,
               kbd_commit => pk_commit);
   pk_present <= '1' when pk_type /= "00" else '0';

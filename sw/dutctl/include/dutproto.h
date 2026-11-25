@@ -53,6 +53,8 @@ enum dp_key {
   DP_K_KBD_TARGET = 0x0030,
   DP_K_VID_TARGET = 0x0031,
   DP_K_COUPLED = 0x0032,
+  DP_K_PK_LED_MODE = 0x0033, /* physical keyboard LEDs: 0 status, 1 DUT, 2 host */
+  DP_K_PK_LED_HOST = 0x0034, /* 12-byte LED vector (LED0 R,G,B .. LED3 R,G,B) */
   DP_K_CAPTURE_EN = 0x0040,
   DP_K_HB_PERIOD = 0x0050,
   DP_K_OUT_POLICY = 0x0060,

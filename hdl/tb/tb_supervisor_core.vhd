@@ -144,7 +144,7 @@ begin
     report "captured " & integer'image(captured) & " frames; rx good " &
       integer'image(to_integer(good)) & " bad " & integer'image(to_integer(bad));
     assert bad = 0 report "RX CRC errors/drops" severity failure;
-    assert good = 18 report "expected 18 good RX frames" severity failure;
+    assert good = 22 report "expected 22 good RX frames" severity failure;
     report "tb_supervisor_core PASSED (frame-level); run core_scenario.py check";
     done <= true;
     wait;

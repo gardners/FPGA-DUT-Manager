@@ -150,6 +150,8 @@ Keys (whole values, never toggles):
 | 0x0030 | 1 | keyboard target select (master only) |
 | 0x0031 | 1 | video target select (master only) |
 | 0x0032 | 1 | coupled selection (1 = default) |
+| 0x0033 | 1 | physical keyboard LEDs (master): 0 status (power LED = machine colour, red pulse when the selected DUT is unpowered; default), 1 pass through the selected DUT's LED vector, 2 host vector (key 0x0034) |
+| 0x0034 | 12 | host LED vector for mode 2: LED0 R,G,B, LED1 R,G,B, LED2 R,G,B, LED3 R,G,B (LED0/1 drive LED, LED2/3 power LED) |
 | 0x0040 | 1 | Ethernet capture enable (phase 2) |
 | 0x0050 | 2 | heartbeat period ms |
 | 0x0060 | 1 | target output enable policy: 0 auto (sense), 1 force on, 2 force off |

@@ -57,6 +57,10 @@ def scenario():
     f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 2, 0x0050, struct.pack(">H", 1)))))
     f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 2, 0x0050, struct.pack(">H", 1)))))   # duplicate id
     f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 3, 0x7777, b"\x01"))))              # bad key
+    f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 4, P.K_PK_LED_MODE, b"\x02"))))     # host LEDs
+    f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 5, P.K_PK_LED_MODE, b"\x03"))))     # bad value
+    f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 6, P.K_PK_LED_HOST, bytes(range(12))))))
+    f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 7, P.K_PK_LED_HOST, bytes(11)))))  # bad length
     f.append((5, udp_to(0, P.PORT_KBD, P.kbd_set(0xFF, [10, 63]))))  # wildcard dut
     f.append((5, udp_to(0, P.PORT_UART, P.uart_tx(0, 0, 1, b"HELLO"))))
     f.append((5, udp_to(0, P.PORT_JTAG, P.jtag_req(0, 0, JTAG_TMS, JTAG_TDI, half=2))))
@@ -144,7 +148,9 @@ def check(path):
              if d.get("kind") == "udp" and d.get("ptype") == P.T_MGMT_ACK and d["dut"] == 1]
     if [(a["cmd_id"], a["status"]) for a in acks1] != [(9, 0)]:
         err("DUT1 MGMT ack %r" % acks1)
-    want = [(1, 0x0010, 0), (2, 0x0050, 0), (2, 0x0050, 4), (3, 0x7777, 1)]
+    want = [(1, 0x0010, 0), (2, 0x0050, 0), (2, 0x0050, 4), (3, 0x7777, 1),
+            (4, P.K_PK_LED_MODE, 0), (5, P.K_PK_LED_MODE, 3), (6, P.K_PK_LED_HOST, 0),
+            (7, P.K_PK_LED_HOST, 2)]
     got = [(a["cmd_id"], a["key"], a["status"]) for a in acks]
     if got != want:
         err("MGMT acks %r != %r" % (got, want))

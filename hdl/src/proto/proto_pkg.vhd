@@ -60,6 +60,8 @@ package proto_pkg is
   constant K_KBD_TARGET   : natural := 16#0030#;
   constant K_VID_TARGET   : natural := 16#0031#;
   constant K_COUPLED      : natural := 16#0032#;
+  constant K_PK_LED_MODE  : natural := 16#0033#;  -- physical kbd LEDs: 0 status, 1 DUT, 2 host
+  constant K_PK_LED_HOST  : natural := 16#0034#;  -- 12-byte LED vector for mode 2
   constant K_CAPTURE_EN   : natural := 16#0040#;
   constant K_HB_PERIOD    : natural := 16#0050#;
   constant K_OUT_POLICY   : natural := 16#0060#;

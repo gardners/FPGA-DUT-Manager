@@ -157,7 +157,10 @@ static int cmd_set(int argc, char **argv)
             "usage: dutctl set IP NAME VALUE\n"
             "  names: mac ip dhcp dest-ip dest-mac baud uart-fast uart-snap uart-period-us\n"
             "         kbd-policy kbd-override kbd-target video-target coupled capture\n"
-            "         hb-period-ms out-policy (0 auto, 1 on, 2 off)\n");
+            "         hb-period-ms out-policy (0 auto, 1 on, 2 off)\n"
+            "         kbd-leds (physical keyboard LEDs: 0 status colour, 1 DUT's, 2 host)\n"
+            "         kbd-led-rgb RRGGBB,RRGGBB,RRGGBB,RRGGBB (LED0..3 for kbd-leds 2;\n"
+            "                     LED0/1 = drive LED, LED2/3 = power LED)\n");
     return 2;
   }
   const char *ip = argv[0], *name = argv[1], *val = argv[2];
@@ -175,7 +178,19 @@ static int cmd_set(int argc, char **argv)
     {"kbd-target", DP_K_KBD_TARGET, 1}, {"video-target", DP_K_VID_TARGET, 1},
     {"coupled", DP_K_COUPLED, 1}, {"capture", DP_K_CAPTURE_EN, 1},
     {"hb-period-ms", DP_K_HB_PERIOD, 2}, {"out-policy", DP_K_OUT_POLICY, 1},
+    {"kbd-leds", DP_K_PK_LED_MODE, 1},
   };
+  if (!strcmp(name, "kbd-led-rgb")) {
+    unsigned c[4];
+    if (sscanf(val, "%6x,%6x,%6x,%6x", &c[0], &c[1], &c[2], &c[3]) != 4)
+      return fprintf(stderr, "kbd-led-rgb: expected RRGGBB,RRGGBB,RRGGBB,RRGGBB\n"), 2;
+    for (int l = 0; l < 4; l++) {
+      v[3 * l] = (uint8_t)(c[l] >> 16);     /* R */
+      v[3 * l + 1] = (uint8_t)(c[l] >> 8);  /* G */
+      v[3 * l + 2] = (uint8_t)c[l];         /* B */
+    }
+    return mgmt_set(ip, DP_K_PK_LED_HOST, v, 12);
+  }
   for (size_t i = 0; i < sizeof tab / sizeof tab[0]; i++) {
     if (strcmp(name, tab[i].name))
       continue;
