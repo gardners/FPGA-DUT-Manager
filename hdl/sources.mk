@@ -21,6 +21,8 @@ SYNTH_SOURCES := \
 	$(HDL_SRC)/net/dhcp_client.vhd \
 	$(HDL_SRC)/net/net_rx.vhd \
 	$(HDL_SRC)/net/net_tx.vhd \
+	$(HDL_SRC)/net/rx_phase_hunter.vhd \
+	$(HDL_SRC)/net/rx_frame_observer.vhd \
 	$(REPO)/third_party/mega65-core/hdmi_tx_encoder.vhdl \
 	$(HDL_SRC)/video/font8x16_pkg.vhd \
 	$(HDL_SRC)/video/video_timing.vhd \
