@@ -71,6 +71,7 @@ architecture rtl of mimas_a7_top is
   signal phy_rst : std_logic := '0';
   signal rx_locked, rx_ps_en, rx_ps_done : std_logic;
   signal dna : std_logic_vector(63 downto 0);
+  signal clk100_g : std_logic;
   signal vin_pclk, vin_de, vin_hs, vin_vs, vin_locked, vin_present : std_logic;
   signal vin_rgb : std_logic_vector(23 downto 0);
   signal vin_ht, vin_vt, vin_ha, vin_va : unsigned(15 downto 0);
@@ -92,8 +93,12 @@ architecture rtl of mimas_a7_top is
   signal have_ip : std_logic;
   signal vrst_s : std_logic_vector(1 downto 0) := "11";
 begin
+  -- The 100 MHz oscillator (H4) and the HDMI IN clock (K4) share clock region
+  -- X1Y1, which has one MMCM; HDMI IN needs it (dedicated route), so the
+  -- oscillator reaches its two MMCMs through a BUFG instead (issue 0022).
+  bclk100 : BUFG port map (O => clk100_g, I => clk100);
   clk : entity work.clocks_xc7
-    port map (clk100 => clk100, clk_sys => clk_sys, clk_tx90 => clk_tx90,
+    port map (clk100 => clk100_g, clk_sys => clk_sys, clk_tx90 => clk_tx90,
               clk_ref => clk_ref, locked => locked);
 
   idc : IDELAYCTRL port map (RDY => idc_rdy, REFCLK => clk_ref, RST => not locked);
@@ -172,7 +177,7 @@ begin
 
   ---------------------------------------------------------------- video
   vclk : entity work.clocks_video_xc7
-    port map (clk100 => clk100, clk_pix => clk_pix, clk_pix5 => clk_pix5, locked => vlocked);
+    port map (clk100 => clk100_g, clk_pix => clk_pix, clk_pix5 => clk_pix5, locked => vlocked);
   process (clk_pix5)
   begin
     if rising_edge(clk_pix5) then
