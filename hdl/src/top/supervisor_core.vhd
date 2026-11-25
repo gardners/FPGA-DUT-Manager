@@ -74,6 +74,9 @@ entity supervisor_core is
     vid_present, vid_locked : in std_logic := '0';
     vid_h_total, vid_v_total, vid_h_active, vid_v_active : in unsigned(15 downto 0) := (others => '0');
     vid_pixel_hz : in unsigned(31 downto 0) := (others => '0');
+    -- HDMI IN source sends HDMI (preambles/guard bands) / data islands
+    -- (InfoFrames, audio), seen in the last two frames (issue 0040)
+    vid_hdmi, vid_islands : in std_logic := '0';
     -- HDMI IN pixel stream (pixel clock domain) for raster capture (issue 0023)
     vin_pclk  : in  std_logic := '0';
     vin_rgb   : in  std_logic_vector(23 downto 0) := (others => '0');
@@ -88,7 +91,11 @@ entity supervisor_core is
     pt_request  : out std_logic;
     pt_active   : in  std_logic := '0';
     -- DDR3 frame store status (issue 0034, clk_sys): heartbeat memory block
-    mem_status  : in  mem_status_t := MEM_STATUS_NONE
+    mem_status  : in  mem_status_t := MEM_STATUS_NONE;
+    -- machine number of the video target when it is one of this board's
+    -- DUTs (HDMI OUT SPD InfoFrame, issue 0037)
+    vid_machine    : out unsigned(4 downto 0);
+    vid_machine_ok : out std_logic
   );
 end entity;
 
@@ -535,7 +542,8 @@ begin
   vid_ok  <= vid_locked = '1' and vid_present = '1';
   vid_b0  <= '1' when vid_ok else '0';
   vid_b1  <= '1' when vid_ok and vid_h_active /= 0 and vid_v_active /= 0 else '0';
-  bstat.vid_flags   <= "000000" & vid_b1 & vid_b0;
+  -- b3 HDMI mode, b4 data islands (issue 0040; only while locked)
+  bstat.vid_flags   <= "000" & (vid_b1 and vid_islands) & (vid_b1 and vid_hdmi) & '0' & vid_b1 & vid_b0;
   bstat.vid_h_total  <= vid_h_total  when vid_ok else (others => '0');
   bstat.vid_v_total  <= vid_v_total  when vid_ok else (others => '0');
   bstat.vid_h_active <= vid_h_active when vid_ok else (others => '0');
@@ -600,6 +608,8 @@ begin
               selecting => hk_sel, choose => hk_cho, k => hk_k, cancel => hk_can);
   m0 <= unsigned(id0(3 downto 0) & '0');
   m1 <= unsigned(id1(3 downto 0) & '1');
+  vid_machine    <= m1 when sel_vid(0) = '1' else m0;
+  vid_machine_ok <= '1' when sel_vid < 2 else '0';
   g_slots : for k in 0 to 9 generate
     slots(k) <= '1' when m0 = k or m1 = k else '0';
   end generate;

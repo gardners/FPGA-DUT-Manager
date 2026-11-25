@@ -6,6 +6,10 @@
 -- The symbol load is aligned to a pixel-clock toggle sampled in the serial
 -- domain (hardweb's fix for a load/edge race that nextpnr cannot time).
 -- SIM => true replaces ODDR/OBUFDS with behavioural models.
+-- HDMI => true (issue 0037) puts hdmi_framer in front of the encoders: video
+-- preamble/guard bands and data islands with AVI and SPD InfoFrames, the
+-- video delayed by 11 pixel clocks. HDMI => false is the original pure DVI
+-- stream (fall-back).
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -13,7 +17,7 @@ use work.hdmi_tx_encoder_pkg.all;
 use work.xc7_prims_pkg.all;
 
 entity dvi_tx_xc7 is
-  generic (SIM : boolean := false);
+  generic (SIM : boolean := false; HDMI : boolean := false);
   port (
     pixel_clk  : in  std_logic;   -- 27 MHz
     serial_clk : in  std_logic;   -- 135 MHz (5x), phase aligned
@@ -21,7 +25,11 @@ entity dvi_tx_xc7 is
     r, g, b    : in  std_logic_vector(7 downto 0);
     hs, vs, de : in  std_logic;
     tmds_p, tmds_n : out std_logic_vector(2 downto 0);
-    tmds_clk_p, tmds_clk_n : out std_logic
+    tmds_clk_p, tmds_clk_n : out std_logic;
+    -- HDMI InfoFrame contents (quasi-static, any clock domain; HDMI only)
+    vic        : in  std_logic_vector(6 downto 0) := "0000011";
+    machine    : in  unsigned(4 downto 0) := (others => '0');
+    machine_ok : in  std_logic := '0'
   );
 end entity;
 
@@ -35,15 +43,39 @@ architecture rtl of dvi_tx_xc7 is
   signal ddr : pair_arr := (others => "00");
   signal ser : std_logic_vector(3 downto 0);
 begin
-  enc_r : entity work.hdmi_tx_encoder generic map (channel => 2)
-    port map (rst => rst, clk => pixel_clk, de => de, p => r, enc => ENC_DVI,
-              c => "00", d => (others => '0'), q => t_r);
-  enc_g : entity work.hdmi_tx_encoder generic map (channel => 1)
-    port map (rst => rst, clk => pixel_clk, de => de, p => g, enc => ENC_DVI,
-              c => "00", d => (others => '0'), q => t_g);
-  enc_b : entity work.hdmi_tx_encoder generic map (channel => 0)
-    port map (rst => rst, clk => pixel_clk, de => de, p => b, enc => ENC_DVI,
-              c => vs & hs, d => (others => '0'), q => t_b);
+  g_dvi : if not HDMI generate
+    enc_r : entity work.hdmi_tx_encoder generic map (channel => 2)
+      port map (rst => rst, clk => pixel_clk, de => de, p => r, enc => ENC_DVI,
+                c => "00", d => (others => '0'), q => t_r);
+    enc_g : entity work.hdmi_tx_encoder generic map (channel => 1)
+      port map (rst => rst, clk => pixel_clk, de => de, p => g, enc => ENC_DVI,
+                c => "00", d => (others => '0'), q => t_g);
+    enc_b : entity work.hdmi_tx_encoder generic map (channel => 0)
+      port map (rst => rst, clk => pixel_clk, de => de, p => b, enc => ENC_DVI,
+                c => vs & hs, d => (others => '0'), q => t_b);
+  end generate;
+
+  g_hdmi : if HDMI generate
+    signal f_de : std_logic;
+    signal f_p0, f_p1, f_p2 : std_logic_vector(7 downto 0);
+    signal f_enc, f_c0, f_c1, f_c2 : std_logic_vector(1 downto 0);
+    signal f_d0, f_d1, f_d2 : std_logic_vector(3 downto 0);
+  begin
+    fr : entity work.hdmi_framer
+      port map (clk => pixel_clk, rst => rst, r => r, g => g, b => b, hs => hs, vs => vs, de => de,
+                vic => vic, machine => machine, machine_ok => machine_ok,
+                o_de => f_de, o_p0 => f_p0, o_p1 => f_p1, o_p2 => f_p2, o_enc => f_enc,
+                o_c0 => f_c0, o_c1 => f_c1, o_c2 => f_c2, o_d0 => f_d0, o_d1 => f_d1, o_d2 => f_d2);
+    enc_r : entity work.hdmi_tx_encoder generic map (channel => 2)
+      port map (rst => rst, clk => pixel_clk, de => f_de, p => f_p2, enc => f_enc,
+                c => f_c2, d => f_d2, q => t_r);
+    enc_g : entity work.hdmi_tx_encoder generic map (channel => 1)
+      port map (rst => rst, clk => pixel_clk, de => f_de, p => f_p1, enc => f_enc,
+                c => f_c1, d => f_d1, q => t_g);
+    enc_b : entity work.hdmi_tx_encoder generic map (channel => 0)
+      port map (rst => rst, clk => pixel_clk, de => f_de, p => f_p0, enc => f_enc,
+                c => f_c0, d => f_d0, q => t_b);
+  end generate;
 
   process (pixel_clk)
   begin
