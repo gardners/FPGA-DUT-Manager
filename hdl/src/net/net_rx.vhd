@@ -95,7 +95,7 @@ architecture rtl of net_rx is
   type hdr_t is array (0 to HDR_BYTES - 1) of byte_t;
   signal h : hdr_t := (others => (others => '0'));
 
-  type state_t is (S_WAIT, S_HDR, S_CSUM, S_PARSE, S_ARP, S_ICMP, S_MGMT,
+  type state_t is (S_WAIT, S_HDR, S_CSUM, S_PRE, S_PARSE, S_ARP, S_ICMP, S_MGMT,
                    S_KBD, S_UART_ADM, S_UART_WAIT, S_UART_COPY,
                    S_JTAG_ADM, S_JTAG_WAIT, S_JTAG_COPY, S_JTAG_GO, S_JTAG_REPLY,
                    S_DHCP_RD, S_DHCP_WAIT, S_DHCP_BYTE, S_DHCP_DONE,
@@ -129,6 +129,13 @@ architecture rtl of net_rx is
   signal ack_st_r : std_logic_vector(7 downto 0) := (others => '0');
   signal rej     : u16_arr_t := (others => (others => '0'));
   signal kbd_r   : kbd_arr_t := (others => (others => '0'));
+
+  -- S_PRE -> S_PARSE: header classification registered in one cycle so the
+  -- decision in S_PARSE only combines flags (issue 0019, timing)
+  signal f_arp, f_ipv4, f_trunc, f_dhcp, f_bcast, f_icmp_echo : boolean := false;
+  signal f_arp_ip, f_ip_dst, f_dhcp_mac, f_dut_ok : std_logic_vector(1 downto 0) := "00";
+  signal f_udp, f_udp_bad, f_identity, f_mgmt, f_kbd, f_uart, f_jtag, f_text : boolean := false;
+  signal f_dut_ff : std_logic := '0';
 
   -- DHCP option scan
   type opt_st_t is (O_CODE, O_LEN, O_VAL);
@@ -284,54 +291,95 @@ begin
             csum <= ones_add(csum, be16(h, 14 + 2 * cidx));
             cidx <= cidx + 1;
           else
-            state <= S_PARSE;
+            state <= S_PRE;
           end if;
+
+        when S_PRE =>
+          state <= S_PARSE;
+          ip_total := be16(h, 16);
+          udp_len  := be16(h, 38);
+          typ      := h(45);
+          dport    := to_integer(be16(h, 36));
+          plen     := be16(h, 46);
+          f_arp <= h(12) = x"08" and h(13) = x"06" and be16(h, 14) = 1 and
+                   be16(h, 16) = 16#0800# and h(18) = x"06" and h(19) = x"04" and
+                   be16(h, 20) = 1;
+          f_ipv4 <= h(12) = x"08" and h(13) = x"00" and h(14) = x"45" and csum = x"FFFF"
+                    and (h(20) and x"3F") = x"00" and h(21) = x"00";
+          for i in 0 to 1 loop
+            f_arp_ip(i) <= '0'; f_ip_dst(i) <= '0'; f_dhcp_mac(i) <= '0'; f_dut_ok(i) <= '0';
+            if slv32(h, 38) = ip_eff(i) and ep_enable(i) = '1' and ip_eff(i) /= x"00000000" then
+              f_arp_ip(i) <= '1';
+            end if;
+            if slv32(h, 30) = ip_eff(i) and slv48(h, 0) = cfg_r(i).mac and
+               ep_enable(i) = '1' and ip_eff(i) /= x"00000000" then
+              f_ip_dst(i) <= '1';
+            end if;
+            if slv48(h, 70) = cfg_r(i).mac and ep_enable(i) = '1' and cfg_r(i).dhcp_en = '1' and
+               (slv48(h, 0) = cfg_r(i).mac or slv48(h, 0) = x"FFFFFFFFFFFF") then
+              f_dhcp_mac(i) <= '1';
+            end if;
+            if unsigned(h(48)) = i or h(48) = x"FF" then
+              f_dut_ok(i) <= '1';
+            end if;
+          end loop;
+          f_dut_ff <= h(48)(0);
+          f_dhcp  <= h(23) = x"11" and be16(h, 34) = PORT_DHCP_S and be16(h, 36) = PORT_DHCP_C and
+                     h(42) = x"02";
+          f_bcast <= slv32(h, 30) = x"FFFFFFFF" and slv48(h, 0) = x"FFFFFFFFFFFF";
+          f_trunc <= ip_total + 14 > flen or ip_total < 28;
+          f_icmp_echo <= h(34) = x"08" and h(35) = x"00" and ip_total <= 20 + 72;
+          f_udp <= h(23) = x"11";
+          f_udp_bad <= udp_len /= ip_total - 20 or udp_len < 16 or
+                       be16(h, 42) /= unsigned(PROTO_MAGIC) or h(44) /= PROTO_VERSION or
+                       plen /= udp_len - 16;
+          f_identity <= dport = PORT_MGMT and typ = T_MGMT_SET and be16(h, 52) = K_IDENTITY
+                        and be16(h, 54) = 18 and slv48(h, 56) & h(62) & h(63) = dna;
+          f_mgmt <= dport = PORT_MGMT and typ = T_MGMT_SET and plen >= 6 and
+                    be16(h, 54) = plen - 6 and plen <= 6 + 18;
+          f_kbd  <= dport = PORT_KBD and typ = T_KBD_SET and plen = KBD_PAYLOAD_LEN;
+          f_uart <= dport = PORT_UART and typ = T_UART_TX and plen >= UART_TX_FIXED and
+                    be16(h, 58) = plen - UART_TX_FIXED and be16(h, 58) <= UART_TX_MAX;
+          f_jtag <= dport = PORT_JTAG and typ = T_JTAG_REQ and plen >= JTAG_REQ_FIXED;
+          f_text <= dport = PORT_TEXT;
 
         when S_PARSE =>
           state <= S_RELEASE;
           matched := false;
           bcast   := false;
           dd      := 0;
-          if h(12) = x"08" and h(13) = x"06" then
+          if f_arp then
             -- ARP request (Ethernet/IPv4) for one of our addresses?
-            if be16(h, 14) = 1 and be16(h, 16) = 16#0800# and h(18) = x"06" and
-               h(19) = x"04" and be16(h, 20) = 1 then
-              for i in 0 to 1 loop
-                if slv32(h, 38) = ip_eff(i) and ep_enable(i) = '1' and ip_eff(i) /= x"00000000" then
-                  matched := true; dd := i;
-                end if;
-              end loop;
-              if matched then
-                d <= dd;
-                state <= S_ARP;
-              end if;
-            end if;
-          elsif h(12) = x"08" and h(13) = x"00" and h(14) = x"45" and csum = x"FFFF"
-                and (h(20) and x"3F") = x"00" and h(21) = x"00" then
-            ip_total := be16(h, 16);
             for i in 0 to 1 loop
-              if slv32(h, 30) = ip_eff(i) and slv48(h, 0) = cfg_r(i).mac and
-                 ep_enable(i) = '1' and ip_eff(i) /= x"00000000" then
+              if f_arp_ip(i) = '1' then
+                matched := true; dd := i;
+              end if;
+            end loop;
+            if matched then
+              d <= dd;
+              state <= S_ARP;
+            end if;
+          elsif f_ipv4 then
+            for i in 0 to 1 loop
+              if f_ip_dst(i) = '1' then
                 matched := true; dd := i;
               end if;
             end loop;
             -- DHCP replies (UDP 67 -> 68): match on chaddr, any dst IP
             dhcp_hit := false;
-            if h(23) = x"11" and be16(h, 34) = PORT_DHCP_S and be16(h, 36) = PORT_DHCP_C and
-               h(42) = x"02" then
+            if f_dhcp then
               for i in 0 to 1 loop
-                if slv48(h, 70) = cfg_r(i).mac and ep_enable(i) = '1' and cfg_r(i).dhcp_en = '1' and
-                   (slv48(h, 0) = cfg_r(i).mac or slv48(h, 0) = x"FFFFFFFFFFFF") then
+                if f_dhcp_mac(i) = '1' then
                   dhcp_hit := true; dd := i;
                 end if;
               end loop;
             end if;
-            if slv32(h, 30) = x"FFFFFFFF" and slv48(h, 0) = x"FFFFFFFFFFFF" and not dhcp_hit then
+            if f_bcast and not dhcp_hit then
               bcast := true;
-              dd := to_integer(unsigned(h(48)(0 downto 0)));
+              if f_dut_ff = '1' then dd := 1; else dd := 0; end if;
             end if;
             d <= dd;
-            if ip_total + 14 > flen or ip_total < 28 then
+            if f_trunc then
               null;                     -- truncated
             elsif dhcp_hit then
               dhcp_r.xid    <= slv32(h, 46);
@@ -346,35 +394,26 @@ begin
               state  <= S_DHCP_RD;
             elsif matched and h(23) = x"01" then
               -- ICMP echo request
-              if h(34) = x"08" and h(35) = x"00" and ip_total <= 20 + 72 then
+              if f_icmp_echo then
                 state <= S_ICMP;
               end if;
-            elsif (matched or bcast) and h(23) = x"11" then
-              udp_len := be16(h, 38);
-              typ     := h(45);
-              dport   := to_integer(be16(h, 36));
-              plen    := be16(h, 46);
-              if udp_len /= ip_total - 20 or udp_len < 16 or
-                 be16(h, 42) /= unsigned(PROTO_MAGIC) or h(44) /= PROTO_VERSION or
-                 plen /= udp_len - 16 or (unsigned(h(48)) /= dd and h(48) /= x"FF") then
+            elsif (matched or bcast) and f_udp then
+              if f_udp_bad or f_dut_ok(dd) = '0' then
                 rej(dd) <= rej(dd) + 1;
               elsif bcast then
                 -- only SET_IDENTITY is accepted on broadcast
-                if dport = PORT_MGMT and typ = T_MGMT_SET and be16(h, 52) = K_IDENTITY
-                   and be16(h, 54) = 18 and slv48(h, 56) & h(62) & h(63) = dna then
+                if f_identity then
                   state <= S_MGMT;
                 end if;
-              elsif dport = PORT_MGMT and typ = T_MGMT_SET and plen >= 6 and
-                    be16(h, 54) = plen - 6 and plen <= 6 + 18 then
+              elsif f_mgmt then
                 state <= S_MGMT;
-              elsif dport = PORT_KBD and typ = T_KBD_SET and plen = KBD_PAYLOAD_LEN then
+              elsif f_kbd then
                 state <= S_KBD;
-              elsif dport = PORT_UART and typ = T_UART_TX and plen >= UART_TX_FIXED and
-                    be16(h, 58) = plen - UART_TX_FIXED and be16(h, 58) <= UART_TX_MAX then
+              elsif f_uart then
                 state <= S_UART_ADM;
-              elsif dport = PORT_JTAG and typ = T_JTAG_REQ and plen >= JTAG_REQ_FIXED then
+              elsif f_jtag then
                 state <= S_JTAG_ADM;
-              elsif dport = PORT_TEXT then
+              elsif f_text then
                 null;                   -- written at line rate by text_rx_tap
               else
                 rej(dd) <= rej(dd) + 1;
