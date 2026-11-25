@@ -32,3 +32,5 @@ See the notes below about the barrel input.
 * Power (owner): the Uno is fed 5 V into its DC barrel from a PC supply.
 
 * Relay limit: at most 5 on at once (`ERR LIMIT 5 ON`, pending cycles count), relay_core tests 43/0; flashed (7202 B), VERSION reports `relay-controller 2 LIMIT 5`. Relays are 12 V coils (SRLD-12VDC-SL-C): 12 V into the barrel, module from VIN/GND (ADR 0009).
+
+* Version 3 (owner): `POWER <ch> [<ch> ...] ON|OFF` (words, not 0/1; all listed channels or none), `STATUS [<ch> ...]` lists every channel ON/OFF/CYCLING unless given a list, `PSU ON|OFF`. relay_core tests 52/0; flashed (7874 B flash, 769 B RAM); VERSION/STATUS checked on the Uno. One upload failed with "programmer is not responding" when the Uno re-enumerated mid-upload; the retry worked.

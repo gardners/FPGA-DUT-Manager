@@ -731,7 +731,7 @@ static int cmd_xvc(int argc, char **argv)
 static int cmd_relay(int argc, char **argv)
 {
   if (argc < 2)
-    return fprintf(stderr, "usage: dutctl relay TTY COMMAND...  (e.g. STATUS, POWER 3 1, CYCLE 2 3000)\n"), 2;
+    return fprintf(stderr, "usage: dutctl relay TTY COMMAND...  (e.g. STATUS, STATUS 3, POWER 3 ON, POWER 1 2 OFF, CYCLE 2 3000, ALL OFF)\n"), 2;
   int fd = open(argv[0], O_RDWR | O_NOCTTY);
   if (fd < 0)
     die(argv[0]);

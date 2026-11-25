@@ -21,17 +21,22 @@ later by the master Mimas P13 X-block through level shifters.
 
   | Command | Reply |
   |---|---|
-  | `STATUS` | `OK STATUS <8-bit mask hex> PSU <0/1> UPTIME <ms>` |
-  | `POWER <ch> <0/1>` | `OK POWER <ch> <0/1> MASK <hex>` (idempotent) |
-  | `CYCLE <ch> <ms>` | `OK CYCLE <ch> <ms>` then `EVENT CYCLED <ch> MASK <hex>` |
-  | `ALL OFF` | `OK ALL OFF MASK 00` |
-  | `PSU <0/1>` | `OK PSU <0/1>` |
-  | `VERSION` | `OK VERSION relay-controller 1` |
+  | `STATUS [<ch> ...]` | `OK STATUS 0 ON 1 OFF 2 CYCLING ... PSU OFF UPTIME <ms>` (all 8 channels, or only those listed) |
+  | `POWER <ch> [<ch> ...] ON\|OFF` | `OK POWER <ch> ... ON\|OFF`; all listed channels or none (idempotent) |
+  | `CYCLE <ch> <ms>` | `OK CYCLE <ch> <ms>` then `EVENT CYCLED <ch> ON` |
+  | `ALL OFF` | `OK ALL OFF` |
+  | `PSU ON\|OFF` | `OK PSU ON\|OFF` |
+  | `VERSION` | `OK VERSION relay-controller 3 LIMIT <n>` |
   | anything else | `ERR <reason>` |
 
-  A repeated `#<id>` within the last 4 ids is answered from cache without
-  re-executing (duplicate protection for `CYCLE`). Cycles run
-  non-blocking; `POWER` on a channel cancels its pending cycle.
+  Version 3 (owner 2026-11-25): `ON`/`OFF` words instead of 0/1 to avoid
+  ambiguity, several channels per `POWER`, per-channel `STATUS`. Channels
+  are 0..7 (relay module IN1..IN8). At boot the controller prints
+  `EVENT BOOT relay-controller 3`.
+
+  A repeated `#<id>` within the last 4 state-changing commands is answered
+  from cache without re-executing (duplicate protection for `CYCLE`;
+  STATUS and VERSION are not cached). Cycles run non-blocking; `POWER` on a channel cancels its pending cycle.
 * Off-time minimum 500 ms enforced for `CYCLE` (protect DUT supplies).
 * `dutctl relay ...` speaks this protocol; later the daemon owns the port.
 * Mimas-driven relays reuse the same command semantics through management
@@ -73,4 +78,4 @@ Eight consecutive digital lines plus a separate 2-pin power header:
   on. It answers `ERR LIMIT n ON`; switching off is always allowed. With 12 V
   coils run from VIN, the owner set the limit to 8 (no limit). The unit
   tests build with 5 to exercise it. `VERSION` reports
-  `relay-controller 2 LIMIT 8`.
+  `relay-controller 3 LIMIT 8`.

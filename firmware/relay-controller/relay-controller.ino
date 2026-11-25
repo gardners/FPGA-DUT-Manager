@@ -53,7 +53,7 @@ void setup() {
   relay_init(&core);
   apply_outputs();
   Serial.begin(115200);
-  Serial.println(F("EVENT BOOT relay-controller 1 MASK 00"));
+  Serial.println(F("EVENT BOOT relay-controller 3"));
 }
 
 void loop() {
@@ -74,7 +74,7 @@ void loop() {
     for (uint8_t i = 0; i < RELAY_CHANNELS; i++) {
       if (done & (1u << i)) {
         char ev[40];
-        snprintf(ev, sizeof ev, "EVENT CYCLED %u MASK %02X", i, core.mask);
+        snprintf(ev, sizeof ev, "EVENT CYCLED %u ON", i);
         Serial.println(ev);
       }
     }

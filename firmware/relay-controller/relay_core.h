@@ -13,7 +13,9 @@
 #define RELAY_MIN_OFF_MS 500
 #define RELAY_ID_CACHE 4
 #define RELAY_LINE_MAX 64
-#define RELAY_REPLY_MAX 64
+#define RELAY_REPLY_MAX 128   // longest: "#id OK STATUS" for all 8 channels
+#define RELAY_CACHED_MAX 40   // cached replies of state-changing commands
+#define RELAY_TOKENS 10
 // At most this many relays energised at once, counting channels whose
 // power cycle will switch them back on. 8 = no limit (owner 2026-11-25: the
 // 12 V coils run from VIN and draw little); the unit tests build with 5.
@@ -27,7 +29,7 @@ struct RelayCore {
   uint32_t cycle_until[RELAY_CHANNELS]; // millis() when an off-cycle ends, 0 = none
   // duplicate protection: last few command ids and their replies
   long ids[RELAY_ID_CACHE];
-  char replies[RELAY_ID_CACHE][RELAY_REPLY_MAX];
+  char replies[RELAY_ID_CACHE][RELAY_CACHED_MAX];
   uint8_t id_next;
   char line[RELAY_LINE_MAX];
   uint8_t line_len;
@@ -39,19 +41,28 @@ static inline void relay_init(RelayCore *r) {
   for (int i = 0; i < RELAY_ID_CACHE; i++) r->ids[i] = -1;
 }
 
-// Upper-case and split into at most 4 tokens.
-static inline int relay_tokens(char *s, char *tok[4]) {
+// Upper-case and split into at most RELAY_TOKENS tokens; returns
+// RELAY_TOKENS + 1 if there are more.
+static inline int relay_tokens(char *s, char *tok[RELAY_TOKENS]) {
   int n = 0;
   for (char *p = s; *p; p++) *p = (char)toupper((unsigned char)*p);
   char *save = s;
-  while (n < 4) {
+  while (1) {
     while (*save == ' ' || *save == '\t') save++;
     if (!*save) break;
+    if (n == RELAY_TOKENS) return RELAY_TOKENS + 1;
     tok[n++] = save;
     while (*save && *save != ' ' && *save != '\t') save++;
     if (*save) *save++ = 0;
   }
   return n;
+}
+
+// ON / OFF (only these words: no 0/1 ambiguity)
+static inline int relay_onoff(const char *s, long *out) {
+  if (!strcmp(s, "ON")) { *out = 1; return 1; }
+  if (!strcmp(s, "OFF")) { *out = 0; return 1; }
+  return 0;
 }
 
 static inline int relay_num(const char *s, long lo, long hi, long *out) {
@@ -97,48 +108,89 @@ static inline void relay_exec(RelayCore *r, const char *cmdline, uint32_t now, c
     for (int i = 0; i < RELAY_ID_CACHE; i++)
       if (r->ids[i] == id) { snprintf(out, cap, "%s", r->replies[i]); return; }
   }
-  char *t[4];
+  char *t[RELAY_TOKENS];
   int n = relay_tokens(s, t);
   char body[RELAY_REPLY_MAX - 12];
   long ch, v;
-  if (n == 1 && !strcmp(t[0], "STATUS")) {
-    snprintf(body, sizeof body, "OK STATUS %02X PSU %u UPTIME %lu", r->mask, r->psu, (unsigned long)now);
+  int cache = 1;            // state-changing commands are remembered by id
+  if (n >= 1 && !strcmp(t[0], "STATUS")) {
+    // STATUS [ch ...]: every channel, or only the listed ones
+    cache = 0;
+    uint8_t want = 0;
+    int ok = n <= RELAY_TOKENS;
+    for (int i = 1; ok && i < n; i++) {
+      if (relay_num(t[i], 0, RELAY_CHANNELS - 1, &ch)) want |= (uint8_t)(1u << ch);
+      else ok = 0;
+    }
+    if (n == 1) want = 0xFF;
+    if (!ok) {
+      snprintf(body, sizeof body, "ERR bad channel");
+    } else {
+      int l = snprintf(body, sizeof body, "OK STATUS");
+      for (int i = 0; i < RELAY_CHANNELS; i++)
+        if (want & (1u << i))
+          l += snprintf(body + l, sizeof body - (size_t)l, " %d %s", i,
+                        r->cycle_until[i] ? "CYCLING" : (r->mask & (1u << i)) ? "ON" : "OFF");
+      snprintf(body + l, sizeof body - (size_t)l, " PSU %s UPTIME %lu", r->psu ? "ON" : "OFF",
+               (unsigned long)now);
+    }
   } else if (n == 1 && !strcmp(t[0], "VERSION")) {
-    snprintf(body, sizeof body, "OK VERSION relay-controller 2 LIMIT %d", RELAY_MAX_ON);
-  } else if (n == 3 && !strcmp(t[0], "POWER") && relay_num(t[1], 0, RELAY_CHANNELS - 1, &ch) &&
-             relay_num(t[2], 0, 1, &v) && v && relay_over_limit(r, ch)) {
-    snprintf(body, sizeof body, "ERR LIMIT %d ON", RELAY_MAX_ON);
-  } else if (n == 3 && !strcmp(t[0], "POWER") && relay_num(t[1], 0, RELAY_CHANNELS - 1, &ch) &&
-             relay_num(t[2], 0, 1, &v)) {
-    r->cycle_until[ch] = 0;  // explicit power cancels a pending cycle
-    if (v) r->mask |= (uint8_t)(1u << ch); else r->mask &= (uint8_t)~(1u << ch);
-    snprintf(body, sizeof body, "OK POWER %ld %ld MASK %02X", ch, v, r->mask);
-  } else if (n == 3 && !strcmp(t[0], "CYCLE") && relay_num(t[1], 0, RELAY_CHANNELS - 1, &ch) &&
-             relay_num(t[2], 0, 600000, &v) && relay_over_limit(r, ch)) {
-    snprintf(body, sizeof body, "ERR LIMIT %d ON", RELAY_MAX_ON);   // the cycle ends with it on
+    cache = 0;
+    snprintf(body, sizeof body, "OK VERSION relay-controller 3 LIMIT %d", RELAY_MAX_ON);
+  } else if (n >= 3 && n <= RELAY_TOKENS && !strcmp(t[0], "POWER")) {
+    // POWER <ch> [<ch> ...] ON|OFF: all listed channels, or none on error
+    uint8_t set = 0;
+    int ok = relay_onoff(t[n - 1], &v);
+    for (int i = 1; ok && i < n - 1; i++) {
+      if (relay_num(t[i], 0, RELAY_CHANNELS - 1, &ch)) set |= (uint8_t)(1u << ch);
+      else ok = 0;
+    }
+    uint8_t after = (uint8_t)(relay_committed(r) | set);
+    int cnt = 0;
+    for (uint8_t m = after; m; m &= (uint8_t)(m - 1)) cnt++;
+    if (!ok) {
+      snprintf(body, sizeof body, "ERR usage: POWER <0-%d> [...] ON|OFF", RELAY_CHANNELS - 1);
+    } else if (v && cnt > RELAY_MAX_ON) {
+      snprintf(body, sizeof body, "ERR LIMIT %d ON", RELAY_MAX_ON);
+    } else {
+      int l = snprintf(body, sizeof body, "OK POWER");
+      for (int i = 0; i < RELAY_CHANNELS; i++) {
+        if (!(set & (1u << i))) continue;
+        r->cycle_until[i] = 0;  // explicit power cancels a pending cycle
+        if (v) r->mask |= (uint8_t)(1u << i); else r->mask &= (uint8_t)~(1u << i);
+        l += snprintf(body + l, sizeof body - (size_t)l, " %d", i);
+      }
+      snprintf(body + l, sizeof body - (size_t)l, " %s", v ? "ON" : "OFF");
+    }
   } else if (n == 3 && !strcmp(t[0], "CYCLE") && relay_num(t[1], 0, RELAY_CHANNELS - 1, &ch) &&
              relay_num(t[2], 0, 600000, &v)) {
-    if (v < RELAY_MIN_OFF_MS) v = RELAY_MIN_OFF_MS;
-    r->mask &= (uint8_t)~(1u << ch);
-    r->cycle_until[ch] = now + (uint32_t)v;
-    if (r->cycle_until[ch] == 0) r->cycle_until[ch] = 1;
-    snprintf(body, sizeof body, "OK CYCLE %ld %ld", ch, v);
+    if (relay_over_limit(r, ch)) {
+      snprintf(body, sizeof body, "ERR LIMIT %d ON", RELAY_MAX_ON);   // the cycle ends with it on
+    } else {
+      if (v < RELAY_MIN_OFF_MS) v = RELAY_MIN_OFF_MS;
+      r->mask &= (uint8_t)~(1u << ch);
+      r->cycle_until[ch] = now + (uint32_t)v;
+      if (r->cycle_until[ch] == 0) r->cycle_until[ch] = 1;
+      snprintf(body, sizeof body, "OK CYCLE %ld %ld", ch, v);
+    }
   } else if (n == 2 && !strcmp(t[0], "ALL") && !strcmp(t[1], "OFF")) {
     r->mask = 0;
     for (int i = 0; i < RELAY_CHANNELS; i++) r->cycle_until[i] = 0;
-    snprintf(body, sizeof body, "OK ALL OFF MASK 00");
-  } else if (n == 2 && !strcmp(t[0], "PSU") && relay_num(t[1], 0, 1, &v)) {
+    snprintf(body, sizeof body, "OK ALL OFF");
+  } else if (n == 2 && !strcmp(t[0], "PSU") && relay_onoff(t[1], &v)) {
     r->psu = (uint8_t)v;
-    snprintf(body, sizeof body, "OK PSU %ld", v);
+    snprintf(body, sizeof body, "OK PSU %s", v ? "ON" : "OFF");
   } else if (n == 0) {
+    cache = 0;
     snprintf(body, sizeof body, "ERR empty");
   } else {
+    cache = 0;
     snprintf(body, sizeof body, "ERR unknown command");
   }
   snprintf(out, cap, "%s%s", prefix, body);
-  if (id >= 0) {
+  if (id >= 0 && cache) {
     r->ids[r->id_next] = id;
-    snprintf(r->replies[r->id_next], RELAY_REPLY_MAX, "%s", out);
+    snprintf(r->replies[r->id_next], RELAY_CACHED_MAX, "%s", out);
     r->id_next = (uint8_t)((r->id_next + 1) % RELAY_ID_CACHE);
   }
 }
