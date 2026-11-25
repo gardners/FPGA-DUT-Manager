@@ -10,6 +10,14 @@
 -- (UART history, JTAG TDO, ICMP data). IPv4 header checksum is computed;
 -- UDP checksum is 0 (ADR 0005).
 --
+-- Writing (issue 0019, timing): hdr & pf form one shift register that emits
+-- sr(0) each cycle -- no byte-index muxes. A frame is up to three segments:
+--   A: a_len bytes shifted out of hdr & pf,
+--   B: b_len tail bytes (memory port with 1-cycle latency; zeros for DHCP),
+--   C: c_len further bytes shifted out of pf (DHCP cookie and options).
+-- DHCP payload (300 bytes) = pf(0..43) BOOTP head, 192 zero bytes,
+-- pf(44..107) = BOOTP bytes 236..299.
+--
 -- Phase 2 will add the raster ring with absolute priority at frame
 -- boundaries in front of this arbiter.
 --
@@ -82,7 +90,7 @@ architecture rtl of net_tx is
   signal kind : kind_t := K_NONE;
   signal d    : integer range 0 to 1 := 0;
 
-  type state_t is (S_IDLE, S_LATCH, S_PREP, S_CSUM, S_WRITE, S_WAIT_MAC);
+  type state_t is (S_IDLE, S_LATCH, S_PREP, S_CSUM, S_START, S_WRITE, S_WAIT_MAC);
   signal state : state_t := S_IDLE;
 
   constant PF_MAX : natural := 108;
@@ -90,10 +98,13 @@ architecture rtl of net_tx is
   type hdr_t is array (0 to 41) of byte_t;
   signal hdr   : hdr_t := (others => (others => '0'));
   signal pf    : pf_t := (others => (others => '0'));
-  signal hdr_len  : unsigned(11 downto 0) := (others => '0');
-  signal pf_len   : unsigned(11 downto 0) := (others => '0');
-  signal tail_len : unsigned(11 downto 0) := (others => '0');
+  signal a_len    : unsigned(11 downto 0) := (others => '0');  -- segment lengths
+  signal b_len    : unsigned(11 downto 0) := (others => '0');
+  signal c_len    : unsigned(11 downto 0) := (others => '0');
   signal total    : unsigned(11 downto 0) := (others => '0');
+  type seg_t is (SEG_A, SEG_B, SEG_C);
+  signal seg      : seg_t := SEG_A;
+  signal cnt      : unsigned(11 downto 0) := (others => '0');  -- bytes left in seg - 1
 
   signal csum  : unsigned(15 downto 0) := (others => '0');
   signal cidx  : integer range 0 to 10 := 0;
@@ -215,7 +226,6 @@ begin
     variable proto   : byte_t;
     variable nbytes  : unsigned(31 downto 0);
     variable wb      : byte_t;
-    variable o       : unsigned(11 downto 0);
     variable st      : dut_status_t;
   begin
     if rising_edge(clk) then
@@ -312,6 +322,12 @@ begin
               dmac := (others => '1'); dip := (others => '1');
               sport := PORT_DHCP_C; dport := std_logic_vector(to_unsigned(PORT_DHCP_S, 16));
               tl := 300;
+              for i in 0 to 43 loop
+                pf(i) <= dhcp_byte(i, cfg(d).mac, dhcp(d), dstat(d).dut_id);
+              end loop;
+              for i in 0 to 63 loop
+                pf(44 + i) <= dhcp_byte(236 + i, cfg(d).mac, dhcp(d), dstat(d).dut_id);
+              end loop;
             when K_ACK =>
               dmac := ack.mac; dip := ack.ip; dport := ack.port_n; sport := PORT_MGMT;
               typ := T_MGMT_ACK; plen := ACK_PAYLOAD_LEN;
@@ -416,30 +432,30 @@ begin
               hdr(28 + i) <= b(ip_eff(d), i);
               hdr(38 + i) <= b(arp.ip, i);
             end loop;
-            hdr_len  <= to_unsigned(42, 12);
-            pf_len   <= (others => '0');
-            tail_len <= (others => '0');
+            a_len    <= to_unsigned(42, 12);
+            b_len    <= (others => '0');
+            c_len    <= (others => '0');
             total    <= to_unsigned(42, 12);
-            state    <= S_WRITE;
-            widx     <= (others => '0');
+            state    <= S_START;
           else
+            c_len <= (others => '0');
             if kind = K_ICMP then
               iplen := to_unsigned(20 + tl, 16);
-              hdr_len <= to_unsigned(34, 12);
-              pf_len  <= (others => '0');
-              total   <= to_unsigned(34 + tl, 12);
+              a_len <= to_unsigned(34, 12);
+              b_len <= to_unsigned(tl, 12);
+              total <= to_unsigned(34 + tl, 12);
             elsif kind = K_DHCP then
               iplen := to_unsigned(20 + 8 + tl, 16);
-              hdr_len <= to_unsigned(42, 12);
-              pf_len  <= (others => '0');
-              total   <= to_unsigned(42 + tl, 12);
+              a_len <= to_unsigned(42 + 44, 12);
+              b_len <= to_unsigned(tl - 44 - 64, 12);
+              c_len <= to_unsigned(64, 12);
+              total <= to_unsigned(42 + tl, 12);
             else
               iplen := to_unsigned(20 + 8 + 8 + plen, 16);
-              hdr_len <= to_unsigned(42, 12);
-              pf_len  <= to_unsigned(8 + plen - tl, 12);
-              total   <= to_unsigned(42 + 8 + plen, 12);
+              a_len <= to_unsigned(42 + 8 + plen - tl, 12);
+              b_len <= to_unsigned(tl, 12);
+              total <= to_unsigned(42 + 8 + plen, 12);
             end if;
-            tail_len <= to_unsigned(tl, 12);
             hdr(12) <= x"08"; hdr(13) <= x"00";
             hdr(14) <= x"45"; hdr(15) <= x"00";
             hdr(16) <= bu(iplen, 0); hdr(17) <= bu(iplen, 1);
@@ -469,51 +485,55 @@ begin
           else
             hdr(24) <= std_logic_vector(not csum(15 downto 8));
             hdr(25) <= std_logic_vector(not csum(7 downto 0));
-            widx      <= (others => '0');
-            tail_addr <= (others => '0');
-            state     <= S_WRITE;
+            state     <= S_START;
           end if;
 
+        when S_START =>
+          widx      <= (others => '0');
+          tail_addr <= (others => '0');
+          seg       <= SEG_A;
+          cnt       <= a_len - 1;
+          state     <= S_WRITE;
+
         when S_WRITE =>
-          -- one byte per cycle; the tail memories have one cycle latency, so
-          -- tail_addr is advanced one byte ahead of widx.
-          -- (a build only starts when no frame is pending, so the MAC is
-          -- reading the other slot or is idle)
-          if true then
-            o := widx;
-            if o < hdr_len then
-              wb := hdr(to_integer(o(5 downto 0)));
-            elsif o < hdr_len + pf_len then
-              wb := pf(to_integer(o - hdr_len));
-            else
-              case kind is
-                when K_SNAP =>
-                  if d = 0 then wb := hist_data0; else wb := hist_data1; end if;
-                when K_JRESP =>
-                  if d = 0 then wb := j_tdo_data0; else wb := j_tdo_data1; end if;
-                when K_ICMP =>
-                  wb := icmp_rdata;     -- type/checksum already patched by net_rx
-                when K_DHCP =>
-                  wb := dhcp_byte(to_integer(o) - 42, cfg(d).mac, dhcp(d), dstat(d).dut_id);
-                when others => wb := x"00";
-              end case;
+          -- one byte per cycle (a build only starts when no frame is pending,
+          -- so the MAC is reading the other slot or is idle). The tail
+          -- memories have one cycle latency: tail_addr holds the index of the
+          -- byte after the one being written.
+          if seg = SEG_B then
+            case kind is
+              when K_SNAP =>
+                if d = 0 then wb := hist_data0; else wb := hist_data1; end if;
+              when K_JRESP =>
+                if d = 0 then wb := j_tdo_data0; else wb := j_tdo_data1; end if;
+              when K_ICMP =>
+                wb := icmp_rdata;       -- type/checksum already patched by net_rx
+              when others => wb := x"00";
+            end case;
+          else
+            wb := hdr(0);
+            for i in 0 to 40 loop hdr(i) <= hdr(i + 1); end loop;
+            hdr(41) <= pf(0);
+            for i in 0 to PF_MAX - 2 loop pf(i) <= pf(i + 1); end loop;
+          end if;
+          mem_we   <= '1';
+          mem_addr <= bslot & widx(10 downto 0);
+          mem_data <= wb;
+          widx     <= widx + 1;
+          if seg = SEG_B or (seg = SEG_A and cnt = 0) then
+            tail_addr <= tail_addr + 1;
+          end if;
+          if cnt /= 0 then
+            cnt <= cnt - 1;
+          elsif seg = SEG_A and b_len /= 0 then
+            seg <= SEG_B; cnt <= b_len - 1;
+          elsif seg /= SEG_C and c_len /= 0 then
+            seg <= SEG_C; cnt <= c_len - 1;
+          else
+            if kind = K_ICMP then
+              icmp_taken <= '1';
             end if;
-            mem_we   <= '1';
-            mem_addr <= bslot & o(10 downto 0);
-            mem_data <= wb;
-            widx     <= widx + 1;
-            -- tail address for the next byte (pipelined one ahead)
-            if widx + 2 > hdr_len + pf_len then
-              tail_addr <= widx + 2 - hdr_len - pf_len;
-            else
-              tail_addr <= (others => '0');
-            end if;
-            if widx + 1 = total then
-              if kind = K_ICMP then
-                icmp_taken <= '1';
-              end if;
-              state <= S_WAIT_MAC;
-            end if;
+            state <= S_WAIT_MAC;
           end if;
 
         when S_WAIT_MAC =>
