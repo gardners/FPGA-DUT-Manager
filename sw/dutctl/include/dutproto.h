@@ -119,7 +119,22 @@ typedef struct {
   uint8_t rx_eye_width;  /* passing positions in the last hunt (0 = never hunted) */
   uint16_t rx_hunts, rx_bad_frames;
   uint8_t rx_link_flags; /* b0 hunting, b1 RX MMCM locked */
+  /* memory block (ADR 0005 section 3b); valid only when has_mem (payload >= 144) */
+  uint8_t has_mem;
+  uint8_t mem_flags;      /* DP_MEM_* */
+  uint16_t mem_errors;    /* self-test words that failed (saturates at 0xFFFF) */
+  uint16_t mem_dq_fail;   /* bit i: DDR3 DQ i read a wrong bit */
+  uint16_t mem_test_kib;  /* self-test region size, KiB */
+  uint32_t mem_first_err; /* word address of the first failing word, 0xFFFFFFFF none */
 } dp_heartbeat_t;
+
+/* heartbeat mem_flags (ADR 0005 section 3b, issue 0034) */
+enum dp_mem_flag {
+  DP_MEM_CALIBRATED = 0x01,
+  DP_MEM_ST_RUNNING = 0x02,
+  DP_MEM_ST_DONE = 0x04,
+  DP_MEM_ST_PASS = 0x08,
+};
 
 typedef struct {
   uint8_t version; /* raster format version (DP_RASTER_VERSION) */

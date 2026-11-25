@@ -100,7 +100,8 @@ Sent per DUT at ~50 Hz (configurable period; 20 ms default), and expedited
 
 Total 108 bytes (header + 100). Since 2026-11-25 the supervisor always
 appends the video block (section 8; zeros until HDMI capture exists) and
-the link block (section 3a): 140 bytes on the wire (header + 132).
+the link block (section 3a): 140 bytes on the wire (header + 132); with
+the memory block (section 3b, issue 0034) 152 bytes (header + 144).
 Decoders must accept >= 100 and use the blocks only when present.
 
 ### 3a. Heartbeat link block (bytes 132..139; payload >= 132)
@@ -115,6 +116,21 @@ RGMII RX self-calibration status (issue 0028).
 | 136 | 2 | rx_bad_frames: frames seen (RX_CTL >= 64 cycles) without a good FCS |
 | 138 | 1 | rx_link_flags: b0 hunting, b1 RX MMCM locked |
 | 139 | 1 | reserved |
+
+### 3b. Heartbeat memory block (bytes 140..151; payload >= 144)
+
+DDR3 frame store status (issue 0034, ADR 0013). Appended 2026-11-25; the
+heartbeat is then 152 bytes on the wire (header + 144). Decoders use the
+block only when the payload is >= 144.
+
+| Off | Size | Field |
+|---|---|---|
+| 140 | 1 | mem_flags: b0 DDR3 calibrated, b1 self-test running, b2 self-test done, b3 self-test passed (valid with b2) |
+| 141 | 1 | reserved |
+| 142 | 2 | mem_errors: self-test words read back wrong (saturates at 0xFFFF) |
+| 144 | 2 | mem_dq_fail: bit i = DDR3 data line DQ i returned a wrong bit at least once |
+| 146 | 2 | mem_test_kib: self-test region size in KiB (0 = no memory subsystem) |
+| 148 | 4 | mem_first_err: 16-byte word address of the first failing word (0xFFFFFFFF none) |
 
 ## 4. Management (port 6500)
 

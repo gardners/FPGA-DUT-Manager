@@ -18,3 +18,4 @@ be accepted (owner instruction 2026-11-25); refine rather than block.
 | [0010](0010-jtag-over-udp.md) | JTAG engine and host XVC proxy | Proposed |
 | [0011](0011-dut-identity-dip-and-dhcp.md) | DUT ID from DIP switches, deterministic MACs, DHCP | Accepted |
 | [0012](0012-text-fallback-display.md) | 80x25 text fallback / server-driven display | Proposed |
+| [0013](0013-ddr3-frame-store.md) | DDR3 frame store: MIG 7-series behind mem_pkg, self-test, heartbeat status | Proposed |

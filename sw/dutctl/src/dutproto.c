@@ -154,6 +154,18 @@ int dp_decode_heartbeat(const uint8_t *p, size_t len, dp_heartbeat_t *hb)
     hb->rx_phase_pos = hb->rx_eye_width = hb->rx_link_flags = 0;
     hb->rx_hunts = hb->rx_bad_frames = 0;
   }
+  hb->has_mem = len >= 144;
+  if (hb->has_mem) {
+    hb->mem_flags = p[132];
+    hb->mem_errors = dp_get16(p + 134);
+    hb->mem_dq_fail = dp_get16(p + 136);
+    hb->mem_test_kib = dp_get16(p + 138);
+    hb->mem_first_err = dp_get32(p + 140);
+  } else {
+    hb->mem_flags = 0;
+    hb->mem_errors = hb->mem_dq_fail = hb->mem_test_kib = 0;
+    hb->mem_first_err = 0;
+  }
   return 0;
 }
 

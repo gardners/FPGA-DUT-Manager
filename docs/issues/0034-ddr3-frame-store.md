@@ -24,3 +24,37 @@ Scope:
 * A built-in memory self-test (pattern write/read over a region) and
   status in the heartbeat: calibrated, self-test pass/fail, error count.
   This is the first hardware check.
+
+## Progress 2026-11-25 (sub-agent, branch `feature/ddr3`)
+
+* Decision recorded in ADR 0013: MIG 7-series v4.2 from Numato's Mimas A7
+  `mig.prj` (400 MHz, 200 MHz sys clock = our `clk_ref`), native UI port,
+  generated inside `vivado/build.tcl`; LiteDRAM not needed.
+* New: `common/async_fifo`, `mem/mem_arbiter` (N-port round robin),
+  `mem/mem_app_bridge` (clk_sys <-> UI clock, ready='0' until calibrated),
+  `mem/mem_selftest` (1 MiB at the top of memory, DM test included),
+  `platform/xc7/ddr3_xc7` (MIG + bridge); wired in `mimas_a7_top` with
+  `MEM_PORTS = 1` (port 0 = self-test). Clients for 0035/0036 add ports
+  after it.
+* Heartbeat memory block (ADR 0005 s3b, bytes 140..151, payload 144),
+  shown by `dutctl listen` ("ddr3 ok (1024 KiB tested)" / "ddr3 FAIL ..." /
+  "ddr3 UNCALIBRATED"; `--kv` has `mem_*` keys).
+* `tb_mem_subsys`: arbiter + self-test + 2 random clients on `mem_model`;
+  through the bridge on a behavioural MIG UI model (100 MHz, random
+  stalls); with a stuck DQ bit (self-test fails, flags DQ5, exact error
+  count); and with a controller that never calibrates (nothing accepted,
+  nothing hangs). `make test` green (22 HDL testbenches, 151 C checks).
+* Vivado build e9083a2f (first try): **TIMING MET, WNS 0.221 ns, WHS
+  0.023 ns** (all clocks incl. the MIG's; clk_sys <-> MIG UI clock async).
+  MMCM 5/5 (MIG's LOCed in X1Y0, no placer conflict), PLL 2/5, LUT 15065
+  (46 %, was 9913), FF 17431 (27 %), BRAM 20.5/75, IOB 138, XADC 1 (MIG
+  temperature). DRC: only the usual MIG warnings (DQS IBUFDS without load,
+  PLL CLKOUT3 buffer type).
+* `scripts/hwtest.sh` gained a check "hb dutN ddr3 self-test" (mem_flags
+  must have calibrated + done + pass = 13).
+* Hardware check (lead): load the build; `dutctl listen` should show
+  `ddr3 ok (1024 KiB tested)` within a second of configuration (`--kv`:
+  `mem_flags=13 mem_errors=0 mem_dq_fail=0 mem_first_err=4294967295`).
+  `ddr3 UNCALIBRATED` = MIG did not calibrate; `ddr3 FAIL` lists the bad
+  DQ lines. Either way the baseline (DHCP, ping, console, passthrough,
+  JTAG/UART/keyboard) must be unaffected: run `scripts/hwtest.sh`.

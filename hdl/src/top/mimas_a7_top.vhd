@@ -62,7 +62,23 @@ entity mimas_a7_top is
     dut0_kio8, dut0_kio9, dut0_kb_sense : in  std_logic;
     dut0_kio10                          : out std_logic;
     dut1_kio8, dut1_kio9, dut1_kb_sense : in  std_logic;
-    dut1_kio10                          : out std_logic
+    dut1_kio10                          : out std_logic;
+    -- DDR3 frame store (issue 0034; pins/IO standards from the MIG XDC)
+    ddr3_dq      : inout std_logic_vector(15 downto 0);
+    ddr3_dqs_p   : inout std_logic_vector(1 downto 0);
+    ddr3_dqs_n   : inout std_logic_vector(1 downto 0);
+    ddr3_addr    : out   std_logic_vector(13 downto 0);
+    ddr3_ba      : out   std_logic_vector(2 downto 0);
+    ddr3_ras_n   : out   std_logic;
+    ddr3_cas_n   : out   std_logic;
+    ddr3_we_n    : out   std_logic;
+    ddr3_reset_n : out   std_logic;
+    ddr3_ck_p    : out   std_logic_vector(0 downto 0);
+    ddr3_ck_n    : out   std_logic_vector(0 downto 0);
+    ddr3_cke     : out   std_logic_vector(0 downto 0);
+    ddr3_cs_n    : out   std_logic_vector(0 downto 0);
+    ddr3_dm      : out   std_logic_vector(1 downto 0);
+    ddr3_odt     : out   std_logic_vector(0 downto 0)
   );
 end entity;
 
@@ -117,6 +133,17 @@ architecture rtl of mimas_a7_top is
   signal sel_slots : std_logic_vector(9 downto 0);
   attribute ASYNC_REG : string;
   attribute ASYNC_REG of vrst_s : signal is "TRUE";
+  -- DDR3 frame store (issue 0034): client ports of the arbiter. Port 0 is
+  -- the start-up self-test; thumbnail writer/reader ports go after it.
+  constant MEM_PORTS : positive := 1;
+  constant MEM_TEST_BITS : positive := 16;       -- self-test 2**16 words = 1 MiB
+  signal mem_reqs : mem_req_arr_t(0 to MEM_PORTS - 1);
+  signal mem_rsps : mem_rsp_arr_t(0 to MEM_PORTS - 1);
+  signal mem_req  : mem_req_t;
+  signal mem_rsp  : mem_rsp_t;
+  signal mem_stat : mem_status_t;
+  -- self-test region: the top 1 MiB, clear of the thumbnail store (low 16 MiB)
+  constant MEM_TEST_BASE : natural := 2 ** MEM_AW - 2 ** MEM_TEST_BITS;
 begin
   -- The 100 MHz oscillator (H4) and the HDMI IN clock (K4) share clock region
   -- X1Y1, which has one MMCM; HDMI IN needs it (dedicated route), so the
@@ -183,7 +210,29 @@ begin
       vin_pclk => vin_pclk, vin_rgb => vin_rgb, vin_de => vin_de, vin_hs => vin_hs,
       vin_vs => vin_vs,
       text_forced => t_force, con_screen => con_screen, con_slots => con_slots,
-      pt_request => pt_req, pt_active => pt_active);
+      pt_request => pt_req, pt_active => pt_active,
+      mem_status => mem_stat);
+
+  ---------------------------------------------------------------- DDR3
+  -- Nothing waits on DDR3: until calibration the subsystem holds ready='0'
+  -- and the self-test idles; the heartbeat memory block shows the state.
+  ddr : entity work.ddr3_xc7
+    port map (sys_clk => clk_ref, sys_rst => not locked, clk => clk_sys,
+              req => mem_req, rsp => mem_rsp, calibrated => mem_stat.calibrated,
+              ddr3_dq => ddr3_dq, ddr3_dqs_p => ddr3_dqs_p, ddr3_dqs_n => ddr3_dqs_n,
+              ddr3_addr => ddr3_addr, ddr3_ba => ddr3_ba, ddr3_ras_n => ddr3_ras_n,
+              ddr3_cas_n => ddr3_cas_n, ddr3_we_n => ddr3_we_n, ddr3_reset_n => ddr3_reset_n,
+              ddr3_ck_p => ddr3_ck_p, ddr3_ck_n => ddr3_ck_n, ddr3_cke => ddr3_cke,
+              ddr3_cs_n => ddr3_cs_n, ddr3_dm => ddr3_dm, ddr3_odt => ddr3_odt);
+  marb : entity work.mem_arbiter
+    generic map (N => MEM_PORTS)
+    port map (clk => clk_sys, reqs => mem_reqs, rsps => mem_rsps, req => mem_req, rsp => mem_rsp);
+  mtest : entity work.mem_selftest
+    generic map (BASE_WORD => MEM_TEST_BASE, WORD_BITS => MEM_TEST_BITS)
+    port map (clk => clk_sys, start => mem_stat.calibrated, req => mem_reqs(0), rsp => mem_rsps(0),
+              running => mem_stat.st_running, done => mem_stat.st_done, pass => mem_stat.st_pass,
+              errors => mem_stat.errors, dq_fail => mem_stat.dq_fail, first_err => mem_stat.first_err);
+  mem_stat.test_kib <= to_unsigned(2 ** MEM_TEST_BITS / 64, 16);   -- 16-byte words -> KiB
 
   -- HDMI IN: DVI sink + measurement for the heartbeat video block (0022)
   hrx : entity work.hdmi_rx_xc7
