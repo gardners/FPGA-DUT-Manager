@@ -10,7 +10,7 @@
 #   make flash       # write bitstream to the Mimas SPI flash
 #   make dutctl      # build the Linux control CLI
 #
-# JOBS controls compile parallelism for the toolchain build (default 1).
+# JOBS controls compile parallelism for the toolchain build (default: nproc).
 
 SHELL      := /bin/bash
 REPO       := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
@@ -18,7 +18,7 @@ TOOLS      := $(REPO)/tools
 PREFIX     := $(TOOLS)/prefix
 STAMPS     := $(TOOLS)/stamps
 BUILD      := $(REPO)/build
-JOBS       ?= 1
+JOBS       ?= $(shell nproc)
 export JOBS TOOLS
 
 # Use our own tools first.

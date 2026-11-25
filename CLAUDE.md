@@ -18,8 +18,9 @@ pre-V4 Numato Mimas A7 boards (XC7A50T-1FGG484). Start with
 * The owner reviews ADRs but wants implementation to proceed assuming
   approval. Ask the owner only about design problems that genuinely need their
   input (hardware facts, trade-offs with real consequences).
-* **One heavy job at a time** on this laptop (`JOBS=1` default). Simulation
-  or synthesis may run in the background while editing.
+* **Background work is fine**, including parallel compiles (`JOBS` defaults
+  to `nproc`) and sub-agents where appropriate — just don't run so many heavy
+  things at once that it is slower than doing them in sequence.
 * Hardware-facing actions on the attached board (JTAG load, flash) are fine
   for bring-up; never write the SPI flash before an SRAM load has been shown
   to work (brief §12).
@@ -34,7 +35,7 @@ pre-V4 Numato Mimas A7 boards (XC7A50T-1FGG484). Start with
 | `hdl/src/` | VHDL-2008, vendor-neutral except `platform/xc7/` |
 | `hdl/tb/` | nvc testbenches `tb_*.vhd`; optional Python hook `tests/scenarios/tb_*.py` (gen/check) |
 | `hdl/sim_files.txt` | ordered simulation source list; `hdl/sources.mk` = synthesis list |
-| `boards/mimas_a7/` | XDC (+ vendor XDCs for reference) |
+| `boards/mimas_a7/` | XDC (+ vendor XDCs for reference); boards are V3.0 (4 digits) |
 | `sw/dutctl/` | Linux CLI in C (protocol codec, UART merge, XVC proxy, relay client) |
 | `firmware/relay-controller/` | Arduino Uno/Nano sketch for the Jaycar XC4418 relays |
 | `tests/netproto.py` | **reference encoder/decoder** for the wire protocol; generates vectors for both VHDL and C tests |

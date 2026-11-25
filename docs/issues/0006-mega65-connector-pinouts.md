@@ -4,3 +4,10 @@ Status: Open — owner input
 Opened: 2026-11-25
 
 JB1 and J5 pinouts taken from R6 schematic (TE0765-06). Confirm JB1/keyboard connector are identical on the DUT revisions in the farm (which revisions?).
+
+## 2026-11-25
+
+Owner: DUTs are MEGA65 R3 to R6A; the owner expects the JB1 (TE0790) and
+keyboard connectors to be compatible across these. Pinouts in ADR 0008 are
+from R6; a quick check of the R3 schematic before building adapters is still
+cheap insurance.

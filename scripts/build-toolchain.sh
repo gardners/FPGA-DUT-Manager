@@ -5,8 +5,8 @@
 #   components: nvc openfpgaloader openxc7 ghdl ghdl-plugin chipdb
 #
 # Environment:
-#   JOBS    parallel compile jobs (default 1; this laptop is slow and we only
-#           ever run one heavy job at a time, see docs/adrs/0001)
+#   JOBS    parallel compile jobs (default nproc; run one heavy build at a time
+#           rather than several competing ones)
 #   TOOLS   tools directory (default <repo>/tools)
 #
 # Every component is pinned to an exact tag or commit below. Bump them
@@ -17,7 +17,7 @@ REPO_ROOT=$(cd "$(dirname "$0")/.." && pwd)
 TOOLS=${TOOLS:-$REPO_ROOT/tools}
 PREFIX=$TOOLS/prefix
 SRC=$TOOLS/src
-JOBS=${JOBS:-1}
+JOBS=${JOBS:-$(nproc)}
 
 # ---- Pins -----------------------------------------------------------------
 NVC_REPO=https://github.com/nickg/nvc.git
