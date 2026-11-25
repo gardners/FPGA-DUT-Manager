@@ -1,6 +1,6 @@
 # 0022: HDMI RX (27 MHz DVI) on Mimas A7
 
-Status: Open
+Status: Done (2026-11-25)
 Opened: 2026-11-25
 
 hdmi_rx: TMDS_33 inputs on bank 35 (vendor XDC), ISERDESE2 + IDELAYE2 per lane, bitslip word alignment on control tokens, channel deskew, TMDS decode, lock and geometry detection; HPD/EDID minimal. Only 27 MHz pixel clocks for now (owner). Testbench drives it from our dvi_tx.
@@ -29,3 +29,7 @@ Owner looped the Mimas HDMI OUT into its own HDMI IN. Known-good e59d3351
 27.000 MHz` — exactly our 480p60 console timing. Pixel data correctness is
 next checked end to end once raster capture (0023) exists: capture the
 console and compare against the Python text renderer.
+
+## 2026-11-25 closed
+
+dvi2rgb receiver locks on the loopback (720x480 of 858x525, 27.000 MHz).

@@ -1,6 +1,6 @@
 # 0020: Hardware smoke test script
 
-Status: Open
+Status: Done (2026-11-25)
 Opened: 2026-11-25
 
 scripts/hwtest.sh using dutctl against a running board (heartbeats, ping/ARP, text screen, management read-back, UART loopback with a jumper, JTAG refusal when unpowered). The dev laptop is on NATed Wi-Fi (192.168.188.x) and cannot see the board's 203.28.176.x broadcasts; needs a host on that segment or unicast telemetry (dest-ip) to a routable host.
@@ -42,3 +42,7 @@ Findings:
   mapping 1->0 2->1 3->2 0(auto, video present)->0, JTAG refused with
   "target not powered" (target_flags 8, jtag_status 8). UART/raster
   skipped (DUT unpowered; capture not advertised yet).
+
+## 2026-11-25 closed
+
+scripts/hwtest.sh (sub-agent): 61 PASS / 0 FAIL on d29ea748 incl. raster capture.

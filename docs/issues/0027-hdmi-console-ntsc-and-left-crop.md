@@ -1,6 +1,6 @@
 # 0027: HDMI console: switch to 720x480p60; left ~2.5 characters cut off
 
-Status: Open
+Status: Done (2026-11-25)
 Opened: 2026-11-25
 
 Owner hardware feedback (2026-11-25, build da7897a1):
@@ -29,3 +29,7 @@ modes have only ~704 px of picture (BT.601), the monitor hides the edges.
 Owner decision: keep 9-px cells, shift right. Top level now uses
 `text_display` LEFT = 18 (2 cells); columns 78-79 fall outside DE, so ~78
 columns are visible, which is fine.
+
+## 2026-11-25 closed
+
+480p60, LEFT 15 confirmed by the owner.

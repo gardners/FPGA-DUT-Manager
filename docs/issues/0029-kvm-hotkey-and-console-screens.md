@@ -1,6 +1,6 @@
 # 0029: KVM hotkey on the physical keyboard; three console screens
 
-Status: Open
+Status: Done (2026-11-25)
 Opened: 2026-11-25 (owner request)
 
 Despite policy living in the host, a small local selector is worth having
@@ -86,3 +86,7 @@ key 0x0035, heartbeat byte 109, `dutctl set console-screen`, `dutctl text
   the 10 s timeout still cancel.
 * 2026-11-25: owner confirmed the one-handed LSHIFT/MEGA train on hardware
   (known-good d29ea748).
+
+## 2026-11-25 closed
+
+Hotkey (both triggers), three screens, select blink verified on hardware by the owner.

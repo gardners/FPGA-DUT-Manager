@@ -1,6 +1,6 @@
 # 0026: DUT IDs per half: 0x0n (P12) and 0x1m (P13)
 
-Status: Open
+Status: Done (2026-11-25)
 Opened: 2026-11-25
 
 Owner request (2026-11-25). Today ADR 0011 gives each half a DUT ID 0..15
@@ -32,3 +32,7 @@ IDs `'0' & DIP[3:0]` / `'1' & DIP[7:4]`; ep_enable always "11"; hex host
 names; seg7 `n-1m`; ADR 0011 amended, ADR 0005 b6 reserved. System test now
 expects DUT1 = 0x11 (DIP 0x10): MAC ..:11, m65dut11, fallback .33.
 Status: Done pending hardware check (owner reported " 0-0" before this).
+
+## 2026-11-25 closed
+
+0x0n/0x1m IDs verified on hardware (seg7 0-10, DUT 0 and DUT 0x10 on DHCP).

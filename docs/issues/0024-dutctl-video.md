@@ -1,6 +1,6 @@
 # 0024: dutctl video receiver
 
-Status: Open
+Status: Done (2026-11-25)
 Opened: 2026-11-25
 
 Receive raster packets, assemble frames, detect missing/duplicate lines, write PPM screenshots; Python reference encoder/decoder for raster packets and C unit tests on shared vectors.
@@ -66,3 +66,7 @@ ADR 0005 section 8 ambiguities for the lead to settle:
   [--timeout S]` (UDP 6504, 8 MB receive buffer). Loopback-tested with a
   Python sender (complete / incomplete frames, PPM contents).
 * Still to do: test against real FPGA capture (0022/0023).
+
+## 2026-11-25 closed
+
+dutctl video + frame assembler; verified against FPGA capture on hardware.
