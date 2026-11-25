@@ -2,7 +2,10 @@
 # these, so they are kept out of mimas_a7.xdc). Read by vivado/build.tcl.
 
 # Clock domains (ADR 0004/0012). Crossings are toggles, 2-FF synchronisers,
-# dual-clock RAMs or quasi-static configuration, so the groups are async.
+# dual-clock RAMs/FIFOs or quasi-static configuration, so the groups are
+# async. The clk_ref group includes the DDR3 MIG clocks generated from it
+# (memory, PHY and the 100 MHz UI clock; issue 0034), which meet clk_sys
+# only through mem_app_bridge's async FIFOs and synchronisers.
 set clk_sys  [get_clocks -of_objects [get_pins clk/mmcm/CLKOUT0]]
 set clk_tx90 [get_clocks -of_objects [get_pins clk/mmcm/CLKOUT1]]
 set clk_ref  [get_clocks -of_objects [get_pins clk/mmcm/CLKOUT2]]
@@ -20,7 +23,7 @@ create_clock -period 37.037 -name hdmi_rx_clk [get_ports hdmi_rx_clk_p]
 set_clock_groups -asynchronous \
   -group [get_clocks -include_generated_clocks hdmi_rx_clk] \
   -group [list $clk_sys $clk_tx90] \
-  -group $clk_ref \
+  -group [get_clocks -include_generated_clocks -of_objects [get_pins clk/mmcm/CLKOUT2]] \
   -group [list $clk_pix $clk_pix5] \
   -group [get_clocks -include_generated_clocks rgmii_rxc]
 

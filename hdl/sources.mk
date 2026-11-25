@@ -5,6 +5,10 @@ SYNTH_SOURCES := \
 	$(HDL_SRC)/common/common_pkg.vhd \
 	$(HDL_SRC)/mem/mem_pkg.vhd \
 	$(HDL_SRC)/common/sync_bit.vhd \
+	$(HDL_SRC)/common/async_fifo.vhd \
+	$(HDL_SRC)/mem/mem_arbiter.vhd \
+	$(HDL_SRC)/mem/mem_selftest.vhd \
+	$(HDL_SRC)/mem/mem_app_bridge.vhd \
 	$(HDL_SRC)/common/dpram.vhd \
 	$(HDL_SRC)/video/raster_pkg.vhd \
 	$(HDL_SRC)/video/raster_capture.vhd \
@@ -46,6 +50,7 @@ SYNTH_SOURCES := \
 	$(HDL_SRC)/platform/xc7/clocks_video_xc7.vhd \
 	$(HDL_SRC)/platform/xc7/video_out_clk_xc7.vhd \
 	$(HDL_SRC)/platform/xc7/dvi_tx_xc7.vhd \
+	$(HDL_SRC)/platform/xc7/ddr3_xc7.vhd \
 	$(REPO)/third_party/digilent-dvi2rgb/src/DVI_Constants.vhd \
 	$(REPO)/third_party/digilent-dvi2rgb/src/SyncBase.vhd \
 	$(REPO)/third_party/digilent-dvi2rgb/src/SyncAsync.vhd \

@@ -29,6 +29,22 @@ puts $fh "library ieee;\nuse ieee.std_logic_1164.all;\npackage build_id_pkg is\n
 close $fh
 
 create_project -in_memory -part xc7a50tfgg484-1
+
+# DDR3 controller (issue 0034, ADR 0013): Xilinx MIG 7-series generated from
+# the checked-in project file vivado/ip/ddr3_mig.prj (Numato's Mimas A7
+# settings, native interface). Synthesised with the design (no OOC
+# checkpoint); its generated XDC (pins, IO standards, internal VREF, PHY
+# and CMT LOCs in X1Y0) is applied automatically, scoped to the instance.
+set ipdir $out/ip
+file delete -force $ipdir
+file mkdir $ipdir
+create_ip -name mig_7series -vendor xilinx.com -library ip -version 4.2 -module_name ddr3_mig -dir $ipdir
+set migdir [get_property IP_DIR [get_ips ddr3_mig]]
+file copy -force $repo/vivado/ip/ddr3_mig.prj $migdir/mig_a.prj
+set_property -dict [list CONFIG.XML_INPUT_FILE mig_a.prj CONFIG.RESET_BOARD_INTERFACE Custom \
+  CONFIG.MIG_DONT_TOUCH_PARAM Custom CONFIG.BOARD_MIG_PARAM Custom] [get_ips ddr3_mig]
+set_property GENERATE_SYNTH_CHECKPOINT false [get_files ddr3_mig.xci]
+generate_target {synthesis implementation} [get_ips ddr3_mig]
 read_vhdl -vhdl2008 [concat [list $out/build_id_pkg.vhd] $srcs]
 read_xdc $repo/boards/mimas_a7/mimas_a7.xdc
 read_xdc $repo/boards/mimas_a7/mimas_a7_vivado_timing.xdc
