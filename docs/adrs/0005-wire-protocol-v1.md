@@ -218,7 +218,51 @@ A request while busy returns status busy. Exactly `bit_count` TCK pulses; TCK
 idles low; TMS/TDI change on the falling edge; TDO sampled on the rising edge
 (XVC semantics, design brief §12.1).
 
-## 8. Raster and audio
+## 8. Raster (port 6504, type 0x60 RASTER, FPGA -> telemetry destination)
 
-Phase 2/4; layouts per design brief §9 will be added here before
-implementation.
+One datagram per source raster line (active and, if enabled, blanking),
+only while capture is enabled for that DUT (key 0x0040, default off).
+Jumbo frames required for active lines (720 px RGB888 = 2160 bytes).
+
+| Off | Size | Field |
+|---|---|---|
+| 8 | 4 | frame (increments at each frame start, wraps) |
+| 12 | 2 | line: 0 = first active line of the frame; blanking lines continue after the last active line |
+| 14 | 2 | h_total (pixels per line incl. blanking) |
+| 16 | 2 | v_total (lines per frame, 0 until measured) |
+| 18 | 2 | active_count (active pixels on this line; 0 for blanking lines) |
+| 20 | 2 | hs_start (pixel position where HSYNC asserts, relative to the first active pixel = 0, modulo h_total) |
+| 22 | 2 | hs_end (position where HSYNC deasserts; half-open) |
+| 24 | 1 | flags: b0 VSYNC asserted at this line's first pixel, b1 VSYNC polarity (1 = active high), b2 HSYNC polarity, b3 active line, b4 first line of frame, b5 lines were dropped before this one (ring overflow), b6 source locked |
+| 25 | 1 | encoding: 0 raw RGB888, 1 RLE24 (optional, later) |
+| 26 | 2 | payload_bytes |
+| 28 | 4 | uart_rx_seq (same counter as UART snapshots, ADR 0005 section 6) |
+| 32 | 16 | uart_rx_history: latest 16 RX bytes, oldest first, zero padded |
+| 48 | n | pixels: raw = R, G, B per pixel, left to right |
+
+Receiver rules: lines are identified by (frame, line); a frame is complete
+when lines 0 .. v_active-1 all arrived with matching active_count; anything
+missing marks the frame incomplete (CI must reject it). RLE24 (encoding 1):
+repeated (count u8 1..255, R, G, B) tuples, used only when strictly smaller
+than raw.
+
+### Heartbeat video block (bytes 108..131, appended; heartbeat payload grows
+to 124 bytes; decoders must accept >= 100)
+
+| Off | Size | Field |
+|---|---|---|
+| 108 | 1 | video_flags: b0 TMDS clock present, b1 locked (aligned + decoding), b2 capture enabled, b3 DVI (no data islands seen) |
+| 109 | 1 | reserved |
+| 110 | 2 | h_total |
+| 112 | 2 | v_total |
+| 114 | 2 | h_active |
+| 116 | 2 | v_active |
+| 118 | 4 | pixel_clock_hz (measured) |
+| 122 | 4 | frames_captured |
+| 126 | 2 | raster_lines_dropped |
+| 128 | 2 | tmds_decode_errors |
+| 130 | 2 | reserved |
+
+## 9. Audio (port 6505)
+
+Phase 4; defined before implementation.
