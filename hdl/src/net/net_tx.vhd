@@ -1,8 +1,9 @@
 -- net_tx: frame builder and TX arbiter (clk_sys).
 --
--- Picks the next pending item (fixed priority: ARP, JTAG response, MGMT ack,
--- ICMP, UART snapshot, heartbeat), writes the complete frame (no preamble or
--- FCS) into one of two 2 KiB TX slots, then hands the slot to eth_mac_tx.
+-- Picks the next pending item (fixed priority: raster line, ARP, JTAG
+-- response, MGMT ack, ICMP, DHCP, UART snapshot, heartbeat), writes the
+-- complete frame (no preamble or FCS) into one of two 4 KiB TX slots, then
+-- hands the slot to eth_mac_tx.
 -- While the MAC sends one slot the next frame is built in the other.
 --
 -- Frame = 42-byte Eth/IPv4/UDP header (34 for ICMP) + fixed part (pf array,
@@ -18,8 +19,14 @@
 -- DHCP payload (300 bytes) = pf(0..43) BOOTP head, 192 zero bytes,
 -- pf(44..107) = BOOTP bytes 236..299.
 --
--- Phase 2 will add the raster ring with absolute priority at frame
--- boundaries in front of this arbiter.
+-- Raster (issue 0023, ADR 0005 s8 v1): a committed line from raster_capture
+-- has absolute priority at frame boundaries (it is checked first whenever a
+-- new frame is chosen). One datagram per line: segment A = headers + the
+-- 52-byte raster header (incl. the latest 16 UART RX bytes, copied from the
+-- history port into a shift register in S_HIST), segment B = the pixels
+-- streamed from the ring (24-bit words, shifted out R, G, B). Lines arriving
+-- while capture is off for the video target (or it has no address) are
+-- discarded. Up to 42 + 52 + 3072 = 3166 bytes per frame (jumbo).
 --
 -- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.
 library ieee;
@@ -28,6 +35,7 @@ use ieee.numeric_std.all;
 use work.common_pkg.all;
 use work.proto_pkg.all;
 use work.net_pkg.all;
+use work.raster_pkg.all;
 
 entity net_tx is
   port (
@@ -72,13 +80,22 @@ entity net_tx is
     boot_id    : in  std_logic_vector(31 downto 0);
     hist_addr  : out unsigned(9 downto 0);
     hist_data0, hist_data1 : in std_logic_vector(7 downto 0);
+    hist_latch : out std_logic_vector(1 downto 0);   -- latch the RX history now (raster)
+    -- raster capture (issue 0023)
+    rast_valid : in  std_logic := '0';
+    rast_desc  : in  rast_desc_t := RAST_DESC_NONE;
+    rast_pop   : out std_logic;
+    rast_en    : in  std_logic := '0';     -- capture on for rast_dut and it is addressed
+    rast_dut   : in  integer range 0 to 1 := 0;
+    rast_raddr : out unsigned(15 downto 0);
+    rast_rdata : in  std_logic_vector(23 downto 0) := (others => '0');
     -- MAC
     mac_start  : out std_logic;
-    mac_base   : out unsigned(11 downto 0);
+    mac_base   : out unsigned(12 downto 0);
     mac_len    : out unsigned(11 downto 0);
     mac_busy   : in  std_logic;
     mem_we     : out std_logic;
-    mem_addr   : out unsigned(11 downto 0);
+    mem_addr   : out unsigned(12 downto 0);
     mem_data   : out std_logic_vector(7 downto 0);
     -- statistics
     frames_sent: out unsigned(31 downto 0)
@@ -86,11 +103,11 @@ entity net_tx is
 end entity;
 
 architecture rtl of net_tx is
-  type kind_t is (K_NONE, K_ARP, K_JRESP, K_ACK, K_ICMP, K_DHCP, K_SNAP, K_HB);
+  type kind_t is (K_NONE, K_RAST, K_ARP, K_JRESP, K_ACK, K_ICMP, K_DHCP, K_SNAP, K_HB);
   signal kind : kind_t := K_NONE;
   signal d    : integer range 0 to 1 := 0;
 
-  type state_t is (S_IDLE, S_LATCH, S_PREP, S_CSUM, S_START, S_WRITE, S_WAIT_MAC);
+  type state_t is (S_IDLE, S_DISCARD, S_LATCH, S_HIST, S_PREP, S_CSUM, S_START, S_WRITE, S_WAIT_MAC);
   signal state : state_t := S_IDLE;
 
   constant PF_MAX : natural := 140;   -- heartbeat: 8 + 132
@@ -123,6 +140,18 @@ architecture rtl of net_tx is
   signal sent    : unsigned(31 downto 0) := (others => '0');
   signal rr      : std_logic := '0';      -- round robin between DUTs
   signal jr_nb   : unsigned(31 downto 0) := (others => '0');  -- JRESP TDO bytes (S_LATCH)
+
+  -- raster
+  type hist_t is array (0 to 15) of byte_t;
+  signal hist_sr : hist_t := (others => (others => '0'));
+  signal hcnt    : integer range 0 to 16 := 0;
+  signal rast_nb : unsigned(11 downto 0) := (others => '0');   -- pixel bytes = 3 * count
+  signal rast_rxseq : unsigned(31 downto 0) := (others => '0');
+  signal raddr   : unsigned(15 downto 0) := (others => '0');
+  signal pix_sr  : std_logic_vector(23 downto 0) := (others => '0');
+  signal ph, pr  : integer range 0 to 2 := 0;
+  signal rast_frames : unsigned(31 downto 0) := (others => '0');
+  signal rast_drops  : unsigned(15 downto 0) := (others => '0');
 
   function b(v : std_logic_vector; i : natural) return byte_t is
     -- byte i counting from the most significant byte (big-endian)
@@ -220,6 +249,7 @@ begin
   hist_addr   <= tail_addr(9 downto 0);
   j_tdo_addr  <= tail_addr(9 downto 0);
   icmp_raddr  <= tail_addr(6 downto 0);
+  rast_raddr  <= raddr;
 
   process (clk)
     variable k       : kind_t;
@@ -246,6 +276,8 @@ begin
       dhcp_taken <= "00";
       mac_start  <= '0';
       mem_we     <= '0';
+      rast_pop   <= '0';
+      hist_latch <= "00";
 
       -- heartbeat timers
       for i in 0 to 1 loop
@@ -265,7 +297,7 @@ begin
       -- hand a finished slot to the MAC
       if pend_valid = '1' and mac_busy = '0' then
         mac_start  <= '1';
-        mac_base   <= pend_slot & "00000000000";
+        mac_base   <= pend_slot & x"000";
         mac_len    <= pend_len;
         pend_valid <= '0';
         sent       <= sent + 1;
@@ -274,7 +306,8 @@ begin
       case state is
         when S_IDLE =>
           k := K_NONE; dd := 0;
-          if arp.pend = '1' then k := K_ARP; dd := arp.dut;
+          if rast_valid = '1' and rast_en = '1' then k := K_RAST; dd := rast_dut;
+          elsif arp.pend = '1' then k := K_ARP; dd := arp.dut;
           elsif jr(0).pend = '1' and (rr = '0' or jr(1).pend = '0') then k := K_JRESP; dd := 0;
           elsif jr(1).pend = '1' then k := K_JRESP; dd := 1;
           elsif ack.pend = '1' then k := K_ACK; dd := ack.dut;
@@ -293,7 +326,11 @@ begin
               hb_due(i) <= '0';
             end if;
           end loop;
-          if k /= K_NONE and pend_valid = '0' then
+          if rast_valid = '1' and rast_en = '0' then
+            -- capture off / target not addressed: discard the line
+            rast_pop <= '1';
+            state    <= S_DISCARD;
+          elsif k /= K_NONE and pend_valid = '0' then
             rr    <= not rr;
             kind  <= k;
             d     <= dd;
@@ -306,9 +343,13 @@ begin
               when K_SNAP => snap_ack(dd) <= '1';
               when K_HB   => hb_due(dd) <= '0';
               when K_DHCP => dhcp_taken(dd) <= '1';
+              when K_RAST => hist_latch(dd) <= '1';
               when others => null;
             end case;
           end if;
+
+        when S_DISCARD =>
+          state <= S_IDLE;              -- let rast_valid fall after the pop
 
         when S_LATCH =>
           -- uart_bridge latches its snapshot counters on the cycle after
@@ -319,6 +360,27 @@ begin
             jr_nb <= shift_right(j_bits(d) + 7, 3);
           end if;
           state <= S_PREP;
+          if kind = K_RAST then
+            -- uart_bridge latched its RX history on this edge (hist_latch)
+            rast_nb    <= resize(rast_desc.count & '0', 12) + rast_desc.count;
+            rast_rxseq <= dstat(d).uart_rx_seq;
+            tail_addr  <= to_unsigned(496, 12);   -- latest 16 of the 512 RX bytes
+            hcnt       <= 0;
+            state      <= S_HIST;
+          end if;
+
+        when S_HIST =>
+          -- 16 RX history bytes, oldest first, one-cycle read latency
+          tail_addr <= tail_addr + 1;
+          if hcnt /= 0 then
+            for i in 0 to 14 loop hist_sr(i) <= hist_sr(i + 1); end loop;
+            if d = 0 then hist_sr(15) <= hist_data0; else hist_sr(15) <= hist_data1; end if;
+          end if;
+          if hcnt = 16 then
+            state <= S_PREP;
+          else
+            hcnt <= hcnt + 1;
+          end if;
 
         when S_PREP =>
           -- destination and payload layout per kind
@@ -384,6 +446,28 @@ begin
                 pf(34 + i) <= bu(snap(d).tx_rejects, i);
                 pf(36 + i) <= bu(snap(d).clear_gen, i);
               end loop;
+            when K_RAST =>
+              sport := PORT_RAST; dport := std_logic_vector(to_unsigned(PORT_RAST, 16));
+              typ := T_RASTER;
+              plen := RASTER_FIXED_LEN + to_integer(rast_nb);
+              tl   := to_integer(rast_nb);
+              pf(8) <= RASTER_VERSION; pf(9) <= x"00";       -- raw RGB888
+              pf(10) <= rast_desc.flags; pf(11) <= x"00";
+              for i in 0 to 3 loop
+                pf(12 + i) <= bu(rast_desc.frame, i);
+                pf(32 + i) <= bu(rast_rxseq, i);
+              end loop;
+              for i in 0 to 1 loop
+                pf(16 + i) <= bu(rast_desc.line, i);
+                pf(18 + i) <= bu(bstat.vid_h_total, i);
+                pf(20 + i) <= bu(bstat.vid_v_total, i);
+                pf(22 + i) <= bu(resize(rast_desc.count, 16), i);
+                pf(24 + i) <= bu(bstat.vid_v_active, i);
+                pf(26 + i) <= bu(rast_desc.hs_start, i);
+                pf(28 + i) <= bu(rast_desc.hs_end, i);
+                pf(30 + i) <= bu(resize(rast_nb, 16), i);
+              end loop;
+              for i in 0 to 15 loop pf(36 + i) <= hist_sr(i); end loop;
             when K_HB =>
               sport := PORT_HB; dport := std_logic_vector(to_unsigned(PORT_HB, 16));
               typ := T_HEARTBEAT; plen := HB_PAYLOAD_LEN;
@@ -415,15 +499,20 @@ begin
               pf(92) <= x"00"; pf(93) <= x"00";
               pf(106) <= st.addr_src; pf(107) <= st.dut_id;
               for i in 0 to 11 loop pf(94 + i) <= b(st.dut_leds, i); end loop;
-              -- 108..131 video block (ADR 0005 s8): HDMI IN measurement;
-              -- frames_captured / lines dropped / decode errors 0 until capture
+              -- 108..131 video block (ADR 0005 s8): HDMI IN measurement,
+              -- frames captured (line 0 sent) and raster lines dropped
+              -- (board-wide); decode errors 0 (not counted yet)
               pf(108) <= bstat.vid_flags(7 downto 3) & bcfg.capture_en(d) & bstat.vid_flags(1 downto 0);
               pf(109) <= bstat.con_shown;     -- console screen shown (issue 0029)
               pf(110) <= bu(bstat.vid_h_total, 0);  pf(111) <= bu(bstat.vid_h_total, 1);
               pf(112) <= bu(bstat.vid_v_total, 0);  pf(113) <= bu(bstat.vid_v_total, 1);
               pf(114) <= bu(bstat.vid_h_active, 0); pf(115) <= bu(bstat.vid_h_active, 1);
               pf(116) <= bu(bstat.vid_v_active, 0); pf(117) <= bu(bstat.vid_v_active, 1);
-              for i in 0 to 3 loop pf(118 + i) <= bu(bstat.vid_pixel_hz, i); end loop;
+              for i in 0 to 3 loop
+                pf(118 + i) <= bu(bstat.vid_pixel_hz, i);
+                pf(122 + i) <= bu(rast_frames, i);
+              end loop;
+              pf(126) <= bu(rast_drops, 0); pf(127) <= bu(rast_drops, 1);
               -- 132..139 link block (ADR 0005 s3a)
               pf(132) <= bstat.rx_phase; pf(133) <= bstat.rx_eye;
               pf(134) <= bu(bstat.rx_hunts, 0); pf(135) <= bu(bstat.rx_hunts, 1);
@@ -524,6 +613,9 @@ begin
           tail_addr <= (others => '0');
           seg       <= SEG_A;
           cnt       <= a_len - 1;
+          raddr     <= rast_desc.start;   -- raster pixel stream (K_RAST only)
+          pr        <= 0;
+          ph        <= 0;
           state     <= S_WRITE;
 
         when S_WRITE =>
@@ -539,6 +631,8 @@ begin
                 if d = 0 then wb := j_tdo_data0; else wb := j_tdo_data1; end if;
               when K_ICMP =>
                 wb := icmp_rdata;       -- type/checksum already patched by net_rx
+              when K_RAST =>
+                wb := pix_sr(23 downto 16);
               when others => wb := x"00";
             end case;
           else
@@ -548,7 +642,28 @@ begin
             for i in 0 to PF_MAX - 2 loop pf(i) <= pf(i + 1); end loop;
           end if;
           mem_we   <= '1';
-          mem_addr <= bslot & widx(10 downto 0);
+          mem_addr <= bslot & widx(11 downto 0);
+          -- raster pixel stream: ring word (1-cycle latency) primed during
+          -- segment A, then shifted out R, G, B; the next word is already
+          -- on rast_rdata when the third byte goes out
+          if kind = K_RAST then
+            if seg = SEG_B then
+              if ph = 2 then
+                pix_sr <= rast_rdata;
+                raddr  <= raddr + 1;
+                ph     <= 0;
+              else
+                pix_sr <= pix_sr(15 downto 0) & x"00";
+                ph     <= ph + 1;
+              end if;
+            elsif pr = 0 then
+              raddr <= raddr + 1;
+              pr    <= 1;
+            elsif pr = 1 then
+              pix_sr <= rast_rdata;
+              pr     <= 2;
+            end if;
+          end if;
           mem_data <= wb;
           widx     <= widx + 1;
           if seg = SEG_B or (seg = SEG_A and cnt = 0) then
@@ -563,6 +678,13 @@ begin
           else
             if kind = K_ICMP then
               icmp_taken <= '1';
+            end if;
+            if kind = K_RAST then
+              rast_pop <= '1';          -- frees the line; S_WAIT_MAC lets valid fall
+              if rast_desc.flags(RF_FIRST) = '1' then
+                rast_frames <= rast_frames + 1;
+              end if;
+              rast_drops <= rast_drops + rast_desc.drops;
             end if;
             state <= S_WAIT_MAC;
           end if;

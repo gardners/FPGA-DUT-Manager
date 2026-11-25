@@ -10,6 +10,8 @@
 -- Snapshot readout: the packet builder pulses snap_ack (counters latch into
 -- snap_* outputs) and then reads hist_addr 0..639 with 1-cycle latency:
 -- 0..511 = RX history oldest->newest, 512..639 = TX history oldest->newest.
+-- hist_latch re-latches only the history pointers (raster packets read the
+-- latest 16 RX bytes, ADR 0005 s8); the builder never overlaps the two.
 --
 -- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.
 library ieee;
@@ -47,6 +49,7 @@ entity uart_bridge is
     -- snapshot interface to packet builder
     snap_req      : out std_logic;      -- level: a snapshot is due
     snap_ack      : in  std_logic;      -- builder starts one now
+    hist_latch    : in  std_logic := '0';  -- re-latch the history pointers only (raster)
     hist_addr     : in  unsigned(9 downto 0);
     hist_data     : out std_logic_vector(7 downto 0);
     -- latched counters for the snapshot being built
@@ -228,6 +231,12 @@ begin
       end if;
       if snap_enable = '1' and want_snap then
         pending <= '1';
+      end if;
+      if hist_latch = '1' then
+        -- raster packet: latest RX bytes, scheduler and snapshot counters untouched
+        l_rx_seq     <= rx_seq;
+        l_tx_emitted <= tx_emitted;
+        l_rx_clear   <= rx_seq_at_clear;
       end if;
       if snap_ack = '1' then
         pending      <= '0';

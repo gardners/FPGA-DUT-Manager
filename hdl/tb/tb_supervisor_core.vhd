@@ -2,6 +2,9 @@
 -- GMII RX, capture every GMII TX frame (preamble stripped) to a file, and
 -- check FCS framing. Semantic checks: tests/core_scenario.py check.
 -- DUT0: UART looped back, JTAG connected to a TAP model; both DUTs powered.
+-- HDMI IN: video_timing at 27 MHz, 720 x 8 active of 858 x 12, negative
+-- syncs, pixel pattern R = x, G = y, B = (7x + 31y + 5) mod 256 (raster
+-- capture, issue 0023; the scenario enables capture and rebuilds frames).
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -31,9 +34,21 @@ architecture tb of tb_supervisor_core is
   signal good, bad : unsigned(15 downto 0);
   signal tap_rises : natural;
   signal captured : natural := 0;
+  signal pclk : std_logic := '0';
+  signal vx, vy : unsigned(10 downto 0);
+  signal vde, vhs, vvs : std_logic;
+  signal vrgb : std_logic_vector(23 downto 0);
 begin
   clk_sys <= not clk_sys after 4 ns when not done;
   clk_rx  <= not clk_rx after 4.0016 ns when not done;   -- 200 ppm offset
+  pclk    <= not pclk after 18.5 ns when not done;       -- 27.03 MHz
+
+  vtim : entity work.video_timing
+    generic map (H_ACTIVE => 720, H_FP => 16, H_SYNC => 62, H_BP => 60,
+                 V_ACTIVE => 8, V_FP => 1, V_SYNC => 2, V_BP => 1, SYNC_POL => '0')
+    port map (pclk, vx, vy, vde, vhs, vvs, open);
+  vrgb <= std_logic_vector(vx(7 downto 0)) & std_logic_vector(vy(7 downto 0)) &
+          std_logic_vector(to_unsigned((to_integer(vx) * 7 + to_integer(vy) * 31 + 5) mod 256, 8));
 
   dut : entity work.supervisor_core
     generic map (CLK_HZ => 125_000_000, BUILD_ID => x"C0DE0001",
@@ -49,7 +64,12 @@ begin
       pk_kio8 => open, pk_kio9 => open, pk_kio8_oe => open, pk_kio9_oe => open,
       pk_kio8_in => '1', pk_kio10 => '0', buttons => "0000",
       leds => leds, text_we => open, text_addr => open, text_data => open,
-      addr_src0 => open, addr_src1 => open, ep_enable_o => open, stat_rx_good => good, stat_rx_bad => bad);
+      addr_src0 => open, addr_src1 => open, ep_enable_o => open, stat_rx_good => good, stat_rx_bad => bad,
+      vid_present => '1', vid_locked => '1',
+      vid_h_total => to_unsigned(858, 16), vid_v_total => to_unsigned(12, 16),
+      vid_h_active => to_unsigned(720, 16), vid_v_active => to_unsigned(8, 16),
+      vid_pixel_hz => to_unsigned(27_027_027, 32),
+      vin_pclk => pclk, vin_rgb => vrgb, vin_de => vde, vin_hs => vhs, vin_vs => vvs);
 
   urx(0) <= utx(0);
   urx(1) <= '1';
@@ -98,7 +118,7 @@ begin
   cap : process
     file fout : text open write_mode is CAP_OUT;
     variable l : line;
-    type buf_t is array (0 to 2047) of std_logic_vector(7 downto 0);
+    type buf_t is array (0 to 4095) of std_logic_vector(7 downto 0);
     variable buf : buf_t;
     variable n : natural;
     variable gap : natural;
@@ -144,7 +164,7 @@ begin
     report "captured " & integer'image(captured) & " frames; rx good " &
       integer'image(to_integer(good)) & " bad " & integer'image(to_integer(bad));
     assert bad = 0 report "RX CRC errors/drops" severity failure;
-    assert good = 22 report "expected 22 good RX frames" severity failure;
+    assert good = 23 report "expected 23 good RX frames" severity failure;
     report "tb_supervisor_core PASSED (frame-level); run core_scenario.py check";
     done <= true;
     wait;

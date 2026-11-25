@@ -31,6 +31,12 @@ package proto_pkg is
   constant T_JTAG_REQ  : std_logic_vector(7 downto 0) := x"40";
   constant T_JTAG_RESP : std_logic_vector(7 downto 0) := x"41";
   constant T_TEXT_WRITE: std_logic_vector(7 downto 0) := x"50";
+  constant T_RASTER    : std_logic_vector(7 downto 0) := x"60";
+
+  -- raster format v1 (ADR 0005 section 8): 44 fixed bytes after the common
+  -- header, then the pixels
+  constant RASTER_VERSION   : std_logic_vector(7 downto 0) := x"01";
+  constant RASTER_FIXED_LEN : natural := 44;
 
   -- payload lengths (after the 8-byte common header)
   -- 100 fixed + 24 video block + 8 link block (ADR 0005 sections 3, 3a, 8)
