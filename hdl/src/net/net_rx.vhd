@@ -498,10 +498,10 @@ begin
                   elsif vlen = 2 then st := ST_BAD_VALUE; else st := ST_BAD_LEN; end if;
                 when K_KBD_POLICY =>
                   if vlen = 1 and unsigned(h(56)) <= 1 then cfg_r(d).kbd_policy <= h(56);
-                  else st := ST_BAD_VALUE; end if;
+                  elsif vlen = 1 then st := ST_BAD_VALUE; else st := ST_BAD_LEN; end if;
                 when K_KBD_OVERRIDE =>
                   if vlen = 1 and unsigned(h(56)) <= 3 then cfg_r(d).kbd_override <= h(56);
-                  else st := ST_BAD_VALUE; end if;
+                  elsif vlen = 1 then st := ST_BAD_VALUE; else st := ST_BAD_LEN; end if;
                 when K_KBD_TARGET =>
                   if vlen = 1 then bcfg_r.kbd_target <= h(56); else st := ST_BAD_LEN; end if;
                 when K_VID_TARGET =>
@@ -524,10 +524,10 @@ begin
                   if vlen = 1 then bcfg_r.capture_en(d) <= h(56)(0); else st := ST_BAD_LEN; end if;
                 when K_HB_PERIOD =>
                   if vlen = 2 and be16(h, 56) >= 1 then cfg_r(d).hb_period_ms <= be16(h, 56);
-                  else st := ST_BAD_VALUE; end if;
+                  elsif vlen = 2 then st := ST_BAD_VALUE; else st := ST_BAD_LEN; end if;
                 when K_OUT_POLICY =>
                   if vlen = 1 and unsigned(h(56)) <= 2 then cfg_r(d).out_policy <= h(56);
-                  else st := ST_BAD_VALUE; end if;
+                  elsif vlen = 1 then st := ST_BAD_VALUE; else st := ST_BAD_LEN; end if;
                 when others =>
                   st := ST_BAD_KEY;
               end case;

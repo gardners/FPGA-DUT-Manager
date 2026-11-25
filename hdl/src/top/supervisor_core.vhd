@@ -488,7 +488,9 @@ begin
   bstat.topo_count  <= x"00";
   bstat.dip         <= dip;
   bstat.link_flags  <= link_flags(7) & (not ep_enable(1)) & link_flags(5 downto 0);
-  bstat.caps        <= x"00000007";     -- uart, jtag, kbd device
+  -- capabilities (ADR 0005 s3): b0 uart, b1 jtag, b2 kbd device, b3 physical
+  -- keyboard host, b4 hdmi capture (set once raster capture exists, 0023)
+  bstat.caps        <= x"0000000F";
   bstat.selected    <= std_logic_vector(sel_vid) & std_logic_vector(sel_kbd);
   bstat.kbd_phys    <= pk_keys;
   bstat.phys_change <= pk_change;
