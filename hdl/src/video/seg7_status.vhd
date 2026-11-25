@@ -1,9 +1,9 @@
 -- seg7_status: Mimas A7 seven-segment status (active-low segments/enables).
 -- Until every enabled endpoint has an address: blinking "dHCP".
 -- Then: DUT ID of the P12 half, '-', DUT ID of the P13 half (hex), blank.
--- Segment bit order assumed seg(0)=a .. seg(6)=g, seg(7)=dp; digit 0 =
--- enable(0). Both to be verified on hardware (issue 0013). V2.0 boards have
--- only three digits; the fourth is blank anyway.
+-- Mimas A7 V3.1 schematic (sheet 12): pins 7SEG_0..7 drive segments
+-- G, F, A, B, DP, C, D, E of a common-anode display; all active low.
+-- Digit n is enable(n) = DIG(n+1) via a PNP (active low).
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -67,7 +67,15 @@ begin
           when 2 => lit := hex7(id1); when others => lit := CH_OFF;
         end case;
       end if;
-      seg <= '1' & not lit;                         -- dp off
+      -- lit is gfedcba; map to the board's 7SEG_0..7 = G F A B DP C D E
+      seg(0) <= not lit(6);   -- G
+      seg(1) <= not lit(5);   -- F
+      seg(2) <= not lit(0);   -- A
+      seg(3) <= not lit(1);   -- B
+      seg(4) <= '1';          -- DP off
+      seg(5) <= not lit(2);   -- C
+      seg(6) <= not lit(3);   -- D
+      seg(7) <= not lit(4);   -- E
       seg_en <= (others => '1');
       seg_en(to_integer(digit)) <= '0';
     end if;

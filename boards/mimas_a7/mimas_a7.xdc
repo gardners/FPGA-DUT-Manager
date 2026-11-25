@@ -53,7 +53,9 @@ set_property -dict {PACKAGE_PIN P19 IOSTANDARD LVCMOS33} [get_ports {btn[1]}]
 set_property -dict {PACKAGE_PIN P17 IOSTANDARD LVCMOS33} [get_ports {btn[2]}]
 set_property -dict {PACKAGE_PIN N17 IOSTANDARD LVCMOS33} [get_ports {btn[3]}]
 
-## Seven segment (active low). Digit 4 (L4) exists on V3.0 only.
+## Seven segment (active low, common anode). seg[0..7] = 7SEG_0..7, which the
+## V3.1 schematic wires to segments G, F, A, B, DP, C, D, E (not a..g!).
+## Digit 4 (L4) exists on V3.0 only.
 set_property -dict {PACKAGE_PIN P4 IOSTANDARD LVCMOS33} [get_ports {seg[0]}]
 set_property -dict {PACKAGE_PIN N4 IOSTANDARD LVCMOS33} [get_ports {seg[1]}]
 set_property -dict {PACKAGE_PIN M3 IOSTANDARD LVCMOS33} [get_ports {seg[2]}]
