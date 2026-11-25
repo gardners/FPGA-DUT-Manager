@@ -58,3 +58,7 @@ Scope:
   `ddr3 UNCALIBRATED` = MIG did not calibrate; `ddr3 FAIL` lists the bad
   DQ lines. Either way the baseline (DHCP, ping, console, passthrough,
   JTAG/UART/keyboard) must be unaffected: run `scripts/hwtest.sh`.
+
+## 2026-11-25 hardware (lead)
+
+Merged into feature/foundation (c2b6d91; mosaic reader on DDR3 arbiter port 1, ddr_ok = calibrated). Build c2b6d912: TIMING MET, WNS 0.134 ns. On the board: DDR3 calibrated, self-test 1024 KiB / 0 errors on both endpoints; hwtest 63/0; the select screen (forced via key 0x0035 = 3) captured over the HDMI self-loop shows the 2x2 layout with colour bars for machines 0 and 1 (seen, nothing fresh until 0035) and frowns for the empty slots. Recorded as known-good.
