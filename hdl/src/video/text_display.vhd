@@ -50,6 +50,8 @@ architecture rtl of text_display is
 
   signal chars : ram_t := init_chars;
   signal attrs : ram_t := (others => x"1F");     -- white on blue
+  attribute ram_style : string;
+  attribute ram_style of chars, attrs : signal is "block";  -- issue 0019
 
   type pal_t is array (0 to 47) of std_logic_vector(7 downto 0);
   -- VGA 16-colour palette
