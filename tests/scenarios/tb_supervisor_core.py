@@ -69,6 +69,10 @@ def scenario():
     f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 5, P.K_PK_LED_MODE, b"\x03"))))     # bad value
     f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 6, P.K_PK_LED_HOST, bytes(range(12))))))
     f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 7, P.K_PK_LED_HOST, bytes(11)))))  # bad length
+    # raster never goes to a broadcast destination: point DUT0's telemetry
+    # at the host first (dest MAC, dest IP), then enable capture
+    f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 10, 0x0004, HOST_MAC))))
+    f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 11, 0x0003, HOST_IP))))
     f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 8, K_CAPTURE_EN, b"\x01"))))      # raster on
     f.append((5, udp_to(0, P.PORT_KBD, P.kbd_set(0xFF, [10, 63]))))  # wildcard dut
     f.append((5, udp_to(0, P.PORT_UART, P.uart_tx(0, 0, 1, b"HELLO"))))
@@ -159,12 +163,12 @@ def check(path):
         err("DUT1 MGMT ack %r" % acks1)
     want = [(1, 0x0010, 0), (2, 0x0050, 0), (2, 0x0050, 4), (3, 0x7777, 1),
             (4, P.K_PK_LED_MODE, 0), (5, P.K_PK_LED_MODE, 3), (6, P.K_PK_LED_HOST, 0),
-            (7, P.K_PK_LED_HOST, 2), (8, K_CAPTURE_EN, 0)]
+            (7, P.K_PK_LED_HOST, 2), (10, 0x0004, 0), (11, 0x0003, 0), (8, K_CAPTURE_EN, 0)]
     got = [(a["cmd_id"], a["key"], a["status"]) for a in acks]
     if got != want:
         err("MGMT acks %r != %r" % (got, want))
-    elif acks[-1]["cfg_gen"] != 5:   # baud, hb period, LED mode, LED vector, capture
-        err("cfg_gen %d != 5" % acks[-1]["cfg_gen"])
+    elif acks[-1]["cfg_gen"] != 7:   # baud, hb period, LED mode, LED vector, dest x2, capture
+        err("cfg_gen %d != 7" % acks[-1]["cfg_gen"])
 
     jr = [P.decode_jtag_resp(d["body"]) for d in parsed
           if d.get("kind") == "udp" and d.get("ptype") == P.T_JTAG_RESP]
@@ -250,7 +254,7 @@ def check(path):
         where = "raster frame %d line %d" % (r["frame"], r["line"])
         if d["dut"] != 0 or d["src"] != DUT_MAC[0] or d["ip_src"] != DUT_IP[0] or \
            d["sport"] != P.PORT_RASTER or d["dport"] != P.PORT_RASTER or \
-           [(d["dst"], d["ip_dst"])] != hb_dst or d["plen"] != 44 + r["payload_bytes"]:
+           (d["dst"], d["ip_dst"]) != (HOST_MAC, HOST_IP) or d["plen"] != 44 + r["payload_bytes"]:
             err("%s: addressing/header wrong" % where)
         if (r["encoding"], r["h_total"], r["v_total"], r["v_active"], r["active_count"],
                 r["payload_bytes"], r["hs_start"], r["hs_end"]) != \

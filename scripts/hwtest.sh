@@ -362,13 +362,25 @@ done
 
 # ------------------------------------------------------- raster capture
 if ((caps & 16)) && ((!quick)); then
-	for d in "${eps[@]}"; do
-		want_restore "${ip[$d]}" 0x0040 00
-		if o=$(timeout 15 "$D" video "${ip[$d]}" --enable --frames 1 --timeout 8 --out "$tmp/frame$d" 2>&1); then
-			report PASS "raster dut$d" "$o"
-		else report FAIL "raster dut$d" "$(tr '\n' ' ' <<<"$o")"; fi
-		mgmt "${ip[$d]}" 0x0040 00 >/dev/null
-	done
+	# Only the video target's lines are captured, and the FPGA never sends
+	# raster to a broadcast destination: point that DUT's telemetry at this
+	# host (restored to broadcast, the default, at exit).
+	d=$(( (vt_sel = $(field "$(last_hb ${eps[0]})" selected) >> 4) & 1 ))
+	src=$(ip -o route get "${ip[$d]}" | awk '{ for (i = 1; i < NF; i++) if ($i == "src") print $(i + 1) }')
+	dev=$(ip -o route get "${ip[$d]}" | awk '{ for (i = 1; i < NF; i++) if ($i == "dev") print $(i + 1) }')
+	mac=$(tr -d : < "/sys/class/net/$dev/address")
+	ipx=$(printf '%02x' ${src//./ })
+	want_restore "${ip[$d]}" 0x0040 00
+	want_restore "${ip[$d]}" 0x0003 ffffffff
+	want_restore "${ip[$d]}" 0x0004 ffffffffffff
+	mgmt "${ip[$d]}" 0x0004 "$mac" >/dev/null
+	mgmt "${ip[$d]}" 0x0003 "$ipx" >/dev/null
+	if o=$(timeout 25 "$D" video "${ip[$d]}" --enable --frames 2 --timeout 15 --require-complete --out "$tmp/frame$d" 2>&1); then
+		report PASS "raster dut$d (video target)" "$(tr '\n' ' ' <<<"$o")"
+	else report FAIL "raster dut$d (video target)" "$(tr '\n' ' ' <<<"$o")"; fi
+	mgmt "${ip[$d]}" 0x0040 00 >/dev/null
+	mgmt "${ip[$d]}" 0x0003 ffffffff >/dev/null
+	mgmt "${ip[$d]}" 0x0004 ffffffffffff >/dev/null
 else
 	report SKIP "raster capture" "$( ((quick)) && echo --quick || echo 'capability b4 (hdmi capture) not set')"
 fi
