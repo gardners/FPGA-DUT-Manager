@@ -26,6 +26,10 @@ entity mimas_a7_top is
     btn          : in    std_logic_vector(3 downto 0);
     seg          : out   std_logic_vector(7 downto 0);
     seg_en       : out   std_logic_vector(3 downto 0);
+    -- HDMI OUT (text display, ADR 0012)
+    hdmi_tx_p    : out   std_logic_vector(2 downto 0);
+    hdmi_tx_n    : out   std_logic_vector(2 downto 0);
+    hdmi_tx_clk_p, hdmi_tx_clk_n : out std_logic;
     -- USB UART (FTDI channel A), unused in phase 1
     usb_uart_tx  : out   std_logic;
     usb_uart_rx  : in    std_logic;
@@ -54,6 +58,18 @@ architecture rtl of mimas_a7_top is
   signal idc_rdy : std_logic;
   signal good, bad : unsigned(15 downto 0);
   signal link_flags : std_logic_vector(7 downto 0);
+  -- video
+  signal clk_pix, clk_pix5, vlocked, vrst : std_logic;
+  signal vx, vy : unsigned(10 downto 0);
+  signal v_de, v_hs, v_vs, v_fs, t_de, t_hs, t_vs, t_force : std_logic;
+  signal t_r, t_g, t_b : std_logic_vector(7 downto 0);
+  signal text_we : std_logic;
+  signal text_addr : unsigned(12 downto 0);
+  signal text_data : std_logic_vector(7 downto 0);
+  signal src0, src1 : std_logic_vector(7 downto 0);
+  signal ep_en : std_logic_vector(1 downto 0);
+  signal have_ip : std_logic;
+  signal vrst_s : std_logic_vector(1 downto 0) := "11";
 begin
   clk : entity work.clocks_xc7
     port map (clk100 => clk100, clk_sys => clk_sys, clk_tx90 => clk_tx90,
@@ -99,7 +115,37 @@ begin
       jtck => jtck, jtms => jtms, jtdi => jtdi, jtdo => jtdo, jtag_oe => joe,
       utx => utx, utx_oe => uoe, urx => urx,
       kio8 => kio8, kio9 => kio9, kio10 => kio10, kio10_oe => kio10_oe,
-      leds => core_leds, stat_rx_good => good, stat_rx_bad => bad);
+      leds => core_leds, text_we => text_we, text_addr => text_addr, text_data => text_data,
+      addr_src0 => src0, addr_src1 => src1, ep_enable_o => ep_en,
+      stat_rx_good => good, stat_rx_bad => bad);
+
+  ---------------------------------------------------------------- video
+  vclk : entity work.clocks_video_xc7
+    port map (clk100 => clk100, clk_pix => clk_pix, clk_pix5 => clk_pix5, locked => vlocked);
+  process (clk_pix5)
+  begin
+    if rising_edge(clk_pix5) then
+      vrst_s <= vrst_s(0) & not vlocked;
+    end if;
+  end process;
+  vrst <= vrst_s(1);
+  vtim : entity work.video_timing
+    port map (clk => clk_pix, x => vx, y => vy, de => v_de, hs => v_hs, vs => v_vs, frame_start => v_fs);
+  text : entity work.text_display
+    port map (wr_clk => clk_rx, wr_en => text_we, wr_addr => text_addr, wr_data => text_data,
+              clk_pix => clk_pix, x => vx, y => vy, de_in => v_de, hs_in => v_hs, vs_in => v_vs,
+              r => t_r, g => t_g, b => t_b, de_out => t_de, hs_out => t_hs, vs_out => t_vs,
+              force_text => t_force);
+  dvi : entity work.dvi_tx_xc7
+    port map (pixel_clk => clk_pix, serial_clk => clk_pix5, rst => vrst,
+              r => t_r, g => t_g, b => t_b, hs => t_hs, vs => t_vs, de => t_de,
+              tmds_p => hdmi_tx_p, tmds_n => hdmi_tx_n,
+              tmds_clk_p => hdmi_tx_clk_p, tmds_clk_n => hdmi_tx_clk_n);
+
+  have_ip <= '1' when (src0 /= x"00" or ep_en(0) = '0') and (src1 /= x"00" or ep_en(1) = '0') else '0';
+  seg7 : entity work.seg7_status
+    port map (clk => clk_sys, have_ip => have_ip, id0 => unsigned(dip(3 downto 0)),
+              id1 => unsigned(dip(7 downto 4)), seg => seg, seg_en => seg_en);
 
   -- DUT pins: outputs tri-stated unless the core enables them
   dut0_tck <= jtck(0) when joe(0) = '1' else 'Z';
@@ -122,7 +168,5 @@ begin
   -- front panel: LED0 = MMCM locked, LED1 = PHY out of reset,
   -- LED2/3 = DUT0/1 powered, LED7..4 = RX frame counter low bits
   led <= std_logic_vector(good(3 downto 0)) & vio(1) & vio(0) & phy_rst & locked;
-  seg    <= (others => '1');
-  seg_en <= (others => '1');
   usb_uart_tx <= '1';
 end architecture;

@@ -30,6 +30,7 @@ package proto_pkg is
   constant T_UART_SNAP : std_logic_vector(7 downto 0) := x"31";
   constant T_JTAG_REQ  : std_logic_vector(7 downto 0) := x"40";
   constant T_JTAG_RESP : std_logic_vector(7 downto 0) := x"41";
+  constant T_TEXT_WRITE: std_logic_vector(7 downto 0) := x"50";
 
   -- payload lengths (after the 8-byte common header)
   constant HB_PAYLOAD_LEN   : natural := 100;

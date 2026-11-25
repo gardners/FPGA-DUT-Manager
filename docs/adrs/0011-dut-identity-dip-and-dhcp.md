@@ -28,9 +28,13 @@ a node number (ADR 0005 draft) need per-board configuration and collide easily.
   (NN = DUT ID, decimal, 2 digits); options requested: subnet, router, lease.
   Renew by unicast REQUEST at T1 = lease/2; on expiry fall back to DISCOVER.
   NAK → restart. Retries with exponential back-off 1, 2, 4, 8 s (cap 16 s).
-* **Fallback**: with no lease after 10 s the endpoint uses
-  `192.168.65.(16 + DUT ID)` until a lease is obtained (DHCP keeps trying).
-  Heartbeat reports the address source (DHCP / fallback / static).
+* **DHCP is required by default** (owner, 2026-11-25): an endpoint without a
+  lease does nothing (no ARP, no telemetry) except DHCP; the seven-segment
+  display blinks `dHCP` until every enabled endpoint is addressed, then shows
+  the two DUT IDs. A build-time fallback (`DHCP_FALLBACK_MS` generic, 0 =
+  off) can instead use `192.168.65.(16 + DUT ID)` after a timeout while DHCP
+  keeps trying; the system test uses it with 1 ms. Heartbeat reports the
+  address source (DHCP / fallback / static).
 * **Static override**: management key `K_IP` sets a static address and stops
   DHCP for that endpoint until reboot or `K_DHCP_EN = 1` (new key 0x0006).
 * The DIP-switch-derived defaults replace the DNA hash / node-number scheme.

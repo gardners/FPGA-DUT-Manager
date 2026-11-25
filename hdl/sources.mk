@@ -17,8 +17,16 @@ SYNTH_SOURCES := \
 	$(HDL_SRC)/net/dhcp_client.vhd \
 	$(HDL_SRC)/net/net_rx.vhd \
 	$(HDL_SRC)/net/net_tx.vhd \
+	$(REPO)/third_party/mega65-core/hdmi_tx_encoder.vhdl \
+	$(HDL_SRC)/video/font8x16_pkg.vhd \
+	$(HDL_SRC)/video/video_timing.vhd \
+	$(HDL_SRC)/video/text_display.vhd \
+	$(HDL_SRC)/video/text_rx_tap.vhd \
+	$(HDL_SRC)/video/seg7_status.vhd \
 	$(HDL_SRC)/top/supervisor_core.vhd \
 	$(HDL_SRC)/platform/xc7/xc7_prims_pkg.vhd \
 	$(HDL_SRC)/platform/xc7/clocks_xc7.vhd \
 	$(HDL_SRC)/platform/xc7/rgmii_xc7.vhd \
+	$(HDL_SRC)/platform/xc7/clocks_video_xc7.vhd \
+	$(HDL_SRC)/platform/xc7/dvi_tx_xc7.vhd \
 	$(HDL_SRC)/top/mimas_a7_top.vhd

@@ -14,7 +14,7 @@ use ieee.numeric_std.all;
 
 entity dhcp_client is
   generic (
-    FALLBACK_MS : positive := 10_000;
+    FALLBACK_MS : natural := 0;          -- 0: DHCP required, no fallback
     MS_PER_S    : positive := 1000      -- shortened in simulation
   );
   port (
@@ -61,13 +61,13 @@ architecture rtl of dhcp_client is
   signal ip      : std_logic_vector(31 downto 0) := (others => '0');
   signal offer_ip, server : std_logic_vector(31 downto 0) := (others => '0');
   signal have    : std_logic := '0';
-  signal since   : integer range 0 to FALLBACK_MS := 0;
+  signal since   : integer range 0 to FALLBACK_MS + 1 := 0;
 begin
   tx_req   <= req;
   tx_xid   <= std_logic_vector(xid);
   bound    <= have;
   lease_ip <= ip;
-  fallback <= '1' when have = '0' and since = FALLBACK_MS else '0';
+  fallback <= '1' when FALLBACK_MS > 0 and have = '0' and since = FALLBACK_MS else '0';
 
   with st select state_o <=
     "000" when S_OFF, "001" when S_INIT, "010" when S_SELECTING,

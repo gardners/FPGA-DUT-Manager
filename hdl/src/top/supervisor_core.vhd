@@ -14,7 +14,7 @@ entity supervisor_core is
     CLK_HZ   : positive := 125_000_000;
     BUILD_ID : std_logic_vector(31 downto 0) := x"00000000";
     -- DHCP timing (shortened in simulation)
-    DHCP_FALLBACK_MS : positive := 10_000;
+    DHCP_FALLBACK_MS : natural := 0;    -- 0 = DHCP required (owner, ADR 0011)
     DHCP_MS_PER_S    : positive := 1000
   );
   port (
@@ -47,6 +47,13 @@ entity supervisor_core is
     kio10_oe  : out std_logic_vector(1 downto 0);
     -- front panel
     leds      : out std_logic_vector(7 downto 0);
+    -- text display write port (clk_rx domain, ADR 0012)
+    text_we   : out std_logic;
+    text_addr : out unsigned(12 downto 0);
+    text_data : out std_logic_vector(7 downto 0);
+    -- address state per endpoint: 0 none, 1 DHCP, 2 fallback, 3 static
+    addr_src0, addr_src1 : out std_logic_vector(7 downto 0);
+    ep_enable_o : out std_logic_vector(1 downto 0);
     -- debug
     stat_rx_good, stat_rx_bad : out unsigned(15 downto 0)
   );
@@ -226,6 +233,16 @@ begin
       ack_taken => ack_taken, jr => jr, jr_status => jr_status, jr_seq => jr_seq,
       jr_taken => jr_taken, dhcp_strobe => dhcp_strobe, dhcp_rx => dhcp_rx,
       rx_rejects => rx_rejects);
+
+  ---------------------------------------------------------------- text tap
+  ttap : entity work.text_rx_tap
+    port map (clk => clk_rx, rx_dv => rx_dv, rxd => rxd,
+              mac0 => cfg(0).mac, mac1 => cfg(1).mac,
+              wr_en => text_we, wr_addr => text_addr, wr_data => text_data,
+              frames => open);
+  addr_src0   <= dstat(0).addr_src;
+  addr_src1   <= dstat(1).addr_src;
+  ep_enable_o <= ep_enable;
 
   ---------------------------------------------------------------- identity
   id0 <= unsigned(dip(3 downto 0));

@@ -618,6 +618,66 @@ static int cmd_relay(int argc, char **argv)
   return rc;
 }
 
+/* ------------------------------------------------------------- text display */
+/* dutctl text IP [--fg N] [--bg N] [--jumbo] [--file F | LINE ...]
+ * Writes an 80x25 screen (ADR 0012): chars at 0x0000, attributes at 0x0800,
+ * default VGA palette at 0x1000, control at 0x1030 (force text if --force). */
+static int cmd_text(int argc, char **argv)
+{
+  if (argc < 1)
+    return fprintf(stderr, "usage: dutctl text IP [--fg N] [--bg N] [--force] [--jumbo] [--file F | LINE ...]\n"), 2;
+  static const uint32_t vga[16] = {0x000000, 0x0000AA, 0x00AA00, 0x00AAAA, 0xAA0000, 0xAA00AA, 0xAA5500,
+                                   0xAAAAAA, 0x555555, 0x5555FF, 0x55FF55, 0x55FFFF, 0xFF5555, 0xFF55FF,
+                                   0xFFFF55, 0xFFFFFF};
+  static uint8_t mem[0x1031];
+  int fg = 15, bg = 1, jumbo = 0, force = 0, row = 0;
+  const char *file = NULL;
+  memset(mem, ' ', 0x800);
+  for (int i = 1; i < argc; i++) {
+    if (!strcmp(argv[i], "--fg") && i + 1 < argc) fg = atoi(argv[++i]) & 15;
+    else if (!strcmp(argv[i], "--bg") && i + 1 < argc) bg = atoi(argv[++i]) & 15;
+    else if (!strcmp(argv[i], "--jumbo")) jumbo = 1;
+    else if (!strcmp(argv[i], "--force")) force = 1;
+    else if (!strcmp(argv[i], "--file") && i + 1 < argc) file = argv[++i];
+    else if (row < 25) {
+      size_t l = strlen(argv[i]);
+      memcpy(mem + 80 * row++, argv[i], l > 80 ? 80 : l);
+    }
+  }
+  if (file) {
+    FILE *f = strcmp(file, "-") ? fopen(file, "r") : stdin;
+    if (!f) die(file);
+    char line[256];
+    while (row < 25 && fgets(line, sizeof line, f)) {
+      size_t l = strcspn(line, "\r\n");
+      memcpy(mem + 80 * row++, line, l > 80 ? 80 : l);
+    }
+    if (f != stdin) fclose(f);
+  }
+  memset(mem + 0x800, (bg << 4) | fg, 2000);
+  for (int i = 0; i < 16; i++) {
+    mem[0x1000 + 3 * i] = (uint8_t)(vga[i] >> 16);
+    mem[0x1001 + 3 * i] = (uint8_t)(vga[i] >> 8);
+    mem[0x1002 + 3 * i] = (uint8_t)vga[i];
+  }
+  mem[0x1030] = (uint8_t)force;
+  int fd = udp_bind(0);
+  struct sockaddr_in t = parse_target(argv[0], DP_PORT_TEXT);
+  size_t chunk = jumbo ? sizeof mem : 1024;
+  for (size_t off = 0; off < sizeof mem; off += chunk) {
+    size_t n = sizeof mem - off < chunk ? sizeof mem - off : chunk;
+    uint8_t pkt[DP_HDR_LEN + 4 + sizeof mem];
+    dp_put16(pkt + DP_HDR_LEN, (uint16_t)off);
+    dp_put16(pkt + DP_HDR_LEN + 2, 0);
+    memcpy(pkt + DP_HDR_LEN + 4, mem + off, n);
+    size_t len = dp_encode_hdr(pkt, DP_T_TEXT_WRITE, (uint16_t)(4 + n), DP_DUT_ANY);
+    if (sendto(fd, pkt, len, 0, (struct sockaddr *)&t, sizeof t) < 0)
+      die("sendto (for --jumbo the interface MTU must be >= 4200)");
+  }
+  close(fd);
+  return 0;
+}
+
 /* ------------------------------------------------------------- main */
 static void usage(void)
 {
@@ -629,7 +689,8 @@ static void usage(void)
           "  dutctl uart IP [--baud N] [--clear] [--from-start]\n"
           "  dutctl jtag-idcode IP\n"
           "  dutctl xvc IP [--port 2542]\n"
-          "  dutctl relay TTY COMMAND...\n");
+          "  dutctl relay TTY COMMAND...\n"
+          "  dutctl text IP [--fg N] [--bg N] [--force] [--jumbo] [--file F | LINE ...]\n");
 }
 
 int main(int argc, char **argv)
@@ -648,6 +709,7 @@ int main(int argc, char **argv)
   if (!strcmp(c, "jtag-idcode")) return cmd_jtag_idcode(argc, argv);
   if (!strcmp(c, "xvc")) return cmd_xvc(argc, argv);
   if (!strcmp(c, "relay")) return cmd_relay(argc, argv);
+  if (!strcmp(c, "text")) return cmd_text(argc, argv);
   usage();
   return 2;
 }

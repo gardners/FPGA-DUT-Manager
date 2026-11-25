@@ -33,6 +33,7 @@ enum dp_type {
   DP_T_UART_SNAP = 0x31,
   DP_T_JTAG_REQ = 0x40,
   DP_T_JTAG_RESP = 0x41,
+  DP_T_TEXT_WRITE = 0x50,
 };
 
 enum dp_key {

@@ -374,6 +374,8 @@ begin
                 state <= S_UART_ADM;
               elsif dport = PORT_JTAG and typ = T_JTAG_REQ and plen >= JTAG_REQ_FIXED then
                 state <= S_JTAG_ADM;
+              elsif dport = PORT_TEXT then
+                null;                   -- written at line rate by text_rx_tap
               else
                 rej(dd) <= rej(dd) + 1;
               end if;

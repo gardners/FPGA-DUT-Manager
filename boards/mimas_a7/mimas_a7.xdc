@@ -94,3 +94,13 @@ set_property -dict {PACKAGE_PIN D14 IOSTANDARD LVCMOS33} [get_ports dut1_kio8]
 set_property -dict {PACKAGE_PIN D15 IOSTANDARD LVCMOS33} [get_ports dut1_kio9]
 set_property -dict {PACKAGE_PIN E13 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW} [get_ports dut1_kio10]
 set_property -dict {PACKAGE_PIN E14 IOSTANDARD LVCMOS33 PULLDOWN TRUE} [get_ports dut1_kb_sense]
+
+## HDMI OUT (bank 35, TMDS_33 via IP4776 buffer); text display, ADR 0012
+set_property -dict {PACKAGE_PIN L3 IOSTANDARD TMDS_33} [get_ports hdmi_tx_clk_p]
+set_property -dict {PACKAGE_PIN K3 IOSTANDARD TMDS_33} [get_ports hdmi_tx_clk_n]
+set_property -dict {PACKAGE_PIN B1 IOSTANDARD TMDS_33} [get_ports {hdmi_tx_p[0]}]
+set_property -dict {PACKAGE_PIN A1 IOSTANDARD TMDS_33} [get_ports {hdmi_tx_n[0]}]
+set_property -dict {PACKAGE_PIN E1 IOSTANDARD TMDS_33} [get_ports {hdmi_tx_p[1]}]
+set_property -dict {PACKAGE_PIN D1 IOSTANDARD TMDS_33} [get_ports {hdmi_tx_n[1]}]
+set_property -dict {PACKAGE_PIN G1 IOSTANDARD TMDS_33} [get_ports {hdmi_tx_p[2]}]
+set_property -dict {PACKAGE_PIN F1 IOSTANDARD TMDS_33} [get_ports {hdmi_tx_n[2]}]
