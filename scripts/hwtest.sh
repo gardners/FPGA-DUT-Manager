@@ -375,10 +375,17 @@ if ((caps & 16)) && ((!quick)); then
 	want_restore "${ip[$d]}" 0x0004 ffffffffffff
 	mgmt "${ip[$d]}" 0x0004 "$mac" >/dev/null
 	mgmt "${ip[$d]}" 0x0003 "$ipx" >/dev/null
-	if o=$(timeout 25 "$D" video "${ip[$d]}" --enable --frames 2 --timeout 15 --require-complete --out "$tmp/frame$d" 2>&1); then
+	# force the editable screen: on an HDMI self-loop, passthrough attempts
+	# (issue 0032) would otherwise interrupt the frames being captured
+	want_restore "${ip[$d]}" 0x0035 00
+	mgmt "${ip[$d]}" 0x0035 01 >/dev/null
+	sleep 0.5
+	if o=$(timeout 25 "$D" video "${ip[$d]}" --enable --frames 2 --timeout 15 --require-complete --out "$tmp/frame$d" 2>&1) &&
+		! grep -q 'complete' <<<"$(grep -v ' 720x480 complete' <<<"$o" | grep 'complete')"; then
 		report PASS "raster dut$d (video target)" "$(tr '\n' ' ' <<<"$o")"
 	else report FAIL "raster dut$d (video target)" "$(tr '\n' ' ' <<<"$o")"; fi
 	mgmt "${ip[$d]}" 0x0040 00 >/dev/null
+	mgmt "${ip[$d]}" 0x0035 00 >/dev/null
 	mgmt "${ip[$d]}" 0x0003 ffffffff >/dev/null
 	mgmt "${ip[$d]}" 0x0004 ffffffffffff >/dev/null
 else

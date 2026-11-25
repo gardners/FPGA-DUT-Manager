@@ -5,9 +5,11 @@
 -- h_total (pixels between HSYNC leading edges), h_active (DE run length),
 -- v_total (lines between VSYNC leading edges), v_active (lines with DE) and
 -- the sync polarities (the level seen while DE is high is the inactive
--- level). At each VSYNC leading edge the set is latched and handed to clk
--- with a toggle (values stay stable for a whole frame, far longer than the
--- 2-FF crossing).
+-- level). At each VSYNC leading edge the set is measured; it is published
+-- (handed to clk with a toggle - values stay stable for at least a frame,
+-- far longer than the 2-FF crossing) only when two consecutive frames
+-- measured the same, so a frame cut short (source lost / passthrough
+-- switch) cannot change the reported geometry (issue 0032 hardware note).
 -- clk side: pixel_hz = pixel clocks counted in a 1 s window (a Gray-coded
 -- pclk counter sampled every CLK_HZ cycles); present = pixel_hz > 1 MHz.
 --
@@ -38,6 +40,7 @@ architecture rtl of video_meas is
   signal ht_l, ha_l : unsigned(15 downto 0) := (others => '0');
   signal line_de : std_logic := '0';
   signal o_ht, o_hact, o_vt, o_vact : unsigned(15 downto 0) := (others => '0');
+  signal c_ht, c_hact, c_vt, c_vact : unsigned(15 downto 0) := (others => '0');   -- last frame
   signal o_hpol, o_vpol : std_logic := '0';
   signal fcnt : unsigned(31 downto 0) := (others => '0');
   signal tog  : std_logic := '0';
@@ -94,10 +97,13 @@ begin
       end if;
       -- vertical: latch at the VSYNC leading edge
       if vs_a = '1' and (vs_d xnor vpol) = '0' then
-        o_ht <= ht_l; o_hact <= ha_l; o_vt <= vcnt; o_vact <= vact_cnt;
-        o_hpol <= hpol; o_vpol <= vpol;
+        c_ht <= ht_l; c_hact <= ha_l; c_vt <= vcnt; c_vact <= vact_cnt;
+        if ht_l = c_ht and ha_l = c_hact and vcnt = c_vt and vact_cnt = c_vact then
+          o_ht <= ht_l; o_hact <= ha_l; o_vt <= vcnt; o_vact <= vact_cnt;
+          o_hpol <= hpol; o_vpol <= vpol;
+          tog <= not tog;
+        end if;
         fcnt <= fcnt + 1;
-        tog <= not tog;
         vcnt <= (others => '0');
         vact_cnt <= (others => '0');
       end if;
