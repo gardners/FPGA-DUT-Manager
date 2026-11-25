@@ -3,7 +3,14 @@
 // Builds unchanged for Arduino Uno and Nano (ATmega328P). Protocol:
 // docs/adrs/0009-power-relay-controller.md. 115200 8N1, '\n' terminated.
 //
-// Wiring (both boards): D2..D9 -> XC4418 IN1..IN8, 5V -> VCC, GND -> GND.
+// Wiring (ADR 0009 "Wiring", owner 2026-11-25): eight consecutive digital
+// lines D2..D9 -> XC4418 IN1..IN8 (on an Uno R3 that is a 6-way strip on
+// D2..D7 plus a 2-way strip on D8..D9: the two digital headers have the
+// odd 0.16" gap between D7 and D8), and a separate 2-way power strip from
+// the Uno power header's adjacent 5V/GND pins to the relay board VCC/GND.
+// D0/D1 (USB serial) and D13 (bootloader LED blinks) are deliberately
+// unused. All 8 coils on draw about 0.6 A: more than the Uno's USB 5 V
+// (500 mA polyfuse) can supply, see ADR 0009.
 // Fit 10k pull-downs from each IN to GND so relays stay OFF while the
 // Arduino resets or bootloads. Optional D10 -> transistor -> ATX PS_ON#.
 // LGPL-2.1-or-later.

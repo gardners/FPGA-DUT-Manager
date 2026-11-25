@@ -36,3 +36,29 @@ later by the master Mimas P13 X-block through level shifters.
 * `dutctl relay ...` speaks this protocol; later the daemon owns the port.
 * Mimas-driven relays reuse the same command semantics through management
   keys (future ADR).
+
+## Wiring (amendment, owner 2026-11-25)
+
+Eight consecutive digital lines plus a separate 2-pin power header:
+
+| Uno R3 pin | Strip | XC4418 |
+|---|---|---|
+| D2..D7 | 6-way (digital header D0..D7) | IN1..IN6 |
+| D8, D9 | 2-way (digital header D8..D13) | IN7, IN8 |
+| 5V, GND (adjacent on the power header) | 2-way | VCC, GND |
+
+* There is no run of 8 usable lines on one Uno header. D0/D1 carry USB
+  serial, D8..D13 has only six pins, and the R3's two digital headers sit
+  0.16" apart (not on the 0.1" grid), so D2..D9 needs a 6-way strip and a
+  2-way strip. The relay side can be one 1x8 housing on IN1..IN8.
+  VCC and GND sit at the two ends of the module's header, so the 2-way
+  power strip splits there.
+* Unused on purpose: D0/D1 (serial), D10 (optional PS_ON#), D13 (blinks
+  during bootloading).
+* **Current:** each relay coil takes about 70-80 mA, so about 0.6 A with
+  all eight on. The Uno's 5V pin fed from USB is behind a 500 mA
+  polyfuse, so with many relays on the Uno can brown out and reset, and
+  the relays then drop. For more than about 4 relays on at once, power the
+  relay board VCC from the ATX 5 VSB (or another 5 V supply) with grounds
+  common, keeping only the IN lines (and GND) from the Uno. If the module
+  has a JD-VCC jumper, coil power can be separated completely.
