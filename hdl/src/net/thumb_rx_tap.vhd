@@ -68,6 +68,7 @@ architecture rtl of thumb_rx_tap is
   signal left : unsigned(15 downto 0) := (others => '0');   -- payload bytes left
   signal in_pl : std_logic := '0';
   signal bad : std_logic := '0';
+  signal sane : std_logic := '0';
   signal bi : unsigned(1 downto 0) := (others => '0');      -- byte in tuple/pixel
   signal tup : std_logic_vector(31 downto 0) := (others => '0');
   signal pix : unsigned(15 downto 0) := (others => '0');    -- pixels in this line
@@ -162,7 +163,15 @@ begin
               when 31 => width(7 downto 0) <= unsigned(b);
               when 32 => height(15 downto 8) <= unsigned(b);
               when 33 => height(7 downto 0) <= unsigned(b);
-              when 34 => plen(15 downto 8) <= unsigned(b);
+              when 34 =>
+                plen(15 downto 8) <= unsigned(b);
+                -- header sanity, registered a byte early (timing)
+                sane <= '0';
+                if mbad = '0' and (enc = TH_ENC_RAW or enc = TH_ENC_RLE) and
+                   ((scale = x"01" and width = 320) or (scale = x"02" and width = 160)) and
+                   nlines /= 0 and height /= 0 and height <= 200 and row + nlines <= height then
+                  sane <= '1';
+                end if;
               when 35 =>
                 plen(7 downto 0) <= unsigned(b);
                 left <= unsigned(plen(15 downto 8) & unsigned(b));
@@ -171,10 +180,7 @@ begin
                 bi <= (others => '0');
                 -- a lines frame for us with a sane header: first LINE tag
                 if hdr_ok = '1' and (okd0 = '1' or okd1 = '1') and sub = TH_SUB_LINES then
-                  if mbad = '0' and (enc = TH_ENC_RAW or enc = TH_ENC_RLE) and
-                     ((scale = x"01" and width = 320) or (scale = x"02" and width = 160)) and
-                     nlines /= 0 and height /= 0 and height <= 200 and row + nlines <= height and
-                     unsigned(plen(15 downto 8) & unsigned(b)) /= 0 then
+                  if sane = '1' and (plen(15 downto 8) /= 0 or b /= x"00") then
                     in_pl <= '1';
                     if room then
                       f_we  <= '1';

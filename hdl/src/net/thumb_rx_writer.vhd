@@ -61,6 +61,8 @@ architecture rtl of thumb_rx_writer is
   signal pheight : unsigned(7 downto 0) := (others => '0');
   signal plines : unsigned(7 downto 0) := (others => '0');
   signal npic : unsigned(31 downto 0) := (others => '0');
+  signal fin : std_logic := '0';
+  signal fin_rows : unsigned(7 downto 0) := (others => '0');
 begin
   tag <= f_dout(35 downto 34);
   mem_req.valid <= wpend;
@@ -69,12 +71,12 @@ begin
   mem_req.wdata <= wbuf;
   mem_req.wmask <= (others => '1');
   -- pop when idle: no word waiting, no run being expanded
-  f_pop <= '1' when f_valid = '1' and wpend = '0' and rcnt = 0 else '0';
+  f_pop <= '1' when f_valid = '1' and wpend = '0' and rcnt = 0 and fin = '0' else '0';
   pictures <= npic;
 
   process (clk)
     variable m : unsigned(4 downto 0);
-    variable f8, rows : unsigned(7 downto 0);
+    variable f8 : unsigned(7 downto 0);
     variable take, k : natural range 0 to 4;
     variable np : unsigned(3 downto 0);
     variable c : natural range 0 to 255;
@@ -82,7 +84,19 @@ begin
     if rising_edge(clk) then
       ev <= '0';
       seen_ev <= '0';
-      if wpend = '1' then
+      if fin = '1' then
+        fin <= '0';
+        seen_ev <= '1';
+        seen_machine <= pm;
+        if fin_rows >= pheight then
+          ev <= '1'; ev_machine <= pm; ev_buf <= pbuf; ev_quarter <= pq;
+          npic <= npic + 1;
+          rrows(to_integer(pm)) <= (others => '0');
+          rframe(to_integer(pm)) <= rframe(to_integer(pm)) + 1;   -- duplicates do not re-complete
+        else
+          rrows(to_integer(pm)) <= fin_rows;
+        end if;
+      elsif wpend = '1' then
         if mem_rsp.ready = '1' then
           wpend <= '0';
           w <= w + 1;
@@ -140,20 +154,10 @@ begin
             rcnt <= unsigned(f_dout(31 downto 24));
             rpx  <= f_dout(23 downto 0);
           when "10" =>                                    -- END
-            if pk = '1' then
-              if f_dout(0) = '1' then
-                seen_ev <= '1';
-                seen_machine <= pm;
-                rows := rrows(to_integer(pm)) + plines;
-                if rows >= pheight then
-                  ev <= '1'; ev_machine <= pm; ev_buf <= pbuf; ev_quarter <= pq;
-                  npic <= npic + 1;
-                  rrows(to_integer(pm)) <= (others => '0');
-                  rframe(to_integer(pm)) <= rframe(to_integer(pm)) + 1;   -- duplicates do not re-complete
-                else
-                  rrows(to_integer(pm)) <= rows;
-                end if;
-              end if;
+            -- rows are added in the next cycle (fin; timing)
+            if pk = '1' and f_dout(0) = '1' then
+              fin <= '1';
+              fin_rows <= rrows(to_integer(pm)) + plines;
             end if;
             pk <= '0';
             ign <= '1';

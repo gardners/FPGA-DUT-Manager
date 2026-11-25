@@ -95,7 +95,7 @@ architecture rtl of thumb_tx is
   signal pbf, pq : std_logic := '0';
   signal prows : unsigned(7 downto 0) := (others => '0');
   -- sending
-  type st_t is (S_IDLE, S_FETCH, S_SCAN, S_DECIDE, S_EMIT, S_CLOSE, S_WAIT);
+  type st_t is (S_IDLE, S_FETCH, S_SCAN, S_SIZE, S_DECIDE, S_EMIT, S_CLOSE, S_WAIT);
   signal st : st_t := S_IDLE;
   signal sm : unsigned(4 downto 0) := (others => '0');
   signal sb, sq : std_logic := '0';
@@ -125,6 +125,7 @@ architecture rtl of thumb_tx is
   signal t_last : std_logic := '0';           -- line done after this emission
   signal enc_line : std_logic := '0';         -- 1 = RLE24
   signal lsize : unsigned(12 downto 0) := (others => '0');
+  signal rawb  : unsigned(12 downto 0) := (others => '0');   -- RAW888 bytes per line
   -- packet
   signal pk_open : std_logic := '0';
   signal pk_enc : std_logic := '0';
@@ -225,7 +226,6 @@ begin
   process (clk)
     variable px : std_logic_vector(23 downto 0);
     variable flush : boolean;
-    variable sz : unsigned(12 downto 0);
     variable b : natural range 0 to 3;
   begin
     if rising_edge(clk) then
@@ -294,9 +294,9 @@ begin
               sm <= pm; sb <= pbf; sq <= pq; srows <= prows;
               if pm = local1 then sd <= 1; else sd <= 0; end if;
               if pq = '1' then
-                nw <= to_unsigned(40, 8); width <= to_unsigned(160, 9);
+                nw <= to_unsigned(40, 8); width <= to_unsigned(160, 9); rawb <= to_unsigned(480, 13);
               else
-                nw <= to_unsigned(80, 8); width <= to_unsigned(320, 9);
+                nw <= to_unsigned(80, 8); width <= to_unsigned(320, 9); rawb <= to_unsigned(960, 13);
               end if;
               frame  <= frame + 1;
               row    <= (others => '0');
@@ -345,7 +345,7 @@ begin
               p <= p + 1;
               if st = S_SCAN then
                 if p + 1 = width then
-                  st <= S_DECIDE;
+                  st <= S_SIZE;
                 else
                   wk <= K_B;
                 end if;
@@ -391,18 +391,21 @@ begin
               end if;
           end case;
 
-        when S_DECIDE =>
-          -- RLE24 bytes = 4 * runs (incl. the final run)
-          sz := resize((runs + 1) & "00", 13);
-          if sz < resize(width * 3, 13) then
+        when S_SIZE =>
+          -- RLE24 bytes = 4 * runs (incl. the final run); RLE24 only when
+          -- strictly smaller than RAW888 (registered: timing)
+          if resize((runs + 1) & "00", 13) < rawb then
             enc_line <= '1';
+            lsize <= resize((runs + 1) & "00", 13);
           else
             enc_line <= '0';
-            sz := resize(width * 3, 13);
+            lsize <= rawb;
           end if;
-          lsize <= sz;
-          if pk_open = '1' and ((sz < resize(width * 3, 13)) /= (pk_enc = '1') or
-                                resize(pb_ptr, 14) + sz > TH_PKT_BUDGET) then
+          st <= S_DECIDE;
+
+        when S_DECIDE =>
+          if pk_open = '1' and (enc_line /= pk_enc or
+                                resize(pb_ptr, 14) + lsize > TH_PKT_BUDGET) then
             last_pkt <= '0';
             st <= S_CLOSE;
           else
@@ -410,7 +413,7 @@ begin
               pk_open <= '1';
               pk_row  <= row;
               pk_n    <= (others => '0');
-              if sz < resize(width * 3, 13) then pk_enc <= '1'; else pk_enc <= '0'; end if;
+              pk_enc  <= enc_line;
             end if;
             emit  <= '1';
             p     <= (others => '0');
