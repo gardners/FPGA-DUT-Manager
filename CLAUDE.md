@@ -26,10 +26,19 @@ pre-V4 Numato Mimas A7 boards (XC7A50T-1FGG484). Start with
 * The owner reviews ADRs but wants implementation to proceed assuming
   approval. Ask the owner only about design problems that genuinely need their
   input (hardware facts, trade-offs with real consequences).
-* **Background work is fine**, including parallel compiles and sub-agents
-  where appropriate — but don't oversubscribe CPU *or RAM* (JOBS=10 nextpnr
-  compiles ran the laptop out of memory). `JOBS` defaults to
-  min(nproc/2, available GB/3).
+* **The lead session supervises; sub-agents do the parallel work** (owner,
+  2026-11-25). Split independent work items (issues) across sub-agents in
+  their own git worktrees and branches (`feature/<topic>`), keep the lead for
+  coordination, integration (merging their branches into
+  `feature/foundation`), hardware testing and the high-level picture with
+  the owner. Give each agent: the issue, the files it owns, the conventions
+  (tests, commits, protocol-change rule) and what it must not touch.
+  Only the lead loads bitstreams onto the board and fast-forwards `main`;
+  agents may run Vivado builds in their own worktree (`VIVADO_OUT`), at most
+  ~4 builds at once on the build box (about 3 GB RAM each).
+* **Background work is fine**, including parallel compiles — but don't
+  oversubscribe CPU *or RAM* (JOBS=10 nextpnr compiles ran the laptop out of
+  memory). `JOBS` defaults to min(nproc/2, available GB/3).
 * **Bitstreams come from Vivado by default** (owner decision, ADR 0001
   amendment): the owner runs `make bitstream` (= `make vivado`) on the build
   box; load here with `make jtagload BIT=...`. `FLOW=openxc7` keeps the
