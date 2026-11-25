@@ -21,3 +21,11 @@ hdmi_rx: TMDS_33 inputs on bank 35 (vendor XDC), ISERDESE2 + IDELAYE2 per lane, 
   enable, h/v total + active and pixel clock Hz.
 * Next: hardware test with a MEGA65 at 27 MHz (owner: after the bigger PSU);
   then raster capture (0023).
+
+## 2026-11-25 hardware: works on loopback
+
+Owner looped the Mimas HDMI OUT into its own HDMI IN. Known-good e59d3351
+(dvi2rgb receiver + video_meas) reports `video locked 720x480 of 858x525
+27.000 MHz` — exactly our 480p60 console timing. Pixel data correctness is
+next checked end to end once raster capture (0023) exists: capture the
+console and compare against the Python text renderer.
