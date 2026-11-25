@@ -18,7 +18,9 @@ entity text_display is
   generic (
     TOP    : natural := 40;     -- first text line ((480 - 400) / 2)
     LEFT   : natural := 0;      -- first text pixel column
-    BANNER : string := " FPGA-DUT-Manager supervisor -- no video source"
+    MESSAGE : string := "No video source found";   -- centred, reverse video box
+    FOOTER  : string := "MEGA KVM";                -- lower left (product/version/build)
+    VISIBLE : natural := 78                        -- columns the monitor shows
   );
   port (
     -- write side
@@ -39,17 +41,39 @@ end entity;
 architecture rtl of text_display is
   type ram_t is array (0 to 2047) of std_logic_vector(7 downto 0);
 
+  -- power-up screen (owner 2026-11-25): white on blue, MESSAGE centred in a
+  -- 3-row reverse-video (blue on white) box, FOOTER in the lower left.
+  constant BOX_W : natural := MESSAGE'length + 8;
+  constant BOX_X : natural := (VISIBLE - BOX_W) / 2;
+  constant BOX_Y : natural := 11;
+  function ch(c : character) return std_logic_vector is
+  begin
+    return std_logic_vector(to_unsigned(character'pos(c), 8));
+  end function;
   function init_chars return ram_t is
     variable m : ram_t := (others => x"20");
   begin
-    for i in BANNER'range loop
-      m(i - BANNER'low) := std_logic_vector(to_unsigned(character'pos(BANNER(i)), 8));
+    for i in MESSAGE'range loop
+      m((BOX_Y + 1) * 80 + BOX_X + 4 + i - MESSAGE'low) := ch(MESSAGE(i));
+    end loop;
+    for i in FOOTER'range loop
+      m(24 * 80 + 1 + i - FOOTER'low) := ch(FOOTER(i));
+    end loop;
+    return m;
+  end function;
+  function init_attrs return ram_t is
+    variable m : ram_t := (others => x"1F");        -- white on blue
+  begin
+    for r in BOX_Y to BOX_Y + 2 loop
+      for c in BOX_X to BOX_X + BOX_W - 1 loop
+        m(r * 80 + c) := x"F1";                     -- blue on white
+      end loop;
     end loop;
     return m;
   end function;
 
   signal chars : ram_t := init_chars;
-  signal attrs : ram_t := (others => x"1F");     -- white on blue
+  signal attrs : ram_t := init_attrs;
   attribute ram_style : string;
   attribute ram_style of chars, attrs : signal is "block";  -- issue 0019
 

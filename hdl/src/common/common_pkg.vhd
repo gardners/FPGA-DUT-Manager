@@ -14,6 +14,11 @@ package common_pkg is
     return std_logic_vector;
   -- Residue left in the state after running CRC over data+FCS of a good frame.
   constant CRC32_RESIDUE : std_logic_vector(31 downto 0) := x"DEBB20E3";
+  -- product identity shown on the console (owner 2026-11-25)
+  constant PRODUCT_NAME    : string := "MEGA KVM";
+  constant PRODUCT_VERSION : string := "0.1";
+  -- lower-case hex of a 32-bit value (e.g. the build id)
+  function hex32(v : std_logic_vector(31 downto 0)) return string;
 
   function clog2(n : positive) return natural;
   function to_slv(n : natural; w : positive) return std_logic_vector;
@@ -23,6 +28,16 @@ package common_pkg is
 end package;
 
 package body common_pkg is
+  function hex32(v : std_logic_vector(31 downto 0)) return string is
+    constant HX : string(1 to 16) := "0123456789abcdef";
+    variable r  : string(1 to 8);
+  begin
+    for k in 0 to 7 loop
+      r(k + 1) := HX(to_integer(unsigned(v(31 - 4 * k downto 28 - 4 * k))) + 1);
+    end loop;
+    return r;
+  end function;
+
   function crc32_byte(crc : std_logic_vector(31 downto 0); d : byte_t)
     return std_logic_vector is
     variable c : std_logic_vector(31 downto 0) := crc;
