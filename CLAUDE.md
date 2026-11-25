@@ -21,6 +21,8 @@ pre-V4 Numato Mimas A7 boards (XC7A50T-1FGG484). Start with
   `0000-index.md`). **Open questions / work items** go in
   `docs/issues/NNNN-short-description.md`; append dated progress notes rather
   than rewriting history.
+* **Log every non-trivial owner request as an issue before implementing
+  it** (owner, 2026-11-25), then append dated progress notes as it lands.
 * The owner reviews ADRs but wants implementation to proceed assuming
   approval. Ask the owner only about design problems that genuinely need their
   input (hardware facts, trade-offs with real consequences).
