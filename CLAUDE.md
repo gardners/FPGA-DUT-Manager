@@ -7,9 +7,14 @@ pre-V4 Numato Mimas A7 boards (XC7A50T-1FGG484). Start with
 
 ## How we work
 
-* **Branches**: feature branches (`feature/<topic>`); merge to `main` only
-  after the owner confirms it works (tests + hardware where relevant).
-  Pushing to GitHub (`origin`, gardners/FPGA-DUT-Manager) is allowed.
+* **Branches**: feature branches (`feature/<topic>`). Pushing to GitHub
+  (`origin`, gardners/FPGA-DUT-Manager) is allowed.
+* **`main` = last known-good** (owner, 2026-11-25): whenever a bitstream has
+  been verified on hardware (owner-confirmed, or checked here over the
+  network), fast-forward `main` to the commit it was built from
+  (`git push origin <commit>:main`), copy the `.bit` into `bits/`, point
+  `bits/known-good.bit` at it and add a row to `bits/README.md`. Keep doing
+  this as work progresses; never put unverified commits on `main`.
 * **Commit often**, with descriptive messages (what and why), ending with
   `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
 * **Decisions** go in `docs/adrs/NNNN-short-title.md` (+ index in
