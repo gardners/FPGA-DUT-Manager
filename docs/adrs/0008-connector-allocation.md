@@ -142,3 +142,17 @@ Consequence: rows 10-13 and 16-19 are no longer free for the chain link
 (ADR 0007); its pins must be reallocated in phase 3 (rows 22-33 are free on
 both headers but have no clock-capable pins, which the forwarded chain
 clock may need — to be decided then).
+
+## Amendment 4 2026-11-25 (owner): keyboard blocks reversed
+
+Supersedes amendment 3. The J5 mirror runs *down* the Mimas so J5 pin 1
+lands on a GND row and J5 pins 3-7 (keyboard JTAG) land on unused,
+undriven FPGA pins; only J5 pin 2 is a separate jumper.
+
+| Header | Rows | Function |
+|---|---|---|
+| P12 / P13 | 20 -> 16 (+ row 22 A) | DUT0 / DUT1 keyboard: 20 GND, 17B KIO8, 16A KIO9, 16B KIO10; pin 2 -> 22A sense |
+| P12 | 14 -> 10 (+ row 15) | physical keyboard: 14 GND, 11B KIO8, 10A KIO9, 10B KIO10; pin 2 -> row 15 (3.3 V supply) |
+
+Rows 4-7 (JTAG/UART), 10-20 and 22 are now used on P12; the chain link
+(ADR 0007) must be re-planned in phase 3.

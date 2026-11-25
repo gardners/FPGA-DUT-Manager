@@ -74,10 +74,10 @@ set_property -dict {PACKAGE_PIN L4 IOSTANDARD LVCMOS33} [get_ports {seg_en[3]}]
 ## docs/cabling/dut-cable.md). Rows: 3 GND, 4-7 GPIO_1-4 (P13: 21-24),
 ## 22/23/25/26 GPIO_13/14/15/16 (P13: 33-36); P in column A, N in column B.
 ##   JTAG+UART = rows 3-7 both columns = MEGA65 JB1 rows 1,2,4,5,6 (skip 5/6)
-##   keyboard  = rows 8-12 both columns = MEGA65 J5 2x5 in order (amendment 3):
-##               row 8 A GND (J5 1), rows 9-10 empty (J5 3-6), row 11 B KIO8,
-##               row 12 A KIO9, B KIO10; J5 pin 2 (3V3) by its own jumper to
-##               row 13 B (sense input)
+##   keyboard  = rows 20 down to 16, both columns = MEGA65 J5 2x5 in order,
+##               reversed (amendment 4): row 20 GND (J5 1/2), 19-17A J5 3-7
+##               keyboard JTAG on unused pins, 17B KIO8, 16A KIO9, 16B KIO10;
+##               J5 pin 2 (3V3) by its own jumper to row 22 A (sense input)
 ## No pulls on signals (brief section 5: minimise back-powering); sense inputs
 ## have PULLDOWN so an unplugged DUT reads unpowered. SLOW slew, 8 mA.
 set_property -dict {PACKAGE_PIN J20 IOSTANDARD LVCMOS33} [get_ports dut0_uart_from]
@@ -87,10 +87,10 @@ set_property -dict {PACKAGE_PIN K22 IOSTANDARD LVCMOS33} [get_ports dut0_tdo]
 set_property -dict {PACKAGE_PIN H20 IOSTANDARD LVCMOS33 PULLDOWN TRUE} [get_ports dut0_vio_sense]
 set_property -dict {PACKAGE_PIN G20 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW} [get_ports dut0_tdi]
 set_property -dict {PACKAGE_PIN H19 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW} [get_ports dut0_tms]
-set_property -dict {PACKAGE_PIN K19 IOSTANDARD LVCMOS33} [get_ports dut0_kio8]
-set_property -dict {PACKAGE_PIN L19 IOSTANDARD LVCMOS33} [get_ports dut0_kio9]
-set_property -dict {PACKAGE_PIN L20 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW} [get_ports dut0_kio10]
-set_property -dict {PACKAGE_PIN L21 IOSTANDARD LVCMOS33 PULLDOWN TRUE} [get_ports dut0_kb_sense]
+set_property -dict {PACKAGE_PIN M20 IOSTANDARD LVCMOS33} [get_ports dut0_kio8]
+set_property -dict {PACKAGE_PIN N22 IOSTANDARD LVCMOS33} [get_ports dut0_kio9]
+set_property -dict {PACKAGE_PIN M22 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW} [get_ports dut0_kio10]
+set_property -dict {PACKAGE_PIN H17 IOSTANDARD LVCMOS33 PULLDOWN TRUE} [get_ports dut0_kb_sense]
 
 set_property -dict {PACKAGE_PIN F19 IOSTANDARD LVCMOS33} [get_ports dut1_uart_from]
 set_property -dict {PACKAGE_PIN F20 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW} [get_ports dut1_tck]
@@ -99,10 +99,10 @@ set_property -dict {PACKAGE_PIN D19 IOSTANDARD LVCMOS33} [get_ports dut1_tdo]
 set_property -dict {PACKAGE_PIN D20 IOSTANDARD LVCMOS33 PULLDOWN TRUE} [get_ports dut1_vio_sense]
 set_property -dict {PACKAGE_PIN C20 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW} [get_ports dut1_tdi]
 set_property -dict {PACKAGE_PIN B22 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW} [get_ports dut1_tms]
-set_property -dict {PACKAGE_PIN C19 IOSTANDARD LVCMOS33} [get_ports dut1_kio8]
-set_property -dict {PACKAGE_PIN D17 IOSTANDARD LVCMOS33} [get_ports dut1_kio9]
-set_property -dict {PACKAGE_PIN C17 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW} [get_ports dut1_kio10]
-set_property -dict {PACKAGE_PIN A20 IOSTANDARD LVCMOS33 PULLDOWN TRUE} [get_ports dut1_kb_sense]
+set_property -dict {PACKAGE_PIN A19 IOSTANDARD LVCMOS33} [get_ports dut1_kio8]
+set_property -dict {PACKAGE_PIN B17 IOSTANDARD LVCMOS33} [get_ports dut1_kio9]
+set_property -dict {PACKAGE_PIN B18 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW} [get_ports dut1_kio10]
+set_property -dict {PACKAGE_PIN A15 IOSTANDARD LVCMOS33 PULLDOWN TRUE} [get_ports dut1_kb_sense]
 
 ## HDMI OUT (bank 35, TMDS_33 via IP4776 buffer); text display, ADR 0012
 set_property -dict {PACKAGE_PIN L3 IOSTANDARD TMDS_33} [get_ports hdmi_tx_clk_p]
@@ -114,16 +114,16 @@ set_property -dict {PACKAGE_PIN D1 IOSTANDARD TMDS_33} [get_ports {hdmi_tx_n[1]}
 set_property -dict {PACKAGE_PIN G1 IOSTANDARD TMDS_33} [get_ports {hdmi_tx_p[2]}]
 set_property -dict {PACKAGE_PIN F1 IOSTANDARD TMDS_33} [get_ports {hdmi_tx_n[2]}]
 
-## Physical keyboard (master's own MEGA65 keyboard): P12 rows 14-18, both
-## columns, = the keyboard's 2x5 connector in order (ADR 0008 amendment 3):
-##   row 14 A GND (pin 1); rows 15-16 empty (pins 3-6)
-##   row 17 B M20 GPIO_10_N KIO8 (pin 8)
-##   row 18 A M18 GPIO_11_P KIO9 (pin 9), B L18 GPIO_11_N KIO10 (pin 10)
-##   pin 2 (3.3 V supply) by its own jumper to row 15 (VADJ)
+## Physical keyboard (master's own MEGA65 keyboard): P12 rows 14 down to 10,
+## both columns, = the keyboard's 2x5 connector in order (ADR 0008 am. 4):
+##   row 14 GND (pin 1); pin 2 (3.3 V supply) by its own jumper to row 15
+##   rows 13-11A keyboard JTAG pins 3-7 on unused FPGA pins (never driven)
+##   row 11 B K19 GPIO_6_N KIO8 (pin 8)
+##   row 10 A J22 GPIO_5_P KIO9 (pin 9), B H22 GPIO_5_N KIO10 (pin 10)
 ## MK-I (push-pull clock/data) or MK-II (I2C SDA/SCL, open drain), auto-
 ## detected by kbd_phys_host (issue 0009). The MK-II PCB has 1k pull-ups
 ## (R13/R14); the weak PULLUPs here only stop an empty port from floating
 ## (the keyboard is powered from the supervisor side, so no back-powering).
-set_property -dict {PACKAGE_PIN M20 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW PULLUP TRUE} [get_ports pk_kio8]
-set_property -dict {PACKAGE_PIN M18 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW PULLUP TRUE} [get_ports pk_kio9]
-set_property -dict {PACKAGE_PIN L18 IOSTANDARD LVCMOS33 PULLDOWN TRUE} [get_ports pk_kio10]
+set_property -dict {PACKAGE_PIN K19 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW PULLUP TRUE} [get_ports pk_kio8]
+set_property -dict {PACKAGE_PIN J22 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW PULLUP TRUE} [get_ports pk_kio9]
+set_property -dict {PACKAGE_PIN H22 IOSTANDARD LVCMOS33 PULLDOWN TRUE} [get_ports pk_kio10]

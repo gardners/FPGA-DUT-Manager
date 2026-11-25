@@ -6,8 +6,8 @@ with **straight strips of male-to-female jumpers** (or crimped housings):
 | Harness | Mimas end | Other end |
 |---|---|---|
 | JTAG + UART to a MEGA65 | 2 strips of 5 (columns A and B), rows 3-7 | JB1: rows 1-2, skip row 3 (pins 5/6), rows 4-6 |
-| DUT keyboard to a MEGA65 | rows 8-12, both columns (J5 in order) + 1 single jumper | J5 2x5 straight; pin 2 jumper to row 13 B |
-| Physical keyboard (master only) | P12 rows 14-18, both columns (in order) + 1 single jumper | keyboard 2x5 straight; pin 2 jumper to row 15 |
+| DUT keyboard to a MEGA65 | rows 20 down to 16, both columns (J5 in order) + 1 single jumper | J5 2x5 straight; pin 2 jumper to row 22 A |
+| Physical keyboard (master only) | P12 rows 14 down to 10, both columns (in order) + 1 single jumper | keyboard 2x5 straight; pin 2 jumper to row 15 |
 
 **DUT0 uses P12, DUT1 uses P13, at identical positions.**
 
@@ -67,39 +67,44 @@ the keyboard harness's 3.3 V is present, and keeps TCK/TMS/TDI/UART-out
 tri-stated otherwise — so connect the keyboard harness too, or JTAG stays
 off.
 
-## 2. DUT keyboard (per DUT): Mimas rows 8-12 -> J5, in order
+## 2. DUT keyboard (per DUT): Mimas rows 20 down to 16 -> J5, in order
 
-The Mimas block mirrors J5 row for row (column A = odd pins, column B = even
-pins). Only J5 pins 1, 8, 9, 10 use the strips; J5's keyboard-JTAG pins 3-7
-are not wired. J5 pin 2 (the MEGA65's 3.3 V) cannot share a row with GND on
-the Mimas, so it is **one separate jumper** to a sense input.
+The block mirrors J5 row for row, running *down* the Mimas (column A = J5
+odd pins, column B = even pins), so all ten wires can be two straight 1x5
+strips. J5 pins 3-7 are the keyboard-CPLD JTAG signals; they land on FPGA
+pins the design leaves unused (never driven, weak pull-down), so wiring them
+is harmless. Only J5 pin 2 (the MEGA65's 3.3 V) needs its own jumper: it
+would otherwise sit on GND, and it must go to a sense input, never to the
+Mimas 3.3 V.
 
 | Mimas row | Column A | J5 | Column B | J5 |
 |---|---|---|---|---|
-| 8 | GND | 1 | (empty — pin 2 goes to row 13 B) | — |
-| 9 | (empty) | 3 | (empty) | 4 |
-| 10 | (empty) | 5 | (empty) | 6 |
-| 11 | (empty) | 7 | KIO8 in — K19 / C19 | 8 |
-| 12 | KIO9 in — L19 / D17 | 9 | KIO10 out — L20 / C17 | 10 |
-| 13 | — | | **3.3 V sense in — L21 / A20** | **2 (separate jumper)** |
+| 22 | **3.3 V sense in** — H17 / A15 | **2 (separate jumper)** | — | |
+| 21 | (Mimas 3.3 V row — nothing here) | | | |
+| 20 | GND | 1 | GND — leave empty (pin 2 is moved) | — |
+| 19 | KB_JTAGEN (unused pin) | 3 | KB_TMS (unused pin) | 4 |
+| 18 | KB_TCK (unused pin) | 5 | KB_TDI (unused pin) | 6 |
+| 17 | KB_TDO (unused pin) | 7 | KIO8 in — M20 / A19 | 8 |
+| 16 | KIO9 in — N22 / B17 | 9 | KIO10 out — M22 / B18 | 10 |
 
-(Balls: DUT0 on P12 / DUT1 on P13.) Row 9 is the Mimas 3.3 V row: leave
-those housing positions empty. The MEGA65's 3.3 V only reaches the sense
-input; it is never connected to the Mimas supply.
+(Balls: DUT0 on P12 / DUT1 on P13.)
 
-## 3. Physical keyboard (master supervisor only): P12 rows 14-18, in order
+## 3. Physical keyboard (master supervisor only): P12 rows 14 down to 10
+
+Same idea; here the keyboard's pin 2 is its 3.3 V *supply*, which comes from
+the Mimas 3.3 V row 15 right next to the block.
 
 | Mimas row | Column A | Keyboard pin | Column B | Keyboard pin |
 |---|---|---|---|---|
-| 14 | GND | 1 | (empty — pin 2 goes to row 15) | — |
-| 15 | (empty; 3.3 V row) | 3 | (empty; 3.3 V row) | 4 |
-| 16 | (empty) | 5 | (empty) | 6 |
-| 17 | (empty) | 7 | KIO8 (MK-I clock / MK-II SDA) — M20 | 8 |
-| 18 | KIO9 (MK-I LED data / MK-II SCL) — M18 | 9 | KIO10 (MK-I key data) — L18 | 10 |
+| 15 | 3.3 V supply (VADJ) | **2 (separate jumper, either column)** | 3.3 V | |
+| 14 | GND | 1 | GND — leave empty (pin 2 is moved) | — |
+| 13 | KB_JTAGEN (unused pin) | 3 | KB_TMS (unused pin) | 4 |
+| 12 | KB_TCK (unused pin) | 5 | KB_TDI (unused pin) | 6 |
+| 11 | KB_TDO (unused pin) | 7 | KIO8 (MK-I clock / MK-II SDA) — K19 | 8 |
+| 10 | KIO9 (MK-I LED data / MK-II SCL) — J22 | 9 | KIO10 (MK-I key data) — H22 | 10 |
 
-Keyboard pin 2 (its 3.3 V supply) is **one separate jumper** to row 15 (either
-column; 3.3 V VADJ, a power pin). The keyboard type (MK-I or MK-II) is
-detected automatically; `dutctl listen` reports it.
+The keyboard type (MK-I or MK-II) is detected automatically; `dutctl listen`
+reports it.
 
 ## Cautions
 
