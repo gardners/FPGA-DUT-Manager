@@ -58,3 +58,7 @@ reset. Hardware test pending: force a hunt by starting from a bad phase
   (calibrated centre 123.75 deg), 155 bad frames; hwcheck PASS.
 * Tuned to 2 frames / 1 s per position for quiet networks; re-test without
   helper traffic.
+* 2 frames / 1 s: recovered **without** helper traffic (1 hunt, 52 bad
+  frames, hwcheck PASS) but measured eye 10 and settled at ~73 deg: quiet
+  positions inside the eye timed out as fails and split the run. Timeout
+  raised to 10 s per position (fail only when truly silent).
