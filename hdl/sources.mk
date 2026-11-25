@@ -58,6 +58,8 @@ SYNTH_SOURCES := \
 	$(HDL_SRC)/platform/xc7/dna_xc7.vhd \
 	$(HDL_SRC)/platform/xc7/clocks_video_xc7.vhd \
 	$(HDL_SRC)/platform/xc7/video_out_clk_xc7.vhd \
+	$(HDL_SRC)/video/hdmi_framer.vhd \
+	$(HDL_SRC)/video/hdmi_rx_period.vhd \
 	$(HDL_SRC)/platform/xc7/dvi_tx_xc7.vhd \
 	$(HDL_SRC)/platform/xc7/ddr3_xc7.vhd \
 	$(REPO)/third_party/digilent-dvi2rgb/src/DVI_Constants.vhd \

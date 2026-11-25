@@ -393,10 +393,13 @@ static int cmd_listen(int argc, char **argv)
              hb.rx_eye_width, hb.rx_hunts, hb.rx_bad_frames,
              (hb.rx_link_flags & 1) ? " HUNTING" : "");
     if (hb.has_video) {
-      if (hb.video_flags & 1)
-        printf("  video %s %ux%u of %ux%u %.3f MHz%s", (hb.video_flags & 2) ? "locked" : "UNLOCKED",
+      if (hb.video_flags & DP_VF_CLOCK)
+        printf("  video %s %ux%u of %ux%u %.3f MHz%s%s%s",
+               (hb.video_flags & DP_VF_LOCKED) ? "locked" : "UNLOCKED",
                hb.h_active, hb.v_active, hb.h_total, hb.v_total, hb.pixel_clock_hz / 1e6,
-               (hb.video_flags & 4) ? " capture" : "");
+               (hb.video_flags & DP_VF_LOCKED) ? ((hb.video_flags & DP_VF_HDMI) ? " HDMI" : " DVI") : "",
+               (hb.video_flags & DP_VF_ISLANDS) ? "+islands" : "",
+               (hb.video_flags & DP_VF_CAPTURE) ? " capture" : "");
       else
         printf("  video none");
       printf("  screen %s", dp_con_shown_name(hb.console_screen));

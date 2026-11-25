@@ -109,7 +109,7 @@ typedef struct {
   uint8_t dut_id;
   /* video block (ADR 0005 section 8); valid only when has_video (payload >= 124) */
   uint8_t has_video;
-  uint8_t video_flags; /* b0 TMDS clock, b1 locked, b2 capture enabled, b3 DVI */
+  uint8_t video_flags; /* DP_VF_* bits */
   uint8_t console_screen; /* HDMI OUT shown: DP_CON_* (issues 0029, 0032) */
   uint16_t h_total, v_total, h_active, v_active;
   uint32_t pixel_clock_hz, frames_captured;
@@ -215,6 +215,14 @@ enum {
   DP_CON_PASSTHROUGH = 3, /* HDMI IN passed through (issue 0032) */
 };
 const char *dp_con_shown_name(int v); /* "editable" .. "passthrough", "?" */
+/* heartbeat byte 108 (video_flags), ADR 0005 section 8 */
+enum {
+  DP_VF_CLOCK = 0x01,   /* TMDS clock present */
+  DP_VF_LOCKED = 0x02,  /* aligned + decoding */
+  DP_VF_CAPTURE = 0x04, /* capture enabled */
+  DP_VF_HDMI = 0x08,    /* HDMI preambles seen (else DVI source), issue 0040 */
+  DP_VF_ISLANDS = 0x10, /* data islands (InfoFrames / audio) seen, issue 0040 */
+};
 
 /* ---------------------------------------------------------------------
  * Thumbnail relay (ADR 0005 section 10, issues 0035/0038): raw Ethernet,

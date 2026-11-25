@@ -15,7 +15,11 @@ entity mimas_a7_top is
     -- issue 0036 bring-up without DDR3: 1 = the live select screen reads a
     -- generated test pattern instead of the frame store (machines 0..9 seen,
     -- even ones fresh at 160x100 -> 4x3 thumbnails and colour bars)
-    MOSAIC_DEMO    : integer := 0
+    MOSAIC_DEMO    : integer := 0;
+    -- HDMI OUT sends HDMI (video guard bands, AVI + SPD InfoFrames, issue
+    -- 0037); false = the original pure DVI stream
+    HDMI_OUT       : boolean := true;
+    CON_VIC        : natural := 3        -- console 720x480p60: VIC 3 (16:9), 2 = 4:3
   );
   port (
     clk100       : in    std_logic;
@@ -102,6 +106,8 @@ architecture rtl of mimas_a7_top is
   signal vin_ht, vin_vt, vin_ha, vin_va : unsigned(15 downto 0);
   signal vin_hz : unsigned(31 downto 0);
   signal vin_lock_s : std_logic_vector(1 downto 0) := "00";
+  signal vin_hdmi, vin_island : std_logic;
+  signal vin_hdmi_s, vin_island_s : std_logic_vector(1 downto 0) := "00";
   signal idc_rdy : std_logic;
   signal good, bad : unsigned(15 downto 0);
   signal link_flags : std_logic_vector(7 downto 0);
@@ -132,6 +138,9 @@ architecture rtl of mimas_a7_top is
   signal core_th_seen, core_th_fresh, core_th_cur, core_th_q : std_logic_vector(31 downto 0);
   signal m_r, m_g, m_b : std_logic_vector(7 downto 0);
   signal sel_slots : std_logic_vector(9 downto 0);
+  signal vid_machine : unsigned(4 downto 0);
+  signal vid_machine_ok : std_logic;
+  signal tx_vic : std_logic_vector(6 downto 0);
   attribute ASYNC_REG : string;
   attribute ASYNC_REG of vrst_s : signal is "TRUE";
   -- DDR3 frame store (issue 0034): client ports of the arbiter. Port 0 is
@@ -208,6 +217,7 @@ begin
       vid_present => vin_present, vid_locked => vin_lock_s(1),
       vid_h_total => vin_ht, vid_v_total => vin_vt, vid_h_active => vin_ha,
       vid_v_active => vin_va, vid_pixel_hz => vin_hz,
+      vid_hdmi => vin_hdmi_s(1), vid_islands => vin_island_s(1),
       vin_pclk => vin_pclk, vin_rgb => vin_rgb, vin_de => vin_de, vin_hs => vin_hs,
       vin_vs => vin_vs,
       text_forced => t_force, con_screen => con_screen, con_slots => con_slots,
@@ -217,7 +227,8 @@ begin
       -- writer), 3 (relay receive writer), 4 (relay sender reader)
       thumb_mem_req => mem_reqs(2 to 4), thumb_mem_rsp => mem_rsps(2 to 4),
       thumb_seen => core_th_seen, thumb_fresh => core_th_fresh, thumb_cur => core_th_cur,
-      thumb_quarter => core_th_q);
+      thumb_quarter => core_th_q,
+      vid_machine => vid_machine, vid_machine_ok => vid_machine_ok);
 
   ---------------------------------------------------------------- DDR3
   -- Nothing waits on DDR3: until calibration the subsystem holds ready='0'
@@ -247,7 +258,7 @@ begin
               ddc_scl => hdmi_rx_scl, ddc_sda => hdmi_rx_sda,
               ref_clk => clk_ref, ref_rst => not locked,
               pclk => vin_pclk, rgb => vin_rgb, de => vin_de, hs => vin_hs, vs => vin_vs,
-              locked => vin_locked);
+              locked => vin_locked, hdmi_seen => vin_hdmi, island_seen => vin_island);
   vmeas : entity work.video_meas
     port map (pclk => vin_pclk, de => vin_de, hs => vin_hs, vs => vin_vs, clk => clk_sys,
               h_total => vin_ht, v_total => vin_vt, h_active => vin_ha, v_active => vin_va,
@@ -257,6 +268,8 @@ begin
   begin
     if rising_edge(clk_sys) then
       vin_lock_s <= vin_lock_s(0) & vin_locked;
+      vin_hdmi_s <= vin_hdmi_s(0) & vin_hdmi;        -- quasi-static (issue 0040)
+      vin_island_s <= vin_island_s(0) & vin_island;
     end if;
   end process;
 
@@ -360,11 +373,21 @@ begin
               r => t_r, g => t_g, b => t_b, de_out => t_de, hs_out => t_hs, vs_out => t_vs,
               force_text => t_force, screen => con_screen, slots => sel_slots,
               mos_on => m_on, mos_quad => m_quad, mos_r => m_r, mos_g => m_g, mos_b => m_b);
+  -- AVI VIC (issue 0037): the console mode, or for passthrough the CTA code
+  -- of the measured HDMI IN geometry (720x480 -> 3, 720x576 -> 18, both
+  -- 16:9 like the console; anything else 0 = no VIC). Quasi-static clk_sys
+  -- values; the framer samples them per frame (async clock groups).
+  tx_vic <= std_logic_vector(to_unsigned(CON_VIC, 7)) when pt_sel = '0' else
+            "0000011" when vin_ha = 720 and vin_va = 480 else
+            "0010010" when vin_ha = 720 and vin_va = 576 else
+            "0000000";
   dvi : entity work.dvi_tx_xc7
+    generic map (HDMI => HDMI_OUT)
     port map (pixel_clk => tx_pix, serial_clk => tx_pix5, rst => vrst,
               r => o_r, g => o_g, b => o_b, hs => o_hs, vs => o_vs, de => o_de,
               tmds_p => hdmi_tx_p, tmds_n => hdmi_tx_n,
-              tmds_clk_p => hdmi_tx_clk_p, tmds_clk_n => hdmi_tx_clk_n);
+              tmds_clk_p => hdmi_tx_clk_p, tmds_clk_n => hdmi_tx_clk_n,
+              vic => tx_vic, machine => vid_machine, machine_ok => vid_machine_ok);
 
   have_ip <= '1' when (src0 /= x"00" or ep_en(0) = '0') and (src1 /= x"00" or ep_en(1) = '0') else '0';
   seg7 : entity work.seg7_status
