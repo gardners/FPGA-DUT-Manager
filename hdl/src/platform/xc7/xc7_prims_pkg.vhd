@@ -58,6 +58,12 @@ package xc7_prims_pkg is
     );
   end component;
 
+  -- 57-bit device DNA (issue 0007). CLK <= 100 MHz.
+  component DNA_PORT
+    generic (SIM_DNA_VALUE : bit_vector(56 downto 0) := (others => '0'));
+    port (DOUT : out std_logic; CLK, DIN, READ, SHIFT : in std_logic);
+  end component;
+
   component ODDR
     generic (
       DDR_CLK_EDGE : string := "OPPOSITE_EDGE";

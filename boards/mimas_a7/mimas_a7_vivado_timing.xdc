@@ -55,3 +55,8 @@ set_false_path -setup -rise_from [get_clocks rgmii_rxc] -fall_to $rx_cap
 set_false_path -setup -fall_from [get_clocks rgmii_rxc] -rise_to $rx_cap
 set_false_path -hold  -rise_from [get_clocks rgmii_rxc] -rise_to $rx_cap
 set_false_path -hold  -fall_from [get_clocks rgmii_rxc] -fall_to $rx_cap
+
+# Device DNA (issue 0007): DNA_PORT is clocked at clk_sys/16 from a register
+# and sampled half a DNA clock away from its edges; read once at start-up.
+set_false_path -through [get_pins dnar/dp/DOUT]
+set_false_path -to [get_pins {dnar/dp/CLK dnar/dp/READ dnar/dp/SHIFT}]

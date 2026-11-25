@@ -33,6 +33,7 @@ SYNTH_SOURCES := \
 	$(HDL_SRC)/platform/xc7/xc7_prims_pkg.vhd \
 	$(HDL_SRC)/platform/xc7/clocks_xc7.vhd \
 	$(HDL_SRC)/platform/xc7/rgmii_xc7.vhd \
+	$(HDL_SRC)/platform/xc7/dna_xc7.vhd \
 	$(HDL_SRC)/platform/xc7/clocks_video_xc7.vhd \
 	$(HDL_SRC)/platform/xc7/dvi_tx_xc7.vhd \
 	$(HDL_SRC)/top/mimas_a7_top.vhd

@@ -65,6 +65,7 @@ architecture rtl of mimas_a7_top is
   signal rst_cnt : unsigned(21 downto 0) := (others => '0');
   signal phy_rst : std_logic := '0';
   signal rx_locked, rx_ps_en, rx_ps_done : std_logic;
+  signal dna : std_logic_vector(63 downto 0);
   signal idc_rdy : std_logic;
   signal good, bad : unsigned(15 downto 0);
   signal link_flags : std_logic_vector(7 downto 0);
@@ -105,6 +106,9 @@ begin
   phy_mdc   <= '0';
   phy_mdio  <= 'Z';
 
+  -- board identity: 57-bit device DNA (issue 0007; 0 until read)
+  dnar : entity work.dna_xc7 port map (clk => clk_sys, dna => dna, valid => open);
+
   phy : entity work.rgmii_xc7
     generic map (RX_PHASE_STEPS => RX_PHASE_STEPS)
     port map (
@@ -122,7 +126,7 @@ begin
     port map (
       clk_sys => clk_sys, clk_rx => clk_rx,
       rx_dv => rx_dv, rx_er => rx_er, rxd => rxd, tx_en => tx_en, txd => txd,
-      dna => x"00000000000000" & dip, dip => dip, link_flags => link_flags,
+      dna => dna, dip => dip, link_flags => link_flags,
       vio_sense => vio, kb3v3_sense => kbs,
       jtck => jtck, jtms => jtms, jtdi => jtdi, jtdo => jtdo, jtag_oe => joe,
       utx => utx, utx_oe => uoe, urx => urx,
