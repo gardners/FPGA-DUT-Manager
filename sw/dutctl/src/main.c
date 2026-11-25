@@ -743,20 +743,34 @@ static int cmd_relay(int argc, char **argv)
   tio.c_cflag &= ~(tcflag_t)HUPCL; /* do not reset the Arduino on close */
   tcsetattr(fd, TCSANOW, &tio);
   char line[256] = "";
-  int id = (int)(time(NULL) % 100000);
+  /* request id: must differ between invocations, even several per second,
+   * or the controller answers from its duplicate cache (ADR 0009) */
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  int id = (int)(((unsigned long)tv.tv_sec * 1000003UL + (unsigned long)tv.tv_usec * 7919UL +
+                  (unsigned long)getpid() * 104729UL) % 99999UL) + 1;
   int l = snprintf(line, sizeof line, "#%d", id);
   for (int i = 1; i < argc; i++)
     l += snprintf(line + l, sizeof line - (size_t)l, " %s", argv[i]);
   line[l++] = '\n';
-  /* an Arduino may reset when the port opens: allow it to boot */
+  /* An Uno resets when the port is first opened (DTR) and drops what
+   * arrives during its bootloader: if nothing answers within 0.4 s, resend
+   * the same line (same id, so a command that did run is answered from the
+   * controller's duplicate cache, not executed twice) once it has booted
+   * (EVENT BOOT) or every 0.7 s, for up to 4 s. */
   usleep(50000);
   if (write(fd, line, (size_t)l) != l)
     die("relay write");
   char resp[512];
   size_t rl = 0;
-  double end = now_s() + 3.0;
+  double start = now_s(), end = start + 4.0, resend = start + 0.4;
   int rc = 1;
   while (now_s() < end && rl < sizeof resp - 1) {
+    if (now_s() >= resend) {
+      if (write(fd, line, (size_t)l) != l)
+        die("relay write");
+      resend = now_s() + 0.7;
+    }
     struct pollfd p = {.fd = fd, .events = POLLIN};
     if (poll(&p, 1, 100) <= 0)
       continue;
@@ -769,6 +783,8 @@ static int cmd_relay(int argc, char **argv)
       *nl = 0;
       char tag[16];
       snprintf(tag, sizeof tag, "#%d ", id);
+      if (!strncmp(resp, "EVENT BOOT", 10))
+        resend = now_s() + 0.05;   /* just booted: resend now */
       if (!strncmp(resp, tag, strlen(tag))) {
         printf("%s\n", resp + strlen(tag));
         rc = strncmp(resp + strlen(tag), "OK", 2) ? 1 : 0;

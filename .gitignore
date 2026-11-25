@@ -10,3 +10,5 @@ work/
 /.claude/worktrees/
 __pycache__/
 bits/*.bit
+/tools/dl/
+/tools/arduino/

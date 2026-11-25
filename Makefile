@@ -56,7 +56,7 @@ endif
 
 .DELETE_ON_ERROR:
 FORCE:
-.PHONY: vivado all help deps toolchain test test-hdl test-sw bitstream jtagload jtagload-good flash \
+.PHONY: vivado all help deps toolchain test test-hdl test-sw bitstream jtagload jtagload-good flash relay-fw relay-flash \
         detect dutctl list-boards check-board clean distclean
 
 all: test bitstream dutctl
@@ -186,6 +186,31 @@ flash: $(BIT) check-board | $(STAMPS)/openfpgaloader
 # ---------------------------------------------------------------- host software
 dutctl:
 	$(MAKE) -C $(REPO)/sw/dutctl
+
+# ---------------------------------------------------------------- relay controller (issue 0041)
+# The arduino:avr core is kept in tools/arduino (git-ignored).
+# The system arduino-cli (e.g. the Ubuntu package) if installed, else a local copy.
+ARDUINO_CLI ?= $(or $(shell command -v arduino-cli 2>/dev/null),$(REPO)/tools/prefix/bin/arduino-cli)
+ARDUINO_ENV := ARDUINO_DIRECTORIES_DATA=$(REPO)/tools/arduino/data \
+	ARDUINO_DIRECTORIES_DOWNLOADS=$(REPO)/tools/arduino/staging \
+	ARDUINO_DIRECTORIES_USER=$(REPO)/tools/arduino/user
+RELAY_FQBN ?= arduino:avr:uno
+RELAY_OUT := $(BUILD)/firmware/relay-controller
+PORT ?= /dev/ttyACM0
+$(ARDUINO_CLI):
+	mkdir -p $(REPO)/tools/dl/arduino-cli $(REPO)/tools/prefix/bin
+	curl -fsSL -o $(REPO)/tools/dl/arduino-cli/ac.tgz \
+	  https://downloads.arduino.cc/arduino-cli/arduino-cli_latest_Linux_64bit.tar.gz
+	tar -C $(REPO)/tools/dl/arduino-cli -xzf $(REPO)/tools/dl/arduino-cli/ac.tgz arduino-cli
+	cp $(REPO)/tools/dl/arduino-cli/arduino-cli $@
+relay-fw: $(ARDUINO_CLI)
+	$(ARDUINO_ENV) $(ARDUINO_CLI) core list | grep -q '^arduino:avr ' || \
+	  { $(ARDUINO_ENV) $(ARDUINO_CLI) core update-index && $(ARDUINO_ENV) $(ARDUINO_CLI) core install arduino:avr; }
+	$(ARDUINO_ENV) $(ARDUINO_CLI) compile -b $(RELAY_FQBN) --warnings all \
+	  --output-dir $(RELAY_OUT) $(REPO)/firmware/relay-controller
+relay-flash: relay-fw
+	$(ARDUINO_ENV) $(ARDUINO_CLI) upload -b $(RELAY_FQBN) -p $(PORT) \
+	  --input-dir $(RELAY_OUT) $(REPO)/firmware/relay-controller
 
 # ---------------------------------------------------------------- housekeeping
 clean:
