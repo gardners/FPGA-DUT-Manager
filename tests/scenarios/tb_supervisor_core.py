@@ -16,15 +16,16 @@ import netproto as P  # noqa: E402
 HOST_MAC = P.mac("02:00:00:00:00:01")
 HOST_IP = P.ip("192.168.65.1")
 BCAST = b"\xff" * 6
-# DIP = 0x10: DUT0 (P12 half) has DUT ID 0, DUT1 (P13 half) has DUT ID 1.
+# DIP = 0x10: DUT0 (P12 half) has DUT ID 0x00, DUT1 (P13 half) DUT ID 0x11
+# (0x1m, issue 0026).
 # DUT0 gets a DHCP lease; DUT1 gets no reply and falls back (ADR 0011).
 DNA = 0x0123456789ABCDEF
-DUT_MAC = [bytes([0x02, 0x4D, 0x36, 0x35, 0x00, d]) for d in (0, 1)]
+DUT_MAC = [bytes([0x02, 0x4D, 0x36, 0x35, 0x00, d]) for d in (0x00, 0x11)]
 LEASE_IP = P.ip("10.65.0.50")
 SERVER_IP = P.ip("10.65.0.1")
 SERVER_MAC = P.mac("02:00:00:00:00:fe")
-DUT_IP = [LEASE_IP, P.ip("192.168.65.17")]
-XID = [0x4D363501, 0x4D363502]   # xid_base (4D3635 & id) + 1
+DUT_IP = [LEASE_IP, P.ip("192.168.65.33")]   # 16 + 0x11
+XID = [0x4D363501, 0x4D363512]   # xid_base (4D3635 & id) + 1
 IDCODE = 0x0362C093
 BAUD_12M5 = 429496730
 # JTAG: TLR x5, RTI, SELDR, CAPDR, SHDR (9 nav bits) then 32 bits, last exits
@@ -109,7 +110,7 @@ def check(path):
            x["cookie"] != b"\x63\x82\x53\x63" or x["op"] != 1 or x["flags"] != 0x8000 or \
            x["opts"].get(61) != b"\x01" + x["chaddr"] or x["opts"].get(12, b"")[:6] != b"m65dut":
             err("malformed DHCP client message: %r" % x)
-    if [x["opts"].get(12) for x in disc if x["chaddr"] == DUT_MAC[1]][:1] != [b"m65dut01"]:
+    if [x["opts"].get(12) for x in disc if x["chaddr"] == DUT_MAC[1]][:1] != [b"m65dut11"]:
         err("DUT1 host name wrong")
     if len(reqs) != 1 or reqs[0]["opts"].get(50) != LEASE_IP or reqs[0]["opts"].get(54) != SERVER_IP \
        or reqs[0]["xid"] != XID[0]:
@@ -198,7 +199,7 @@ def check(path):
         err("DUT1 rx_rejects %d != 1" % hb1[-1]["rx_rejects"])
     if hb0 and (hb0[-1]["addr_src"] != 1 or hb0[-1]["dut_id"] != 0):
         err("DUT0 heartbeat addr_src/dut_id %r" % ((hb0[-1]["addr_src"], hb0[-1]["dut_id"]),))
-    if not hb1 or hb1[-1]["addr_src"] != 2 or hb1[-1]["dut_id"] != 1:
+    if not hb1 or hb1[-1]["addr_src"] != 2 or hb1[-1]["dut_id"] != 0x11:
         err("DUT1 heartbeat missing or addr_src/dut_id wrong")
 
     print("DHCP: %d DISCOVER, %d REQUEST" % (len(disc), len(reqs)))

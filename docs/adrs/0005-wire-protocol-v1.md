@@ -76,7 +76,7 @@ Sent per DUT at ~50 Hz (configurable period; 20 ms default), and expedited
 | 28 | 1 | topo_index (0 = master, 0xFF unknown) |
 | 29 | 1 | topo_count |
 | 30 | 1 | dip_switches |
-| 31 | 1 | link_flags: b0 eth link up, b1 1000 Mb/s, b2 full duplex, b3 chain up-link ok, b4 chain down-link ok, b5 is master, b6 DUT ID conflict (P13 half disabled) |
+| 31 | 1 | link_flags: b0 eth link up, b1 1000 Mb/s, b2 full duplex, b3 chain up-link ok, b4 chain down-link ok, b5 is master, b6 reserved (was DUT ID conflict; IDs cannot collide since ADR 0011 amendment) |
 | 32 | 4 | capabilities: b0 uart, b1 jtag, b2 kbd device, b3 phys kbd host, b4 hdmi capture, b5 chain, b6 audio |
 | 36 | 4 | config_generation |
 | 40 | 1 | target_flags: b0 kbd 3V3 sense, b1 JTAG VREF sense, b2 outputs enabled, b3 sense valid |
@@ -96,7 +96,7 @@ Sent per DUT at ~50 Hz (configurable period; 20 ms default), and expedited
 | 92 | 2 | tx_drops (scheduler/ring) |
 | 94 | 12 | dut_leds (MK-I LED vector bits 95..0 received from the DUT) |
 | 106 | 1 | addr_src: 0 none yet, 1 DHCP, 2 fallback, 3 static (ADR 0011) |
-| 107 | 1 | dut_id (DIP switches, ADR 0011) |
+| 107 | 1 | dut_id (0x0n P12 / 0x1m P13 from DIP switches, ADR 0011) |
 
 Total 108 bytes (header + 100).
 

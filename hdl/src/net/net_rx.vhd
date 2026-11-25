@@ -22,8 +22,8 @@ use work.net_pkg.all;
 entity net_rx is
   port (
     clk        : in  std_logic;
-    dut_id0    : in  unsigned(3 downto 0);   -- DIP[3:0]  (ADR 0011)
-    dut_id1    : in  unsigned(3 downto 0);   -- DIP[7:4]
+    dut_id0    : in  unsigned(4 downto 0);   -- '0' & DIP[3:0] (ADR 0011, issue 0026)
+    dut_id1    : in  unsigned(4 downto 0);   -- '1' & DIP[7:4]
     ep_enable  : in  std_logic_vector(1 downto 0);
     ip_eff     : in  ip_arr_t;               -- effective address (DHCP/fallback/static)
     dna        : in  std_logic_vector(63 downto 0);
@@ -112,7 +112,7 @@ architecture rtl of net_rx is
   signal d       : integer range 0 to 1 := 0;
 
   signal cfg_r   : dut_cfg_arr_t := (default_cfg(x"0"), default_cfg(x"1"));
-  signal ids_seen: unsigned(7 downto 0) := (others => '1');
+  signal ids_seen: unsigned(9 downto 0) := (others => '1');
   signal cfg_init: std_logic := '0';
   signal bcfg_r  : board_cfg_t := (x"FF", x"FF", '1', "00", (others => '0'));
   signal last_cmd: u16_arr_t := (others => (others => '0'));

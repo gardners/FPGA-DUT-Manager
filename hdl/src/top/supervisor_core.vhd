@@ -166,13 +166,13 @@ architecture rtl of supervisor_core is
   signal frames_sent : unsigned(31 downto 0);
 
   -- identity / DHCP (ADR 0011)
-  signal id0, id1 : unsigned(3 downto 0);
+  signal id0, id1 : unsigned(4 downto 0);
   signal ep_enable : std_logic_vector(1 downto 0);
   signal ip_eff : ip_arr_t;
   signal dhcp_strobe, dhcp_taken : std_logic_vector(1 downto 0);
   signal dhcp_rx : dhcp_rx_t;
   signal dhcp_tx : dhcp_tx_arr_t;
-  signal ids_prev : unsigned(7 downto 0) := (others => '1');
+  signal ids_prev : unsigned(9 downto 0) := (others => '1');
   signal id_restart : std_logic := '0';
 begin
   ---------------------------------------------------------------- timers
@@ -267,10 +267,11 @@ begin
   ep_enable_o <= ep_enable;
 
   ---------------------------------------------------------------- identity
-  id0 <= unsigned(dip(3 downto 0));
-  id1 <= unsigned(dip(7 downto 4));
-  -- same DUT ID on both halves: the P13 half stays silent (ADR 0011)
-  ep_enable <= "01" when id0 = id1 else "11";
+  -- DUT IDs 0x0n (P12 half) and 0x1m (P13 half): the halves cannot collide
+  -- (issue 0026, amends ADR 0011)
+  id0 <= unsigned('0' & dip(3 downto 0));
+  id1 <= unsigned('1' & dip(7 downto 4));
+  ep_enable <= "11";
   process (clk_sys)
   begin
     if rising_edge(clk_sys) then
@@ -327,7 +328,7 @@ begin
       signal bound, fb : std_logic;
       signal lease : ip_t;
       signal st3 : unsigned(2 downto 0);
-      signal id : unsigned(3 downto 0);
+      signal id : unsigned(4 downto 0);
     begin
       id <= id0 when i = 0 else id1;
       cl : entity work.dhcp_client
@@ -335,7 +336,7 @@ begin
         port map (
           clk => clk_sys, tick_1ms => tick_1ms,
           enable => cfg(i).dhcp_en and ep_enable(i), restart => id_restart,
-          xid_base => x"4D3635" & "0000" & std_logic_vector(id),
+          xid_base => x"4D3635" & "000" & std_logic_vector(id),
           rx_strobe => dhcp_strobe(i), rx_type => dhcp_rx.typ, rx_xid => dhcp_rx.xid,
           rx_yiaddr => dhcp_rx.yiaddr, rx_server => dhcp_rx.server,
           rx_lease => dhcp_rx.lease, rx_t1 => dhcp_rx.t1,
@@ -351,7 +352,7 @@ begin
       dstat(i).addr_src <= x"03" when cfg(i).dhcp_en = '0' else
                            x"01" when bound = '1' else
                            x"02" when fb = '1' else x"00";
-      dstat(i).dut_id <= "0000" & std_logic_vector(id);
+      dstat(i).dut_id <= "000" & std_logic_vector(id);
     end block;
 
     ub : entity work.uart_bridge

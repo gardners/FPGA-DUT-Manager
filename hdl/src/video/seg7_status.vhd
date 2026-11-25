@@ -1,6 +1,7 @@
 -- seg7_status: Mimas A7 seven-segment status (active-low segments/enables).
 -- Until every enabled endpoint has an address: blinking "dHCP".
--- Then: DUT ID of the P12 half, '-', DUT ID of the P13 half (hex), blank.
+-- Then: P12 DUT ID (1 hex digit), '-', P13 DUT ID (2 hex digits, 1m), e.g.
+-- "0-10" (issue 0026).
 -- Mimas A7 V3.1 schematic (sheet 12): pins 7SEG_0..7 drive segments
 -- G, F, A, B, DP, C, D, E of a common-anode display; all active low.
 -- Digit n is enable(n) = DIG(n+1) via a PNP (active low).
@@ -13,7 +14,7 @@ entity seg7_status is
   port (
     clk      : in  std_logic;
     have_ip  : in  std_logic;               -- all enabled endpoints addressed
-    id0, id1 : in  unsigned(3 downto 0);
+    id0, id1 : in  unsigned(4 downto 0);     -- 0x0n, 0x1m
     seg      : out std_logic_vector(7 downto 0);
     seg_en   : out std_logic_vector(3 downto 0)
   );
@@ -63,8 +64,9 @@ begin
         if blink(blink'high) = '1' then lit := CH_OFF; end if;
       else
         case to_integer(digit) is
-          when 0 => lit := hex7(id0); when 1 => lit := CH_DASH;
-          when 2 => lit := hex7(id1); when others => lit := CH_OFF;
+          when 0 => lit := hex7(id0(3 downto 0)); when 1 => lit := CH_DASH;
+          when 2 => lit := hex7("000" & id1(4 downto 4));
+          when others => lit := hex7(id1(3 downto 0));
         end case;
       end if;
       -- lit is gfedcba; map to the board's 7SEG_0..7 = G F A B DP C D E

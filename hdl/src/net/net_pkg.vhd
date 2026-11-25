@@ -113,23 +113,24 @@ package net_pkg is
   type dhcp_tx_arr_t is array (0 to 1) of dhcp_tx_t;
 
   -- ADR 0011: MAC 02:4D:36:35:00:<DUT ID>, fallback IP 192.168.65.(16+ID)
-  function dut_mac(id : unsigned(3 downto 0)) return mac_t;
-  function fallback_ip(id : unsigned(3 downto 0)) return ip_t;
-  function default_cfg(id : unsigned(3 downto 0)) return dut_cfg_t;
+  -- id = DUT ID (issue 0026: 0x00..0x0F P12 half, 0x10..0x1F P13 half)
+  function dut_mac(id : unsigned) return mac_t;
+  function fallback_ip(id : unsigned) return ip_t;
+  function default_cfg(id : unsigned) return dut_cfg_t;
 end package;
 
 package body net_pkg is
-  function dut_mac(id : unsigned(3 downto 0)) return mac_t is
+  function dut_mac(id : unsigned) return mac_t is
   begin
     return x"024D36350000" or std_logic_vector(resize(id, 48));
   end function;
 
-  function fallback_ip(id : unsigned(3 downto 0)) return ip_t is
+  function fallback_ip(id : unsigned) return ip_t is
   begin
     return std_logic_vector(unsigned(DEFAULT_IP_BASE) + resize(id, 32));
   end function;
 
-  function default_cfg(id : unsigned(3 downto 0)) return dut_cfg_t is
+  function default_cfg(id : unsigned) return dut_cfg_t is
     variable c : dut_cfg_t;
   begin
     c.mac          := dut_mac(id);

@@ -48,3 +48,14 @@ a node number (ADR 0005 draft) need per-board configuration and collide easily.
 * Implementation reuses the owner's HewnWeb/hardweb DHCP sequencer
   (`dhcp_seq`, `dhcp_control`, `dhcp_tx`), relicensed here by the owner
   (see ADR 0012 note on provenance), adapted to the slot/builder structure.
+
+## Amendment 2026-11-25 (owner, issue 0026): per-half ID ranges
+
+* DUT ID of the P12 half = `0x0n` (n = `DIP[3:0]`, 0x00..0x0F); of the P13
+  half = `0x1m` (m = `DIP[7:4]`, 0x10..0x1F). The halves can no longer
+  collide, so the same-ID rule (P13 silent, `id_conflict`) is dropped; both
+  endpoints are always enabled. Heartbeat `link_flags` b6 stays 0 (reserved).
+* MAC `02:4D:36:35:00:<ID>` and fallback `192.168.65.(16 + ID)` follow the
+  5-bit ID. DHCP host name `m65dutNN` now uses **lower-case hex** NN = ID
+  (= MAC byte 5), e.g. `m65dut0a`, `m65dut1f`.
+* Seven-segment: `n-1m`, e.g. `0-10` for DIP = 0x00.

@@ -139,6 +139,8 @@ begin
   vtim : entity work.video_timing
     port map (clk => clk_pix, x => vx, y => vy, de => v_de, hs => v_hs, vs => v_vs, frame_start => v_fs);
   text : entity work.text_display
+    -- shifted 2 cells right: the owner's monitor hides the first ~1.5 (issue 0027)
+    generic map (LEFT => 18)
     port map (wr_clk => clk_rx, wr_en => text_we, wr_addr => text_addr, wr_data => text_data,
               clk_pix => clk_pix, x => vx, y => vy, de_in => v_de, hs_in => v_hs, vs_in => v_vs,
               r => t_r, g => t_g, b => t_b, de_out => t_de, hs_out => t_hs, vs_out => t_vs,
@@ -151,8 +153,8 @@ begin
 
   have_ip <= '1' when (src0 /= x"00" or ep_en(0) = '0') and (src1 /= x"00" or ep_en(1) = '0') else '0';
   seg7 : entity work.seg7_status
-    port map (clk => clk_sys, have_ip => have_ip, id0 => unsigned(dip(3 downto 0)),
-              id1 => unsigned(dip(7 downto 4)), seg => seg, seg_en => seg_en);
+    port map (clk => clk_sys, have_ip => have_ip, id0 => unsigned('0' & dip(3 downto 0)),
+              id1 => unsigned('1' & dip(7 downto 4)), seg => seg, seg_en => seg_en);
 
   -- DUT pins: outputs tri-stated unless the core enables them
   dut0_tck <= jtck(0) when joe(0) = '1' else 'Z';

@@ -29,7 +29,7 @@ architecture tb of tb_seg7_status is
 begin
   clk <= not clk after 5 ns when not done;
   dut : entity work.seg7_status generic map (CLK_HZ => 40_000)
-    port map (clk, have_ip, x"3", x"A", seg, en);
+    port map (clk, have_ip, "00011", "11010", seg, en);   -- 0x03, 0x1A
 
   process
     type exp_t is array (0 to 3) of std_logic_vector(7 downto 0);
@@ -53,8 +53,8 @@ begin
     check((pins("BCDEG"), pins("BCEFG"), pins("ADEF"), pins("ABEFG")), "dHCP");
     have_ip <= '1';
     wait for 1 us;
-    -- 3 - A (blank)
-    check((pins("ABCDG"), pins("G"), pins("ABCEFG"), x"FF"), "ids");
+    -- 3 - 1 A  (P12 0x03, P13 0x1A; issue 0026)
+    check((pins("ABCDG"), pins("G"), pins("BC"), pins("ABCEFG")), "ids");
     report "tb_seg7_status PASSED";
     done <= true;
     wait;

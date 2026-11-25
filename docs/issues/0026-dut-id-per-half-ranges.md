@@ -25,3 +25,10 @@ Proposal:
 * Touches: ADR 0011 (amend), `supervisor_core` (id0/id1, conflict logic),
   `seg7_status`, `net_tx` DHCP host name digits, heartbeat `dut_id` byte,
   `tests/netproto.py` + scenario, `dutctl listen` display, text status screen.
+
+## 2026-11-25 implemented
+
+IDs `'0' & DIP[3:0]` / `'1' & DIP[7:4]`; ep_enable always "11"; hex host
+names; seg7 `n-1m`; ADR 0011 amended, ADR 0005 b6 reserved. System test now
+expects DUT1 = 0x11 (DIP 0x10): MAC ..:11, m65dut11, fallback .33.
+Status: Done pending hardware check (owner reported " 0-0" before this).

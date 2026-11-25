@@ -134,6 +134,12 @@ architecture rtl of net_tx is
     return b(std_logic_vector(v), i);
   end function;
 
+  function hexc(v : natural) return byte_t is
+  begin
+    if v < 10 then return std_logic_vector(to_unsigned(48 + v, 8));
+    else return std_logic_vector(to_unsigned(87 + v, 8)); end if;   -- 'a'..'f'
+  end function;
+
   -- DHCP DISCOVER/REQUEST UDP payload (300 bytes, RFC 2131/2132)
   function dhcp_byte(i : natural; mac : mac_t; t : dhcp_tx_t; id : std_logic_vector(7 downto 0))
     return byte_t is
@@ -144,8 +150,9 @@ architecture rtl of net_tx is
   begin
     has50 := t.reqip /= x"00000000";
     has54 := t.server /= x"00000000";
-    tens := to_integer(unsigned(id)) / 10;
-    ones := to_integer(unsigned(id)) mod 10;
+    -- host name digits: DUT ID in lower-case hex (issue 0026), = MAC byte 5
+    tens := to_integer(unsigned(id(7 downto 4)));
+    ones := to_integer(unsigned(id(3 downto 0)));
     case i is
       when 0 => return x"01";                 -- BOOTREQUEST
       when 1 => return x"01";                 -- Ethernet
@@ -179,8 +186,8 @@ architecture rtl of net_tx is
       when 17 => return x"64";                -- d
       when 18 => return x"75";                -- u
       when 19 => return x"74";                -- t
-      when 20 => return std_logic_vector(to_unsigned(48 + tens, 8));
-      when 21 => return std_logic_vector(to_unsigned(48 + ones, 8));
+      when 20 => return hexc(tens);
+      when 21 => return hexc(ones);
       when others => null;
     end case;
     o := o - 22;

@@ -21,3 +21,11 @@ with a test pattern: column markers every 8 px). If the monitor really
 loses the edge, options: 8-px cells (640 px wide, centred, LEFT = 40) or a
 narrower box-drawing-free mode. Video capture (0022/0023) concerns DUT
 video, not this console — only the console timing changes.
+
+## 2026-11-25 hardware + fix
+
+480p60 confirmed (owner). Still ~1.5 cells hidden on the left: SD "720"
+modes have only ~704 px of picture (BT.601), the monitor hides the edges.
+Owner decision: keep 9-px cells, shift right. Top level now uses
+`text_display` LEFT = 18 (2 cells); columns 78-79 fall outside DE, so ~78
+columns are visible, which is fine.
