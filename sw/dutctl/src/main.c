@@ -276,6 +276,14 @@ static int cmd_listen(int argc, char **argv)
       printf("  kbd type %u  rx phase %u eye %u hunts %u bad %u%s", hb.phys_type, hb.rx_phase_pos,
              hb.rx_eye_width, hb.rx_hunts, hb.rx_bad_frames,
              (hb.rx_link_flags & 1) ? " HUNTING" : "");
+    if (hb.has_video) {
+      if (hb.video_flags & 1)
+        printf("  video %s %ux%u of %ux%u %.3f MHz%s", (hb.video_flags & 2) ? "locked" : "UNLOCKED",
+               hb.h_active, hb.v_active, hb.h_total, hb.v_total, hb.pixel_clock_hz / 1e6,
+               (hb.video_flags & 4) ? " capture" : "");
+      else
+        printf("  video none");
+    }
     if (hb.phys_type) {
       printf("  phys");
       for (int k = 0; k < 80; k++)
