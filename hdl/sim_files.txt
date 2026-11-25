@@ -24,6 +24,8 @@ hdl/src/eth/eth_mac_tx.vhd
 hdl/src/net/dhcp_client.vhd
 hdl/src/net/net_rx.vhd
 hdl/src/net/net_tx.vhd
+hdl/src/net/rx_phase_hunter.vhd
+hdl/src/net/rx_frame_observer.vhd
 hdl/sim/tap_model.vhd
 third_party/mega65-core/hdmi_tx_encoder.vhdl
 hdl/src/video/font8x16_pkg.vhd
