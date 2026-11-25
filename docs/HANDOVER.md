@@ -143,3 +143,32 @@ file; nothing else is needed from the laptop.
   clk_sys WNS is down to +0.02 ns: watch it on the next HDL additions.
 * After that: test JTAG/UART/keyboards on the owner's wiring; then the
   queue in the table above (0020 smoke test, 0022-0024 video, 0010 m65).
+
+## Update 2026-11-25 (build-box session, evening)
+
+* Known-good is **6c2c91fd** (main = cb5ca98). It adds, all verified on the
+  board: DDR3 MIG frame store with self-test (0034, ADR 0013), the
+  thumbnail mosaic select screen (0036), thumbnails and their raw-Ethernet
+  relay (0035/0038, EtherType 0x88B5, key 0x0041, caps 0x9F), HDMI OUT
+  SPD/AVI InfoFrames (0037 part 1) and the HDMI-aware receiver (0040). The
+  select screen captured over the loopback is in
+  docs/images/select-screen-live-thumbnail.png.
+* Resources: all 5 MMCMs are used (MIG took two); new clocks must come
+  from a PLL (3 free). About 55 % LUTs, 43 % BRAM. clk_sys WNS about
+  +0.19 ns.
+* `mem_pkg.vhd` is the DDR3 client contract (128-bit words, clk_sys). The
+  thumbnail store holds xRGB32 rows of 2 KiB, 512 KiB per (machine, buffer).
+  Arbiter ports: 0 self-test, 1 mosaic, 2 capture writer, 3 relay RX, 4
+  relay TX.
+* hwtest: the bad-key probe moved to 0x0042. The video check retries when
+  its 1 s pixel-clock window overlaps a passthrough attempt on the self-loop.
+* Relay controller (0041): arduino-cli (Ubuntu package), `make
+  relay-flash`. Protocol v3: `POWER <ch...> ON|OFF`, `STATUS [ch...]`.
+  The relays have 12 V coils: they need 12 V on the module VCC (VIN with
+  12 V on the barrel, or straight from the PSU); the inputs are 5 V logic.
+  Do not feed the module through one of its own relays, or that relay
+  buzzes.
+* Open with the owner: whether the monitor's OSD shows the SPD name; real
+  HDMI source and MEGA65 bring-up after the PSU work; `dutctl screenshot`
+  (0042, agent running).
+* Future note: GenLock (0039).

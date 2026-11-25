@@ -45,30 +45,43 @@ decisions are in [`docs/adrs/`](docs/adrs/0000-index.md), open work in
 ## Progress (2026-11-25)
 
 **Working on hardware** (Vivado bitstreams; known-good images in `bits/`,
-`scripts/hwtest.sh` smoke test 61/0):
+`scripts/hwtest.sh` smoke test 63/0):
 
 * Gigabit Ethernet with a self-calibrating RGMII RX phase, ARP, ICMP,
   per-DUT DHCP; DUT IDs `0x0n` / `0x1m` from the DIP switches; device DNA.
-* Heartbeats with link and video blocks; every management key (accepts
-  valid, rejects invalid values with the right status).
+* Heartbeats with link, video and DDR3 blocks; every management key
+  (accepts valid, rejects invalid values with the right status).
 * HDMI console at 720x480p60 with three screens (editable / no video /
-  select), written over UDP (`dutctl text --screen`).
-* **HDMI capture**: 27 MHz DVI input (Digilent dvi2rgb) and raster
-  transport; `dutctl video` reassembles complete, pixel-exact frames
-  (verified on an HDMI loopback, jumbo frames).
+  select), written over UDP (`dutctl text --screen`). HDMI OUT sends HDMI
+  with AVI and SPD InfoFrames ("MEGA65 / MEGA KVM Mnn").
+* **HDMI IN**: 27 MHz input (Digilent dvi2rgb, made HDMI-aware so guard
+  bands and data islands such as audio never reach the picture), our own
+  EDID, live passthrough to HDMI OUT, and raster capture: `dutctl video`
+  reassembles complete, pixel-exact frames (verified on an HDMI loopback,
+  jumbo frames). `dutctl screenshot` (issue 0042) is in progress.
+* **DDR3** (256 MiB, Xilinx MIG): calibrates and passes its start-up
+  self-test. It is used only as a thumbnail store; nothing else depends on
+  it.
+* **Live thumbnails**: every video source keeps a 320x200 (or 160x100)
+  copy in DDR3. Boards exchange them as raw Ethernet frames on request
+  (RAW888/RLE24), and the KVM select screen shows them as a 2x2 or 4x3
+  mosaic with the selection digit in each corner. A machine with no
+  video shows colour bars, an empty slot a frown.
 * Physical MK-I keyboard: KVM hotkey (both SHIFTs 1 s + MEGA, or a quick
   LSHIFT/MEGA train, then 1-9, 0) and power-LED status colours.
 * Seven-segment status; SPI flash programming (`make flash`).
+* **Relay controller** (Arduino Uno, `make relay-flash`): `dutctl relay
+  /dev/ttyACM0 POWER 0 1 ON`, `STATUS`, `CYCLE`, `ALL OFF`; relays switch
+  on the bench (ADR 0009).
 
 **Implemented, waiting for hardware to test:** JTAG/XVC and UART to a
 powered MEGA65, MK-I keyboard emulation towards DUTs, MK-II keyboard host,
-relay controller.
-
-**In progress:** video passthrough to HDMI OUT (0032); then EDID
-emulation, MEGA65 bring-up (0002/0010).
+passthrough and EDID with a real HDMI source, the thumbnail relay between
+two boards, the monitor showing the SPD name.
 
 **Not started:** supervisor chain link (0011), audio, status screen (0017),
-DUT adapter board (0008), 100 Mb/s Ethernet (0018, low priority).
+reading the monitor's EDID (0037 part 2), GenLock (0039, future), DUT
+adapter board (0008), 100 Mb/s Ethernet (0018, low priority).
 
 ## Quick start
 
@@ -80,6 +93,7 @@ make jtagload             # load it (or: make jtagload-good for bits/known-good.
 make dutctl
 sw/dutctl/build/dutctl listen -t 5
 sw/dutctl/build/dutctl text <ip> "Hello"
+make relay-flash PORT=/dev/ttyACM0   # relay controller (arduino-cli)
 ```
 
 Hardware notes: power the Mimas from its DC jack (USB power alone is not
@@ -100,7 +114,7 @@ kept available but Vivado is the default.
 | `hdl/tb/`, `tests/scenarios/` | nvc testbenches and Python scenario checks |
 | `boards/mimas_a7/` | pin and timing constraints |
 | `sw/dutctl/` | Linux CLI in C: protocol codec, UART merge, XVC proxy, relay client |
-| `firmware/relay-controller/` | Arduino sketch for the Jaycar XC4418 relay board |
+| `firmware/relay-controller/` | Arduino Uno sketch for the 8-channel relay board (`make relay-fw`, `make relay-flash`) |
 | `tests/netproto.py` | reference encoder/decoder for the wire protocol |
 | `vivado/`, `scripts/` | Vivado build script, toolchain and board helper scripts |
 | `docs/` | design brief, ADRs, issues |
