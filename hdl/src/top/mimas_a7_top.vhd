@@ -135,7 +135,7 @@ architecture rtl of mimas_a7_top is
   attribute ASYNC_REG of vrst_s : signal is "TRUE";
   -- DDR3 frame store (issue 0034): client ports of the arbiter. Port 0 is
   -- the start-up self-test; thumbnail writer/reader ports go after it.
-  constant MEM_PORTS : positive := 1;
+  constant MEM_PORTS : positive := 2;   -- 0 self-test, 1 mosaic reader
   constant MEM_TEST_BITS : positive := 16;       -- self-test 2**16 words = 1 MiB
   signal mem_reqs : mem_req_arr_t(0 to MEM_PORTS - 1);
   signal mem_rsps : mem_rsp_arr_t(0 to MEM_PORTS - 1);
@@ -295,24 +295,25 @@ begin
   o_vs <= p_vs when pt_sel = '1' else t_vs;
   vtim : entity work.video_timing
     port map (clk => clk_pix, x => vx, y => vy, de => v_de, hs => v_hs, vs => v_vs, frame_start => v_fs);
-  -- Live-thumbnail select screen (issue 0036). Until the DDR3 subsystem
-  -- (0034) and the thumbnail receiver (0035) are merged: ddr_ok = '0' (the
-  -- boxes-only select screen), presence from con_slots, nothing fresh.
-  -- Integration: mos_req/mos_rsp -> an arbiter port; ddr_ok <- calibration
-  -- done; th_* <- the 0035 status vectors.
+  -- Live-thumbnail select screen (issue 0036): the mosaic reader is DDR3
+  -- arbiter port 1 and runs once the DDR3 has calibrated. Until the
+  -- thumbnail writer/receiver (0035) is merged: presence from con_slots,
+  -- nothing fresh (seen machines show colour bars).
   g_nomem : if MOSAIC_DEMO = 0 generate
-    ddr_ok   <= '0';
-    th_seen  <= x"00000" & "00" & con_slots;
-    th_fresh <= (others => '0');
-    th_buf   <= (others => '0');
-    th_scale <= (others => '0');
-    mos_rsp  <= MEM_RSP_IDLE;
+    ddr_ok      <= mem_stat.calibrated;
+    th_seen     <= x"00000" & "00" & con_slots;
+    th_fresh    <= (others => '0');
+    th_buf      <= (others => '0');
+    th_scale    <= (others => '0');
+    mem_reqs(1) <= mos_req;
+    mos_rsp     <= mem_rsps(1);
   end generate;
   g_demo : if MOSAIC_DEMO /= 0 generate
     signal pv : std_logic_vector(1 downto 0) := "00";
     signal pa0, pa1 : unsigned(MEM_AW - 1 downto 0) := (others => '0');
   begin
     ddr_ok   <= '1';
+    mem_reqs(1) <= MEM_REQ_IDLE;
     th_seen  <= x"000003FF";
     th_fresh <= x"00000155";
     th_buf   <= x"00000044";
