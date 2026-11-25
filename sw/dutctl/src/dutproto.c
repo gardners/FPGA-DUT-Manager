@@ -124,7 +124,74 @@ int dp_decode_heartbeat(const uint8_t *p, size_t len, dp_heartbeat_t *hb)
   memcpy(hb->dut_leds, p + 86, 12);
   hb->addr_src = p[98];
   hb->dut_id = p[99];
+  hb->has_video = len >= 124;
+  if (hb->has_video) {
+    hb->video_flags = p[100];
+    hb->h_total = dp_get16(p + 102);
+    hb->v_total = dp_get16(p + 104);
+    hb->h_active = dp_get16(p + 106);
+    hb->v_active = dp_get16(p + 108);
+    hb->pixel_clock_hz = dp_get32(p + 110);
+    hb->frames_captured = dp_get32(p + 114);
+    hb->raster_lines_dropped = dp_get16(p + 118);
+    hb->tmds_decode_errors = dp_get16(p + 120);
+  } else {
+    hb->video_flags = 0;
+    hb->h_total = hb->v_total = hb->h_active = hb->v_active = 0;
+    hb->pixel_clock_hz = hb->frames_captured = 0;
+    hb->raster_lines_dropped = hb->tmds_decode_errors = 0;
+  }
   return 0;
+}
+
+int dp_decode_raster(const uint8_t *p, size_t len, dp_raster_t *r)
+{
+  if (len < DP_RASTER_HDR_LEN - DP_HDR_LEN)
+    return -1;
+  r->frame = dp_get32(p + 0);
+  r->line = dp_get16(p + 4);
+  r->h_total = dp_get16(p + 6);
+  r->v_total = dp_get16(p + 8);
+  r->active_count = dp_get16(p + 10);
+  r->hs_start = dp_get16(p + 12);
+  r->hs_end = dp_get16(p + 14);
+  r->flags = p[16];
+  r->encoding = p[17];
+  r->payload_bytes = dp_get16(p + 18);
+  r->uart_rx_seq = dp_get32(p + 20);
+  memcpy(r->uart_rx_history, p + 24, 16);
+  r->payload = p + 40;
+  if ((size_t)40 + r->payload_bytes > len || r->active_count > DP_RASTER_MAX_PX)
+    return -1;
+  if (r->encoding == DP_ENC_RAW && r->payload_bytes != 3u * r->active_count)
+    return -1;
+  if (r->encoding == DP_ENC_RLE24 && r->payload_bytes % 4)
+    return -1;
+  if (r->encoding > DP_ENC_RLE24)
+    return -1;
+  return 0;
+}
+
+int dp_raster_pixels(const dp_raster_t *r, uint8_t *out, size_t cap)
+{
+  size_t need = 3u * r->active_count;
+  if (need > cap)
+    return -1;
+  if (r->encoding == DP_ENC_RAW) {
+    if (r->payload_bytes != need)
+      return -1;
+    memcpy(out, r->payload, need);
+    return r->active_count;
+  }
+  size_t o = 0;
+  for (size_t i = 0; i + 4 <= r->payload_bytes; i += 4) {
+    uint8_t c = r->payload[i];
+    if (c == 0 || o + 3u * c > need)
+      return -1;
+    for (uint8_t k = 0; k < c; k++, o += 3)
+      memcpy(out + o, r->payload + i + 1, 3);
+  }
+  return o == need ? (int)r->active_count : -1;
 }
 
 int dp_decode_snapshot(const uint8_t *p, size_t len, dp_snapshot_t *s)

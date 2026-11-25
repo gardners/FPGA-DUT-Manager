@@ -11,7 +11,12 @@ VERSION = 1
 T_HEARTBEAT, T_MGMT_SET, T_MGMT_ACK = 0x01, 0x10, 0x11
 T_KBD_SET, T_UART_TX, T_UART_SNAP = 0x20, 0x30, 0x31
 T_JTAG_REQ, T_JTAG_RESP = 0x40, 0x41
+T_RASTER = 0x60
 PORT_MGMT, PORT_HB, PORT_KBD, PORT_UART, PORT_JTAG = 6500, 6501, 6502, 6503, 6507
+PORT_RASTER = 6504
+# raster flags (ADR 0005 section 8)
+RF_VSYNC, RF_VPOL, RF_HPOL, RF_ACTIVE, RF_FIRST, RF_DROPPED, RF_LOCKED = 1, 2, 4, 8, 16, 32, 64
+ENC_RAW, ENC_RLE24 = 0, 1
 
 
 def mac(s):
@@ -136,6 +141,76 @@ def decode_heartbeat(b):
      f["uart_tx_acc"], f["rx_rejects"], f["tx_drops"]) = struct.unpack(">HBBIIIHH", b[66:86])
     f["dut_leds"] = b[86:98]
     f["addr_src"], f["dut_id"] = b[98], b[99]
+    if len(b) >= 124:  # video block (ADR 0005 section 8), bytes 108..131 of the datagram
+        (f["video_flags"], _, f["h_total"], f["v_total"], f["h_active"], f["v_active"],
+         f["pixel_clock_hz"], f["frames_captured"], f["raster_lines_dropped"],
+         f["tmds_decode_errors"], _) = struct.unpack(">BBHHHHIIHHH", b[100:124])
+    return f
+
+
+VIDEO_FIELDS = ("video_flags", "h_total", "v_total", "h_active", "v_active", "pixel_clock_hz",
+                "frames_captured", "raster_lines_dropped", "tmds_decode_errors")
+
+
+def rle24_encode(pixels):
+    """Raw RGB888 bytes -> RLE24 (count u8 1..255, R, G, B) tuples."""
+    assert len(pixels) % 3 == 0
+    out = bytearray()
+    i, n = 0, len(pixels)
+    while i < n:
+        px = pixels[i:i + 3]
+        c = 1
+        while c < 255 and i + 3 * c < n and pixels[i + 3 * c:i + 3 * c + 3] == px:
+            c += 1
+        out += bytes([c]) + px
+        i += 3 * c
+    return bytes(out)
+
+
+def rle24_decode(data):
+    if len(data) % 4:
+        raise ValueError("RLE24 length not a multiple of 4")
+    out = bytearray()
+    for i in range(0, len(data), 4):
+        if data[i] == 0:
+            raise ValueError("RLE24 count 0")
+        out += data[i + 1:i + 4] * data[i]
+    return bytes(out)
+
+
+RASTER_HDR = ">IHHHHHHBBH I16s".replace(" ", "")  # 40 bytes after the common header
+
+
+def encode_raster(dut, frame, line, h_total, v_total, pixels, hs_start=0, hs_end=0, flags=0,
+                  uart_rx_seq=0, uart_hist=b"", rle=False):
+    """pixels: raw RGB888 bytes (empty for blanking lines). rle=True uses RLE24 only when
+    strictly smaller than raw (ADR rule)."""
+    assert len(pixels) % 3 == 0 and len(uart_hist) <= 16
+    active = len(pixels) // 3
+    enc, payload = ENC_RAW, pixels
+    if rle and pixels:
+        r = rle24_encode(pixels)
+        if len(r) < len(pixels):
+            enc, payload = ENC_RLE24, r
+    hist = bytes(16 - len(uart_hist)) + uart_hist
+    b = struct.pack(RASTER_HDR, frame, line, h_total, v_total, active, hs_start, hs_end,
+                    flags, enc, len(payload), uart_rx_seq, hist)
+    return custom(T_RASTER, dut, b + payload)
+
+
+def decode_raster(b):
+    """b: datagram body after the 8-byte common header. Returns dict incl. 'pixels'
+    (always raw RGB888, RLE24 expanded)."""
+    f = {}
+    (f["frame"], f["line"], f["h_total"], f["v_total"], f["active_count"], f["hs_start"],
+     f["hs_end"], f["flags"], f["encoding"], f["payload_bytes"], f["uart_rx_seq"],
+     f["uart_rx_history"]) = struct.unpack(RASTER_HDR, b[:40])
+    data = b[40:40 + f["payload_bytes"]]
+    if len(data) != f["payload_bytes"]:
+        raise ValueError("raster payload truncated")
+    f["pixels"] = rle24_decode(data) if f["encoding"] == ENC_RLE24 else data
+    if len(f["pixels"]) != 3 * f["active_count"]:
+        raise ValueError("raster pixel count != active_count")
     return f
 
 
@@ -172,6 +247,10 @@ def encode_heartbeat(dut, f):
                      f["tx_drops"])
     b += f["dut_leds"] + bytes([f.get("addr_src", 0), f.get("dut_id", 0)])
     assert len(b) == 100
+    if "video_flags" in f:  # optional video block -> 124-byte payload
+        b += struct.pack(">BBHHHHIIHHH", f["video_flags"], 0, f["h_total"], f["v_total"],
+                         f["h_active"], f["v_active"], f["pixel_clock_hz"], f["frames_captured"],
+                         f["raster_lines_dropped"], f["tmds_decode_errors"], 0)
     return custom(T_HEARTBEAT, dut, b)
 
 

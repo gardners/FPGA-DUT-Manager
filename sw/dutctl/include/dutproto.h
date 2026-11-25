@@ -34,6 +34,7 @@ enum dp_type {
   DP_T_JTAG_REQ = 0x40,
   DP_T_JTAG_RESP = 0x41,
   DP_T_TEXT_WRITE = 0x50,
+  DP_T_RASTER = 0x60,
 };
 
 enum dp_key {
@@ -63,7 +64,22 @@ enum dp_jtag_status { DP_JS_DONE = 0, DP_JS_BUSY, DP_JS_BAD_SEQ, DP_JS_BAD_FMT, 
 #define DP_JTAG_MAX_BITS 8192
 #define DP_UART_TX_MAX 1024
 #define DP_CLK_HZ 125000000.0
-#define DP_MAX_PACKET 2200
+#define DP_MAX_PACKET 2200 /* control plane; raster uses DP_RASTER_MAX_PACKET */
+#define DP_RASTER_HDR_LEN 48
+#define DP_RASTER_MAX_PX 1024
+#define DP_RASTER_MAX_PACKET (DP_RASTER_HDR_LEN + 3 * DP_RASTER_MAX_PX)
+
+/* raster flags (ADR 0005 section 8) */
+enum dp_raster_flag {
+  DP_RF_VSYNC = 0x01,
+  DP_RF_VSYNC_POL = 0x02,
+  DP_RF_HSYNC_POL = 0x04,
+  DP_RF_ACTIVE = 0x08,
+  DP_RF_FIRST = 0x10,
+  DP_RF_DROPPED = 0x20,
+  DP_RF_LOCKED = 0x40,
+};
+enum dp_raster_enc { DP_ENC_RAW = 0, DP_ENC_RLE24 = 1 };
 
 typedef struct {
   uint16_t magic;
@@ -86,7 +102,23 @@ typedef struct {
   uint8_t dut_leds[12];
   uint8_t addr_src; /* 0 none, 1 DHCP, 2 fallback, 3 static */
   uint8_t dut_id;
+  /* video block (ADR 0005 section 8); valid only when has_video (payload >= 124) */
+  uint8_t has_video;
+  uint8_t video_flags; /* b0 TMDS clock, b1 locked, b2 capture enabled, b3 DVI */
+  uint16_t h_total, v_total, h_active, v_active;
+  uint32_t pixel_clock_hz, frames_captured;
+  uint16_t raster_lines_dropped, tmds_decode_errors;
 } dp_heartbeat_t;
+
+typedef struct {
+  uint32_t frame;
+  uint16_t line, h_total, v_total, active_count, hs_start, hs_end;
+  uint8_t flags, encoding;
+  uint16_t payload_bytes;
+  uint32_t uart_rx_seq;
+  uint8_t uart_rx_history[16];
+  const uint8_t *payload; /* points into the caller's buffer (payload_bytes long) */
+} dp_raster_t;
 
 typedef struct {
   uint32_t boot_id, snap_seq, rx_seq, tx_accepted, tx_emitted;
@@ -133,6 +165,13 @@ int dp_decode_heartbeat(const uint8_t *pl, size_t len, dp_heartbeat_t *hb);
 int dp_decode_snapshot(const uint8_t *pl, size_t len, dp_snapshot_t *s);
 int dp_decode_jtag_resp(const uint8_t *pl, size_t len, dp_jtag_resp_t *r);
 int dp_decode_ack(const uint8_t *pl, size_t len, dp_ack_t *a);
+/* Raster: pl/len = body after the common header. Checks payload length and,
+ * for raw encoding, payload_bytes == 3 * active_count. */
+int dp_decode_raster(const uint8_t *pl, size_t len, dp_raster_t *r);
+/* Expand a raster payload to RGB888 (raw copy or RLE24 decode) into out
+ * (cap bytes). Returns pixels written, or -1 if malformed / not matching
+ * active_count. */
+int dp_raster_pixels(const dp_raster_t *r, uint8_t *out, size_t cap);
 
 /* UART NCO increment for a baud rate at 125 MHz */
 uint32_t dp_baud_nco(double baud);

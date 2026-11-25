@@ -20,7 +20,7 @@ static int failures, checks;
 /* ------------------------------------------------------------ vectors */
 typedef struct {
   char name[32];
-  uint8_t data[DP_MAX_PACKET];
+  uint8_t data[DP_RASTER_MAX_PACKET];
   size_t len;
 } vec_t;
 static vec_t vecs[32];
@@ -33,8 +33,8 @@ static void load_vectors(const char *path)
     perror(path);
     exit(1);
   }
-  static char hex[4608];
-  while (nvecs < 32 && fscanf(f, "%31s %4500s", vecs[nvecs].name, hex) == 2) {
+  static char hex[2 * DP_RASTER_MAX_PACKET + 8];
+  while (nvecs < 32 && fscanf(f, "%31s %6240s", vecs[nvecs].name, hex) == 2) {
     size_t l = strlen(hex) / 2;
     for (size_t i = 0; i < l; i++) {
       unsigned b;
@@ -110,7 +110,15 @@ static void test_decoders(void)
   CHECK(hb.phys_change == 3 && hb.phys_type == 2 && hb.jtag_status == 2);
   CHECK(hb.jtag_next_seq == 77 && hb.uart_rx_seq == 1000 && hb.uart_tx_acc == 55);
   CHECK(hb.rx_rejects == 4 && hb.tx_drops == 1 && hb.dut_leds[11] == 11);
-  CHECK(hb.addr_src == 1 && hb.dut_id == 7);
+  CHECK(hb.addr_src == 1 && hb.dut_id == 7 && !hb.has_video);
+
+  v = vec("heartbeat_video");
+  CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && h.length == 124 && h.dut == 0);
+  CHECK(dp_decode_heartbeat(v->data + 8, h.length, &hb) == 0);
+  CHECK(hb.hb_seq == 42 && hb.dut_id == 7 && hb.has_video && hb.video_flags == 7);
+  CHECK(hb.h_total == 864 && hb.v_total == 625 && hb.h_active == 720 && hb.v_active == 576);
+  CHECK(hb.pixel_clock_hz == 27000000 && hb.frames_captured == 0x01020304);
+  CHECK(hb.raster_lines_dropped == 5 && hb.tmds_decode_errors == 6);
 
   v = vec("snapshot");
   CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && h.type == DP_T_UART_SNAP);
@@ -134,6 +142,37 @@ static void test_decoders(void)
   dp_ack_t a;
   CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && dp_decode_ack(v->data + 8, h.length, &a) == 0);
   CHECK(a.cmd_id == 0x1234 && a.key == 0x10 && a.status == 0 && a.cfg_gen == 9);
+
+  static uint8_t px[3 * DP_RASTER_MAX_PX];
+  dp_raster_t r;
+  v = vec("raster_active");
+  CHECK(v->len == 2208 && dp_parse_hdr(v->data, v->len, &h) == 0 && h.type == DP_T_RASTER);
+  CHECK(dp_decode_raster(v->data + 8, h.length, &r) == 0);
+  CHECK(r.frame == 0x89ABCDEF && r.line == 5 && r.h_total == 864 && r.v_total == 625);
+  CHECK(r.active_count == 720 && r.hs_start == 732 && r.hs_end == 796);
+  CHECK(r.flags == (DP_RF_ACTIVE | DP_RF_LOCKED | DP_RF_HSYNC_POL) && r.encoding == DP_ENC_RAW);
+  CHECK(r.payload_bytes == 2160 && r.uart_rx_seq == 1000);
+  CHECK(!memcmp(r.uart_rx_history + 8, "READY.\r\n", 8) && r.uart_rx_history[7] == 0);
+  CHECK(dp_raster_pixels(&r, px, sizeof px) == 720);
+  int pxok = 1;
+  for (int x = 0; x < 720; x++)
+    pxok &= px[3 * x] == (x & 0xFF) && px[3 * x + 1] == ((x >> 8) ^ 5) && px[3 * x + 2] == ((3 * x) & 0xFF);
+  CHECK(pxok);
+  CHECK(dp_decode_raster(v->data + 8, h.length - 1, &r) < 0); /* truncated */
+
+  v = vec("raster_blank");
+  CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && h.length == 40 && h.dut == 1);
+  CHECK(dp_decode_raster(v->data + 8, h.length, &r) == 0);
+  CHECK(r.frame == 7 && r.line == 600 && r.active_count == 0 && r.payload_bytes == 0);
+  CHECK(r.flags == (DP_RF_VSYNC | DP_RF_LOCKED | DP_RF_DROPPED) && r.uart_rx_seq == 0xFFFFFFFFu);
+
+  v = vec("raster_rle");
+  CHECK(dp_parse_hdr(v->data, v->len, &h) == 0);
+  CHECK(dp_decode_raster(v->data + 8, h.length, &r) == 0);
+  CHECK(r.encoding == DP_ENC_RLE24 && r.active_count == 320 && r.payload_bytes == 12);
+  CHECK(r.flags == (DP_RF_ACTIVE | DP_RF_FIRST | DP_RF_LOCKED) && r.line == 0 && r.frame == 8);
+  CHECK(dp_raster_pixels(&r, px, sizeof px) == 320);
+  CHECK(px[0] == 0x10 && px[899 * 1] == 0x30 && px[900] == 1 && px[959] == 3);
 
   /* malformed */
   uint8_t bad[16] = {0x4D, 0x36, 1, 1, 0, 9, 0, 0};
