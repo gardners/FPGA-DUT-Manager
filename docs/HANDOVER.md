@@ -11,10 +11,11 @@ new session runs on the build box: it has Vivado and sits on the same
   merged to `main` (owner merges after hardware confirmation).
 * Minion branches (pushed by sub-agents just before the hand-off; review and
   merge into `feature/foundation` if good):
-  * **`feature/mk2-keyboard`** — issue 0009: MK-II physical keyboard (I2C
-    scanner adapted from mega65-core `mk2_to_mk1`, I2C expander model,
-    MK-I/MK-II auto-detect wrapper `kbd_phys_host`). Not yet wired into
-    `supervisor_core` (it still instantiates `kbd_mk1_host` directly).
+  * MK-II keyboard (issue 0009): **not implemented**. The sub-agent only
+    produced a protocol analysis (I2C transactions, expander addresses and
+    registers, full bit-to-matrix mapping, caps/shift-lock, LEDs, R6
+    auto-detect, upstream quirks), now on `feature/foundation` as a dated
+    note in `docs/issues/0009-physical-keyboard-host.md`. Implement from it.
   * **`feature/dutctl-video`** — issue 0024: raster decoder, frame
     assembler, `dutctl capture` / `dutctl video`, Python raster
     encoder/decoder in `tests/netproto.py`, vectors and C tests.
@@ -109,7 +110,7 @@ First Vivado build: **clk_sys WNS −5.233 ns** (2537 endpoints) and
 | 0022 | `hdmi_rx` 27 MHz DVI (ISERDESE2/IDELAY, bitslip, deskew, decode, lock/geometry); test with our `dvi_tx_xc7` as source |
 | 0023 | raster capture: async FIFO → 16 KiB packet ring with commit → raster-first scheduler; capture enable key 0x0040; heartbeat video block (ADR 0005 §8) |
 | 0024 | review/merge `feature/dutctl-video`; use its Python raster decoder in the capture system test |
-| 0009 | review/merge `feature/mk2-keyboard`; switch `supervisor_core` to `kbd_phys_host` |
+| 0009 | implement MK-II host from the analysis in the issue note; then switch `supervisor_core` to a `kbd_phys_host` wrapper |
 | 0025 | README.md |
 
 Owner preferences recap: commit often with good messages and the
