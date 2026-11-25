@@ -42,8 +42,27 @@ int main() {
   CHECK(relay_tick(&r, 0x2E8) == 0x04);
   CHECK(!strcmp(ex("ALL OFF"), "OK ALL OFF MASK 00") && r.mask == 0);
   CHECK(!strcmp(ex("PSU 1"), "OK PSU 1") && r.psu == 1);
-  CHECK(!strcmp(ex("#5 VERSION"), "#5 OK VERSION relay-controller 1"));
+  CHECK(!strcmp(ex("#5 VERSION"), "#5 OK VERSION relay-controller 2 LIMIT 5"));
   CHECK(!strcmp(ex("#abc STATUS"), "ERR bad id"));
+  // at most RELAY_MAX_ON (5) relays on, counting pending cycles
+  relay_init(&r);
+  for (int i = 0; i < 5; i++) {
+    char c[16], want[40];
+    snprintf(c, sizeof c, "POWER %d 1", i);
+    snprintf(want, sizeof want, "OK POWER %d 1 MASK %02X", i, (1 << (i + 1)) - 1);
+    CHECK(!strcmp(ex(c), want));
+  }
+  CHECK(!strcmp(ex("POWER 5 1"), "ERR LIMIT 5 ON") && r.mask == 0x1F);
+  CHECK(!strcmp(ex("POWER 2 1"), "OK POWER 2 1 MASK 1F"));   // already on: fine
+  CHECK(!strcmp(ex("POWER 5 0"), "OK POWER 5 0 MASK 1F"));   // off always allowed
+  CHECK(!strcmp(ex("CYCLE 5 1000", 100), "ERR LIMIT 5 ON"));  // would end on
+  CHECK(!strcmp(ex("CYCLE 4 1000", 100), "OK CYCLE 4 1000") && r.mask == 0x0F);
+  CHECK(!strcmp(ex("POWER 6 1", 200), "ERR LIMIT 5 ON"));    // 4 is coming back
+  CHECK(relay_tick(&r, 1100) == 0x10 && r.mask == 0x1F);
+  CHECK(!strcmp(ex("POWER 0 0", 1200), "OK POWER 0 0 MASK 1E"));
+  CHECK(!strcmp(ex("POWER 7 1", 1300), "OK POWER 7 1 MASK 9E"));
+  CHECK(!strcmp(ex("POWER 1 0", 1400), "OK POWER 1 0 MASK 9C"));
+  CHECK(!strcmp(ex("CYCLE 4 600", 1500), "OK CYCLE 4 600"));  // already committed
   // line assembly
   relay_init(&r);
   const char *in = "STATUS\r\nPOWER 1 1\n";

@@ -55,10 +55,21 @@ Eight consecutive digital lines plus a separate 2-pin power header:
   power strip splits there.
 * Unused on purpose: D0/D1 (serial), D10 (optional PS_ON#), D13 (blinks
   during bootloading).
-* **Current:** each relay coil takes about 70-80 mA, so about 0.6 A with
-  all eight on. The Uno's 5V pin fed from USB is behind a 500 mA
-  polyfuse, so with many relays on the Uno can brown out and reset, and
-  the relays then drop. For more than about 4 relays on at once, power the
-  relay board VCC from the ATX 5 VSB (or another 5 V supply) with grounds
-  common, keeping only the IN lines (and GND) from the Uno. If the module
-  has a JD-VCC jumper, coil power can be separated completely.
+* **Relays and power (corrected 2026-11-25):** the module's relays are
+  SRLD-12VDC-SL-C, with 12 V coils (about 30-37 mA each; must-operate
+  voltage at most 9 V). Feed 12 V into the Uno's DC barrel, for example
+  from the PC supply's 12 V. The Uno then runs from its own regulator,
+  not from USB. Power the module from the power header's adjacent **VIN
+  and GND** pins: VIN is the barrel voltage minus the reverse-protection
+  diode, about 11.3 V. Six coils draw about 0.2 A, well within the diode
+  (1 A). 5 V into the barrel does not work: VIN would be about 4.3 V,
+  which cannot pull in a 12 V relay, and the Uno falls back to USB power.
+* **Check before connecting the IN lines:** with the module powered at
+  12 V and the Uno disconnected, measure each IN pin to GND. It must be
+  near 0 V or floating, never pulled up towards 12 V, which would damage
+  the Uno's pins.
+* **Limit:** the firmware refuses to have more than `RELAY_MAX_ON` = 5
+  relays on at once, counting channels whose `CYCLE` will switch them back
+  on. It answers `ERR LIMIT 5 ON`; switching off is always allowed.
+  Relays 7 and 8 stay unwired for now (owner), which makes 6 the hard
+  limit. `VERSION` reports `relay-controller 2 LIMIT 5`.

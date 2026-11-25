@@ -30,3 +30,5 @@ See the notes below about the barrel input.
     0.4 s or straight after `EVENT BOOT`, for up to 4 s. After a forced
     reset the first command now answers in 0.68 s.
 * Power (owner): the Uno is fed 5 V into its DC barrel from a PC supply.
+
+* Relay limit: at most 5 on at once (`ERR LIMIT 5 ON`, pending cycles count), relay_core tests 43/0; flashed (7202 B), VERSION reports `relay-controller 2 LIMIT 5`. Relays are 12 V coils (SRLD-12VDC-SL-C): 12 V into the barrel, module from VIN/GND (ADR 0009).

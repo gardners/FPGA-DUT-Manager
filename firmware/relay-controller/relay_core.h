@@ -14,6 +14,12 @@
 #define RELAY_ID_CACHE 4
 #define RELAY_LINE_MAX 64
 #define RELAY_REPLY_MAX 64
+// At most this many relays energised at once, counting channels whose
+// power cycle will switch them back on (owner 2026-11-25; relays 7 and 8
+// are not wired for now, so 6 is the hard limit).
+#ifndef RELAY_MAX_ON
+#define RELAY_MAX_ON 5
+#endif
 
 struct RelayCore {
   uint8_t mask;                  // bit n = relay n energised (DUT n powered)
@@ -56,6 +62,23 @@ static inline int relay_num(const char *s, long lo, long hi, long *out) {
   return 1;
 }
 
+// Channels that are on, or will be when their power cycle ends.
+static inline uint8_t relay_committed(const RelayCore *r) {
+  uint8_t m = r->mask;
+  for (int i = 0; i < RELAY_CHANNELS; i++)
+    if (r->cycle_until[i]) m |= (uint8_t)(1u << i);
+  return m;
+}
+
+// Would switching channel ch on exceed RELAY_MAX_ON?
+static inline int relay_over_limit(const RelayCore *r, long ch) {
+  uint8_t m = relay_committed(r);
+  if (m & (1u << ch)) return 0;
+  int n = 0;
+  for (; m; m &= (uint8_t)(m - 1)) n++;
+  return n >= RELAY_MAX_ON;
+}
+
 // Execute one command line (without the newline) at time `now` (ms).
 // Writes the reply (without newline) to `out`.
 static inline void relay_exec(RelayCore *r, const char *cmdline, uint32_t now, char *out, size_t cap) {
@@ -81,12 +104,18 @@ static inline void relay_exec(RelayCore *r, const char *cmdline, uint32_t now, c
   if (n == 1 && !strcmp(t[0], "STATUS")) {
     snprintf(body, sizeof body, "OK STATUS %02X PSU %u UPTIME %lu", r->mask, r->psu, (unsigned long)now);
   } else if (n == 1 && !strcmp(t[0], "VERSION")) {
-    snprintf(body, sizeof body, "OK VERSION relay-controller 1");
+    snprintf(body, sizeof body, "OK VERSION relay-controller 2 LIMIT %d", RELAY_MAX_ON);
+  } else if (n == 3 && !strcmp(t[0], "POWER") && relay_num(t[1], 0, RELAY_CHANNELS - 1, &ch) &&
+             relay_num(t[2], 0, 1, &v) && v && relay_over_limit(r, ch)) {
+    snprintf(body, sizeof body, "ERR LIMIT %d ON", RELAY_MAX_ON);
   } else if (n == 3 && !strcmp(t[0], "POWER") && relay_num(t[1], 0, RELAY_CHANNELS - 1, &ch) &&
              relay_num(t[2], 0, 1, &v)) {
     r->cycle_until[ch] = 0;  // explicit power cancels a pending cycle
     if (v) r->mask |= (uint8_t)(1u << ch); else r->mask &= (uint8_t)~(1u << ch);
     snprintf(body, sizeof body, "OK POWER %ld %ld MASK %02X", ch, v, r->mask);
+  } else if (n == 3 && !strcmp(t[0], "CYCLE") && relay_num(t[1], 0, RELAY_CHANNELS - 1, &ch) &&
+             relay_num(t[2], 0, 600000, &v) && relay_over_limit(r, ch)) {
+    snprintf(body, sizeof body, "ERR LIMIT %d ON", RELAY_MAX_ON);   // the cycle ends with it on
   } else if (n == 3 && !strcmp(t[0], "CYCLE") && relay_num(t[1], 0, RELAY_CHANNELS - 1, &ch) &&
              relay_num(t[2], 0, 600000, &v)) {
     if (v < RELAY_MIN_OFF_MS) v = RELAY_MIN_OFF_MS;
