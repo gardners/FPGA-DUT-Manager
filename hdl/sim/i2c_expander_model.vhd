@@ -15,6 +15,7 @@ entity i2c_expander_model is
   generic (ADDR : std_logic_vector(6 downto 0) := "0100000");
   port (
     sda, scl   : inout std_logic;
+    connected  : in  std_logic := '1';                -- '0': unplugged
     pins       : in  std_logic_vector(15 downto 0);   -- input pin levels
     out_regs   : out std_logic_vector(15 downto 0);   -- reg3 & reg2
     cfg_regs   : out std_logic_vector(15 downto 0);   -- reg7 & reg6
@@ -62,9 +63,11 @@ begin
     out_regs <= regs(3) & regs(2); cfg_regs <= regs(7) & regs(6);
     cfg_writes <= 0; out_writes <= 0; reads <= 0; errors <= 0;
     loop
-      wait on sda, scl;
+      wait on sda, scl, connected;
       sda_x := to_X01(sda); scl_x := to_X01(scl);
-      if scl_x = '1' and scl_p = '1' and sda_x /= sda_p then
+      if connected /= '1' then
+        drive('1'); st := IDLE;
+      elsif scl_x = '1' and scl_p = '1' and sda_x /= sda_p then
         -- START (SDA falls) or STOP (SDA rises) while SCL is high
         -- (a repeated START or a STOP follows one SCL pulse after an ACK
         -- slot, which a receiver has already counted as bit 1)
