@@ -521,7 +521,7 @@ begin
   pkl : entity work.kbd_led_status
     port map (clk => clk_sys, dut_leds => dut_leds(to_integer(sel_kbd(0 downto 0))),
               connected => powered(to_integer(sel_kbd(0 downto 0))),
-              machine => pk_machine, leds => pk_leds);
+              machine => pk_machine, selecting => hk_sel, leds => pk_leds);
   pk_leds_o <= dut_leds(to_integer(sel_kbd(0 downto 0))) when bcfg.pk_led_mode = x"01" else
                bcfg.pk_led_host when bcfg.pk_led_mode = x"02" else
                pk_leds;

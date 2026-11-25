@@ -13,10 +13,11 @@ architecture tb of tb_kbd_led_status is
   signal conn : std_logic := '1';
   signal machine : unsigned(4 downto 0) := (others => '0');
   signal leds : std_logic_vector(95 downto 0);
+  signal selecting : std_logic := '0';
 begin
   clk <= not clk after 4 ns when not done;
-  dut : entity work.kbd_led_status generic map (PULSE_BITS => 10)
-    port map (clk, dut_leds, conn, machine, leds);
+  dut : entity work.kbd_led_status generic map (PULSE_BITS => 10, MS_CYCLES => 2)
+    port map (clk, dut_leds, conn, machine, selecting, leds);
   process
     procedure expect(k : natural; rgb : std_logic_vector(23 downto 0)) is
     begin
@@ -41,6 +42,19 @@ begin
       if to_integer(unsigned(leds(55 downto 48))) > hi then hi := to_integer(unsigned(leds(55 downto 48))); end if;
     end loop;
     assert lo = 0 and hi = 127 report "pulse range " & integer'image(lo) & ".." & integer'image(hi) severity failure;
+    -- selecting: double blink, 2 clocks per "ms": on 0-99, off 100-199,
+    -- on 200-299, off 300-1099 (2200 clocks per pattern)
+    selecting <= '1';
+    wait until rising_edge(clk);
+    lo := 0; hi := 0;
+    for i in 0 to 4399 loop
+      wait until rising_edge(clk);
+      if leds(71 downto 48) = x"0000FF" then hi := hi + 1;
+      elsif leds(71 downto 48) = x"000000" then lo := lo + 1;
+      else report "select blink colour " & to_hstring(leds(71 downto 48)) severity failure; end if;
+    end loop;
+    -- two patterns: 2 x 400 on, 2 x 1800 off (+-4 for the phase)
+    assert hi >= 796 and hi <= 804 report "blink on-time " & integer'image(hi) severity failure;
     report "tb_kbd_led_status PASSED";
     done <= true;
     wait;
