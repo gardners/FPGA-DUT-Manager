@@ -6,7 +6,7 @@ CFLAGS ?= -O2 -g
 CFLAGS += -std=c11 -Wall -Wextra -Werror -Iinclude
 LDLIBS += -lm
 
-LIB_SRC := src/dutproto.c src/uartstream.c src/xvc.c
+LIB_SRC := src/dutproto.c src/uartstream.c src/xvc.c src/rasterframe.c
 LIB_OBJ := $(LIB_SRC:src/%.c=$(BUILD)/%.o)
 
 .PHONY: all test clean install

@@ -53,3 +53,16 @@ ADR 0005 section 8 ambiguities for the lead to settle:
 10. Heartbeat video block: is the payload always 124 once the bitstream has capture,
     even with no source (fields zero)? Are h_total/v_total there the same
     measurement as in raster packets?
+
+## 2026-11-25 frame assembler + dutctl video
+
+* Raster format v1 (ADR 0005 s8) in Python/C codecs; unknown versions rejected.
+* `rasterframe.[ch]`: emits a frame when lines 0..v_active-1 are all in
+  (complete unless widths differ) or when a newer frame starts (incomplete);
+  late packets of older frames (wrap-aware) and duplicates counted; missing
+  lines black; PPM writer. Unit tests: out-of-order, missing, duplicate,
+  dropped flag, late, width mismatch, frame-number wrap, flush (141 checks).
+* `dutctl video IP [--frames N] [--out PREFIX] [--enable] [--require-complete]
+  [--timeout S]` (UDP 6504, 8 MB receive buffer). Loopback-tested with a
+  Python sender (complete / incomplete frames, PPM contents).
+* Still to do: test against real FPGA capture (0022/0023).

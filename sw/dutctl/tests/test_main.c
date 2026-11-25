@@ -6,6 +6,7 @@
 #include "dutproto.h"
 #include "uartstream.h"
 #include "xvc.h"
+#include "rasterframe.h"
 
 static int failures, checks;
 #define CHECK(c)                                                                   \
@@ -309,6 +310,89 @@ static void test_xvc(void)
   CHECK(dst[0] == 0xA5 && dst[1] == 0x3C && dst[2] == 0xFF && dst[3] == 0x01);
 }
 
+
+/* ------------------------------------------------ raster frame assembler */
+static uint8_t g_px[3 * 16];
+static dp_raster_t mk_line(uint32_t frame, uint16_t line, uint16_t w, uint16_t vact, uint8_t flags)
+{
+  dp_raster_t r;
+  memset(&r, 0, sizeof r);
+  r.version = DP_RASTER_VERSION;
+  r.frame = frame;
+  r.line = line;
+  r.v_active = vact;
+  r.active_count = (flags & DP_RF_ACTIVE) ? w : 0;
+  r.flags = flags;
+  r.encoding = DP_ENC_RAW;
+  for (int i = 0; i < 3 * w; i++)
+    g_px[i] = (uint8_t)(line * 16 + i);
+  r.payload = g_px;
+  r.payload_bytes = (uint16_t)(3 * r.active_count);
+  return r;
+}
+
+static void test_rasterframe(void)
+{
+  static rf_asm_t a;
+  rf_frame_t f;
+  dp_raster_t r;
+  rf_init(&a);
+  /* complete 4-line frame, out of order, plus a blanking line */
+  int got = 0;
+  uint16_t order[] = {0, 2, 1, 3};
+  for (int i = 0; i < 4; i++) {
+    r = mk_line(10, order[i], 5, 4, DP_RF_ACTIVE | (order[i] == 0 ? DP_RF_FIRST : 0));
+    got += rf_feed(&a, &r, &f);
+  }
+  CHECK(got == 1 && f.complete && f.frame == 10 && f.width == 5 && f.height == 4);
+  CHECK(f.lines_received == 4 && f.duplicates == 0);
+  CHECK(f.rgb[3 * 5 * 2] == 2 * 16 && f.rgb[3 * 5 * 3 + 14] == 3 * 16 + 14);
+  r = mk_line(10, 4, 5, 4, 0); /* blanking line of an emitted frame: late */
+  CHECK(rf_feed(&a, &r, &f) == 0 && a.late == 1);
+
+  /* missing line: newer frame arrives -> previous emitted incomplete */
+  r = mk_line(11, 0, 5, 4, DP_RF_ACTIVE);
+  CHECK(rf_feed(&a, &r, &f) == 0);
+  r = mk_line(11, 1, 5, 4, DP_RF_ACTIVE);
+  CHECK(rf_feed(&a, &r, &f) == 0);
+  r = mk_line(11, 1, 5, 4, DP_RF_ACTIVE | DP_RF_DROPPED); /* duplicate */
+  CHECK(rf_feed(&a, &r, &f) == 0);
+  r = mk_line(11, 3, 5, 4, DP_RF_ACTIVE);
+  CHECK(rf_feed(&a, &r, &f) == 0);
+  r = mk_line(12, 0, 5, 4, DP_RF_ACTIVE);
+  CHECK(rf_feed(&a, &r, &f) == 1);
+  CHECK(!f.complete && f.frame == 11 && f.lines_received == 3 && f.duplicates == 1 && f.dropped_flag);
+  CHECK(f.rgb[3 * 5 * 2] == 0); /* missing line 2 is black */
+  /* the frame-12 packet was kept: finish frame 12 */
+  for (uint16_t l = 1; l < 4; l++) {
+    r = mk_line(12, l, 5, 4, DP_RF_ACTIVE);
+    got = rf_feed(&a, &r, &f);
+  }
+  CHECK(got == 1 && f.complete && f.frame == 12);
+
+  /* late packet of an older frame is ignored */
+  r = mk_line(11, 2, 5, 4, DP_RF_ACTIVE);
+  CHECK(rf_feed(&a, &r, &f) == 0 && a.late == 2);
+
+  /* width mismatch -> incomplete; frame number wrap 0xFFFFFFFF -> 0
+   * (from 12, 0xFFFFFFFF would count as older, so restart the assembler) */
+  rf_init(&a);
+  r = mk_line(0xFFFFFFFFu, 0, 5, 2, DP_RF_ACTIVE);
+  CHECK(rf_feed(&a, &r, &f) == 0);
+  r = mk_line(0xFFFFFFFFu, 1, 4, 2, DP_RF_ACTIVE);
+  CHECK(rf_feed(&a, &r, &f) == 1 && !f.complete && f.width_mismatch);
+  r = mk_line(0, 0, 5, 2, DP_RF_ACTIVE);
+  CHECK(rf_feed(&a, &r, &f) == 0 && a.late == 0); /* 0 is newer than 0xFFFFFFFF */
+  r = mk_line(0, 1, 5, 2, DP_RF_ACTIVE);
+  CHECK(rf_feed(&a, &r, &f) == 1 && f.complete && f.frame == 0);
+
+  /* flush emits a partial frame once */
+  r = mk_line(1, 0, 5, 3, DP_RF_ACTIVE);
+  CHECK(rf_feed(&a, &r, &f) == 0);
+  CHECK(rf_flush(&a, &f) == 1 && !f.complete && f.lines_received == 1);
+  CHECK(rf_flush(&a, &f) == 0);
+}
+
 int main(int argc, char **argv)
 {
   load_vectors(argc > 1 ? argv[1] : "vectors.txt");
@@ -316,6 +400,7 @@ int main(int argc, char **argv)
   test_decoders();
   test_uart_merge();
   test_xvc();
+  test_rasterframe();
   printf("dutctl tests: %d checks, %d failures\n", checks, failures);
   return failures ? 1 : 0;
 }

@@ -30,6 +30,7 @@
 #include <unistd.h>
 
 #include "dutproto.h"
+#include "rasterframe.h"
 #include "uartstream.h"
 #include "xvc.h"
 
@@ -700,7 +701,72 @@ static void usage(void)
           "  dutctl jtag-idcode IP\n"
           "  dutctl xvc IP [--port 2542]\n"
           "  dutctl relay TTY COMMAND...\n"
-          "  dutctl text IP [--fg N] [--bg N] [--force] [--jumbo] [--file F | LINE ...]\n");
+          "  dutctl text IP [--fg N] [--bg N] [--force] [--jumbo] [--file F | LINE ...]\n"
+          "  dutctl video IP [--frames N] [--out PREFIX] [--enable] [--require-complete]\n");
+}
+
+
+/* ------------------------------------------------------------- video capture */
+static int cmd_video(int argc, char **argv)
+{
+  if (argc < 1)
+    return fprintf(stderr, "usage: dutctl video IP [--frames N] [--out PREFIX] [--enable] "
+                           "[--require-complete] [--timeout S]\n"
+                           "  receives raster packets (UDP 6504) from IP, assembles frames and writes\n"
+                           "  PREFIX-NNNNNN.ppm (default prefix 'frame'); --enable switches capture on\n"
+                           "  first; --require-complete exits 1 if any frame was incomplete\n"), 2;
+  const char *ip = argv[0], *prefix = "frame";
+  long frames = 1, timeout_s = 10;
+  int enable = 0, require = 0;
+  for (int i = 1; i < argc; i++) {
+    if (!strcmp(argv[i], "--frames") && i + 1 < argc) frames = strtol(argv[++i], NULL, 0);
+    else if (!strcmp(argv[i], "--out") && i + 1 < argc) prefix = argv[++i];
+    else if (!strcmp(argv[i], "--timeout") && i + 1 < argc) timeout_s = strtol(argv[++i], NULL, 0);
+    else if (!strcmp(argv[i], "--enable")) enable = 1;
+    else if (!strcmp(argv[i], "--require-complete")) require = 1;
+    else return fprintf(stderr, "dutctl video: unknown option %s\n", argv[i]), 2;
+  }
+  struct sockaddr_in t = parse_target(ip, DP_PORT_RASTER);
+  int fd = udp_bind(DP_PORT_RASTER);
+  int big = 8 << 20;
+  setsockopt(fd, SOL_SOCKET, SO_RCVBUF, &big, sizeof big);
+  if (enable) {
+    uint8_t one = 1;
+    if (mgmt_set(ip, DP_K_CAPTURE_EN, &one, 1) < 0)
+      return fprintf(stderr, "dutctl video: enabling capture failed\n"), 1;
+  }
+  static rf_asm_t a;
+  static uint8_t buf[DP_RASTER_MAX_PACKET + 64];
+  rf_init(&a);
+  signal(SIGINT, on_sig);
+  long done = 0, incomplete = 0;
+  double end = now_s() + timeout_s;
+  rf_frame_t f;
+  while (!g_stop && done < frames && now_s() < end) {
+    dp_hdr_t h;
+    int n = udp_recv(fd, buf, sizeof buf, 200, &t, DP_T_RASTER, &h, NULL);
+    if (n < 0)
+      continue;
+    dp_raster_t r;
+    if (dp_decode_raster(buf + DP_HDR_LEN, h.length, &r) < 0)
+      continue;
+    if (rf_feed(&a, &r, &f) != 1)
+      continue;
+    char path[512];
+    snprintf(path, sizeof path, "%s-%06ld.ppm", prefix, done);
+    if (rf_write_ppm(path, &f) < 0)
+      fprintf(stderr, "dutctl video: cannot write %s\n", path);
+    printf("frame %u: %ux%u %s (%u lines, %u dup%s) -> %s\n", f.frame, f.width, f.height,
+           f.complete ? "complete" : "INCOMPLETE", f.lines_received, f.duplicates,
+           f.dropped_flag ? ", FPGA dropped lines" : "", path);
+    if (!f.complete)
+      incomplete++;
+    done++;
+  }
+  close(fd);
+  if (done < frames)
+    fprintf(stderr, "dutctl video: %ld of %ld frames received (late packets %u)\n", done, frames, a.late);
+  return (done < frames || (require && incomplete)) ? 1 : 0;
 }
 
 int main(int argc, char **argv)
@@ -720,6 +786,7 @@ int main(int argc, char **argv)
   if (!strcmp(c, "xvc")) return cmd_xvc(argc, argv);
   if (!strcmp(c, "relay")) return cmd_relay(argc, argv);
   if (!strcmp(c, "text")) return cmd_text(argc, argv);
+  if (!strcmp(c, "video")) return cmd_video(argc, argv);
   usage();
   return 2;
 }
