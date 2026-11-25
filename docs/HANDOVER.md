@@ -122,3 +122,27 @@ Only 27 MHz pixel clocks matter for now. Gigabit Ethernet is assumed
 
 The laptop session's private memory notes are folded into CLAUDE.md and this
 file; nothing else is needed from the laptop.
+
+## Update 2026-11-25 (build-box session, end)
+
+* Board runs from the **DC jack** (USB power browned out). udev rule
+  installed (ModemManager kept off JTAG). `scripts/hwcheck.sh [bit]` checks
+  DHCP/heartbeats/ping/mgmt on both DUTs. Known-good images in `bits/`
+  (`make jtagload-good`); `main` = last hardware-verified commit (198c451,
+  plus docs to c78588f). Rule in CLAUDE.md.
+* Timing closed (0019 done): internal MET; RGMII RX via MMCM, phase
+  calibrated by hardware scan (eye ~56..191 deg, default step 22); RX XDC
+  input delays describe the measured eye.
+* Wiring: ADR 0008 amendments 2-4 + docs/cabling/dut-cable.md (owner is
+  wiring JTAG+UART, a DUT keyboard and the physical keyboard).
+* Done: DUT IDs 0x0n/0x1m (0026), 480p60 console + LEFT 15 (0027), MEGA KVM
+  boot screen, README on main, MK-II host merged (untested on hardware).
+* **In progress: issue 0028 RX phase hunter** — implemented, simulated,
+  heartbeat link block added (protocol change done in all 4 places). Commit
+  7235a32 is **not yet built**. Next: `make bitstream` and, separately (in
+  sequence, not `a && b &`), a build with VIVADO_OUT=build/scan/h40
+  VIVADO_GENERICS="RX_PHASE_STEPS=40"; hwcheck both. The step-40 build must
+  recover by hunting (dutctl listen shows hunts/eye). If the default passes,
+  make it known-good and fast-forward main.
+* After that: test JTAG/UART/keyboards on the owner's wiring; then the
+  queue in the table above (0020 smoke test, 0022-0024 video, 0010 m65).
