@@ -12,6 +12,16 @@
 -- 1 2 .. 9 0 (machines 0..9), background = that machine's power-LED colour
 -- (palette of screen 2), digit replaced by a frowning face (code 0x7F,
 -- drawn into the font here) when slots(k) = '0'.
+-- Live-thumbnail select screen (issue 0036): when mos_on = '1' (from
+-- mosaic_display, DDR3 calibrated) the select screen is rearranged over the
+-- thumbnail mosaic: each tile's digit (or frown) sits in a 3-cell
+-- reverse-video box in the LED colour at the tile's top-left corner
+-- (mosaic_pkg); every other cell's background is key green (palette entry
+-- 8 of screen 2 = MOS_KEY) and the RAM text is limited to the title, hint
+-- and footer rows outside the 4x3 block (none in the 2x2 layout). Output
+-- pixels of exactly MOS_KEY, and pixels outside the text area, show the
+-- mosaic layer (mos_r/g/b, aligned to stage E: valid 4 clocks after x/y).
+-- Without mos_on the select screen is the boxes-only one above.
 -- Read side runs on clk_pix: 9x16 cells (VGA style: column 9 repeats column 8
 -- for codes 0xC0-0xDF so box drawing joins), text area centred in the raster.
 -- Pipeline (5 clocks): counters -> address -> char/attr RAM -> font ROM -> RGB.
@@ -22,6 +32,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.font8x16_pkg.all;
+use work.mosaic_pkg.all;
 
 entity text_display is
   generic (
@@ -46,7 +57,11 @@ entity text_display is
     de_out, hs_out, vs_out : out std_logic;
     force_text   : out std_logic;        -- control bit 0
     screen  : in  unsigned(1 downto 0) := "00";            -- any clock, quasi-static
-    slots   : in  std_logic_vector(9 downto 0) := (others => '0')  -- machine k present
+    slots   : in  std_logic_vector(9 downto 0) := (others => '0');  -- machine k present
+    -- thumbnail layer (issue 0036), clk_pix
+    mos_on   : in  std_logic := '0';
+    mos_quad : in  std_logic := '0';
+    mos_r, mos_g, mos_b : in std_logic_vector(7 downto 0) := (others => '0')
   );
 end entity;
 
@@ -57,6 +72,17 @@ architecture rtl of text_display is
   constant BOX_X : natural := (VISIBLE - BOX_W) / 2;
   constant BOX_Y : natural := 11;
   constant OV_X  : natural := (VISIBLE - 68) / 2;    -- select boxes: 10 x 5 cells, gap 2
+  -- live select screen: corner boxes (3 cells) and the RAM rows it shows
+  type nat_arr is array (natural range <>) of natural;
+  constant BCQ : nat_arr(0 to 1) := (mos_box_col(LEFT, true, 0), mos_box_col(LEFT, true, 1));
+  constant BRQ : nat_arr(0 to 1) := (mos_box_row(TOP, true, 0), mos_box_row(TOP, true, 1));
+  constant BCD : nat_arr(0 to 3) := (mos_box_col(LEFT, false, 0), mos_box_col(LEFT, false, 1),
+                                     mos_box_col(LEFT, false, 2), mos_box_col(LEFT, false, 3));
+  constant BRD : nat_arr(0 to 2) := (mos_box_row(TOP, false, 0), mos_box_row(TOP, false, 1),
+                                     mos_box_row(TOP, false, 2));
+  constant SEL_TITLE_ROW : natural := 7;   -- RAM rows of the select screen's text
+  constant SEL_HINT_ROW  : natural := 16;
+  constant KEY_IDX       : std_logic_vector(3 downto 0) := x"8";
   function ch(c : character) return std_logic_vector is
   begin
     return std_logic_vector(to_unsigned(character'pos(c), 8));
@@ -107,11 +133,12 @@ architecture rtl of text_display is
     x"FF", x"55", x"55",  x"FF", x"55", x"FF",  x"FF", x"FF", x"55",  x"FF", x"FF", x"FF",
     others => x"00");
   -- select screen: 0 black, 1-7 the power-LED colours (red orange yellow
-  -- green blue purple white), 8 grey, 9-15 the same at half brightness
+  -- green blue purple white), 8 key green (MOS_KEY, issue 0036), 9-15 the
+  -- same at half brightness. LED green is 0x00FE00 so it is never keyed.
   constant SEL : pal_t := (
     x"00", x"00", x"00",  x"FF", x"00", x"00",  x"FF", x"60", x"00",  x"FF", x"C0", x"00",
-    x"00", x"FF", x"00",  x"00", x"00", x"FF",  x"A0", x"00", x"FF",  x"FF", x"FF", x"FF",
-    x"80", x"80", x"80",  x"7F", x"00", x"00",  x"7F", x"30", x"00",  x"7F", x"60", x"00",
+    x"00", x"FE", x"00",  x"00", x"00", x"FF",  x"A0", x"00", x"FF",  x"FF", x"FF", x"FF",
+    x"00", x"FF", x"00",  x"7F", x"00", x"00",  x"7F", x"30", x"00",  x"7F", x"60", x"00",
     x"00", x"7F", x"00",  x"00", x"00", x"7F",  x"50", x"00", x"7F",  x"7F", x"7F", x"7F",
     others => x"00");
   function init_pal return pal_t is
@@ -156,6 +183,7 @@ architecture rtl of text_display is
   signal ch_c, at_c, ch_d, at_d, font_d : std_logic_vector(7 downto 0) := (others => '0');
   signal de_d, hs_d, vs_d : std_logic_vector(4 downto 0) := (others => '0');
   signal scr_d : unsigned(1 downto 0) := "00";
+  signal mm_b, mm_c, mm_d, mbl_b, mbl_c, mk_c : std_logic := '0';
 begin
   force_text <= ctrl(0);
 
@@ -189,6 +217,9 @@ begin
     variable k      : integer range 0 to 9;
     variable inbox  : boolean;
     variable chx    : std_logic_vector(7 downto 0);
+    variable mm, blank, dig : boolean;
+    variable rrow   : unsigned(4 downto 0);
+    variable c      : std_logic_vector(23 downto 0);
   begin
     if rising_edge(clk_pix) then
       scr_s1 <= screen; scr_s2 <= scr_s1;
@@ -217,24 +248,56 @@ begin
       end if;
 
       -- B: address; select-screen overlay decided from row/col
-      addr_b <= resize(row & "000000", 11) + resize(row & "0000", 11) + resize(col, 11);
+      mm := mos_on = '1' and scr_s2 = "10";
+      rrow := row; blank := false;
+      if mm then
+        -- live select screen: only title/hint/footer rows show RAM text (4x3)
+        if mos_quad = '1' then blank := true;
+        elsif row = 1 then rrow := to_unsigned(SEL_TITLE_ROW, 5);
+        elsif row = 23 then rrow := to_unsigned(SEL_HINT_ROW, 5);
+        elsif row /= 24 then blank := true;
+        end if;
+      end if;
+      addr_b <= resize(rrow & "000000", 11) + resize(rrow & "0000", 11) + resize(col, 11);
       cx_b <= cx; cy_b <= cy; in_b <= in_a;
-      inbox := false; k := 0;
-      if scr_s2 = "10" and row >= 11 and row <= 13 then
+      inbox := false; k := 0; dig := false;
+      if mm then
+        if mos_quad = '1' then
+          for j in 0 to 1 loop
+            for i in 0 to 1 loop
+              if row = BRQ(j) and col >= BCQ(i) and col <= BCQ(i) + 2 then
+                inbox := true; k := 2 * j + i; dig := col = BCQ(i) + 1;
+              end if;
+            end loop;
+          end loop;
+        else
+          for j in 0 to 2 loop
+            for i in 0 to 3 loop
+              if 4 * j + i <= 9 and row = BRD(j) and col >= BCD(i) and col <= BCD(i) + 2 then
+                inbox := true; k := 4 * j + i; dig := col = BCD(i) + 1;
+              end if;
+            end loop;
+          end loop;
+        end if;
+      elsif scr_s2 = "10" and row >= 11 and row <= 13 then
         for i in 0 to 9 loop
           if col >= OV_X + 7 * i and col <= OV_X + 7 * i + 4 then
             inbox := true; k := i;
           end if;
         end loop;
+        dig := row = 12 and col = OV_X + 7 * k + 2;
       end if;
       ovin_b  <= '1' when inbox else '0';
       ovk_b   <= k;
-      ovdig_b <= '1' when inbox and row = 12 and col = OV_X + 7 * k + 2 else '0';
+      ovdig_b <= '1' when inbox and dig else '0';
+      mm_b    <= '1' when mm else '0';
+      mbl_b   <= '1' when blank else '0';
 
       -- C: character / attribute RAM (screen chosen by scr_s2)
       ch_c <= chars(to_integer(scr_s2(1 downto 0) & addr_b));
       at_c <= attrs(to_integer(scr_s2(1 downto 0) & addr_b));
       cx_c <= cx_b; cy_c <= cy_b; in_c <= in_b;
+      mm_c <= mm_b; mbl_c <= mbl_b;
       ov_c <= '0';
       k := ovk_b;
       if ovin_b = '1' then
@@ -256,7 +319,13 @@ begin
       end if;
 
       -- D: font ROM (interlaced layout: row(0) & code & row(3:1))
-      if ov_c = '1' then chx := ovch_c; at_d <= ovat_c; else chx := ch_c; at_d <= at_c; end if;
+      if ov_c = '1' then chx := ovch_c; at_d <= ovat_c;
+      elsif mm_c = '1' then
+        -- live select screen: RAM text (or blank) on key green
+        if mbl_c = '1' then chx := x"20"; else chx := ch_c; end if;
+        at_d <= KEY_IDX & at_c(3 downto 0);
+      else chx := ch_c; at_d <= at_c; end if;
+      mm_d <= mm_c;
       font_d <= font(to_integer(cy_c(0) & unsigned(chx) & cy_c(3 downto 1)));
       ch_d <= chx; cx_d <= cx_c; in_d <= in_c; scr_d <= scr_s2;
 
@@ -272,12 +341,17 @@ begin
       bg := to_integer(unsigned(at_d(7 downto 4)));
       pb := 48 * to_integer(scr_d);
       if in_d = '0' then
-        r <= x"00"; g <= x"00"; b <= x"00";
+        c := x"000000";
       elsif bitv = '1' then
-        r <= pal(pb + 3 * fg); g <= pal(pb + 3 * fg + 1); b <= pal(pb + 3 * fg + 2);
+        c := pal(pb + 3 * fg) & pal(pb + 3 * fg + 1) & pal(pb + 3 * fg + 2);
       else
-        r <= pal(pb + 3 * bg); g <= pal(pb + 3 * bg + 1); b <= pal(pb + 3 * bg + 2);
+        c := pal(pb + 3 * bg) & pal(pb + 3 * bg + 1) & pal(pb + 3 * bg + 2);
       end if;
+      -- issue 0036: key green and the area outside the text show the mosaic
+      if mm_d = '1' and (in_d = '0' or c = MOS_KEY) then
+        c := mos_r & mos_g & mos_b;
+      end if;
+      r <= c(23 downto 16); g <= c(15 downto 8); b <= c(7 downto 0);
 
       de_d <= de_d(3 downto 0) & de_in;
       hs_d <= hs_d(3 downto 0) & hs_in;
