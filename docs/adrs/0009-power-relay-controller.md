@@ -68,8 +68,9 @@ Eight consecutive digital lines plus a separate 2-pin power header:
   12 V and the Uno disconnected, measure each IN pin to GND. It must be
   near 0 V or floating, never pulled up towards 12 V, which would damage
   the Uno's pins.
-* **Limit:** the firmware refuses to have more than `RELAY_MAX_ON` = 5
+* **Limit:** the firmware can refuse to have more than `RELAY_MAX_ON`
   relays on at once, counting channels whose `CYCLE` will switch them back
-  on. It answers `ERR LIMIT 5 ON`; switching off is always allowed.
-  Relays 7 and 8 stay unwired for now (owner), which makes 6 the hard
-  limit. `VERSION` reports `relay-controller 2 LIMIT 5`.
+  on. It answers `ERR LIMIT n ON`; switching off is always allowed. With 12 V
+  coils run from VIN, the owner set the limit to 8 (no limit). The unit
+  tests build with 5 to exercise it. `VERSION` reports
+  `relay-controller 2 LIMIT 8`.

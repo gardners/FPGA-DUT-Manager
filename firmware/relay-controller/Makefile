@@ -6,4 +6,4 @@ test: $(BUILD)/test_relay_core
 	$(BUILD)/test_relay_core
 $(BUILD)/test_relay_core: test/test_relay_core.cpp relay_core.h
 	mkdir -p $(BUILD)
-	g++ -std=c++11 -Wall -Wextra -Werror -Wno-format-truncation -fsanitize=address,undefined -o $@ $<
+	g++ -std=c++11 -DRELAY_MAX_ON=5 -Wall -Wextra -Werror -Wno-format-truncation -fsanitize=address,undefined -o $@ $<

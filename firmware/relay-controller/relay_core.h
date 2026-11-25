@@ -15,10 +15,10 @@
 #define RELAY_LINE_MAX 64
 #define RELAY_REPLY_MAX 64
 // At most this many relays energised at once, counting channels whose
-// power cycle will switch them back on (owner 2026-11-25; relays 7 and 8
-// are not wired for now, so 6 is the hard limit).
+// power cycle will switch them back on. 8 = no limit (owner 2026-11-25: the
+// 12 V coils run from VIN and draw little); the unit tests build with 5.
 #ifndef RELAY_MAX_ON
-#define RELAY_MAX_ON 5
+#define RELAY_MAX_ON 8
 #endif
 
 struct RelayCore {
