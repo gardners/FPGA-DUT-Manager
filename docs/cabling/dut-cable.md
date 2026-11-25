@@ -11,6 +11,26 @@ with **straight strips of male-to-female jumpers** (or crimped housings):
 
 **DUT0 uses P12, DUT1 uses P13, at identical positions.**
 
+> **WARNINGS — read before plugging anything in**
+>
+> * **JTAG strips skip a row on the MEGA65 side.** JB1 row 3 (pins 5/6:
+>   3.3 V and VIO) is *not* part of the strip: Mimas rows 3-7 map to JB1
+>   rows 1, 2, then **4, 5, 6**. If the JB1 end is pushed on one row out,
+>   TCK/TDO land on 3.3 V/VIO.
+> * **The keyboard blocks run the opposite way to the JTAG block.** JTAG
+>   goes *up* the Mimas from GND row 3 (JB1 pin 1 at row 3, pin 12 at row 7);
+>   each keyboard block goes *down* from its GND row (J5 pin 1 at row 14 or
+>   20, pin 10 at row 10 or 16). Check the GND end of every strip first.
+> * **Mimas rows 9, 15 and 21 are 3.3 V on both columns** (and rows 1-2 are
+>   raw 12 V VIN). They sit directly next to the keyboard and JTAG blocks; a
+>   strip shifted by one row puts a signal — or the MEGA65's own 3.3 V —
+>   onto the Mimas supply. Only one wire may touch a 3.3 V row: the
+>   *physical* keyboard's pin 2 on row 15. A DUT keyboard's pin 2 goes to
+>   row 22 B (sense), **never** row 21.
+> * Before powering up, check with a meter: every strip's GND wire reads 0 Ω
+>   to Mimas GND, and no MEGA65-side wire reads 0 Ω to Mimas 3.3 V except the
+>   physical keyboard's pin 2.
+
 ## Finding rows and columns on the Mimas
 
 Each of P12/P13 is 2x40. A "row" is one pin pair; row 1 is the end whose

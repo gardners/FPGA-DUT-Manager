@@ -92,7 +92,9 @@ sw/dutctl/build/dutctl text <ip> "Hello"
 Hardware notes: power the Mimas from its DC jack (USB power alone is not
 enough for the full design); install the udev rule with
 `scripts/setup-mimas-udev-rule.sh` (stable `/dev/mimas-<serial>`, and keeps
-ModemManager off the JTAG channel); never run a full-width cable on the
+ModemManager off the JTAG channel); follow the warnings in
+`docs/cabling/dut-cable.md` (JTAG and keyboard strips run in opposite
+directions next to the 3.3 V rows 9/15/21); never run a full-width cable on the
 headers (rows 1-2 carry raw VIN, P13 rows 34-39 are FPGA configuration
 pins). An open-source flow (`FLOW=openxc7`: GHDL/yosys/nextpnr-xilinx) is
 kept available but Vivado is the default.
