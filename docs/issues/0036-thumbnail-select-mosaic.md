@@ -73,3 +73,20 @@ machine's LED colour.
   the edge); tb_text_screens samples after the edge with xd(3), same thing.
 * `scripts/run-hdl-tests.sh` passes `-H ${NVC_HEAP:-512m}` (mem_model
   needs more than nvc's 16 MiB default heap).
+
+## 2026-11-25 Vivado results
+
+* Default build ac31398 (ddr_ok tied '0'): TIMING MET, WNS 0.164 ns,
+  WHS 0.034 ns; 10176 LUTs (31.2 %), 19 BRAM tiles. Nothing is fresh, so
+  most of the mosaic is optimised away.
+* `VIVADO_GENERICS="MOSAIC_DEMO=1"`, build 54255eda (same HDL): TIMING MET,
+  WNS 0.196 ns, WHS 0.032 ns; 10457 LUTs (32.1 %), 21 BRAM tiles (the line
+  buffer is 2 BRAM36). The full read path is in place.
+* Hardware check (lead): load the demo bit and enter select mode with the
+  KVM hotkey. Expect:
+  * a centred 4x3 block of 640x300;
+  * gradient tiles under digits 1,3,5,7,9 (machines 0,2,4,6,8). Red rises
+    with the machine number, green with the row, blue with the column;
+  * colour bars under 2,4,6,8,0;
+  * digit boxes in LED colours in each tile's top-left corner;
+  * the title on text row 1, the hint on row 23 and the footer on row 24.
