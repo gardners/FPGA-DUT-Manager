@@ -84,3 +84,5 @@ key 0x0035, heartbeat byte 109, `dutctl set console-screen`, `dutctl text
 * New: in selection, pressing any key other than a digit, MEGA or LEFT
   SHIFT cancels (exits selection without changing the target). ESC and
   the 10 s timeout still cancel.
+* 2026-11-25: owner confirmed the one-handed LSHIFT/MEGA train on hardware
+  (known-good d29ea748).
