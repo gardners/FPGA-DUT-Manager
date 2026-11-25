@@ -64,3 +64,13 @@ text_display three screens + overlay (tb_text_screens), kvm_hotkey
 (tb_kvm_hotkey), selection by hotkey in supervisor_core, auto screen choice,
 key 0x0035, heartbeat byte 109, `dutctl set console-screen`, `dutctl text
 --screen N`, `dutctl listen` shows the screen. Hardware test pending.
+
+## 2026-11-25 hardware + new request
+
+* Hardware: owner's hotkey attempt logged from heartbeats: SHIFT+SHIFT
+  held 5 s, MEGA tapped -> screen 2 (select); key 2 -> back to editable
+  (machine 1 = DUT 0x10, already selected). Works.
+* Owner request: in select mode the physical keyboard's power LED should
+  give a double red blink (two quick blinks, ~0.8 s gap, repeat) so the
+  selecting state is distinguishable from "not connected" (slow pulse)
+  without a monitor.
