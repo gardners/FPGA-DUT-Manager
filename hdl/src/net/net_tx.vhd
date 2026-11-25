@@ -155,6 +155,7 @@ architecture rtl of net_tx is
   signal rast_frames : unsigned(31 downto 0) := (others => '0');
   signal rast_drops  : unsigned(15 downto 0) := (others => '0');
   signal last_rast   : std_logic := '0';    -- previous frame built was raster
+  signal ep_ok       : std_logic_vector(1 downto 0) := "00";  -- enabled and addressed (registered, timing)
 
   function b(v : std_logic_vector; i : natural) return byte_t is
     -- byte i counting from the most significant byte (big-endian)
@@ -281,6 +282,9 @@ begin
       mem_we     <= '0';
       rast_pop   <= '0';
       hist_latch <= "00";
+      for i in 0 to 1 loop
+        if ep_enable(i) = '1' and ip_eff(i) /= x"00000000" then ep_ok(i) <= '1'; else ep_ok(i) <= '0'; end if;
+      end loop;
 
       -- heartbeat timers
       for i in 0 to 1 loop
@@ -316,10 +320,10 @@ begin
           elsif icmp.pend = '1' then k := K_ICMP; dd := icmp.dut;
           elsif dhcp(0).req = '1' and ep_enable(0) = '1' then k := K_DHCP; dd := 0;
           elsif dhcp(1).req = '1' and ep_enable(1) = '1' then k := K_DHCP; dd := 1;
-          elsif snap_req(0) = '1' and ep_enable(0) = '1' and ip_eff(0) /= x"00000000" and (rr = '0' or snap_req(1) = '0') then k := K_SNAP; dd := 0;
-          elsif snap_req(1) = '1' and ep_enable(1) = '1' and ip_eff(1) /= x"00000000" then k := K_SNAP; dd := 1;
-          elsif hb_due(0) = '1' and ep_enable(0) = '1' and ip_eff(0) /= x"00000000" and (rr = '0' or hb_due(1) = '0') then k := K_HB; dd := 0;
-          elsif hb_due(1) = '1' and ep_enable(1) = '1' and ip_eff(1) /= x"00000000" then k := K_HB; dd := 1;
+          elsif snap_req(0) = '1' and ep_ok(0) = '1' and (rr = '0' or snap_req(1) = '0') then k := K_SNAP; dd := 0;
+          elsif snap_req(1) = '1' and ep_ok(1) = '1' then k := K_SNAP; dd := 1;
+          elsif hb_due(0) = '1' and ep_ok(0) = '1' and (rr = '0' or hb_due(1) = '0') then k := K_HB; dd := 0;
+          elsif hb_due(1) = '1' and ep_ok(1) = '1' then k := K_HB; dd := 1;
           end if;
           -- raster first; but never two raster frames in a row while other
           -- traffic waits (a source above ~1 Gb/s would starve it otherwise)
@@ -329,7 +333,7 @@ begin
           -- a disabled (DUT ID conflict) or not yet addressed endpoint drops
           -- its periodic traffic (DHCP required, ADR 0011)
           for i in 0 to 1 loop
-            if ep_enable(i) = '0' or ip_eff(i) = x"00000000" then
+            if ep_ok(i) = '0' then
               hb_due(i) <= '0';
             end if;
           end loop;

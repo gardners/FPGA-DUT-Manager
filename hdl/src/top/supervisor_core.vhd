@@ -122,7 +122,8 @@ architecture rtl of supervisor_core is
   signal mac_len  : unsigned(11 downto 0);
 
   -- raster capture (issue 0023)
-  signal cap_on, rast_valid, rast_pop, vid_ok_l : std_logic;
+  signal cap_on : std_logic := '0';
+  signal rast_valid, rast_pop, vid_ok_l : std_logic;
   signal cap_dut : integer range 0 to 1;
   signal rast_desc : rast_desc_t;
   signal rast_raddr : unsigned(15 downto 0);
@@ -535,8 +536,17 @@ begin
   -- DUTs, capture is enabled for it (key 0x0040) and it has an address; they
   -- go out as that DUT's raster packets (ADR 0005 s8, issue 0023).
   cap_dut <= to_integer(sel_vid(0 downto 0));
-  cap_on  <= '1' when sel_vid < 2 and bcfg.capture_en(cap_dut) = '1' and
-                      ep_enable(cap_dut) = '1' and ip_eff(cap_dut) /= x"00000000" else '0';
+  process (clk_sys)   -- registered (timing: feeds net_tx's frame selection)
+  begin
+    if rising_edge(clk_sys) then
+      if sel_vid < 2 and bcfg.capture_en(cap_dut) = '1' and ep_enable(cap_dut) = '1' and
+         ip_eff(cap_dut) /= x"00000000" then
+        cap_on <= '1';
+      else
+        cap_on <= '0';
+      end if;
+    end if;
+  end process;
   vid_ok_l <= '1' when vid_ok else '0';
   rcap : entity work.raster_capture
     generic map (RING_AW => 13, DESC_AW => 4, MAX_LINE_PX => 1024)
