@@ -53,3 +53,17 @@ Built:
 To test on hardware: HDMI loopback (own 480p60 console into HDMI IN),
 `dutctl video` with capture enabled on the video target; check heartbeat
 raster_lines_dropped stays 0 and frames are complete.
+
+## 2026-11-25 hardware (lead): capture works end to end
+
+Merged into feature/foundation (1bd43fc). On the HDMI loopback (our 480p60
+console -> HDMI IN): `dutctl video 203.28.176.87 --enable` received
+complete 720x480 frames (480 lines, no duplicates) as jumbo datagrams
+through the switch (host eno2 MTU 9000); text written with `dutctl text`
+came back exactly (VGA red = (170,0,0)). Known-good 1bd43fca.
+
+Safety item: telemetry defaults to broadcast, so enabling capture without
+first setting dest-ip/dest-mac floods ~570 Mb/s of broadcast onto the
+segment. To do: the FPGA must not send raster to a broadcast destination,
+and scripts/hwtest.sh must set a unicast destination before its raster
+check.

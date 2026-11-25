@@ -10,7 +10,8 @@ Board must run from the DC jack (USB power alone browns out).
 
 | Build id | Commit | Verified on hardware (2026-11-25) | Notes |
 |---|---|---|---|
-| cf46426d | cf46426 | hwtest --quick PASS | **known-good**; select-mode double blink (0029) |
+| 1bd43fca | 1bd43fc | hwcheck PASS; **HDMI loopback capture: complete 720x480 frames via dutctl video, pixel-exact colours** | **known-good**; raster capture (0023) |
+| cf46426d | cf46426 | hwtest --quick PASS | select-mode double blink (0029) |
 | 4e98bd9a | 4e98bd9 | **hwtest.sh 60 PASS / 0 FAIL** | mgmt bad-length codes, caps b3 |
 | d3db353e | d3db353 | hwcheck PASS; HDMI loopback locked 720x480 of 858x525 27.000 MHz; console-screen 0-3 forced and reported | KVM hotkey + three console screens (0029) |
 | e59d3351 | e59d335 | hwcheck PASS; `video none` with no source | HDMI IN receiver (dvi2rgb) + video block, untested with a source |
