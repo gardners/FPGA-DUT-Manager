@@ -111,6 +111,8 @@ architecture rtl of net_rx is
   signal cidx    : integer range 0 to 11 := 0;
   signal cw      : unsigned(15 downto 0) := (others => '0');  -- checksum word (pipelined)
   signal d       : integer range 0 to 1 := 0;
+  attribute max_fanout : integer;
+  attribute max_fanout of d : signal is 24;   -- replicated (timing, issue 0038)
 
   signal cfg_r   : dut_cfg_arr_t := (default_cfg(x"0"), default_cfg(x"1"));
   signal ids_seen: unsigned(9 downto 0) := (others => '1');

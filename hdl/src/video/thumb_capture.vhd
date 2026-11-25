@@ -117,6 +117,8 @@ architecture rtl of thumb_capture is
   signal frames_r : unsigned(31 downto 0) := (others => '0');
   signal skip_r : unsigned(15 downto 0) := (others => '0');
   signal tag : std_logic_vector(1 downto 0);
+  signal ro : mem_req_t := MEM_REQ_IDLE;
+  signal free : std_logic;
   signal info : std_logic_vector(14 downto 0);
 
   attribute ASYNC_REG : string;
@@ -313,12 +315,10 @@ begin
   ---------------------------------------------------------------- clk_sys side
   tag  <= f_dout(DW - 1 downto DW - 2);
   info <= f_dout(142 downto 128);
-  mem_req.valid <= '1' when f_valid = '1' and tag = T_WORD and act = '1' else '0';
-  mem_req.we    <= '1';
-  mem_req.addr  <= thumb_addr(am, ab, unsigned(info(14 downto 7)), unsigned(info(6 downto 0)));
-  mem_req.wdata <= f_dout(127 downto 0);
-  mem_req.wmask <= (others => '1');
-  f_pop <= '1' when f_valid = '1' and (tag /= T_WORD or act = '0' or mem_rsp.ready = '1') else '0';
+  -- registered request (timing: nothing combinational into the arbiter)
+  mem_req <= ro;
+  free  <= '1' when ro.valid = '0' or mem_rsp.ready = '1' else '0';
+  f_pop <= '1' when f_valid = '1' and free = '1' else '0';
   frames  <= frames_r;
   skipped <= skip_r;
 
@@ -327,7 +327,15 @@ begin
   begin
     if rising_edge(clk) then
       done <= '0';
-      if f_valid = '1' then
+      if ro.valid = '1' and mem_rsp.ready = '1' then
+        ro.valid <= '0';
+      end if;
+      if f_valid = '1' and free = '1' and tag = T_WORD and act = '1' then
+        ro <= (valid => '1', we => '1',
+               addr => thumb_addr(am, ab, unsigned(info(14 downto 7)), unsigned(info(6 downto 0))),
+               wdata => f_dout(127 downto 0), wmask => (others => '1'));
+      end if;
+      if f_valid = '1' and free = '1' then
         case tag is
           when T_START =>
             -- the buffer just completed may not show in cur yet (START

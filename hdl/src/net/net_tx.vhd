@@ -120,6 +120,8 @@ architecture rtl of net_tx is
   type kind_t is (K_NONE, K_RAST, K_ARP, K_JRESP, K_ACK, K_ICMP, K_DHCP, K_THUMB, K_TREQ, K_SNAP, K_HB);
   signal kind : kind_t := K_NONE;
   signal d    : integer range 0 to 1 := 0;
+  attribute max_fanout : integer;
+  attribute max_fanout of d : signal is 24;   -- replicated (timing, issue 0038)
 
   type state_t is (S_IDLE, S_DISCARD, S_LATCH, S_HIST, S_PREP, S_CSUM, S_START, S_WRITE, S_WAIT_MAC);
   signal state : state_t := S_IDLE;
