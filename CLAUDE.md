@@ -82,7 +82,9 @@ pre-V4 Numato Mimas A7 boards (XC7A50T-1FGG484). Start with
   `tb_supervisor_core` + its Python scenario. `make test` runs HDL, C and
   firmware tests.
 * Keep the FPGA lean: complete-state snapshots, no retransmission logic, no
-  soft CPU, no DDR3. Policy lives in host software.
+  soft CPU. DDR3 is used only as a thumbnail frame store (owner,
+  2026-11-25, issue 0034); baseline features must not depend on it. DDR3
+  clients use the `hdl/src/mem/mem_pkg.vhd` port contract. Policy lives in host software.
 * DUT-facing outputs are tri-stated unless the DUT is sensed powered.
 
 ## Hardware facts worth remembering

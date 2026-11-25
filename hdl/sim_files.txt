@@ -13,6 +13,8 @@ hdl/src/kbd/kbd_arbiter.vhd
 hdl/src/kbd/kbd_led_status.vhd
 hdl/src/kbd/kvm_hotkey.vhd
 hdl/src/common/common_pkg.vhd
+hdl/src/mem/mem_pkg.vhd
+hdl/sim/mem_model.vhd
 hdl/src/common/sync_bit.vhd
 hdl/src/common/dpram.vhd
 hdl/src/video/raster_pkg.vhd

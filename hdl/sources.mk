@@ -3,6 +3,7 @@ HDL_SRC := $(REPO)/hdl/src
 SYNTH_TOP := mimas_a7_top
 SYNTH_SOURCES := \
 	$(HDL_SRC)/common/common_pkg.vhd \
+	$(HDL_SRC)/mem/mem_pkg.vhd \
 	$(HDL_SRC)/common/sync_bit.vhd \
 	$(HDL_SRC)/common/dpram.vhd \
 	$(HDL_SRC)/video/raster_pkg.vhd \
