@@ -32,6 +32,7 @@ opt_design
 place_design
 route_design
 report_timing_summary -file $out/timing.rpt
+report_timing -setup -max_paths 40 -nworst 1 -unique_pins -sort_by slack -file $out/timing_paths.rpt
 report_drc -file $out/drc.rpt
 report_clock_interaction -file $out/clock_interaction.rpt
 report_utilization -file $out/utilization.rpt

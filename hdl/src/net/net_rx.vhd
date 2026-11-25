@@ -136,6 +136,9 @@ architecture rtl of net_rx is
   signal f_arp_ip, f_ip_dst, f_dhcp_mac, f_dut_ok : std_logic_vector(1 downto 0) := "00";
   signal f_udp, f_udp_bad, f_identity, f_mgmt, f_kbd, f_uart, f_jtag, f_text : boolean := false;
   signal f_dut_ff : std_logic := '0';
+  signal f_jbad   : boolean := false;                    -- JTAG request malformed
+  signal j_nb_r   : unsigned(31 downto 0) := (others => '0');
+  signal j_bits_r : unsigned(31 downto 0) := (others => '0');
 
   -- DHCP option scan
   type opt_st_t is (O_CODE, O_LEN, O_VAL);
@@ -342,6 +345,13 @@ begin
                     be16(h, 58) = plen - UART_TX_FIXED and be16(h, 58) <= UART_TX_MAX;
           f_jtag <= dport = PORT_JTAG and typ = T_JTAG_REQ and plen >= JTAG_REQ_FIXED;
           f_text <= dport = PORT_TEXT;
+          -- JTAG request geometry (used by S_JTAG_ADM)
+          bits := be32(h, 62);
+          nb   := shift_right(bits + 7, 3);
+          j_bits_r <= bits;
+          j_nb_r   <= nb;
+          f_jbad   <= bits = 0 or bits > JTAG_MAX_BITS or
+                      resize(be16(h, 46), 32) /= JTAG_REQ_FIXED + 2 * nb;
 
         when S_PARSE =>
           state <= S_RELEASE;
@@ -562,13 +572,12 @@ begin
 
         -- JTAG: seq 50, half 54, report 58, flags 60, bits 62, vectors 66.. --
         when S_JTAG_ADM =>
-          bits := be32(h, 62);
-          nb   := shift_right(bits + 7, 3);
+          bits := j_bits_r;
+          nb   := j_nb_r;
           j_seq <= be32(h, 50);
           if jr_r(d).pend = '1' then
             null;                       -- wait for previous response to go
-          elsif bits = 0 or bits > JTAG_MAX_BITS or
-                resize(be16(h, 46), 32) /= JTAG_REQ_FIXED + 2 * nb then
+          elsif f_jbad then
             -- malformed: answer without involving the engine
             jr_r(d)    <= ('1', d, slv48(h, 6), slv32(h, 26), h(34) & h(35));
             jrst_r(d)  <= JS_BAD_FMT;
