@@ -1,0 +1,16 @@
+# Known-good bitstreams (Vivado, SRAM load over JTAG)
+
+Kept outside `build/` so `make clean` does not remove them. The `.bit` files
+are git-ignored; this index is tracked. Load with
+
+    make jtagload-good                      # bits/known-good.bit
+    make jtagload BIT=bits/supervisor-<id>.bit
+
+Board must run from the DC jack (USB power alone browns out).
+
+| Build id | Commit | Verified on hardware (2026-11-25) | Notes |
+|---|---|---|---|
+| cd2f921d | cd2f921 | DHCP both DUTs (0 / 0x10), heartbeats, console position OK | **known-good**; keyboard pins on P12 rows 6-9; 480p60; WNS -0.42 |
+| a4b00fb9 | a4b00fb | DHCP both DUTs, ping, seg7 `0-10` | console LEFT 18 (3 px too far right) |
+| 6e7991b4 | 6e7991b | DHCP, heartbeats (DUT 0 only, old ID scheme) | 480p60, LEFT 0 (left edge cropped) |
+| da7897a1 | da7897a | DHCP, heartbeats, ping, mgmt, text | 576p50, old ID scheme |

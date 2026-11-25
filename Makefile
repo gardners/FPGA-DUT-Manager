@@ -56,7 +56,7 @@ endif
 
 .DELETE_ON_ERROR:
 FORCE:
-.PHONY: vivado all help deps toolchain test test-hdl test-sw bitstream jtagload flash \
+.PHONY: vivado all help deps toolchain test test-hdl test-sw bitstream jtagload jtagload-good flash \
         detect dutctl list-boards check-board clean distclean
 
 all: test bitstream dutctl
@@ -175,6 +175,10 @@ detect: check-board | $(STAMPS)/openfpgaloader
 BIT ?= $(DEFAULT_BIT)
 jtagload: $(BIT) check-board | $(STAMPS)/openfpgaloader
 	$(OFL) $(CABLE_ARGS) --write-sram $(BIT)
+
+# last bitstream verified on hardware (see bits/README.md)
+jtagload-good: check-board | $(STAMPS)/openfpgaloader
+	$(OFL) $(CABLE_ARGS) --write-sram $(REPO)/bits/known-good.bit
 
 flash: $(BIT) check-board | $(STAMPS)/openfpgaloader
 	$(OFL) $(CABLE_ARGS) --write-flash $(BIT)
