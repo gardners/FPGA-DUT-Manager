@@ -98,3 +98,7 @@ Hardware test plan (lead):
 4. Two boards: the one selecting should show the other board's machines
    fresh within ~0.3 s (requests every 250 ms); watch a switch port
    counter: bulk frames go only to the requester's port.
+
+## 2026-11-25 hardware (lead)
+
+Merged into feature/foundation (fast-forward to cb5ca98). Build 6c2c91fd on the board: hwtest 63/0, capabilities 0x9F. The select screen (key 0x0035 = 3), captured over the HDMI self-loop, shows machine 1's live thumbnail (the select screen itself, recursively), colour bars for machine 0 (no source) and frowns for the empty slots: docs/images/select-screen-live-thumbnail.png. hwtest: bad-key probe moved from 0x0041 (now a real key) to 0x0042; the video check retries when its 1 s pixel-clock window covers a passthrough attempt. Not yet tried: `dutctl thumbs` (needs CAP_NET_RAW, no sudo here), a second board.

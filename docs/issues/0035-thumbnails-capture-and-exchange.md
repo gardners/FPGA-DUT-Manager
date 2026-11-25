@@ -75,3 +75,7 @@ wired in `mimas_a7_top` to the mosaic's `seen/fresh/cur_buf/scale`):
   stale.
 * Frame-store ports: DDR3 arbiter ports 2 (capture writer), 3 (relay
   receive writer), 4 (relay sender reader).
+
+## 2026-11-25 hardware (lead)
+
+Merged into feature/foundation (fast-forward to cb5ca98). Build 6c2c91fd on the board: hwtest 63/0, capabilities 0x9F. The select screen (key 0x0035 = 3), captured over the HDMI self-loop, shows machine 1's live thumbnail (the select screen itself, recursively), colour bars for machine 0 (no source) and frowns for the empty slots: docs/images/select-screen-live-thumbnail.png. hwtest: bad-key probe moved from 0x0041 (now a real key) to 0x0042; the video check retries when its 1 s pixel-clock window covers a passthrough attempt. Not yet tried: `dutctl thumbs` (needs CAP_NET_RAW, no sudo here), a second board.

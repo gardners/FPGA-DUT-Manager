@@ -152,14 +152,23 @@ caps=$(field "$l" caps)
 report INFO capabilities "$(printf 0x%x "$caps"): uart $((caps & 1)) jtag $((caps >> 1 & 1)) kbd-dev $((caps >> 2 & 1)) phys-kbd $((caps >> 3 & 1)) capture $((caps >> 4 & 1)) chain $((caps >> 5 & 1)) audio $((caps >> 6 & 1))"
 
 # video (HDMI out looped back into HDMI in: 720x480 of 858x525, 27 MHz)
+# On the self-loop, passthrough attempts (issue 0032, every 8 s) briefly
+# switch HDMI OUT's clock, so the 1 s pixel-clock window covering one reads
+# ~1.6 % low: retry a few seconds before calling it a failure.
 for d in "${eps[@]}"; do
 	l=${hb[$d]}
 	(($(field "$l" has_video))) || { report FAIL "video dut$d" "no video block"; continue; }
-	vf=$(field "$l" video_flags) ha=$(field "$l" h_active) va=$(field "$l" v_active)
-	ht=$(field "$l" h_total) vt=$(field "$l" v_total) pc=$(field "$l" pixel_clock_hz)
-	desc="flags $vf ${ha}x$va of ${ht}x$vt $(awk -v p="$pc" 'BEGIN { printf "%.3f MHz", p / 1e6 }') tmds errors $(field "$l" tmds_decode_errors)"
-	if ((vf & 3)) && ((vf & 2)) && ((ha == 720 && va == 480 && ht == 858 && vt == 525 && pc > 26730000 && pc < 27270000)); then
-		report PASS "video dut$d" "locked $desc"
+	for try in 1 2 3 4; do
+		vf=$(field "$l" video_flags) ha=$(field "$l" h_active) va=$(field "$l" v_active)
+		ht=$(field "$l" h_total) vt=$(field "$l" v_total) pc=$(field "$l" pixel_clock_hz)
+		desc="flags $vf ${ha}x$va of ${ht}x$vt $(awk -v p="$pc" 'BEGIN { printf "%.3f MHz", p / 1e6 }') tmds errors $(field "$l" tmds_decode_errors)"
+		ok=0
+		((vf & 3)) && ((vf & 2)) && ((ha == 720 && va == 480 && ht == 858 && vt == 525 && pc > 26730000 && pc < 27270000)) && ok=1
+		((ok)) && break
+		listen 1.2 && l=$(last_hb "$d")
+	done
+	if ((ok)); then
+		report PASS "video dut$d" "locked $desc$( ((try > 1)) && echo " (try $try)")"
 	else
 		report FAIL "video dut$d" "expected locked 720x480 of 858x525 ~27 MHz: $desc"
 	fi
@@ -278,7 +287,8 @@ keytest console-screen 0x0035 board 00       "01 02 03 00"     "04"       "0000"
 keytest capture        0x0040 ep    00       "00"              ""         "0000"
 keytest hb-period-ms   0x0050 ep    "$(printf %04x "${orig_period[${eps[0]}]}")" "$(printf %04x "${orig_period[${eps[0]}]}")" "0000" "14 001400"
 keytest out-policy     0x0060 ep    00       "00"              "03"       "0000"
-for k in 0x0000 0x0007 0x0041 0x7fff 0xffff; do
+# (0x0041 became the thumbnail forced-destination key, issue 0038; 0x0042 is the first unused one)
+for k in 0x0000 0x0007 0x0042 0x7fff 0xffff; do
 	mres=""
 	expect "${ip[${eps[0]}]}" $k 00 1
 	[[ -z $mres ]] && report PASS "mgmt bad key $k" "bad-key" || report FAIL "mgmt bad key $k" "${mres%;}"

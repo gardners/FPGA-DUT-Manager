@@ -10,7 +10,8 @@ Board must run from the DC jack (USB power alone browns out).
 
 | Build id | Commit | Verified on hardware (2026-11-25) | Notes |
 |---|---|---|---|
-| 523dd029 | 523dd02 | hwtest 63/0; HDMI OUT now HDMI (SPD/AVI InfoFrames); self-loop measures 720x480 of 858x525 with HDMI+islands flags; raster 720x480 complete; DDR3 ok | **known-good**; HDMI OUT SPD/AVI (0037, monitor OSD not yet checked by owner), HDMI-aware receiver (0040) |
+| 6c2c91fd | 6c2c91f (main at cb5ca98, docs only on top) | hwtest 63/0 (caps 0x9F); select screen on the self-loop shows machine 1's live thumbnail (recursive picture), machine 0 colour bars, frowns for empty slots | **known-good**; thumbnails (0035) and Ethernet relay (0038) |
+| 523dd029 | 523dd02 | hwtest 63/0; HDMI OUT now HDMI (SPD/AVI InfoFrames); self-loop measures 720x480 of 858x525 with HDMI+islands flags; raster 720x480 complete; DDR3 ok | HDMI OUT SPD/AVI (0037, monitor OSD not yet checked by owner), HDMI-aware receiver (0040) |
 | c2b6d912 | c2b6d91 | hwtest 63/0; DDR3 calibrates, self-test 1 MiB 0 errors on both endpoints; select screen (console-screen 3) captured over the self-loop: 2x2 mosaic, colour bars for machines 0/1, frowns for empty slots | DDR3 frame store (0034), mosaic select screen (0036) |
 | e7393132 | e739313 | hwtest 61/0; self-loop: passthrough attempts back off to 8 s, never latch; 600-frame capture 597 complete / 3 INCOMPLETE (no bogus sizes) | video passthrough (0032), stable geometry |
 | c0fbba73 | c0fbba7 | hwtest.sh 61 PASS / 0 FAIL (EDID itself not readable on the loopback) | EDID "MEGA KVM" 480p60/576p50 on HDMI IN (0033) |
