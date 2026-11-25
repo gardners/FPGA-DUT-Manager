@@ -36,3 +36,24 @@ after the 1 s hold, or only MEGA and the digit).
 **Questions for the owner.** Hold time exactly 1 s and MEGA as a tap
 (press+release)? Should ESC (or timeout) cancel the selection and return to
 the previous DUT? Which glyph for "no device"?
+
+## 2026-11-25 owner answers / decisions
+
+* All keys pass through to the DUT (double SHIFT + MEGA was chosen because
+  almost no software cares about those presses): no suppression.
+* Hold >= 1 s then MEGA as a tap (press + release); ESC or 10 s without a
+  choice cancels and returns to the previous DUT (lead defaults, owner did
+  not object).
+* Digits in keyboard order **1 2 3 4 5 6 7 8 9 0** both on screen and as
+  keys: key "1" = machine 0 ... key "0" = machine 9.
+* Each choice's reverse-video box is drawn in that machine's power-LED colour
+  (red, orange, yellow, green, blue, purple, white; half-bright from 7).
+* "No device" = frowning face drawn into font code 0x7F (CP437 has none).
+* Backgrounds differ: select screen black, no-video screen green-screen
+  green, editable screen blue (default).
+
+Implementation plan: text_display with 3 screens (chars/attrs/palette each,
+screen number in TEXT_WRITE address bits 14:13), the select screen's boxes
+drawn as an FPGA overlay (not RAM writes) from the slot-presence vector;
+kvm_hotkey entity on the physical key bitmap; displayed screen = forced
+(mgmt key) or select-pending / no-video / editable; heartbeat reports it.
