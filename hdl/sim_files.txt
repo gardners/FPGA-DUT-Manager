@@ -21,3 +21,8 @@ hdl/src/net/net_rx.vhd
 hdl/src/net/net_tx.vhd
 hdl/src/top/supervisor_core.vhd
 hdl/sim/tap_model.vhd
+third_party/mega65-core/hdmi_tx_encoder.vhdl
+hdl/src/video/font8x16_pkg.vhd
+hdl/src/video/video_timing.vhd
+hdl/src/video/text_display.vhd
+hdl/src/video/text_rx_tap.vhd

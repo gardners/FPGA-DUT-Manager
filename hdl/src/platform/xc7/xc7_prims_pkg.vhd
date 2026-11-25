@@ -70,6 +70,10 @@ package xc7_prims_pkg is
     );
   end component;
 
+  component OBUFDS
+    port (O, OB : out std_logic; I : in std_logic);
+  end component;
+
   component IDELAYCTRL
     port (RDY : out std_logic; REFCLK, RST : in std_logic);
   end component;
