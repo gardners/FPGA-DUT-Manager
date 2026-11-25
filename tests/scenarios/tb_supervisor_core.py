@@ -31,6 +31,14 @@ BAUD_12M5 = 429496730
 # JTAG: TLR x5, RTI, SELDR, CAPDR, SHDR (9 nav bits) then 32 bits, last exits
 JTAG_TMS = "11111" + "0100" + "0" * 31 + "1"
 JTAG_TDI = "0" * len(JTAG_TMS)
+# HDMI IN test source in the testbench (video_timing): 720 x 8 of 858 x 12,
+# HSYNC at pixels 736..797, negative syncs
+V_HA, V_VA, V_HT, V_VT, V_HS0, V_HS1 = 720, 8, 858, 12, 736, 798
+K_CAPTURE_EN = 0x0040
+
+
+def pattern_line(y):
+    return b"".join(bytes([x & 0xFF, y & 0xFF, (7 * x + 31 * y + 5) & 0xFF]) for x in range(V_HA))
 
 
 def udp_to(dut, dport, payload, sport=40000):
@@ -61,6 +69,7 @@ def scenario():
     f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 5, P.K_PK_LED_MODE, b"\x03"))))     # bad value
     f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 6, P.K_PK_LED_HOST, bytes(range(12))))))
     f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 7, P.K_PK_LED_HOST, bytes(11)))))  # bad length
+    f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 8, K_CAPTURE_EN, b"\x01"))))      # raster on
     f.append((5, udp_to(0, P.PORT_KBD, P.kbd_set(0xFF, [10, 63]))))  # wildcard dut
     f.append((5, udp_to(0, P.PORT_UART, P.uart_tx(0, 0, 1, b"HELLO"))))
     f.append((5, udp_to(0, P.PORT_JTAG, P.jtag_req(0, 0, JTAG_TMS, JTAG_TDI, half=2))))
@@ -150,12 +159,12 @@ def check(path):
         err("DUT1 MGMT ack %r" % acks1)
     want = [(1, 0x0010, 0), (2, 0x0050, 0), (2, 0x0050, 4), (3, 0x7777, 1),
             (4, P.K_PK_LED_MODE, 0), (5, P.K_PK_LED_MODE, 3), (6, P.K_PK_LED_HOST, 0),
-            (7, P.K_PK_LED_HOST, 2)]
+            (7, P.K_PK_LED_HOST, 2), (8, K_CAPTURE_EN, 0)]
     got = [(a["cmd_id"], a["key"], a["status"]) for a in acks]
     if got != want:
         err("MGMT acks %r != %r" % (got, want))
-    elif acks[-1]["cfg_gen"] != 4:   # baud, hb period, LED mode, LED vector
-        err("cfg_gen %d != 4" % acks[-1]["cfg_gen"])
+    elif acks[-1]["cfg_gen"] != 5:   # baud, hb period, LED mode, LED vector, capture
+        err("cfg_gen %d != 5" % acks[-1]["cfg_gen"])
 
     jr = [P.decode_jtag_resp(d["body"]) for d in parsed
           if d.get("kind") == "udp" and d.get("ptype") == P.T_JTAG_RESP]
@@ -209,11 +218,79 @@ def check(path):
         if "rx_hunts" not in h or "video_flags" not in h:
             err("heartbeat without video/link block (expected 132-byte payload)")
             break
-        if h["rx_hunts"] != 0 or h["rx_phase_pos"] != 0 or h["video_flags"] != 0:
-            err("link/video block unexpected: %r" % ({k: h[k] for k in P.LINK_FIELDS},))
+        if h["rx_hunts"] != 0 or h["rx_phase_pos"] != 0:
+            err("link block unexpected: %r" % ({k: h[k] for k in P.LINK_FIELDS},))
             break
+        # testbench HDMI IN: clock present + locked; capture enabled on DUT0 only
+        if h["video_flags"] & 0x0B != 0x03 or (h["video_flags"] & 4 and d != 0) or \
+           (h["h_total"], h["v_total"], h["h_active"], h["v_active"]) != (V_HT, V_VT, V_HA, V_VA):
+            err("video block unexpected: dut %d %r" % (d, h))
+            break
+        if h["raster_lines_dropped"] != 0:
+            err("heartbeat reports %d raster lines dropped" % h["raster_lines_dropped"])
+            break
+    if not hb0 or not hb0[-1]["video_flags"] & 4:
+        err("DUT0 heartbeat does not show capture enabled")
     if not hb1 or hb1[-1]["addr_src"] != 2 or hb1[-1]["dut_id"] != 0x11:
         err("DUT1 heartbeat missing or addr_src/dut_id wrong")
+
+    # raster (issue 0023): one datagram per active line, frames rebuilt and
+    # compared byte for byte with the testbench pattern
+    rasters = [d for d in parsed if d.get("kind") == "udp" and d.get("ptype") == P.T_RASTER]
+    frames_px = {}
+    hb_dst = [(d["dst"], d["ip_dst"]) for d in parsed
+              if d.get("kind") == "udp" and d.get("ptype") == P.T_HEARTBEAT and d["dut"] == 0][:1]
+    last_seq = 0
+    for d in rasters:
+        try:
+            r = P.decode_raster(d["body"])
+        except ValueError as e:
+            err("raster decode: %s" % e)
+            continue
+        where = "raster frame %d line %d" % (r["frame"], r["line"])
+        if d["dut"] != 0 or d["src"] != DUT_MAC[0] or d["ip_src"] != DUT_IP[0] or \
+           d["sport"] != P.PORT_RASTER or d["dport"] != P.PORT_RASTER or \
+           [(d["dst"], d["ip_dst"])] != hb_dst or d["plen"] != 44 + r["payload_bytes"]:
+            err("%s: addressing/header wrong" % where)
+        if (r["encoding"], r["h_total"], r["v_total"], r["v_active"], r["active_count"],
+                r["payload_bytes"], r["hs_start"], r["hs_end"]) != \
+                (P.ENC_RAW, V_HT, V_VT, V_VA, V_HA, 3 * V_HA, V_HS0, V_HS1):
+            err("%s: fields %r" % (where, {k: v for k, v in r.items() if k not in ("pixels", "uart_rx_history")}))
+        want_flags = P.RF_ACTIVE | P.RF_LOCKED | (P.RF_FIRST if r["line"] == 0 else 0)
+        if r["flags"] != want_flags:
+            err("%s: flags %02x != %02x" % (where, r["flags"], want_flags))
+        if r["line"] >= V_VA or r["pixels"] != pattern_line(r["line"]):
+            err("%s: pixels differ" % where)
+        if r["uart_rx_seq"] < last_seq:
+            err("%s: uart_rx_seq went backwards" % where)
+        last_seq = r["uart_rx_seq"]
+        n = min(r["uart_rx_seq"], 16)
+        want_hist = bytes(16 - n) + b"HELLO"[5 - n:] if r["uart_rx_seq"] <= 5 else None
+        if want_hist is not None and r["uart_rx_history"] != want_hist:
+            err("%s: uart history %r (rx_seq %d)" % (where, r["uart_rx_history"], r["uart_rx_seq"]))
+        frames_px.setdefault(r["frame"], {})
+        if r["line"] in frames_px[r["frame"]]:
+            err("%s: duplicate line" % where)
+        frames_px[r["frame"]][r["line"]] = r["pixels"]
+    fnums = sorted(frames_px)
+    if not fnums or fnums != list(range(fnums[0], fnums[0] + len(fnums))):
+        err("raster frame numbers not consecutive: %r" % fnums)
+    complete = [f for f in fnums if sorted(frames_px[f]) == list(range(V_VA))]
+    expect = b"".join(pattern_line(y) for y in range(V_VA))
+    for f in complete:
+        if b"".join(frames_px[f][y] for y in range(V_VA)) != expect:
+            err("raster frame %d differs from the source image" % f)
+    # every frame but the last (cut off by the end of the run) must be complete
+    if fnums and complete != fnums[:len(complete)] or len(complete) < len(fnums) - 1:
+        err("incomplete raster frames: %r" % {f: sorted(frames_px[f]) for f in fnums})
+    if len(complete) < 4:
+        err("expected >= 4 complete raster frames, got %d" % len(complete))
+    if not any(r_seq == 5 for r_seq in [P.decode_raster(d["body"])["uart_rx_seq"] for d in rasters]):
+        err("no raster packet with uart_rx_seq 5 (HELLO)")
+    if hb0 and complete and hb0[-1]["frames_captured"] < len(complete) - 1:
+        err("heartbeat frames_captured %d < %d" % (hb0[-1]["frames_captured"], len(complete) - 1))
+    print("raster: %d line packets, %d complete frames (%r) rebuilt and equal to the source"
+          % (len(rasters), len(complete), complete))
 
     print("DHCP: %d DISCOVER, %d REQUEST" % (len(disc), len(reqs)))
     print("captured %d frames: %d ARP, %d ICMP, %d ACK, %d JTAG, %d snapshots, %d heartbeats"

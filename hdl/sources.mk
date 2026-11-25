@@ -5,6 +5,8 @@ SYNTH_SOURCES := \
 	$(HDL_SRC)/common/common_pkg.vhd \
 	$(HDL_SRC)/common/sync_bit.vhd \
 	$(HDL_SRC)/common/dpram.vhd \
+	$(HDL_SRC)/video/raster_pkg.vhd \
+	$(HDL_SRC)/video/raster_capture.vhd \
 	$(HDL_SRC)/proto/proto_pkg.vhd \
 	$(HDL_SRC)/net/net_pkg.vhd \
 	$(HDL_SRC)/uart/uart_tx.vhd \

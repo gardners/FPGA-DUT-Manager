@@ -157,6 +157,8 @@ begin
       vid_present => vin_present, vid_locked => vin_lock_s(1),
       vid_h_total => vin_ht, vid_v_total => vin_vt, vid_h_active => vin_ha,
       vid_v_active => vin_va, vid_pixel_hz => vin_hz,
+      vin_pclk => vin_pclk, vin_rgb => vin_rgb, vin_de => vin_de, vin_hs => vin_hs,
+      vin_vs => vin_vs,
       text_forced => t_force, con_screen => con_screen, con_slots => con_slots);
 
   -- HDMI IN: DVI sink + measurement for the heartbeat video block (0022)

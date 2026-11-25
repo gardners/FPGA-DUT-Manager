@@ -8,6 +8,7 @@ use ieee.numeric_std.all;
 use work.common_pkg.all;
 use work.proto_pkg.all;
 use work.net_pkg.all;
+use work.raster_pkg.all;
 
 entity supervisor_core is
   generic (
@@ -72,6 +73,10 @@ entity supervisor_core is
     vid_present, vid_locked : in std_logic := '0';
     vid_h_total, vid_v_total, vid_h_active, vid_v_active : in unsigned(15 downto 0) := (others => '0');
     vid_pixel_hz : in unsigned(31 downto 0) := (others => '0');
+    -- HDMI IN pixel stream (pixel clock domain) for raster capture (issue 0023)
+    vin_pclk  : in  std_logic := '0';
+    vin_rgb   : in  std_logic_vector(23 downto 0) := (others => '0');
+    vin_de, vin_hs, vin_vs : in std_logic := '0';
     -- console screens (issue 0029): text_display's force bit in, screen and
     -- select-screen slot presence out
     text_forced : in  std_logic := '0';
@@ -110,10 +115,20 @@ architecture rtl of supervisor_core is
 
   -- TX slots
   signal txm_we : std_logic;
-  signal txm_wa, txm_ra : unsigned(11 downto 0);
+  signal txm_wa, txm_ra : unsigned(12 downto 0);      -- two 4 KiB slots (jumbo raster)
   signal txm_wd, txm_rd : std_logic_vector(7 downto 0);
   signal mac_start, mac_busy, mac_done : std_logic;
-  signal mac_base, mac_len : unsigned(11 downto 0);
+  signal mac_base : unsigned(12 downto 0);
+  signal mac_len  : unsigned(11 downto 0);
+
+  -- raster capture (issue 0023)
+  signal cap_on : std_logic := '0';
+  signal rast_valid, rast_pop, vid_ok_l : std_logic;
+  signal cap_dut : integer range 0 to 1;
+  signal rast_desc : rast_desc_t;
+  signal rast_raddr : unsigned(15 downto 0);
+  signal rast_rdata : std_logic_vector(23 downto 0);
+  signal hist_latch : std_logic_vector(1 downto 0);
 
   -- dispatcher <-> builder
   signal cfg   : dut_cfg_arr_t;
@@ -353,14 +368,18 @@ begin
       j_tdo_addr => j_tdo_addr, j_tdo_data0 => j_tdo0, j_tdo_data1 => j_tdo1,
       snap_req => snap_req, snap_ack => snap_ack, snap => snap, baud_inc => baud,
       boot_id => boot_id, hist_addr => hist_addr, hist_data0 => hist_data0,
-      hist_data1 => hist_data1,
+      hist_data1 => hist_data1, hist_latch => hist_latch,
+      rast_valid => rast_valid, rast_desc => rast_desc, rast_pop => rast_pop,
+      rast_en => cap_on, rast_dut => cap_dut, rast_raddr => rast_raddr,
+      rast_rdata => rast_rdata,
       mac_start => mac_start, mac_base => mac_base, mac_len => mac_len,
       mac_busy => mac_busy, mem_we => txm_we, mem_addr => txm_wa,
       mem_data => txm_wd, frames_sent => frames_sent);
 
-  txmem : entity work.dpram generic map (12, 8)
+  txmem : entity work.dpram generic map (13, 8)
     port map (clk_sys, txm_we, txm_wa, txm_wd, clk_sys, txm_ra, txm_rd);
   mtx : entity work.eth_mac_tx
+    generic map (ADDR_W => 13)
     port map (clk_sys, mac_start, mac_base, mac_len, mac_busy, mac_done,
               txm_ra, txm_rd, tx_en, txd);
 
@@ -422,7 +441,8 @@ begin
         adm_valid => adm_valid(i), adm_offset => adm_offset, adm_count => adm_count,
         adm_clear => adm_clear, adm_cmd_id => adm_cmd, adm_done => adm_done(i),
         adm_ok => adm_ok(i), wr_valid => uwr_valid(i), wr_data => uwr_data,
-        snap_req => snap_req(i), snap_ack => snap_ack(i), hist_addr => hist_addr,
+        snap_req => snap_req(i), snap_ack => snap_ack(i), hist_latch => hist_latch(i),
+        hist_addr => hist_addr,
         hist_data => hd,
         snap_rx_seq => snap(i).rx_seq, snap_tx_accepted => snap(i).tx_accepted,
         snap_tx_emitted => snap(i).tx_emitted, snap_tx_free => snap(i).tx_free,
@@ -489,8 +509,8 @@ begin
   bstat.dip         <= dip;
   bstat.link_flags  <= link_flags(7) & (not ep_enable(1)) & link_flags(5 downto 0);
   -- capabilities (ADR 0005 s3): b0 uart, b1 jtag, b2 kbd device, b3 physical
-  -- keyboard host, b4 hdmi capture (set once raster capture exists, 0023)
-  bstat.caps        <= x"0000000F";
+  -- keyboard host, b4 hdmi capture (0023)
+  bstat.caps        <= x"0000001F";
   bstat.selected    <= std_logic_vector(sel_vid) & std_logic_vector(sel_kbd);
   bstat.kbd_phys    <= pk_keys;
   bstat.phys_change <= pk_change;
@@ -512,6 +532,30 @@ begin
   bstat.vid_h_active <= vid_h_active when vid_ok else (others => '0');
   bstat.vid_v_active <= vid_v_active when vid_ok else (others => '0');
   bstat.vid_pixel_hz <= vid_pixel_hz when vid_ok else (others => '0');
+
+  ---------------------------------------------------------------- raster capture
+  -- Lines are captured for the video target when it is one of this board's
+  -- DUTs, capture is enabled for it (key 0x0040) and it has an address; they
+  -- go out as that DUT's raster packets (ADR 0005 s8, issue 0023).
+  cap_dut <= to_integer(sel_vid(0 downto 0));
+  process (clk_sys)   -- registered (timing: feeds net_tx's frame selection)
+  begin
+    if rising_edge(clk_sys) then
+      if sel_vid < 2 and bcfg.capture_en(cap_dut) = '1' and ep_enable(cap_dut) = '1' and
+         ip_eff(cap_dut) /= x"00000000" then
+        cap_on <= '1';
+      else
+        cap_on <= '0';
+      end if;
+    end if;
+  end process;
+  vid_ok_l <= '1' when vid_ok else '0';
+  rcap : entity work.raster_capture
+    generic map (RING_AW => 13, DESC_AW => 4, MAX_LINE_PX => 1024)
+    port map (pclk => vin_pclk, de => vin_de, hs => vin_hs, vs => vin_vs, rgb => vin_rgb,
+              locked => vid_ok_l, clk => clk_sys, enable => cap_on,
+              desc_valid => rast_valid, desc => rast_desc, desc_pop => rast_pop,
+              ring_addr => rast_raddr(12 downto 0), ring_data => rast_rdata);
 
   ---------------------------------------------------------------- physical keyboard
   -- power LED colour = machine number k = 2 * DUT-ID nibble + half (P12 0,
