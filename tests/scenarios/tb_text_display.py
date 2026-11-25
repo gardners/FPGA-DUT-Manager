@@ -7,8 +7,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(HERE))
 import netproto as P  # noqa: E402
 
-FONT = open(os.path.join(os.path.dirname(os.path.dirname(HERE)),
-                         "third_party/fonts/cp437-8x16.bin"), "rb").read()
+FONT = bytearray(open(os.path.join(os.path.dirname(os.path.dirname(HERE)),
+                                   "third_party/fonts/cp437-8x16.bin"), "rb").read())
+# text_display replaces code 0x7F with a frowning face (issue 0029)
+FROWN = [0x00, 0x00, 0x7E, 0x81, 0xA5, 0x81, 0x81, 0x81, 0x99, 0xA5, 0xC3, 0x81, 0x7E, 0, 0, 0]
+for _r in range(16):
+    FONT[(_r & 1) * 2048 + 0x7F * 8 + (_r >> 1)] = FROWN[_r]
 MAC = [bytes([2, 0x4D, 0x36, 0x35, 0, d]) for d in (0, 1)]
 HOST = P.mac("02:00:00:00:00:01")
 VGA = [0x000000, 0x0000AA, 0x00AA00, 0x00AAAA, 0xAA0000, 0xAA00AA, 0xAA5500, 0xAAAAAA,

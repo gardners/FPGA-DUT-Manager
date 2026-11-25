@@ -21,7 +21,7 @@ entity text_rx_tap is
     rxd     : in  std_logic_vector(7 downto 0);
     mac0, mac1 : in std_logic_vector(47 downto 0); -- quasi-static (sys domain)
     wr_en   : out std_logic;
-    wr_addr : out unsigned(12 downto 0);
+    wr_addr : out unsigned(14 downto 0);   -- screen(14:13) & offset (issue 0029)
     wr_data : out std_logic_vector(7 downto 0);
     frames  : out unsigned(15 downto 0)            -- accepted TEXT_WRITE frames
   );
@@ -107,7 +107,7 @@ begin
             end if;
             if i >= 54 and ok = '1' and left /= 0 then
               wr_en   <= '1';
-              wr_addr <= addr(12 downto 0);
+              wr_addr <= addr(14 downto 0);
               wr_data <= rxd;
               addr    <= addr + 1;
               left    <= left - 1;

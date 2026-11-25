@@ -1,14 +1,23 @@
--- text_display: 80x25 text renderer with its own memories (ADR 0012).
+-- text_display: 80x25 text renderer with three screens (ADR 0012, issue 0029).
 --
--- Write port (any clock, e.g. clk_rx from text_rx_tap):
+-- Screens: 0 editable (host-written, blue), 1 no video (green), 2 select
+-- (black; the ten machine boxes are an FPGA overlay, see below). The screen
+-- shown is the `screen` input. Each screen has its own chars, attrs and
+-- 16-colour palette.
+-- Write port (any clock, e.g. clk_rx from text_rx_tap), address
+-- screen(14:13) & offset(12:0):
 --   0x0000-0x07CF characters, 0x0800-0x0FCF attributes (lo nibble fg, hi bg),
---   0x1000-0x102F palette (16 x R,G,B), 0x1030 control.
+--   0x1000-0x102F palette (16 x R,G,B), 0x1030 control (screen 0 only).
+-- Select-screen overlay: rows 11-13, ten 5-cell boxes in keyboard order
+-- 1 2 .. 9 0 (machines 0..9), background = that machine's power-LED colour
+-- (palette of screen 2), digit replaced by a frowning face (code 0x7F,
+-- drawn into the font here) when slots(k) = '0'.
 -- Read side runs on clk_pix: 9x16 cells (VGA style: column 9 repeats column 8
 -- for codes 0xC0-0xDF so box drawing joins), text area centred in the raster.
 -- Pipeline (5 clocks): counters -> address -> char/attr RAM -> font ROM -> RGB.
 --
 -- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.
--- Font: Terminus-derived, SIL OFL 1.1 (third_party/fonts).
+-- Font: Terminus-derived, SIL OFL 1.1 (third_party/fonts); 0x7F replaced.
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -18,7 +27,8 @@ entity text_display is
   generic (
     TOP    : natural := 40;     -- first text line ((480 - 400) / 2)
     LEFT   : natural := 0;      -- first text pixel column
-    MESSAGE : string := "No video source found";   -- centred, reverse video box
+    MESSAGE : string := "No video source found";   -- screen 1, centred reverse box
+    TITLE   : string := "Select device under test to connect to";  -- screen 2
     FOOTER  : string := "MEGA KVM";                -- lower left (product/version/build)
     VISIBLE : natural := 78                        -- columns the monitor shows
   );
@@ -26,7 +36,7 @@ entity text_display is
     -- write side
     wr_clk  : in  std_logic;
     wr_en   : in  std_logic;
-    wr_addr : in  unsigned(12 downto 0);
+    wr_addr : in  unsigned(14 downto 0);
     wr_data : in  std_logic_vector(7 downto 0);
     -- video side
     clk_pix : in  std_logic;
@@ -34,39 +44,51 @@ entity text_display is
     de_in, hs_in, vs_in : in std_logic;
     r, g, b : out std_logic_vector(7 downto 0);
     de_out, hs_out, vs_out : out std_logic;
-    force_text   : out std_logic         -- control bit 0
+    force_text   : out std_logic;        -- control bit 0
+    screen  : in  unsigned(1 downto 0) := "00";            -- any clock, quasi-static
+    slots   : in  std_logic_vector(9 downto 0) := (others => '0')  -- machine k present
   );
 end entity;
 
 architecture rtl of text_display is
-  type ram_t is array (0 to 2047) of std_logic_vector(7 downto 0);
+  type ram_t is array (0 to 8191) of std_logic_vector(7 downto 0);   -- screen & 11 bits
 
-  -- power-up screen (owner 2026-11-25): white on blue, MESSAGE centred in a
-  -- 3-row reverse-video (blue on white) box, FOOTER in the lower left.
   constant BOX_W : natural := MESSAGE'length + 8;
   constant BOX_X : natural := (VISIBLE - BOX_W) / 2;
   constant BOX_Y : natural := 11;
+  constant OV_X  : natural := (VISIBLE - 68) / 2;    -- select boxes: 10 x 5 cells, gap 2
   function ch(c : character) return std_logic_vector is
   begin
     return std_logic_vector(to_unsigned(character'pos(c), 8));
   end function;
+  procedure put(variable m : inout ram_t; scr, row, col : natural; t : string) is
+  begin
+    for i in t'range loop
+      m(scr * 2048 + row * 80 + col + i - t'low) := ch(t(i));
+    end loop;
+  end procedure;
   function init_chars return ram_t is
     variable m : ram_t := (others => x"20");
   begin
-    for i in MESSAGE'range loop
-      m((BOX_Y + 1) * 80 + BOX_X + 4 + i - MESSAGE'low) := ch(MESSAGE(i));
+    for scr in 0 to 2 loop
+      put(m, scr, 24, 1, FOOTER);
     end loop;
-    for i in FOOTER'range loop
-      m(24 * 80 + 1 + i - FOOTER'low) := ch(FOOTER(i));
-    end loop;
+    put(m, 1, BOX_Y + 1, BOX_X + 4, MESSAGE);
+    put(m, 2, 7, (VISIBLE - TITLE'length) / 2, TITLE);
+    put(m, 2, 16, (VISIBLE - 40) / 2, "Press 1-9 or 0 to choose, ESC to cancel");
     return m;
   end function;
   function init_attrs return ram_t is
-    variable m : ram_t := (others => x"1F");        -- white on blue
+    variable m : ram_t := (others => x"00");
   begin
+    for i in 0 to 2047 loop
+      m(i)        := x"1F";                          -- 0: white on blue
+      m(2048 + i) := x"20";                          -- 1: black on green
+      m(4096 + i) := x"07";                          -- 2: white on black
+    end loop;
     for r in BOX_Y to BOX_Y + 2 loop
       for c in BOX_X to BOX_X + BOX_W - 1 loop
-        m(r * 80 + c) := x"F1";                     -- blue on white
+        m(2048 + r * 80 + c) := x"02";               -- green on black box
       end loop;
     end loop;
     return m;
@@ -77,16 +99,51 @@ architecture rtl of text_display is
   attribute ram_style : string;
   attribute ram_style of chars, attrs : signal is "block";  -- issue 0019
 
-  type pal_t is array (0 to 47) of std_logic_vector(7 downto 0);
-  -- VGA 16-colour palette
-  signal pal : pal_t := (
+  type pal_t is array (0 to 143) of std_logic_vector(7 downto 0);   -- 3 x 16 x RGB
+  constant VGA : pal_t := (
     x"00", x"00", x"00",  x"00", x"00", x"AA",  x"00", x"AA", x"00",  x"00", x"AA", x"AA",
     x"AA", x"00", x"00",  x"AA", x"00", x"AA",  x"AA", x"55", x"00",  x"AA", x"AA", x"AA",
     x"55", x"55", x"55",  x"55", x"55", x"FF",  x"55", x"FF", x"55",  x"55", x"FF", x"FF",
-    x"FF", x"55", x"55",  x"FF", x"55", x"FF",  x"FF", x"FF", x"55",  x"FF", x"FF", x"FF");
+    x"FF", x"55", x"55",  x"FF", x"55", x"FF",  x"FF", x"FF", x"55",  x"FF", x"FF", x"FF",
+    others => x"00");
+  -- select screen: 0 black, 1-7 the power-LED colours (red orange yellow
+  -- green blue purple white), 8 grey, 9-15 the same at half brightness
+  constant SEL : pal_t := (
+    x"00", x"00", x"00",  x"FF", x"00", x"00",  x"FF", x"60", x"00",  x"FF", x"C0", x"00",
+    x"00", x"FF", x"00",  x"00", x"00", x"FF",  x"A0", x"00", x"FF",  x"FF", x"FF", x"FF",
+    x"80", x"80", x"80",  x"7F", x"00", x"00",  x"7F", x"30", x"00",  x"7F", x"60", x"00",
+    x"00", x"7F", x"00",  x"00", x"00", x"7F",  x"50", x"00", x"7F",  x"7F", x"7F", x"7F",
+    others => x"00");
+  function init_pal return pal_t is
+    variable p : pal_t;
+  begin
+    for i in 0 to 47 loop
+      p(i) := VGA(i); p(48 + i) := VGA(i); p(96 + i) := SEL(i);
+    end loop;
+    return p;
+  end function;
+  signal pal : pal_t := init_pal;
   signal ctrl : std_logic_vector(7 downto 0) := x"00";
 
-  signal font : font_array_t := FONT8X16;
+  -- frowning face for "no device" (owner 2026-11-25), replaces code 0x7F
+  type glyph_t is array (0 to 15) of std_logic_vector(7 downto 0);
+  constant FROWN : glyph_t := (x"00", x"00", x"7E", x"81", x"A5", x"81", x"81", x"81",
+                               x"99", x"A5", x"C3", x"81", x"7E", x"00", x"00", x"00");
+  function patched_font return font_array_t is
+    variable f : font_array_t := FONT8X16;
+  begin
+    for r in 0 to 15 loop     -- interlaced: row(0) & code & row(3:1)
+      f((r mod 2) * 2048 + 16#7F# * 8 + r / 2) := FROWN(r);
+    end loop;
+    return f;
+  end function;
+  signal font : font_array_t := patched_font;
+  -- screen / slots into clk_pix (quasi-static)
+  signal scr_s1, scr_s2 : unsigned(1 downto 0) := "00";
+  signal slot_s1, slot_s2 : std_logic_vector(9 downto 0) := (others => '0');
+  signal ov_c, ovin_b, ovdig_b : std_logic := '0';
+  signal ovk_b : integer range 0 to 9 := 0;
+  signal ovch_c, ovat_c : std_logic_vector(7 downto 0) := (others => '0');
 
   -- pipeline: A counters, B address, C RAM, D font, E pixel
   signal col     : unsigned(6 downto 0) := (others => '0');
@@ -98,23 +155,26 @@ architecture rtl of text_display is
   signal cx_b, cx_c, cx_d, cy_b, cy_c : unsigned(3 downto 0) := (others => '0');
   signal ch_c, at_c, ch_d, at_d, font_d : std_logic_vector(7 downto 0) := (others => '0');
   signal de_d, hs_d, vs_d : std_logic_vector(4 downto 0) := (others => '0');
+  signal scr_d : unsigned(1 downto 0) := "00";
 begin
   force_text <= ctrl(0);
 
   ---------------------------------------------------------------- writes
   process (wr_clk)
-    variable a : natural;
+    variable a  : natural;
+    variable sc : natural range 0 to 3;
   begin
     if rising_edge(wr_clk) then
-      if wr_en = '1' then
-        a := to_integer(wr_addr);
+      if wr_en = '1' and wr_addr(14 downto 13) /= "11" then
+        sc := to_integer(wr_addr(14 downto 13));
+        a  := to_integer(wr_addr(12 downto 0));
         if wr_addr(12 downto 11) = "00" then
-          chars(a mod 2048) <= wr_data;
+          chars(sc * 2048 + a mod 2048) <= wr_data;
         elsif wr_addr(12 downto 11) = "01" then
-          attrs(a mod 2048) <= wr_data;
+          attrs(sc * 2048 + a mod 2048) <= wr_data;
         elsif a >= 16#1000# and a < 16#1030# then
-          pal(a - 16#1000#) <= wr_data;
-        elsif a = 16#1030# then
+          pal(sc * 48 + a - 16#1000#) <= wr_data;
+        elsif a = 16#1030# and sc = 0 then
           ctrl <= wr_data;
         end if;
       end if;
@@ -125,8 +185,14 @@ begin
   process (clk_pix)
     variable bitv   : std_logic;
     variable fg, bg : natural;
+    variable pb     : natural range 0 to 143;
+    variable k      : integer range 0 to 9;
+    variable inbox  : boolean;
+    variable chx    : std_logic_vector(7 downto 0);
   begin
     if rising_edge(clk_pix) then
+      scr_s1 <= screen; scr_s2 <= scr_s1;
+      slot_s1 <= slots; slot_s2 <= slot_s1;
       -- A: cell counters for the pixel (x, y) presented this cycle
       if x = LEFT then
         col <= (others => '0'); cx <= (others => '0');
@@ -150,18 +216,49 @@ begin
         in_a <= '0';
       end if;
 
-      -- B: address
+      -- B: address; select-screen overlay decided from row/col
       addr_b <= resize(row & "000000", 11) + resize(row & "0000", 11) + resize(col, 11);
       cx_b <= cx; cy_b <= cy; in_b <= in_a;
+      inbox := false; k := 0;
+      if scr_s2 = "10" and row >= 11 and row <= 13 then
+        for i in 0 to 9 loop
+          if col >= OV_X + 7 * i and col <= OV_X + 7 * i + 4 then
+            inbox := true; k := i;
+          end if;
+        end loop;
+      end if;
+      ovin_b  <= '1' when inbox else '0';
+      ovk_b   <= k;
+      ovdig_b <= '1' when inbox and row = 12 and col = OV_X + 7 * k + 2 else '0';
 
-      -- C: character / attribute RAM
-      ch_c <= chars(to_integer(addr_b));
-      at_c <= attrs(to_integer(addr_b));
+      -- C: character / attribute RAM (screen chosen by scr_s2)
+      ch_c <= chars(to_integer(scr_s2(1 downto 0) & addr_b));
+      at_c <= attrs(to_integer(scr_s2(1 downto 0) & addr_b));
       cx_c <= cx_b; cy_c <= cy_b; in_c <= in_b;
+      ov_c <= '0';
+      k := ovk_b;
+      if ovin_b = '1' then
+        ov_c <= '1';
+        -- background: power-LED colour (1-7 full, 9-11 half for machines 7-9);
+        -- digit black on bright colours, white on dark ones
+        if k < 7 then
+          if k = 4 or k = 5 then ovat_c <= std_logic_vector(to_unsigned(k + 1, 4)) & x"7";
+          else ovat_c <= std_logic_vector(to_unsigned(k + 1, 4)) & x"0"; end if;
+        else
+          ovat_c <= std_logic_vector(to_unsigned(k + 2, 4)) & x"7";
+        end if;
+        ovch_c <= x"20";
+        if ovdig_b = '1' then
+          if slot_s2(k) = '0' then ovch_c <= x"7F";
+          elsif k = 9 then ovch_c <= x"30";                         -- '0'
+          else ovch_c <= std_logic_vector(to_unsigned(16#31# + k, 8)); end if;
+        end if;
+      end if;
 
       -- D: font ROM (interlaced layout: row(0) & code & row(3:1))
-      font_d <= font(to_integer(cy_c(0) & unsigned(ch_c) & cy_c(3 downto 1)));
-      ch_d <= ch_c; at_d <= at_c; cx_d <= cx_c; in_d <= in_c;
+      if ov_c = '1' then chx := ovch_c; at_d <= ovat_c; else chx := ch_c; at_d <= at_c; end if;
+      font_d <= font(to_integer(cy_c(0) & unsigned(chx) & cy_c(3 downto 1)));
+      ch_d <= chx; cx_d <= cx_c; in_d <= in_c; scr_d <= scr_s2;
 
       -- E: pixel and palette
       if cx_d < 8 then
@@ -173,12 +270,13 @@ begin
       end if;
       fg := to_integer(unsigned(at_d(3 downto 0)));
       bg := to_integer(unsigned(at_d(7 downto 4)));
+      pb := 48 * to_integer(scr_d);
       if in_d = '0' then
         r <= x"00"; g <= x"00"; b <= x"00";
       elsif bitv = '1' then
-        r <= pal(3 * fg); g <= pal(3 * fg + 1); b <= pal(3 * fg + 2);
+        r <= pal(pb + 3 * fg); g <= pal(pb + 3 * fg + 1); b <= pal(pb + 3 * fg + 2);
       else
-        r <= pal(3 * bg); g <= pal(3 * bg + 1); b <= pal(3 * bg + 2);
+        r <= pal(pb + 3 * bg); g <= pal(pb + 3 * bg + 1); b <= pal(pb + 3 * bg + 2);
       end if;
 
       de_d <= de_d(3 downto 0) & de_in;

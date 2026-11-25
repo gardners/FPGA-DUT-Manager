@@ -17,7 +17,7 @@ architecture tb of tb_text_display is
   signal rx_dv : std_logic := '0';
   signal rxd : std_logic_vector(7 downto 0) := (others => '0');
   signal we : std_logic;
-  signal wa : unsigned(12 downto 0);
+  signal wa : unsigned(14 downto 0);
   signal wd : std_logic_vector(7 downto 0);
   signal frames : unsigned(15 downto 0);
   signal x, y : unsigned(10 downto 0);

@@ -86,7 +86,7 @@ architecture rtl of mimas_a7_top is
   signal v_de, v_hs, v_vs, v_fs, t_de, t_hs, t_vs, t_force : std_logic;
   signal t_r, t_g, t_b : std_logic_vector(7 downto 0);
   signal text_we : std_logic;
-  signal text_addr : unsigned(12 downto 0);
+  signal text_addr : unsigned(14 downto 0);
   signal text_data : std_logic_vector(7 downto 0);
   signal src0, src1 : std_logic_vector(7 downto 0);
   signal ep_en : std_logic_vector(1 downto 0);

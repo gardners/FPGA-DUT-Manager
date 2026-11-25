@@ -57,7 +57,7 @@ entity supervisor_core is
     leds      : out std_logic_vector(7 downto 0);
     -- text display write port (clk_rx domain, ADR 0012)
     text_we   : out std_logic;
-    text_addr : out unsigned(12 downto 0);
+    text_addr : out unsigned(14 downto 0);
     text_data : out std_logic_vector(7 downto 0);
     -- address state per endpoint: 0 none, 1 DHCP, 2 fallback, 3 static
     addr_src0, addr_src1 : out std_logic_vector(7 downto 0);
