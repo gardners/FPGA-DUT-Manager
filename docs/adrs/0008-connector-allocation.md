@@ -161,3 +161,13 @@ Amendment 4a (same day): both pin-2 jumpers sit in column B with the other
 even pins: DUT keyboard sense on row 22 B (P12 H18, P13 A16); physical
 keyboard supply on row 15 B. Row 21 must not be used for a DUT keyboard's
 pin 2 (it is the Mimas 3.3 V supply; the MEGA65's 3.3 V only goes to sense).
+
+## Amendment 5 2026-11-25 (owner): columns swapped
+
+All three harnesses: the cable's odd pins (pin-1 side) are on Mimas
+**column B**, even pins on column A, so header pin 1 and cable pin 1 are on
+the same side (the owner's first cable was made this way). JTAG: row 4
+B UART-from / A TCK, row 5 B UART-to / A TDO, row 6 B VIO / A TDI, row 7
+A TMS. DUT keyboard: 17A KIO8, 16B KIO9, 16A KIO10, sense 22A. Physical
+keyboard: 11A KIO8, 10B KIO9, 10A KIO10, supply jumper to 15A. Ball lists in
+boards/mimas_a7/mimas_a7.xdc and docs/cabling/dut-cable.md.
