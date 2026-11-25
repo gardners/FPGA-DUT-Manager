@@ -18,9 +18,14 @@ pre-V4 Numato Mimas A7 boards (XC7A50T-1FGG484). Start with
 * The owner reviews ADRs but wants implementation to proceed assuming
   approval. Ask the owner only about design problems that genuinely need their
   input (hardware facts, trade-offs with real consequences).
-* **Background work is fine**, including parallel compiles (`JOBS` defaults
-  to `nproc`) and sub-agents where appropriate — just don't run so many heavy
-  things at once that it is slower than doing them in sequence.
+* **Background work is fine**, including parallel compiles and sub-agents
+  where appropriate — but don't oversubscribe CPU *or RAM* (JOBS=10 nextpnr
+  compiles ran the laptop out of memory). `JOBS` defaults to
+  min(nproc/2, available GB/3).
+* **Bitstreams currently come from Vivado** on the owner's build box
+  (`make vivado`, then `make jtagload BIT=...` here). The openXC7 toolchain
+  build is paused at nextpnr by owner decision; nvc/openFPGALoader/yosys/
+  prjxray are built.
 * Hardware-facing actions on the attached board (JTAG load, flash) are fine
   for bring-up; never write the SPI flash before an SRAM load has been shown
   to work (brief §12).

@@ -11,7 +11,7 @@
 #   make dutctl      # build the Linux control CLI
 #   make vivado      # Vivado batch build on a machine with Vivado
 #
-# JOBS controls compile parallelism for the toolchain build (default: nproc).
+# JOBS controls toolchain compile parallelism (default: min(nproc/2, free GB/3)).
 
 SHELL      := /bin/bash
 REPO       := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
@@ -19,7 +19,8 @@ TOOLS      := $(REPO)/tools
 PREFIX     := $(TOOLS)/prefix
 STAMPS     := $(TOOLS)/stamps
 BUILD      := $(REPO)/build
-JOBS       ?= $(shell nproc)
+# JOBS: empty = scripts/build-toolchain.sh picks min(nproc/2, available GB / 3)
+JOBS       ?=
 export JOBS TOOLS
 
 # Use our own tools first.
@@ -73,14 +74,16 @@ $(STAMPS)/deps:
 
 # Order: nvc and openFPGALoader first (small, unblock simulation and board
 # bring-up), then the big openXC7 stack, GHDL + plugin, then the chipdb.
-TOOL_STEPS := nvc openfpgaloader openxc7 ghdl ghdl-plugin chipdb
+TOOL_STEPS := nvc openfpgaloader yosys prjxray nextpnr ghdl ghdl-plugin chipdb
 
 $(STAMPS)/nvc:            | $(STAMPS)/deps
 $(STAMPS)/openfpgaloader: | $(STAMPS)/deps
-$(STAMPS)/openxc7:        | $(STAMPS)/deps
+$(STAMPS)/yosys:          | $(STAMPS)/deps
+$(STAMPS)/prjxray:        $(STAMPS)/yosys
+$(STAMPS)/nextpnr:        $(STAMPS)/prjxray
 $(STAMPS)/ghdl:           | $(STAMPS)/deps
-$(STAMPS)/ghdl-plugin:    $(STAMPS)/ghdl $(STAMPS)/openxc7
-$(STAMPS)/chipdb:         $(STAMPS)/openxc7
+$(STAMPS)/ghdl-plugin:    $(STAMPS)/ghdl $(STAMPS)/yosys
+$(STAMPS)/chipdb:         $(STAMPS)/nextpnr
 
 $(addprefix $(STAMPS)/,$(TOOL_STEPS)):
 	@mkdir -p $(STAMPS) $(TOOLS)/logs

@@ -2,7 +2,7 @@
 # Build the pinned open-source FPGA toolchain into tools/ inside this repo.
 #
 # Usage: scripts/build-toolchain.sh <component>
-#   components: nvc openfpgaloader openxc7 ghdl ghdl-plugin chipdb
+#   components: nvc openfpgaloader yosys prjxray nextpnr ghdl ghdl-plugin chipdb
 #
 # Environment:
 #   JOBS    parallel compile jobs (default nproc; run one heavy build at a time
@@ -17,7 +17,15 @@ REPO_ROOT=$(cd "$(dirname "$0")/.." && pwd)
 TOOLS=${TOOLS:-$REPO_ROOT/tools}
 PREFIX=$TOOLS/prefix
 SRC=$TOOLS/src
-JOBS=${JOBS:-$(nproc)}
+# default: one job per 3 GB of available RAM, at most half the cores
+# (nextpnr compiles can use 1-2 GB each and the owner's laptop is also in
+# use; JOBS=10 exhausted its RAM on 2026-11-25)
+if [[ -z ${JOBS:-} ]]; then
+	avail_gb=$(awk '/MemAvailable/ {print int($2 / 1048576)}' /proc/meminfo)
+	JOBS=$(( avail_gb / 3 ))
+	(( JOBS > $(nproc) / 2 )) && JOBS=$(( $(nproc) / 2 ))
+	(( JOBS < 1 )) && JOBS=1
+fi
 
 # ---- Pins -----------------------------------------------------------------
 NVC_REPO=https://github.com/nickg/nvc.git
@@ -97,8 +105,16 @@ build_openxc7() {
 		exit 1
 	}
 	mkdir -p "$SRC/openxc7"
+}
+
+# One openXC7 component per call, so an interrupted build only redoes that
+# component (the builder wipes a component's build directory each run).
+build_openxc7_part() {
+	local part=$1
+	[[ -f $SRC/openxc7-builder.sh ]] || build_openxc7
+	log "openXC7 $part (JOBS=$JOBS)"
 	cd "$SRC/openxc7"
-	INSTALL_PREFIX="$PREFIX" JOBS="$JOBS" bash "$builder" yosys prjxray nextpnr
+	INSTALL_PREFIX="$PREFIX" JOBS="$JOBS" bash "$SRC/openxc7-builder.sh" "$part"
 }
 
 build_fpga_as() {
@@ -147,9 +163,10 @@ case "${1:-}" in
 	nvc) build_nvc ;;
 	openfpgaloader) build_openfpgaloader ;;
 	openxc7) build_openxc7 ;;
+	yosys|prjxray|nextpnr) build_openxc7_part "$1" ;;
 	fpga-as) build_fpga_as ;;
 	ghdl) build_ghdl ;;
 	ghdl-plugin) build_ghdl_plugin ;;
 	chipdb) build_chipdb ;;
-	*) echo "usage: $0 {nvc|openfpgaloader|openxc7|fpga-as|ghdl|ghdl-plugin|chipdb}" >&2; exit 2 ;;
+	*) echo "usage: $0 {nvc|openfpgaloader|yosys|prjxray|nextpnr|fpga-as|ghdl|ghdl-plugin|chipdb}" >&2; exit 2 ;;
 esac
