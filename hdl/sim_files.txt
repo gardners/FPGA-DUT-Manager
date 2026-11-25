@@ -16,6 +16,12 @@ hdl/src/common/common_pkg.vhd
 hdl/src/mem/mem_pkg.vhd
 hdl/sim/mem_model.vhd
 hdl/src/common/sync_bit.vhd
+hdl/src/common/async_fifo.vhd
+hdl/src/mem/mem_arbiter.vhd
+hdl/src/mem/mem_selftest.vhd
+hdl/src/mem/mem_app_bridge.vhd
+hdl/sim/mig_ui_model.vhd
+hdl/sim/mem_tb_client.vhd
 hdl/src/common/dpram.vhd
 hdl/src/video/raster_pkg.vhd
 hdl/src/video/raster_capture.vhd
