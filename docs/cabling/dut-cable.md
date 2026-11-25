@@ -6,8 +6,8 @@ with **straight strips of male-to-female jumpers** (or crimped housings):
 | Harness | Mimas end | Other end |
 |---|---|---|
 | JTAG + UART to a MEGA65 | 2 strips of 5 (columns A and B), rows 3-7 | JB1: rows 1-2, skip row 3 (pins 5/6), rows 4-6 |
-| DUT keyboard to a MEGA65 | rows 20 down to 16, both columns (J5 in order) + 1 single jumper | J5 2x5 straight; pin 2 jumper to row 22 A |
-| Physical keyboard (master only) | P12 rows 14 down to 10, both columns (in order) + 1 single jumper | keyboard 2x5 straight; pin 2 jumper to row 15 |
+| DUT keyboard to a MEGA65 | rows 20 down to 16, both columns (J5 in order) + 1 single jumper | J5 2x5 straight; pin 2 jumper to row 22 B |
+| Physical keyboard (master only) | P12 rows 14 down to 10, both columns (in order) + 1 single jumper | keyboard 2x5 straight; pin 2 jumper to row 15 B |
 
 **DUT0 uses P12, DUT1 uses P13, at identical positions.**
 
@@ -73,13 +73,14 @@ The block mirrors J5 row for row, running *down* the Mimas (column A = J5
 odd pins, column B = even pins), so all ten wires can be two straight 1x5
 strips. J5 pins 3-7 are the keyboard-CPLD JTAG signals; they land on FPGA
 pins the design leaves unused (never driven, weak pull-down), so wiring them
-is harmless. Only J5 pin 2 (the MEGA65's 3.3 V) needs its own jumper: it
-would otherwise sit on GND, and it must go to a sense input, never to the
-Mimas 3.3 V.
+is harmless. Only J5 pin 2 (the MEGA65's 3.3 V) needs its own jumper, kept in
+column B with the other even pins: it would otherwise sit on GND, and it
+must go to the sense input on row 22, **never to row 21** (the Mimas 3.3 V
+supply: that would tie the two boards' regulators together).
 
 | Mimas row | Column A | J5 | Column B | J5 |
 |---|---|---|---|---|
-| 22 | **3.3 V sense in** — H17 / A15 | **2 (separate jumper)** | — | |
+| 22 | — | | **3.3 V sense in** — H18 / A16 | **2 (separate jumper)** |
 | 21 | (Mimas 3.3 V row — nothing here) | | | |
 | 20 | GND | 1 | GND — leave empty (pin 2 is moved) | — |
 | 19 | KB_JTAGEN (unused pin) | 3 | KB_TMS (unused pin) | 4 |
@@ -96,7 +97,7 @@ the Mimas 3.3 V row 15 right next to the block.
 
 | Mimas row | Column A | Keyboard pin | Column B | Keyboard pin |
 |---|---|---|---|---|
-| 15 | 3.3 V supply (VADJ) | **2 (separate jumper, either column)** | 3.3 V | |
+| 15 | 3.3 V | | **3.3 V supply (VADJ)** | **2 (separate jumper)** |
 | 14 | GND | 1 | GND — leave empty (pin 2 is moved) | — |
 | 13 | KB_JTAGEN (unused pin) | 3 | KB_TMS (unused pin) | 4 |
 | 12 | KB_TCK (unused pin) | 5 | KB_TDI (unused pin) | 6 |

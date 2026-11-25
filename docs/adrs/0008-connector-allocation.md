@@ -156,3 +156,8 @@ undriven FPGA pins; only J5 pin 2 is a separate jumper.
 
 Rows 4-7 (JTAG/UART), 10-20 and 22 are now used on P12; the chain link
 (ADR 0007) must be re-planned in phase 3.
+
+Amendment 4a (same day): both pin-2 jumpers sit in column B with the other
+even pins: DUT keyboard sense on row 22 B (P12 H18, P13 A16); physical
+keyboard supply on row 15 B. Row 21 must not be used for a DUT keyboard's
+pin 2 (it is the Mimas 3.3 V supply; the MEGA65's 3.3 V only goes to sense).

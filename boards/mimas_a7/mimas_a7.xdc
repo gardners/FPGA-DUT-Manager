@@ -77,7 +77,7 @@ set_property -dict {PACKAGE_PIN L4 IOSTANDARD LVCMOS33} [get_ports {seg_en[3]}]
 ##   keyboard  = rows 20 down to 16, both columns = MEGA65 J5 2x5 in order,
 ##               reversed (amendment 4): row 20 GND (J5 1/2), 19-17A J5 3-7
 ##               keyboard JTAG on unused pins, 17B KIO8, 16A KIO9, 16B KIO10;
-##               J5 pin 2 (3V3) by its own jumper to row 22 A (sense input)
+##               J5 pin 2 (3V3) by its own jumper to row 22 B (sense input)
 ## No pulls on signals (brief section 5: minimise back-powering); sense inputs
 ## have PULLDOWN so an unplugged DUT reads unpowered. SLOW slew, 8 mA.
 set_property -dict {PACKAGE_PIN J20 IOSTANDARD LVCMOS33} [get_ports dut0_uart_from]
@@ -90,7 +90,7 @@ set_property -dict {PACKAGE_PIN H19 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW} [get_
 set_property -dict {PACKAGE_PIN M20 IOSTANDARD LVCMOS33} [get_ports dut0_kio8]
 set_property -dict {PACKAGE_PIN N22 IOSTANDARD LVCMOS33} [get_ports dut0_kio9]
 set_property -dict {PACKAGE_PIN M22 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW} [get_ports dut0_kio10]
-set_property -dict {PACKAGE_PIN H17 IOSTANDARD LVCMOS33 PULLDOWN TRUE} [get_ports dut0_kb_sense]
+set_property -dict {PACKAGE_PIN H18 IOSTANDARD LVCMOS33 PULLDOWN TRUE} [get_ports dut0_kb_sense]
 
 set_property -dict {PACKAGE_PIN F19 IOSTANDARD LVCMOS33} [get_ports dut1_uart_from]
 set_property -dict {PACKAGE_PIN F20 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW} [get_ports dut1_tck]
@@ -102,7 +102,7 @@ set_property -dict {PACKAGE_PIN B22 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW} [get_
 set_property -dict {PACKAGE_PIN A19 IOSTANDARD LVCMOS33} [get_ports dut1_kio8]
 set_property -dict {PACKAGE_PIN B17 IOSTANDARD LVCMOS33} [get_ports dut1_kio9]
 set_property -dict {PACKAGE_PIN B18 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW} [get_ports dut1_kio10]
-set_property -dict {PACKAGE_PIN A15 IOSTANDARD LVCMOS33 PULLDOWN TRUE} [get_ports dut1_kb_sense]
+set_property -dict {PACKAGE_PIN A16 IOSTANDARD LVCMOS33 PULLDOWN TRUE} [get_ports dut1_kb_sense]
 
 ## HDMI OUT (bank 35, TMDS_33 via IP4776 buffer); text display, ADR 0012
 set_property -dict {PACKAGE_PIN L3 IOSTANDARD TMDS_33} [get_ports hdmi_tx_clk_p]
@@ -116,7 +116,7 @@ set_property -dict {PACKAGE_PIN F1 IOSTANDARD TMDS_33} [get_ports {hdmi_tx_n[2]}
 
 ## Physical keyboard (master's own MEGA65 keyboard): P12 rows 14 down to 10,
 ## both columns, = the keyboard's 2x5 connector in order (ADR 0008 am. 4):
-##   row 14 GND (pin 1); pin 2 (3.3 V supply) by its own jumper to row 15
+##   row 14 GND (pin 1); pin 2 (3.3 V supply) by its own jumper to row 15 B
 ##   rows 13-11A keyboard JTAG pins 3-7 on unused FPGA pins (never driven)
 ##   row 11 B K19 GPIO_6_N KIO8 (pin 8)
 ##   row 10 A J22 GPIO_5_P KIO9 (pin 9), B H22 GPIO_5_N KIO10 (pin 10)
