@@ -176,3 +176,27 @@ Sources: https://numato.com/wp-content/uploads/2018/06/MimasA7V3.0-pd.png
   one CMT per bank: so the receivers must be BUFG-clocked (not
   BUFIO/BUFR), or move an MMCM. **The gate build (issue 0049) decides 3 vs
   4.**
+
+## 2026-11-27 progress: KiCad shield rev A draft (branch feature/shield-pcb)
+
+* `hardware/mega-kvm-shield/`: generated KiCad 10 project (scripts in
+  `scripts/`, `make` regenerates and checks). Schematic complete for
+  4 DUTs on the v1 pin plan (`shield-pinplan.md`): 3 header HDMI inputs
+  (49.9 ohm terminations, TPD4E05U06, PCA9306 DDC, FET HPD, +5V sense),
+  4 JB1 + 4 J5 DUT ports with 47 ohm series and VIO/keyboard sense,
+  physical keyboard with JTAG, TCA6424A + TCA6416A, keyed 1x11 power
+  header, I2C header, neighbour link (UART + 12 V pass-through), 12 V in
+  to both headers' VIN. **ERC: 0 violations.**
+* Board: outline, cut-out (RJ45/USB/S12/P2/DC jack), 8 holes, sockets on
+  the measured Mimas grid, all rear connectors flush, parts clustered,
+  GND/3V3 planes, 12 V tracks. Signals not routed. **DRC: 0 errors**
+  (silk warnings, unrouted nets). Renders, SVG, schematic PDF and a
+  JLCPCB BOM in `out/`. Write-up: `docs/hardware/shield.md`.
+* Physical keyboard: stays at the shield's front edge, short ribbon to the
+  rear panel (rear edge full).
+* **Problem for the owner:** a single row of rear connectors for 4 DUTs
+  needs ~280 mm of edge (board 120 x 280 mm); two shields do not fit a
+  19-inch rack. Proposed: a vertical rear connector board (2-3 rows of
+  connectors, ~110-125 mm per Mimas). See shield.md "Open choices".
+* Before fab: verify Mimas dimensions, TCA6424A pin numbers, LCSC numbers.
+* ADR 0007 rewritten (links between boards: Ethernet + neighbour UART).

@@ -1,63 +1,63 @@
-# ADR 0007: Supervisor chain link
+# ADR 0007: Links between supervisor boards
 
-Status: Proposed (2026-11-25). Owner agreed to decoded video + audio + control
-lane on 3.3 V LVCMOS (design brief O-11).
+Status: Proposed (rewritten 2026-11-27). Supersedes the original ADR 0007
+"Supervisor chain link: decoded video, 16 lanes, two 2x5 ribbons"
+(2026-11-25), which is kept in summary below for the record.
 
 ## Context
 
-* Header banks are fixed at 3.3 V (ADR 0003): LVCMOS33 only, no LVDS_25.
-* Video is 720×576@50 / 720×480@60, 27 MHz pixel clock, RGB888 + DE/HS/VS
-  = 27 bits per pixel.
-* Clock-capable pins exist only in header rows 4–19; rows 22–33 have none.
-* Cables must avoid VIN (rows 1–2), VADJ (rows 9, 15, 21) and config pins.
+* The ribbon chain (16 LVCMOS lanes per direction on header rows 10-20)
+  never got built, and its pins are gone: the bench harnesses took rows
+  10-22 (ADR 0008 amendments 3-5), and the shield pin plan
+  (`docs/hardware/shield-pinplan.md` v1, issue 0049) uses 77 of the 80
+  header signals for 4 DUTs per board.
+* Owner decisions 2026-11-26/27 (issues 0044, 0045): KVM between boards
+  runs over **Ethernet** (keyboard snapshots and live raster lines, no
+  frame buffer); boards are discovered on the LAN; a unit is **two Mimas
+  boards**, each with its own non-staggered shield; neighbouring shields
+  have only a **UART** between them, plus optionally 12 V pass-through on
+  a right-angle connector.
 
 ## Decision
 
-One **port** = 16 signals carried by **two identical 2x5 ribbons**
-("CHAIN-A" = header rows 10–14, "CHAIN-B" = rows 16–20; each 8 signals + 2 GND).
-Every node has a **down-link port on P12** (towards higher node numbers) and an
-**up-link port on P13** (towards the master). A link is a straight ribbon pair
-from node *n* P12 rows 10–20 to node *n+1* P13 rows 10–20, so the same pin
-position is an output on one board and an input on the other.
-
-| Port pin | Row/col | P12 ball (down-link, node n) | P13 ball (up-link, node n+1) | Direction (n ← n+1) |
-|---|---|---|---|---|
-| VCLK | A11 | K18 (MRCC) | C18 | n+1 → n forwarded 27 MHz clock |
-| VD0..VD13 | other 14 signals | | | n+1 → n, DDR, 28 bits/pixel |
-| CTL_DN | B19 | N19 | B16 | n → n+1 control (async serial) |
-
-(Full per-pin table in `docs/cabling/chain-cable.md`.)
-
-* **Forward (towards master)**: 14 DDR lanes at the pixel clock = 28 bits per
-  pixel: 24 RGB + DE + HS + VS + 1 **sideband** bit. The sideband is a 27 Mb/s
-  serial stream (framed, CRC-8) carrying audio samples, the upstream control
-  records (topology replies, DUT LED state, link status) and training state.
-  The receiver uses IDDR clocked by VCLK through BUFG/BUFR; clock centred by a
-  90° MMCM phase shift on the receiving side (configurable, trained).
-* **Backward (away from master)**: CTL_DN, 8N1-style async serial at 12.5 Mbaud,
-  oversampled ×10 in `clk_sys`: keyboard snapshot, video/keyboard selection +
-  epoch, LED commands, enumeration token. CRC-8 per frame; ~1 kHz full-state
-  frames; stale epochs rejected.
-* **Presence**: CTL_DN idles high when driven; the up-link receiver enables a
-  weak pull-down, so "no neighbour" (steady low) is distinguishable from
-  "neighbour present but not training" (high/garbage). The node whose up-link
-  sees no neighbour is the master.
-* **Training**: on link-up the sender emits a known pattern; the receiver
-  learns per-lane inversion (cheap XOR) and picks the IDDR phase. Lane order is
-  fixed by the cable (no lane-swap tolerance).
-* When idle/not selected, VD lanes carry blanking with DE=0 and the sideband
-  keeps running, so the link stays trained.
-* Enumeration: master emits `ENUM(hop=0)` on CTL_DN; each node takes
-  `index = hop+1`, forwards `hop+1`, and returns `{index, dna, caps}` records
-  upstream in the sideband, appending downstream records. Max 4 hops; loops
-  impossible on a point-to-point line.
+1. **Ethernet carries everything bulky or global**: board discovery and
+   enumeration (heartbeat/DHCP, ADR 0011), selection, keyboard snapshots
+   (1 ms + on change), remote video (raster lines relayed with H/V sync,
+   issue 0044), thumbnails (0038), management. The boards share a gigabit
+   switch (GS105) inside the unit; no board is special in hardware.
+2. **Neighbour link on the shield** (issue 0045), one per board:
+   * one UART, `NB_UART_TX`/`NB_UART_RX` on P12 row 23 (G17/G18), 3.3 V
+     LVCMOS, 100 ohm series resistor per side connector;
+   * on each side edge of the shield a 1x3 Dupont header (GND, TX, RX)
+     and a 1x4 right-angle connector (12V, TX, RX, GND). Side A (P12 edge)
+     is a socket, side B (P13 edge) is a pin header with TX/RX swapped, so
+     two shields plug together directly or with a straight 4-way lead;
+   * 12 V pass-through on pin 1 through a 2 A polyfuse per side, so one
+     power-board feed can supply both Mimas of a unit.
+   Both side connectors carry the same UART: with two boards per unit only
+   one side is cabled. Use: low-latency hints between neighbours (e.g.
+   "I am master", a fallback path when the switch is down, wake-up),
+   protocol to be defined when needed.
+3. **No chain clock/video lanes.** If Ethernet latency ever proves too
+   high, the fallback is a faster Ethernet path, not a ribbon.
 
 ## Consequences
 
-* 54 Mb/s per lane over ribbon is modest; verify cable length on hardware.
-* Raw TMDS symbol forwarding (preserving HDMI data islands) is rejected for now:
-  it needs 270 Mb/s lanes with real deskew, ISERDES/OSERDES on every hop, and
-  more nextpnr risk. Audio is carried as PCM in the sideband and re-emitted by
-  the master's HDMI TX (phase 4).
-* Both headers' rows 3–8 and 22–33 remain free for DUT/peripheral cables
-  (ADR 0008).
+* Header pins: 2 for the neighbour UART instead of 32 for a chain port.
+* Remote video depends on the switch's bandwidth (one 480p/576p stream,
+  ~500 Mb/s raw, fits a gigabit link); the master's HDMI OUT follows the
+  remote board's relayed sync (0044).
+* More than two boards per unit: the single UART cannot serve two cabled
+  neighbours (two TX outputs would meet on RX); a future shield revision
+  would need a second UART pair (no spare pairs on v1 apart from 3 single
+  spares).
+
+## Superseded design (2026-11-25, for reference)
+
+One port = 16 signals on two 2x5 ribbons (rows 10-14 and 16-20), down-link
+on P12, up-link on P13; 14 DDR lanes forwarded decoded RGB + sync + a
+sideband (audio, control) at the 27 MHz pixel clock, and a 12.5 Mbaud
+control line downstream; enumeration by hop count. Dropped because the pins
+went to the DUT harnesses and the shield, and Ethernet does the job without
+cables (issues 0044, 0045). `docs/cabling/chain-cable.md` describes the old
+cable and is obsolete.
