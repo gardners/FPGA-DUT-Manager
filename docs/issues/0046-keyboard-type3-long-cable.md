@@ -263,3 +263,16 @@ agent worktree; not loaded on hardware. The HDL is unchanged after
   and report the fit and timing.
 * The J5 pin 3 = JTAGENB check will be done by the lead on the attached
   keyboard over remote JTAG (owner asked).
+
+## 2026-11-27 pin-3 diagnostic (lead request)
+
+MGMT key 0x0061 value 3 (`dutctl set IP kbd-jtag 3`): keyboard JTAG engine
+on, KB_JTAGEN driven **low**, TCK/TMS/TDI as normal. Check: `kbd-jtag 1` +
+`dutctl jtag-idcode IP --kbd`, then `kbd-jtag 3` + the same. Fails in mode 3
+= pin 3 is JTAGENB with `JTAG_PORT = DISABLE`; works = the JTAG port is
+always enabled (flashing works either way in modes 0/1). Covered by
+tb_supervisor_core (IDCODE in mode 3, JTAGEN seen low). Boundary-scan
+dump (`jtag-sample`) skipped: no LCMXO2-1200HC TQFP100 BSDL found without a
+Lattice login. Merged foundation b9b5e99. Normal build 8fc1e250: TIMING
+MET, WNS +0.179 ns, WHS +0.008 ns, 18461 LUTs, 21572 FFs; `make test`
+green (31 HDL, 228 C, 52 relay checks).
