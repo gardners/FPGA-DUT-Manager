@@ -48,6 +48,13 @@ generate_target {synthesis implementation} [get_ips ddr3_mig]
 read_vhdl -vhdl2008 [concat [list $out/build_id_pkg.vhd] $srcs]
 read_xdc $repo/boards/mimas_a7/mimas_a7.xdc
 read_xdc $repo/boards/mimas_a7/mimas_a7_vivado_timing.xdc
+# Shield v1 header receivers (issue 0049), only with VIVADO_GENERICS
+# "SHIELD_RX=<n>" for n > 0 (pins for all three; unused ones only warn)
+foreach g $gen {
+  if {[regexp {^SHIELD_RX=([0-9]+)$} $g -> n] && $n > 0} {
+    read_xdc $repo/boards/mimas_a7/shield_v1.xdc
+  }
+}
 # Digilent dvi2rgb's own constraints, scoped to its module (issue 0022)
 read_xdc -ref dvi2rgb $repo/third_party/digilent-dvi2rgb/src/dvi2rgb.xdc
 set sargs [list -top mimas_a7_top]

@@ -12,6 +12,15 @@ Imported for issue 0022 (HDMI/DVI capture input). Modified since (marked
   value there, moving the HSYNC edge). The upstream `pHSync`/`pVSync`
   assignments moved into the `not kHdmiAware` branch.
 
+* 2026-11-27, issue 0049 (shield header receivers): `TMDS_Clocking.vhd`
+  generics `kPllBufg` (PLLE2_BASE + BUFG 5x/1x clocks instead of MMCM +
+  BUFIO/BUFR), `kClkInBufg` (TMDS clock to the PLL through a BUFG),
+  `kIodelayGroup` and `kIdelayCtrl` (IODELAY_GROUP as a VHDL attribute, the
+  IDELAYCTRL optional); `TMDS_Decoder.vhd`/`InputSERDES.vhd` `kInvert`
+  (per-lane P/N swap) and `kIodelayGroup`; `dvi2rgb.vhd` passes them
+  through; `dvi2rgb.xdc` no longer sets IODELAY_GROUP (it put every
+  instance in one group). Defaults keep the upstream behaviour.
+
 * Upstream: https://github.com/Digilent/vivado-library, `ip/dvi2rgb/src`
 * Commit: see `UPSTREAM_COMMIT`
 * Licence: the source files carry a **BSD 3-clause** header (Copyright

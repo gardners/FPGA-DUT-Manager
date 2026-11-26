@@ -4,9 +4,10 @@
 # create_clock -period 6.060 [get_ports TMDS_Clk_p]
 
 ### I/O constraints ###
-# group data channel IODELAYE2 cells with the IDELAYCTRL
-set_property IODELAY_GROUP dvi2rgb_iodelay_grp [get_cells DataDecoders[*].DecoderX/InputSERDES_X/InputDelay]
-set_property IODELAY_GROUP dvi2rgb_iodelay_grp [get_cells TMDS_ClockingX/IDelayCtrlX]
+# FPGA-DUT-Manager change (issue 0049): the IODELAY_GROUP of the data
+# channel IDELAYE2 cells and the IDELAYCTRL is now a VHDL attribute
+# (generic kIodelayGroup, default dvi2rgb_iodelay_grp), so several
+# receivers can use separate groups.
 
 ### Asynchronous clock domain crossings ###
 set_false_path -through [get_pins -filter {NAME =~ */*SyncAsync*/oSyncStages*/PRE || NAME =~ */*SyncAsync*/oSyncStages*/CLR} -hier]

@@ -8,12 +8,27 @@
 -- kHdmiAware (issue 0040): HDMI guard bands and data islands do not drive
 -- DE (hdmi_rx_period); hdmi_seen / island_seen report them (pclk domain,
 -- quasi-static).
+-- PLL_BUFG (issue 0049, shield header receivers): PLLE2 + BUFG clocking
+-- instead of MMCM + BUFIO/BUFR, so several receivers can share a clock
+-- region; CLKIN_BUFG routes the TMDS clock to the PLL through a BUFG (PLL
+-- in any region). INVERT(i) undoes a P/N swap of data lane i on the board.
+-- One IDELAYCTRL site per clock region: receivers in the same region share
+-- an IODELAY_GROUP and only one of them instantiates the IDELAYCTRL.
 --
 -- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.
 library ieee;
 use ieee.std_logic_1164.all;
 
 entity hdmi_rx_xc7 is
+  generic (
+    PLL_BUFG   : boolean := false;
+    CLKIN_BUFG : boolean := true;
+    INVERT     : std_logic_vector(2 downto 0) := "000";
+    -- IODELAY_GROUP of this receiver's IDELAYs; IDELAYCTRL = false: the
+    -- group's IDELAYCTRL is in another receiver in the same clock region
+    IODELAY_GROUP : string  := "dvi2rgb_iodelay_grp";
+    IDELAYCTRL    : boolean := true
+  );
   port (
     -- pins
     tmds_clk_p, tmds_clk_n : in std_logic;
@@ -43,8 +58,11 @@ begin
               sda_low => sda_low, reads => open);
   ddc_sda <= '0' when sda_low = '1' else 'Z';
   dvi : entity work.dvi2rgb
-    generic map (kEmulateDDC => false, kRstActiveHigh => true, kAddBUFG => true,
-                 kClkRange => 5, kDebug => false, kHdmiAware => true)
+    generic map (kEmulateDDC => false, kRstActiveHigh => true,
+                 kAddBUFG => not PLL_BUFG,   -- the PLL variant's pixel clock is on a BUFG already
+                 kClkRange => 5, kDebug => false, kHdmiAware => true,
+                 kPllBufg => PLL_BUFG, kClkInBufg => CLKIN_BUFG, kInvert => INVERT,
+                 kIodelayGroup => IODELAY_GROUP, kIdelayCtrl => IDELAYCTRL)
     port map (
       TMDS_Clk_p => tmds_clk_p, TMDS_Clk_n => tmds_clk_n,
       TMDS_Data_p => tmds_p, TMDS_Data_n => tmds_n,
