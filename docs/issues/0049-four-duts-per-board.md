@@ -133,3 +133,12 @@ a switch is the next or the one after it (worst case ~2.5 frames = 42 ms at
 60 Hz, 50 ms at 50 Hz). Only needed in select mode (thumbnails) and only
 when the 5V sense says both inputs are plugged in; otherwise the PLL stays
 on the one live input.
+
+### 2026-11-27 normal build check (SHIELD_RX=0, same commit)
+
+Default build after the dvi2rgb changes: TIMING MET, WNS +0.023 / WHS
++0.006 ns (tight; same logic as before, the IODELAY_GROUP now comes from
+the VHDL attribute and the IDELAYCTRL sits in a generate, so the margin
+difference is placement noise), LUT 17789, FF 20888, BRAM 32, PLLE2 2/5,
+BUFG 13, IDELAYCTRL 3. Should be re-checked by the lead on the merged
+build before hardware.
