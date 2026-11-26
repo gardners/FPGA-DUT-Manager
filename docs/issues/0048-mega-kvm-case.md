@@ -49,3 +49,22 @@ DUT LEDs for 8 DUTs.
 * **Front panel:** the LCD, the LEDs, a few momentary buttons (input
   selection; mode: scan / fixed / PIP), and a master on/off rocker switch
   with backlight. Front-panel PCB: issue 0050.
+
+## 2026-11-27 owner (round 5)
+
+* The master rocker switches **everything** off, including the Mimas boards,
+  the network switch and the fans (power board 0047 already does this: the
+  rocker gates the LTC4417 enable for all inputs).
+* Start the case now, **assuming 1RU**. The SVG generation is parameterised,
+  with sub-SVGs per Mimas bay and for the front panel (markings, holes,
+  cut-outs), composed into full sheets.
+* **Option B (owner deciding within a day or two):** gut a used 1RU rack
+  switch (e.g. Cisco Catalyst 3560G-48TS, about $35) and reuse its metal
+  carcass. **All connectors on the front except power.** Make:
+  * a custom front panel (laser-cut, replacing the switch's front);
+  * a rear power-input panel;
+  * a mounting plate: a bare PCB (or a laser-cut plate) with holes matching the
+    carcass floor's existing standoffs and the Mimas/power/GS105 holes,
+    covering only as much as needed.
+  The parametric generator should support both: the stand-alone laser-cut
+  case (A) and the carcass panels and plate (B).
