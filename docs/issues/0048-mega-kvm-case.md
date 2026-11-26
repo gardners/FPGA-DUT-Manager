@@ -68,3 +68,12 @@ DUT LEDs for 8 DUTs.
     covering only as much as needed.
   The parametric generator should support both: the stand-alone laser-cut
   case (A) and the carcass panels and plate (B).
+
+## 2026-11-27 owner (round 5b)
+
+* Option B rear panel: the power inputs fit into the 3560's existing
+  **IEC inlet cut-out and DC/RPS input cut-out** (custom plate(s) over those
+  openings).
+* DUT connectors are native JB1 2x6 + J5 2x5 per DUT on a vertical DUT
+  connector board per Mimas (0045), so the panel cut-outs are two rows of
+  box headers plus the HDMI row, per bay.
