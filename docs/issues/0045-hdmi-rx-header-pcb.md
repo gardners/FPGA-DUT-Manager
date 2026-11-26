@@ -176,3 +176,13 @@ Sources: https://numato.com/wp-content/uploads/2018/06/MimasA7V3.0-pd.png
   one CMT per bank: so the receivers must be BUFG-clocked (not
   BUFIO/BUFR), or move an MMCM. **The gate build (issue 0049) decides 3 vs
   4.**
+
+## 2026-11-27 owner decisions (round 4)
+
+* The physical keyboard connector now goes to the **rear** panel too (the
+  front has only the LCD, LEDs, buttons and rocker, issue 0050). The shield's
+  physical keyboard header can stay at the front edge if a short cable takes
+  it to the rear, or move to the rear edge, whichever is cleaner.
+* **Fabrication: JLCPCB PCB and assembly.** Prefer LCSC/JLC basic parts,
+  then extended parts. Note the LCSC number per BOM line; flag anything JLC
+  can't source.
