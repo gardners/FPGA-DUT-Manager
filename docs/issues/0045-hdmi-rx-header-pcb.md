@@ -246,3 +246,28 @@ Changes against the plans above:
   active high, 11 PRESENT (power board pulls it to 3.3 V through 10 k when
   powered; the shield has a weak pull-down; high = present).
 * Shield 12 V input: Molex Mini-Fit Jr 2-pin (matches the power board).
+
+## 2026-11-27 progress: rounds 5-7 in the KiCad design (branch feature/shield-pcb)
+
+* Arrangement per round 6/7: each DUT's JB1 on the shield at the panel
+  edge in an overhang beside the Mimas (two columns per side, next to
+  their header pins: DUT0/DUT3 on the P12 side, DUT1/DUT2 on the P13
+  side), its J5 directly below on a **keyboard sub-board** at Mimas level
+  (new project `hardware/mega-kvm-shield/kbd-sub/`, 34 x 47.8 mm, one
+  design used twice, 2x6 header into a socket under the shield, pads
+  checked to line up). The three header HDMIs sit on the shield above the
+  Mimas, over its own HDMI IN/OUT.
+* **Width:** shield 120 x 189.6 mm; two Mimas side by side ~380 mm, ~388 mm
+  with walls, which fits 430-445 mm. A single row on the shield edge needs
+  >= 245 mm per Mimas (>= 490 mm for two) and does not fit. The GS105 goes
+  in front of or behind the boards, not beside them.
+* Stack: Mimas and sub-boards at 3.0-4.6 mm, J5 to 13.5, shield 15.6-17.2,
+  JB1 to ~26 mm: fits 1RU. The JB1 pin tails must be clipped above the J5
+  bodies (or the sub-boards dropped 2.5 mm).
+* Round 5 items: PRESENT active high (100 k pull-down, power board pulls
+  up), 12 V in on Mini-Fit Jr, 3-pin neighbour UART only (no 12 V
+  pass-through), AP63205 12->5 V buck for the 5 V pin of the 1x6
+  front-panel I2C header. The physical keyboard stays at the front edge with
+  a short ribbon to the rear panel.
+* ERC 0 on both boards; DRC 0 errors on both (silk warnings, unrouted).
+  Docs: `docs/hardware/shield.md` (width table, stack, pinouts, checklist).
