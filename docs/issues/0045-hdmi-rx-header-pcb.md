@@ -66,3 +66,23 @@ JTAG/UART strip and the rows 16-20 keyboard strip pluggable.
 
 Deliverables: KiCad project under `hardware/hdmi-rx-header/`, a BOM, and an
 assembly note in `docs/cabling/`.
+
+## 2026-11-26 owner decision: FPGA serves the EDID, no EEPROM
+
+The FPGA spoofs the EDID (a second `ddc_edid` instance, host-settable
+later), for flexibility. The PCB therefore needs 4 more slow FPGA pins:
+SCL, SDA, HPD control and +5V sense. The 2x7 on rows 8-14 has none spare,
+so:
+
+* **Second small socket: P13 rows 28-30 (2x3)**: 28 A/B and 29 A/B = SCL,
+  SDA, HPD, 5V-sense; row 30 GND. These rows are spare (ADR 0008
+  amendment 2). One rigid PCB spanning rows 8-30 (~58 mm) must clear the
+  DUT1 keyboard jumpers on rows 16-22 (cut-out or enough standoff
+  height); otherwise a short 4-wire lead from the PCB to rows 28-30.
+* **DDC level shifting:** PCA9306 (or 2 x BSS138). The source side is pulled up
+  to the source's +5 V, the FPGA side to 3.3 V (row 9).
+* **HPD:** an FPGA-controlled FET pulls HDMI pin 19 up to +5 V through 1 k.
+  The FPGA can then re-assert hot-plug after changing the EDID.
+* **+5V sense:** divider (e.g. 10 k / 15 k) from HDMI pin 18 to an FPGA
+  input: "source connected".
+* Keep pads for an optional 24C02 footprint unpopulated (fallback only).

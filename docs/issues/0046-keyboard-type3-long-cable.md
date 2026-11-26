@@ -103,3 +103,12 @@ the JTAG port enabled.
    on its own, and needed for flashing.
 3. CPLD firmware with type 3, plus the FPGA host side (`kbd_phys_host`
    type 3) with testbenches. Try it on a short cable, then 3 m.
+
+## 2026-11-26 owner decisions
+
+* **2 Mb/s** (no 4 Mb/s mode). At 12.09 MHz that is only 6 samples per bit,
+  and with the OSCH's +/-5.5 % tolerance a fixed divider is still not safe.
+  So either raise the OSCH frequency (e.g. 38 MHz = 19 samples per bit), or
+  auto-baud from the host's pairs, or both. Decide in the ADR after checking
+  the CPLD fit.
+* Remote JTAG to the keyboard CPLD (XVC) as proposed.
