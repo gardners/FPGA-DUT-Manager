@@ -105,6 +105,19 @@ architecture rtl of mosaic_display is
   signal r_h     : std_logic := '0';
   signal outst   : unsigned(9 downto 0) := (others => '0');
   signal drop    : std_logic := '0';
+  -- line setup for pend_ln, registered every cycle (timing): the geometry,
+  -- tile modes and first address are ready one cycle after the request
+  -- (gv) instead of being computed in the cycle the fetch starts
+  signal gv      : std_logic := '0';
+  signal g_480, g_lt480 : boolean := false;
+  signal g_h     : natural range 0 to 1 := 0;
+  signal g_md    : mode4_t := (others => TM_OFF);
+  signal g_m4    : std_logic_vector(3 downto 0) := "0000";
+  signal g_k     : mach4_t := (others => (others => '0'));
+  signal g_b     : std_logic_vector(3 downto 0) := "0000";
+  signal g_v     : unsigned(7 downto 0) := (others => '0');
+  signal g_ni    : natural range 0 to 4 := 4;
+  signal g_a     : unsigned(MEM_AW - 1 downto 0) := (others => '0');
 
   -- pixel side
   signal c_on, c_quad, c_h : std_logic := '0';
@@ -159,8 +172,10 @@ begin
   begin
     if rising_edge(clk_sys) then
       s_tog <= s_tog(1 downto 0) & p_tog;
+      gv <= pend;
       if s_tog(2) /= s_tog(1) then
         pend <= '1'; pend_ln <= p_line;     -- p_line is stable for a whole line
+        gv <= '0';
       end if;
 
       -- responses, in request order
@@ -206,15 +221,15 @@ begin
         if req_v = '1' or outst /= 0 then
           req_v <= '0';
           if o /= 0 then drop <= '1'; end if;
-        elsif not acc then
+        elsif not acc and gv = '1' then
           startf := true;
         end if;
       end if;
 
       if startf then
         pend <= '0';
-        ny := to_integer(pend_ln);
-        if ny = 480 then
+        gv   <= '0';                    -- f_* may change: set up afresh
+        if g_480 then
           -- start of vertical blank: latch the next frame's state
           inuse := slots or seen(9 downto 0);
           quad := inuse(9 downto 4) = "000000";
@@ -235,46 +250,60 @@ begin
           else
             f_wlast <= to_unsigned(39, 7);
           end if;
-        elsif ny < 480 then
-          h := ny mod 2;
-          inrow := false; j := 0; v := 0;
-          if f_quad = '1' then
-            if ny >= MOS_Y0_Q and ny < MOS_Y0_Q + 2 * MOS_TH_Q then
-              inrow := true; rel := ny - MOS_Y0_Q;
-              if rel >= MOS_TH_Q then j := 1; end if;
-              v := rel - j * MOS_TH_Q;
-            end if;
-          else
-            if ny >= MOS_Y0_D and ny < MOS_Y0_D + 3 * MOS_TH_D then
-              inrow := true; rel := ny - MOS_Y0_D;
-              if rel >= 2 * MOS_TH_D then j := 2; elsif rel >= MOS_TH_D then j := 1; end if;
-              v := rel - j * MOS_TH_D;
-            end if;
-          end if;
-          m4 := "0000";
-          for i in 0 to 3 loop
-            if f_quad = '1' then k := 2 * j + i; else k := 4 * j + i; end if;
-            md := TM_OFF;
-            if inrow and f_en = '1' and k <= 9 and (f_quad = '0' or i < 2) then
-              md := f_mode(k);
-            end if;
-            li_mode(h)(i) <= md;
-            if md = TM_THUMB then m4(i) := '1'; end if;
-            q_k(i) <= to_unsigned(k mod 32, 5);
-            if k <= 9 then q_b(i) <= f_buf(k); else q_b(i) <= '0'; end if;
-          end loop;
+        elsif g_lt480 then
+          h := g_h;
+          li_mode(h) <= g_md;
           li_on(h) <= f_en; li_quad(h) <= f_quad;
-          q_mask <= m4; r_mask <= m4;
-          q_v <= to_unsigned(v, 8);
+          q_k <= g_k; q_b <= g_b;
+          q_mask <= g_m4; r_mask <= g_m4;
+          q_v <= g_v;
           if h = 1 then r_h <= '1'; else r_h <= '0'; end if;
           r_wi <= (others => '0'); q_wi <= (others => '0');
-          ni := next_tile(m4, -1);
-          if ni < 4 then
-            q_i <= ni; r_i <= ni; req_v <= '1';
-            if f_quad = '1' then k := 2 * j + ni; else k := 4 * j + ni; end if;
-            req_a <= thumb_addr(to_unsigned(k, 5), f_buf(k), to_unsigned(v, 8), (others => '0'));
+          if g_ni < 4 then
+            q_i <= g_ni; r_i <= g_ni; req_v <= '1';
+            req_a <= g_a;
           end if;
         end if;
+      end if;
+
+      -- line setup for pend_ln (used by startf from the next cycle on)
+      ny := to_integer(pend_ln);
+      g_480 <= ny = 480;
+      g_lt480 <= ny < 480;
+      g_h <= ny mod 2;
+      inrow := false; j := 0; v := 0;
+      if f_quad = '1' then
+        if ny >= MOS_Y0_Q and ny < MOS_Y0_Q + 2 * MOS_TH_Q then
+          inrow := true; rel := ny - MOS_Y0_Q;
+          if rel >= MOS_TH_Q then j := 1; end if;
+          v := rel - j * MOS_TH_Q;
+        end if;
+      else
+        if ny >= MOS_Y0_D and ny < MOS_Y0_D + 3 * MOS_TH_D then
+          inrow := true; rel := ny - MOS_Y0_D;
+          if rel >= 2 * MOS_TH_D then j := 2; elsif rel >= MOS_TH_D then j := 1; end if;
+          v := rel - j * MOS_TH_D;
+        end if;
+      end if;
+      m4 := "0000";
+      for i in 0 to 3 loop
+        if f_quad = '1' then k := 2 * j + i; else k := 4 * j + i; end if;
+        md := TM_OFF;
+        if inrow and f_en = '1' and k <= 9 and (f_quad = '0' or i < 2) then
+          md := f_mode(k);
+        end if;
+        g_md(i) <= md;
+        if md = TM_THUMB then m4(i) := '1'; end if;
+        g_k(i) <= to_unsigned(k mod 32, 5);
+        if k <= 9 then g_b(i) <= f_buf(k); else g_b(i) <= '0'; end if;
+      end loop;
+      g_m4 <= m4;
+      g_v <= to_unsigned(v, 8);
+      ni := next_tile(m4, -1);
+      g_ni <= ni;
+      if ni < 4 then
+        if f_quad = '1' then k := 2 * j + ni; else k := 4 * j + ni; end if;
+        g_a <= thumb_addr(to_unsigned(k, 5), f_buf(k), to_unsigned(v, 8), (others => '0'));
       end if;
     end if;
   end process;
