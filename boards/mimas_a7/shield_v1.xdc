@@ -27,17 +27,6 @@ set_property -dict {PACKAGE_PIN A13 IOSTANDARD TMDS_33} [get_ports {shd_d_p[5]}]
 set_property -dict {PACKAGE_PIN A14 IOSTANDARD TMDS_33} [get_ports {shd_d_n[5]}]
 
 ## HDMI3 (DUT3): P12 (bank 15). Clock on IO_L14 SRCC (row 12).
-## Physical keyboard JTAG (issue 0046) moves off the bodge strip's L21/M21/
-## L20/L19 (HDMI3 takes them) to the shield's pins (shield-pinplan.md). These
-## must come before the HDMI3 lines below, which reuse the old sites.
-## PK_JTAGEN is on expander B on the shield; the pk_jtagen port is parked on
-## the spare P13 B22 (not wired on the shield) until the I2C master exists.
-set_property PACKAGE_PIN H19 [get_ports pk_tck]
-set_property PACKAGE_PIN M20 [get_ports pk_tms]
-set_property PACKAGE_PIN H18 [get_ports pk_tdi]
-set_property PACKAGE_PIN K19 [get_ports pk_tdo]
-set_property PACKAGE_PIN B22 [get_ports pk_jtagen]
-
 set_property -dict {PACKAGE_PIN L19 IOSTANDARD TMDS_33} [get_ports {shd_clk_p[2]}]
 set_property -dict {PACKAGE_PIN L20 IOSTANDARD TMDS_33} [get_ports {shd_clk_n[2]}]
 set_property -dict {PACKAGE_PIN M21 IOSTANDARD TMDS_33} [get_ports {shd_d_p[6]}]
@@ -68,3 +57,15 @@ set_clock_groups -asynchronous \
   -group [get_clocks -include_generated_clocks {clk100 rgmii_rxc hdmi_rx_clk}]
 set_false_path -to   [get_ports {shd_sda[*]}]
 set_false_path -from [get_ports {shd_scl[*] shd_sda[*]}]
+
+## Physical keyboard CPLD JTAG on the shield (issue 0046, ADR 0014;
+## docs/hardware/shield-pinplan.md): HDMI3 above takes the bodge pins
+## L19/L20/M21/L21. PK_JTAGEN is on I2C expander B (TCA6416A @0x20, P0.3),
+## driven from supervisor_core's pk_jtag_oe once the shield I2C master exists
+## (issue 0049 step 2); there is no pk_jtagen port in this build.
+set_property -dict {PACKAGE_PIN H19 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW PULLDOWN TRUE} [get_ports pk_tck]
+set_property -dict {PACKAGE_PIN M20 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW PULLUP TRUE}   [get_ports pk_tms]
+set_property -dict {PACKAGE_PIN H18 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW PULLUP TRUE}   [get_ports pk_tdi]
+set_property -dict {PACKAGE_PIN K19 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports pk_tdo]
+set_false_path -to   [get_ports {pk_tck pk_tms pk_tdi}]
+set_false_path -from [get_ports pk_tdo]
