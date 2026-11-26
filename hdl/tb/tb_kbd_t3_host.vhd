@@ -20,7 +20,7 @@ entity tb_kbd_t3_host is
 end entity;
 
 architecture tb of tb_kbd_t3_host is
-  constant T3_TIMEOUT : natural := 24_180;     -- 1 ms at 24.18 MHz
+  constant T3_TIMEOUT : natural := 12_090;     -- 1 ms of 12.09 MHz clock-enable cycles
   signal clk  : std_logic := '0';
   signal done : boolean := false;
   signal en   : std_logic := '0';
@@ -159,6 +159,7 @@ begin
     wait for 10 us;
     report "tb_kbd_t3_host PASSED";
     done <= true;
+    osch_stop <= true;
     wait;
   end process;
 end architecture;

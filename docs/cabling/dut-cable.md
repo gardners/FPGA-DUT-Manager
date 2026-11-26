@@ -119,13 +119,16 @@ the Mimas 3.3 V row 15 right next to the block.
 |---|---|---|---|---|
 | 15 | 3.3 V | | **3.3 V supply (VADJ)** | **2 (separate jumper)** |
 | 14 | GND | 1 | GND — leave empty (pin 2 is moved) | — |
-| 13 | KB_JTAGEN (unused pin) | 3 | KB_TMS (unused pin) | 4 |
-| 12 | KB_TCK (unused pin) | 5 | KB_TDI (unused pin) | 6 |
-| 11 | KB_TDO (unused pin) | 7 | KIO8 (MK-I clock / MK-II SDA) — K18 | 8 |
+| 13 | KB_JTAGEN — L21 | 3 | KB_TMS — M21 | 4 |
+| 12 | KB_TCK — L20 | 5 | KB_TDI — L19 | 6 |
+| 11 | KB_TDO (in) — K19 | 7 | KIO8 (MK-I clock / MK-II SDA / type 3 held low) — K18 | 8 |
 | 10 | KIO9 (MK-I LED data / MK-II SCL) — H22 | 9 | KIO10 (MK-I key data) — J22 | 10 |
 
-The keyboard type (MK-I or MK-II) is detected automatically; `dutctl listen`
-reports it.
+The keyboard type (type 3, MK-I or MK-II) is detected automatically;
+`dutctl listen` reports it. Rows 13-11 B carry the keyboard CPLD's JTAG
+(ADR 0014): tri-stated unless the keyboard JTAG target is enabled, so the
+CPLD can be read (`dutctl jtag-idcode IP --kbd`) and flashed through XVC
+(`dutctl xvc IP --kbd`).
 
 ## Cautions
 

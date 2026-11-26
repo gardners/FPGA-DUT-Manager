@@ -58,7 +58,8 @@ entity kbd_phys_host is
     strobe     : out std_logic := '0';
     -- 0 none, 1 MK-I, 2 MK-II, 3 type 3
     kbd_type   : out std_logic_vector(1 downto 0);
-    kbd_commit : out std_logic_vector(31 downto 0) := (others => '0')
+    kbd_commit : out std_logic_vector(31 downto 0) := (others => '0');
+    probing    : out std_logic := '0'       -- type-3 probe/session owns the pins
   );
 end entity;
 
@@ -109,6 +110,7 @@ begin
   process (clk)
   begin
     if rising_edge(clk) then
+      if ps = P_LEGACY then probing <= '0'; else probing <= '1'; end if;
       k10_s  <= k10_s(0) & kio10;
       strobe <= '0';
       if pcnt /= REPROBE_CYCLES then

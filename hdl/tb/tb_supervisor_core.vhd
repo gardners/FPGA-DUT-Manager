@@ -37,7 +37,8 @@ architecture tb of tb_supervisor_core is
   signal kio10, kio10_oe : std_logic_vector(1 downto 0);
   signal leds : std_logic_vector(7 downto 0);
   signal good, bad : unsigned(15 downto 0);
-  signal tap_rises : natural;
+  signal tap_rises, ktap_rises : natural;
+  signal pk_tck, pk_tms, pk_tdi, pk_tdo, pk_joe : std_logic;
   signal captured : natural := 0;
   signal pclk : std_logic := '0';
   signal vx, vy : unsigned(10 downto 0);
@@ -73,6 +74,7 @@ begin
       kio8 => "00", kio9 => "00", kio10 => kio10, kio10_oe => kio10_oe,
       pk_kio8 => open, pk_kio9 => open, pk_kio8_oe => open, pk_kio9_oe => open,
       pk_kio8_in => '1', pk_kio10 => '0', buttons => "0000",
+      pk_tck => pk_tck, pk_tms => pk_tms, pk_tdi => pk_tdi, pk_jtag_oe => pk_joe, pk_tdo => pk_tdo,
       leds => leds, text_we => open, text_addr => open, text_data => open,
       addr_src0 => open, addr_src1 => open, ep_enable_o => open, stat_rx_good => good, stat_rx_bad => bad,
       vid_present => '1', vid_locked => '1',
@@ -92,6 +94,11 @@ begin
   urx(1) <= '1';
   jtdo(1) <= '0';
   tap : entity work.tap_model port map (jtck(0), jtms(0), jtdi(0), jtdo(0), tap_rises);
+  -- the physical keyboard's CPLD (ADR 0014); its pins are only driven while
+  -- the keyboard JTAG target is enabled
+  ktap : entity work.tap_model generic map (IDCODE => x"012BA043")
+    port map (pk_tck, pk_tms, pk_tdi, pk_tdo, ktap_rises);
+  assert pk_joe = '1' or pk_tck = '0' report "keyboard TCK moved while disabled" severity failure;
 
   -- RX driver
   drive : process

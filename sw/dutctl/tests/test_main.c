@@ -90,6 +90,9 @@ static void test_encoders(void)
     if (s[i] == '1')
       tms[i / 8] |= (uint8_t)(1u << (i % 8));
   check_bytes("jtag_41", b, dp_encode_jtag_req(b, 0, 0xDEADBEEF, 6, 0, 0, 41, tms, tdi));
+  uint8_t one = 1, zero = 0;
+  check_bytes("jtag_kbd_reset", b,
+              dp_encode_jtag_req(b, DP_DUT_ANY, 7, 6, 0, DP_JF_ABORT | DP_JF_KBD, 1, &one, &zero));
   CHECK(dp_encode_jtag_req(b, 0, 0, 6, 0, 0, 0, tms, tdi) == 0);
   CHECK(dp_encode_jtag_req(b, 0, 0, 6, 0, 0, 8193, tms, tdi) == 0);
   CHECK(dp_baud_nco(2e6) == 0x04189375);
@@ -160,6 +163,16 @@ static void test_decoders(void)
   for (int i = 5; i >= 0; i--)
     t = t << 8 | jr.tdo[i];
   CHECK((uint32_t)(t >> 9) == 0x0362C093);
+  CHECK(jr.target == DP_JT_DUT);
+
+  v = vec("jtag_resp_kbd");
+  CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && h.type == DP_T_JTAG_RESP && h.dut == 1);
+  CHECK(dp_decode_jtag_resp(v->data + 8, h.length, &jr) == 0);
+  CHECK(jr.target == DP_JT_KBD && jr.status == DP_JS_DONE && jr.seq == 3 && jr.next_seq == 4);
+  t = 0;
+  for (int i = 5; i >= 0; i--)
+    t = t << 8 | jr.tdo[i];
+  CHECK((uint32_t)(t >> 9) == 0x012BA043); /* LCMXO2-1200HC */
 
   v = vec("ack");
   dp_ack_t a;

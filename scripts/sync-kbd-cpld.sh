@@ -4,7 +4,8 @@
 #   top_2ed09bd.vhd  upstream master 2ed09bd (entity megakey_2ed09bd), the
 #                    MK-I reference for tb_megakey_mk1_compat
 #   top_type3.vhd    the type-3 firmware (entity megakey_t3), from the
-#                    given ref of the CPLD repo (default: branch type3)
+#                    given ref of the CPLD repo (default: branch type3;
+#                    WORKTREE = the uncommitted working copy)
 # The entity is renamed so both can be simulated side by side; nothing else
 # changes. Usage: scripts/sync-kbd-cpld.sh [CPLD_REPO] [REF]
 set -euo pipefail
@@ -21,10 +22,17 @@ rename() {
 }
 
 git -C "$CPLD" show 2ed09bd:src/top.vhd | rename megakey_2ed09bd > "$OUT/top_2ed09bd.vhd"
-git -C "$CPLD" show "$REF:src/top.vhd" | rename megakey_t3 > "$OUT/top_type3.vhd"
+if [[ $REF == WORKTREE ]]; then
+	# uncommitted working copy (for trying changes before committing)
+	rename megakey_t3 < "$CPLD/src/top.vhd" > "$OUT/top_type3.vhd"
+	rev="$(git -C "$CPLD" rev-parse HEAD)+uncommitted"
+else
+	git -C "$CPLD" show "$REF:src/top.vhd" | rename megakey_t3 > "$OUT/top_type3.vhd"
+	rev=$(git -C "$CPLD" rev-parse "$REF")
+fi
 {
 	echo "2ed09bd (upstream master, MK-I reference): top_2ed09bd.vhd"
-	echo "$(git -C "$CPLD" rev-parse "$REF") ($REF): top_type3.vhd"
+	echo "$rev ($REF): top_type3.vhd"
 } > "$OUT/UPSTREAM_COMMIT"
 grep -q "ENTITY megakey_t3 IS" "$OUT/top_type3.vhd"
 grep -q "ENTITY megakey_2ed09bd IS" "$OUT/top_2ed09bd.vhd"

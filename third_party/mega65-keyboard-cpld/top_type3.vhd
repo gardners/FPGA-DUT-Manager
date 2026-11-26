@@ -8,14 +8,16 @@
 --   8N1 UART at 2 Mb/s for long cables. Host -> keyboard on KIO9, keyboard
 --   -> host on KIO10, KIO8 held low by the host. Byte pairs: an address byte
 --   (bit 7 = 1, 7-bit word address) followed by a data byte (bit 7 = 0,
---   7-bit word). Words 1..19 carry the bits of the MK-I frames (word w bit b
---   = frame bit 7(w-1)+b), word 20 the CAPS/SHIFT LOCK state, word 21
---   (keyboard -> host) the protocol version. Address 0 is never used, so a
+--   7-bit word). Words 1..19 in order carry the 128 bits of the MK-I frame
+--   in MK-I order (word w bit b = bit 7(w-1)+b of the stream: host ->
+--   keyboard control bit 127 first, keyboard -> host frame bit 0 first),
+--   word 20 the CAPS/SHIFT LOCK state, word 21 (keyboard -> host) the
+--   protocol version. Address 0 is never used, so a
 --   9-bit low run on KIO9 only occurs in a data byte of value 0: the
 --   keyboard measures it (auto-baud) and times both directions from it,
 --   which cancels the OSCH tolerance (+/-5.5 %). The host sends the sync
 --   pair (address 127, data 0) regularly. The keyboard enters type 3 on a
---   valid pair received while KIO8 has been low for >= 42 us, answers with
+--   valid pair received while KIO8 has been low for >= 64 us, answers with
 --   its words in rotation, and leaves type 3 100 ms after the last valid
 --   pair, or at once when KIO8 goes high (an MK-I host clocking).
 --
@@ -37,9 +39,9 @@ use work.version.all;
 
 ENTITY megakey_t3 IS
   GENERIC (
-    -- type 3: stay this many OSCH cycles after the last valid pair
-    -- (100 ms at 24.18 MHz; shortened in simulation)
-    T3_TIMEOUT : natural := 2418000
+    -- type 3: stay this many MK-I clock-enable cycles (12.09 MHz) after
+    -- the last valid pair: 100 ms (shortened in simulation)
+    T3_TIMEOUT : natural := 1209000
   );
   PORT (
     -- JTAG / Xilinx main FPGA communications channel
@@ -144,20 +146,19 @@ ARCHITECTURE translated OF megakey_t3 IS
   signal mk1_kio10 : std_logic := '0';
 
   -- keyboard type 3 (async UART, ADR 0014)
-  -- nominal 9 bit times in OSCH cycles at 2 Mb/s: 9 * 24.18 / 2 = 108.8;
-  -- accepted measurements cover the +/-5.5 % OSCH tolerance and reject the
-  -- longest other low run (7 bits at the slow end: 89 cycles)
+  -- nominal 9 bit times in OSCH cycles at 2 Mb/s: 9 * 24.18 / 2 = 108.8.
+  -- Accepted measurements (96..127) cover the +/-5.5 % OSCH tolerance
+  -- (102.8..114.8) and reject the longest other low run in valid traffic
+  -- (7 bits: at most 89.3 cycles)
   constant L9_NOM : natural := 109;
-  constant L9_MIN : natural := 97;
-  constant L9_MAX : natural := 121;
   constant T3_VERSION : std_logic_vector(6 downto 0) := "0000001";
   signal k8_s : std_logic_vector(1 downto 0) := "00";
   signal k9_s : std_logic_vector(2 downto 0) := "111";
-  signal k8_low : unsigned(9 downto 0) := (others => '0');
+  signal k8_low : unsigned(1 downto 0) := "00";
   signal k8_high : unsigned(1 downto 0) := "00";
-  signal quiet : std_logic := '0';
   signal lowrun : unsigned(7 downto 0) := (others => '0');
   signal l9 : unsigned(7 downto 0) := to_unsigned(L9_NOM, 8);
+  signal l9m9 : unsigned(7 downto 0) := to_unsigned(L9_NOM - 9, 8);
   signal rx_acc : unsigned(7 downto 0) := (others => '0');
   signal rx_busy : std_logic := '0';
   signal rx_bitn : integer range 0 to 9 := 0;
@@ -165,7 +166,13 @@ ARCHITECTURE translated OF megakey_t3 IS
   signal rx_addr : std_logic_vector(6 downto 0) := (others => '0');
   signal rx_addr_ok : std_logic := '0';
   signal t3 : std_logic := '0';
-  signal t3_cnt : integer range 0 to T3_TIMEOUT := 0;
+  signal rx_exp : integer range 0 to 19 := 0;      -- next word expected
+  signal rx_fill : integer range 0 to 7 := 0;
+  signal rx_word : std_logic_vector(6 downto 0) := (others => '0');
+  signal t3_bits : integer range 0 to 127 := 0;    -- control bits shifted in
+  signal tx_fill : integer range 0 to 7 := 0;
+  signal tx_load : std_logic := '0';
+  signal t3_load, t3_rot, t3_sin : std_logic;
   signal tx_on : std_logic := '0';
   signal tx_acc : unsigned(7 downto 0) := (others => '0');
   signal tx_bitn : integer range 0 to 19 := 0;
@@ -176,22 +183,14 @@ ARCHITECTURE translated OF megakey_t3 IS
   -- value, b2 SHIFT override, b3 SHIFT value (value = as if the lock were on)
   signal lock_ovr : std_logic_vector(3 downto 0) := "0000";
   signal led_caps_i, led_shift_i : std_logic;
-  -- the logical MK-I keyboard -> host frame (bit k as the MEGA65 reads it)
-  signal frame : unsigned(127 downto 0);
   
 BEGIN
   
   clk <= osc_clk;
 
-  g_matrix : for k in 0 to 81 generate
-    frame(k) <= mega65_ordered_matrix(81 - k);
-  end generate;
-  g_date : for j in 0 to 13 generate
-    frame(82 + j) <= git_date(j);
-  end generate;
-  g_version : for j in 0 to 31 generate
-    frame(96 + j) <= git_version(j);
-  end generate;
+  t3_load <= tx_load;
+  t3_rot  <= '1' when tx_fill /= 0 else '0';
+  t3_sin  <= '1' when rx_fill /= 0 else '0';
   led_caps_i  <= lock_ovr(1) when lock_ovr(0) = '1' else caps_lock;
   led_shift_i <= lock_ovr(3) when lock_ovr(2) = '1' else shift_lock;
   
@@ -206,8 +205,10 @@ BEGIN
     variable a : integer range 0 to 127;
     variable w : integer range 1 to 21;
     variable nb : integer range 0 to 19;
-    variable wd : std_logic_vector(6 downto 0);
     variable aw : std_logic_vector(6 downto 0);
+    variable rdif, tdif : unsigned(8 downto 0);
+    variable mk1_edge : boolean;
+    variable sin : std_logic;
   begin
     if (rising_edge(clk)) then
       ce <= not ce;
@@ -265,7 +266,13 @@ BEGIN
         end if;
       end if;
       
-      if clock_duration = 31 then
+      -- Type 3 (below) reuses these shift registers while KIO8 is quiet:
+      -- t3_load loads serial_data_out as at a frame start, t3_rot rotates
+      -- it, t3_sin shifts a received bit into serial_data_in (latching the
+      -- control frame at its 128th bit). Without them (always, under an
+      -- MK-I host) this block does exactly what it did before.
+      mk1_edge := clock_duration /= 31 and last_last_KIO8 = '0' and last_KIO8 = '1';
+      if clock_duration = 31 or t3_load = '1' then
         serial_data_out(127 downto 46) <= mega65_ordered_matrix;
         -- We send bits in reverse order, so put date and version in backwards
         serial_data_out(45 downto 32) <= git_date;
@@ -275,29 +282,37 @@ BEGIN
         for i in 0 to 31 loop
           serial_data_out(i) <= git_version(31 - i);
         end loop;
-        bit_number <= 0;
-        mk1_kio10 <= '1';
-      else
-        if last_last_KIO8 = '0' and last_KIO8 = '1' then
-         -- Latch data on rising edge
-          if bit_number /= 255 then
-            bit_number <= bit_number + 1;
-          end if;
-          serial_data_in(127 downto 1) <= serial_data_in(126 downto 0);
-          serial_data_in(0) <= KIO9;
-          if bit_number = 127 then
-            -- We have 128 bits of data, so latch the whole thing
-            mega65_control_data(127 downto 1) <= serial_data_in(126 downto 0);
-            mega65_control_data(0) <= KIO9;
-            cnt_idle <= x"00000000";
-          end if;
-
-          -- And push matrix data out
-          -- (And at the same time dealing with our funny time delay problem
-          -- which is why we read from element 79, but have 81 in the loop.)
-          serial_data_out(127 downto 1) <= serial_data_out(126 downto 0);
-          serial_data_out(0) <= serial_data_out(127);
+        if clock_duration = 31 then
+          bit_number <= 0;
+          mk1_kio10 <= '1';
+        end if;
+      elsif mk1_edge or t3_rot = '1' then
+        -- And push matrix data out
+        -- (And at the same time dealing with our funny time delay problem
+        -- which is why we read from element 79, but have 81 in the loop.)
+        serial_data_out(127 downto 1) <= serial_data_out(126 downto 0);
+        serial_data_out(0) <= serial_data_out(127);
+        if mk1_edge then
           mk1_kio10 <= serial_data_out(125);
+        end if;
+      end if;
+      if mk1_edge then
+        sin := KIO9;
+      else
+        sin := rx_word(0);
+      end if;
+      if mk1_edge or t3_sin = '1' then
+        -- Latch data on rising edge
+        if mk1_edge and bit_number /= 255 then
+          bit_number <= bit_number + 1;
+        end if;
+        serial_data_in(127 downto 1) <= serial_data_in(126 downto 0);
+        serial_data_in(0) <= sin;
+        if (mk1_edge and bit_number = 127) or (not mk1_edge and t3_bits = 127) then
+          -- We have 128 bits of data, so latch the whole thing
+          mega65_control_data(127 downto 1) <= serial_data_in(126 downto 0);
+          mega65_control_data(0) <= sin;
+          cnt_idle <= x"00000000";
         end if;
       end if;
 
@@ -571,60 +586,82 @@ BEGIN
             end if;  -- ce
 
       -- ==== keyboard type 3 (async UART), full OSCH rate ====
+      -- Type 3 reuses the MK-I shift registers (see the MK-I block): words
+      -- received in order are shifted into serial_data_in and latched into
+      -- mega65_control_data by the MK-I latch, and sent words are rotated
+      -- out of serial_data_out. The MK-I path is idle while KIO8 is quiet.
       k8_s <= k8_s(0) & KIO8;
       k9_s <= k9_s(1 downto 0) & KIO9;
 
-      -- KIO8 quiet: low for 1023 cycles (42 us). High for 3 cycles = an MK-I
-      -- host clocking: leave type 3 at once.
+      -- steps on the MK-I shift registers, taken by the clock-enabled block
+      -- above (t3_load / t3_rot / t3_sin): count them off
+      if ce = '1' then
+        if tx_load = '1' then
+          tx_load <= '0';
+        elsif tx_fill /= 0 then
+          -- serial_data_out(127) is the next stream bit (before the rotate)
+          tx_fill <= tx_fill - 1;
+          tx_data <= serial_data_out(127) & tx_data(6 downto 1);
+        end if;
+        if rx_fill /= 0 then
+          rx_word <= '0' & rx_word(6 downto 1);
+          if t3_bits = 127 then
+            t3_bits <= 0;                   -- control frame latched
+            rx_fill <= 0;
+          else
+            t3_bits <= t3_bits + 1;
+            rx_fill <= rx_fill - 1;
+          end if;
+        end if;
+      end if;
+
+      -- KIO8 quiet: low through three wraps of the MK-I scan counter
+      -- cnt(7:0) (64..85 us). High for 3 cycles = an MK-I host clocking:
+      -- leave type 3 at once.
       if k8_s(1) = '1' then
-        k8_low <= (others => '0');
-        quiet  <= '0';
+        k8_low <= "00";
         if k8_high /= "11" then
           k8_high <= k8_high + 1;
         end if;
       else
         k8_high <= "00";
-        if k8_low /= "1111111111" then
+        if ce = '1' and cnt(7 downto 0) = x"00" and k8_low /= "11" then
           k8_low <= k8_low + 1;
-        else
-          quiet <= '1';
         end if;
       end if;
 
-      -- auto-baud: a low run of L9_MIN..L9_MAX cycles is a data byte of
-      -- value 0 (start bit + 8 zero bits) = 9 bit times
+      -- auto-baud: a low run of 96..127 cycles is a data byte of value 0
+      -- (start bit + 8 zero bits) = 9 bit times
       if k9_s(1) = '0' then
         if lowrun /= x"FF" then
           lowrun <= lowrun + 1;
         end if;
       else
-        if k9_s(2) = '0' and quiet = '1' and lowrun >= L9_MIN and lowrun <= L9_MAX then
-          l9 <= lowrun;
+        if k9_s(2) = '0' and k8_low = "11" and lowrun(7 downto 5) = "011" then
+          l9   <= lowrun;
+          l9m9 <= lowrun - 9;
         end if;
         lowrun <= (others => '0');
       end if;
 
-      -- type 3 timeout / exit on MK-I clock
-      if t3 = '1' then
-        if k8_high = "11" then
-          t3 <= '0';
-        elsif t3_cnt = T3_TIMEOUT then
-          t3 <= '0';
-        else
-          t3_cnt <= t3_cnt + 1;
-        end if;
+      -- leave type 3: MK-I clock, or T3_TIMEOUT clock-enable cycles (100 ms)
+      -- after the last valid pair (cnt_idle restarts at every valid pair)
+      if k8_high = "11" or cnt_idle = to_unsigned(T3_TIMEOUT, 32) then
+        t3 <= '0';
       end if;
 
       -- UART receiver: the bit timer adds 9 per cycle and wraps at l9, i.e.
       -- one tick per l9/9 cycles; it starts at l9/2 = sample in mid-bit
+      -- (tick when acc + 9 >= l9, i.e. acc - (l9 - 9) >= 0)
+      rdif := ('0' & rx_acc) - ('0' & l9m9);
       if rx_busy = '0' then
         if k9_s(2) = '1' and k9_s(1) = '0' then
           rx_busy <= '1';
           rx_bitn <= 0;
           rx_acc  <= '0' & l9(7 downto 1);
         end if;
-      elsif rx_acc + 9 >= l9 then
-        rx_acc <= rx_acc + 9 - l9;
+      elsif rdif(8) = '0' then
+        rx_acc <= rdif(7 downto 0);
         if rx_bitn = 0 then
           if k9_s(1) = '1' then
             rx_busy <= '0';                 -- glitch, not a start bit
@@ -637,26 +674,32 @@ BEGIN
           rx_busy <= '0';
           if k9_s(1) = '0' then
             rx_addr_ok <= '0';              -- framing error
+            rx_exp     <= 0;
           elsif rx_sh(7) = '1' then
             rx_addr    <= rx_sh(6 downto 0);
             rx_addr_ok <= '1';
           else
             rx_addr_ok <= '0';
-            if rx_addr_ok = '1' and quiet = '1' then
+            if rx_addr_ok = '1' and k8_low = "11" then
               -- a valid pair
               t3       <= '1';
-              t3_cnt   <= 0;
               cnt_idle <= (others => '0');
               a := to_integer(unsigned(rx_addr));
-              for ww in 1 to 19 loop
-                if a = ww then
-                  for b in 0 to 6 loop
-                    if 7 * (ww - 1) + b <= 127 then
-                      mega65_control_data(7 * (ww - 1) + b) <= rx_sh(b);
-                    end if;
-                  end loop;
+              -- words 1..19 in order = the 128 MK-I wire bits: shift them in
+              if a = 1 or (a = rx_exp and a /= 0) then
+                rx_word <= rx_sh(6 downto 0);
+                rx_fill <= 7;
+                if a = 1 then
+                  t3_bits <= 0;
                 end if;
-              end loop;
+                if a = 19 then
+                  rx_exp <= 0;
+                else
+                  rx_exp <= a + 1;
+                end if;
+              elsif a <= 19 then
+                rx_exp <= 0;                -- out of order: wait for word 1
+              end if;
               if a = 20 then
                 lock_ovr <= rx_sh(3 downto 0);
               end if;
@@ -668,10 +711,19 @@ BEGIN
       end if;
 
       -- UART transmitter: words 1..21 in rotation while in type 3, each as
-      -- an address byte and a data byte back to back (20 bits)
-      if tx_on = '0' or (tx_acc + 9 >= l9 and tx_bitn = 19) then
+      -- an address byte and a data byte back to back (20 bits). Words 1..19
+      -- are the MK-I wire bits: serial_data_out is loaded as at an MK-I
+      -- frame start before word 1, and 7 bits are rotated out into tx_data
+      -- per word while the address byte goes out.
+      tdif := ('0' & tx_acc) - ('0' & l9m9);
+      if t3 = '0' then
+        tx_on   <= '0';
+        tx_bit  <= '1';
+        tx_fill <= 0;
+        tx_load <= '0';
+      elsif tx_on = '0' or (tdif(8) = '0' and tx_bitn = 19) then
         if tx_on = '1' then
-          tx_acc <= tx_acc + 9 - l9;
+          tx_acc <= tdif(7 downto 0);
           if tx_word = 21 then
             w := 1;
           else
@@ -679,36 +731,27 @@ BEGIN
           end if;
         else
           tx_acc <= (others => '0');
-          w := tx_word;
+          w := 1;
         end if;
+        tx_on   <= '1';
         tx_word <= w;
-        if w <= 19 then
-          for b in 0 to 6 loop
-            if 7 * (w - 1) + b <= 127 then
-              wd(b) := frame(7 * (w - 1) + b);
-            else
-              wd(b) := '0';
-            end if;
-          end loop;
-        elsif w = 20 then
-          wd := "000" & led_shift_i & led_caps_i & shift_lock & caps_lock;
-        else
-          wd := T3_VERSION;
-        end if;
-        tx_data <= wd;
         tx_bitn <= 0;
-        if t3 = '1' then
-          tx_on  <= '1';
-          tx_bit <= '0';                    -- start bit of the address byte
-        else
-          tx_on  <= '0';
-          tx_bit <= '1';
+        tx_bit  <= '0';                     -- start bit of the address byte
+        if w = 1 then
+          tx_load <= '1';
         end if;
-      elsif tx_acc + 9 >= l9 then
-        tx_acc  <= tx_acc + 9 - l9;
+        if w <= 19 then
+          tx_fill <= 7;
+        elsif w = 20 then
+          tx_data <= "000" & led_shift_i & led_caps_i & shift_lock & caps_lock;
+        else
+          tx_data <= T3_VERSION;
+        end if;
+      elsif tdif(8) = '0' then
+        tx_acc  <= tdif(7 downto 0);
         nb      := tx_bitn + 1;
-        aw      := std_logic_vector(to_unsigned(tx_word, 7));
         tx_bitn <= nb;
+        aw      := std_logic_vector(to_unsigned(tx_word, 7));
         case nb is
           when 1 to 7   => tx_bit <= aw(nb - 1);
           when 8 | 9    => tx_bit <= '1';   -- bit 7 (address), stop
@@ -721,7 +764,7 @@ BEGIN
         tx_acc <= tx_acc + 9;
       end if;
 
-      if t3 = '1' or tx_on = '1' then
+      if t3 = '1' then
         KIO10 <= tx_bit;
       else
         KIO10 <= mk1_kio10;

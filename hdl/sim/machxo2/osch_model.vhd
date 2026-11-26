@@ -14,6 +14,9 @@
 -- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.
 package osch_sim_pkg is
   signal osch_trim_ppm : integer := 0;
+  -- testbenches set this at the end: the oscillator stops, so the
+  -- simulation runs out of events
+  signal osch_stop : boolean := false;
 end package;
 
 library ieee;
@@ -62,7 +65,7 @@ begin
     variable h : time;
   begin
     OSC <= '1';
-    loop
+    while not osch_stop loop
       h := HALF_PS * 1 ps;
       h := h + (h * osch_trim_ppm) / 1_000_000;
       if STDBY = '1' then
@@ -74,5 +77,6 @@ begin
       wait for h;
       OSC <= '1';
     end loop;
+    wait;
   end process;
 end architecture;

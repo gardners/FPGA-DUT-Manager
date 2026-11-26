@@ -251,6 +251,7 @@ int dp_decode_jtag_resp(const uint8_t *p, size_t len, dp_jtag_resp_t *r)
   r->seq = dp_get32(p);
   r->next_seq = dp_get32(p + 4);
   r->status = p[8];
+  r->target = p[9];
   r->tdo_bytes = dp_get16(p + 10);
   r->bit_count = dp_get32(p + 12);
   if (r->tdo_bytes > sizeof r->tdo || len < 16u + r->tdo_bytes)

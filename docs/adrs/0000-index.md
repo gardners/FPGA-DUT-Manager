@@ -19,3 +19,4 @@ be accepted (owner instruction 2026-11-25); refine rather than block.
 | [0011](0011-dut-identity-dip-and-dhcp.md) | DUT ID from DIP switches, deterministic MACs, DHCP | Accepted |
 | [0012](0012-text-fallback-display.md) | 80x25 text fallback / server-driven display | Proposed |
 | [0013](0013-ddr3-frame-store.md) | DDR3 frame store: MIG 7-series behind mem_pkg, self-test, heartbeat status | Proposed |
+| [0014](0014-keyboard-type3-async.md) | Keyboard type 3 (async 2 Mb/s UART, auto-baud CPLD at 24.18 MHz) and keyboard CPLD JTAG | Proposed |

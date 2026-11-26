@@ -6,19 +6,20 @@
 -- A pair is an address byte (bit 7 = 1, 7-bit word address) and a data byte
 -- (bit 7 = 0, 7-bit word), back to back.
 --
--- Host -> keyboard: the 128-bit MK-I control frame C = x"00000000" & leds
--- (exactly what kbd_mk1_host shifts out), word w = 1..19 bit b = C(7(w-1)+b);
--- word 20 = lock LED override (lock_ovr); word 127 = sync (data 0), sent as
--- every fourth pair: its 9-bit low run is the keyboard's auto-baud
--- reference (address 0 is never used, so no other byte has a low run that
--- long).
+-- Words 1..19, in order, carry the 128 bits of the MK-I frames in MK-I
+-- order: word w bit b = stream bit i = 7(w-1)+b (bits >= 128 are padding).
+-- Host -> keyboard: the control frame C = x"00000000" & leds as
+-- kbd_mk1_host shifts it out, C(127) first: stream bit i = C(127 - i); the
+-- keyboard latches it after word 19 (words must arrive in order). Word 20
+-- = lock LED override (lock_ovr); word 127 = sync (data 0), sent as every
+-- fourth pair: its 9-bit low run is the keyboard's auto-baud reference
+-- (address 0 is never used, so no other byte has a low run that long).
 --
--- Keyboard -> host: word w = 1..19 bit b = MK-I frame bit F(7(w-1)+b)
--- (F(k) = key k for k < 82, active low; 82..95 date; 96..127 commit id);
--- word 20 = lock state, word 21 = protocol version. A frame is published
--- (strobe) when word 19 arrives and all of words 1..19 were received since
--- the last publication. `present` = a frame was published within
--- LOSS_CYCLES.
+-- Keyboard -> host: stream bit i = MK-I frame bit F(i) (F(k) = key k for
+-- k < 82, active low; 82..95 date; 96..127 commit id); word 20 = lock
+-- state, word 21 = protocol version. A frame is published (strobe) when
+-- word 19 arrives and all of words 1..19 were received since the last
+-- publication. `present` = a frame was published within LOSS_CYCLES.
 --
 -- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.
 library ieee;
@@ -112,11 +113,14 @@ begin
             w := tword;
             a := w;
             if w <= 19 then
-              for b in 0 to 6 loop
-                if 7 * (w - 1) + b <= 127 then
-                  wd(b) := c(7 * (w - 1) + b);
-                else
-                  wd(b) := '0';
+              wd := (others => '0');
+              for ww in 1 to 19 loop
+                if w = ww then
+                  for b in 0 to 6 loop
+                    if 7 * (ww - 1) + b <= 127 then
+                      wd(b) := c(127 - (7 * (ww - 1) + b));
+                    end if;
+                  end loop;
                 end if;
               end loop;
             else

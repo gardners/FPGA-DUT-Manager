@@ -17,6 +17,8 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+library machxo2;
+use machxo2.osch_sim_pkg.all;
 
 entity tb_megakey_mk1_compat is
 end entity;
@@ -151,6 +153,7 @@ begin
     report "tb_megakey_mk1_compat PASSED (" & integer'image(frames) & " frames, " &
            integer'image(cmp_edges) & " lock-step edges)";
     done <= true;
+    osch_stop <= true;
     wait;
   end process;
 end architecture;
