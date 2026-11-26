@@ -1,0 +1,1136 @@
+{
+ "C1": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C14663",
+   "Voltage": "50V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "uuid": "1d544649-e7a5-5844-8749-551bf94f55a3",
+  "value": "100n"
+ },
+ "C2": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C14663",
+   "Voltage": "50V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "uuid": "2d44b507-d76b-5912-a147-1770eff6d674",
+  "value": "100n"
+ },
+ "C3": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C14663",
+   "Voltage": "50V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "uuid": "a02d0ca8-5442-5979-8ae0-da9070229ab0",
+  "value": "100n"
+ },
+ "C4": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C14663",
+   "Voltage": "50V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "VREF2",
+   "2": "GND"
+  },
+  "uuid": "79fa44df-7195-51c6-a6e7-85bb1157d2b7",
+  "value": "100n"
+ },
+ "C5": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C19702",
+   "Voltage": "10V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "uuid": "006ff8b4-7e58-5c83-b3c0-5d3e014e6e32",
+  "value": "10u"
+ },
+ "C6": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C19702",
+   "Voltage": "10V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "VLCD",
+   "2": "GND"
+  },
+  "uuid": "08bfd691-029a-5563-b43a-6573f22f22bf",
+  "value": "10u"
+ },
+ "C7": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C14663",
+   "Voltage": "50V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+5V",
+   "2": "GND"
+  },
+  "uuid": "cdae4d1b-a336-5656-97b2-5a7c9f5f42c9",
+  "value": "100n"
+ },
+ "D1": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended (THT)",
+   "LCSC": "C84774",
+   "MPN": "Everlight 204-10SDRD/S530-A3-L (3 mm red diffused, 2.0 V)",
+   "Panel": "red 1 (DUT0 powered)"
+  },
+  "footprint": "LED_THT:LED_D3.0mm",
+  "in_bom": true,
+  "pads": {
+   "1": "RED1_K",
+   "2": "+3V3"
+  },
+  "uuid": "f0f14fa3-f513-58bd-852e-b2f236ff69b3",
+  "value": "red 3mm"
+ },
+ "D11": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended (THT)",
+   "LCSC": "C85161",
+   "MPN": "Everlight 204-10SYGD/S530-E3 (3 mm yellow-green diffused, 2.0 V)",
+   "Panel": "grn 1 (DUT0 selected)"
+  },
+  "footprint": "LED_THT:LED_D3.0mm",
+  "in_bom": true,
+  "pads": {
+   "1": "GRN1_K",
+   "2": "+3V3"
+  },
+  "uuid": "65b8482d-c64f-5dd4-a832-0acc6e1457f0",
+  "value": "green 3mm"
+ },
+ "D12": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended (THT)",
+   "LCSC": "C85161",
+   "MPN": "Everlight 204-10SYGD/S530-E3 (3 mm yellow-green diffused, 2.0 V)",
+   "Panel": "grn 2 (DUT1 selected)"
+  },
+  "footprint": "LED_THT:LED_D3.0mm",
+  "in_bom": true,
+  "pads": {
+   "1": "GRN2_K",
+   "2": "+3V3"
+  },
+  "uuid": "be44d160-a9ec-56ec-97f3-11d489933441",
+  "value": "green 3mm"
+ },
+ "D13": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended (THT)",
+   "LCSC": "C85161",
+   "MPN": "Everlight 204-10SYGD/S530-E3 (3 mm yellow-green diffused, 2.0 V)",
+   "Panel": "grn 3 (DUT2 selected)"
+  },
+  "footprint": "LED_THT:LED_D3.0mm",
+  "in_bom": true,
+  "pads": {
+   "1": "GRN3_K",
+   "2": "+3V3"
+  },
+  "uuid": "5fc77ea2-e754-53fc-a2a3-5e9a1a1e11fb",
+  "value": "green 3mm"
+ },
+ "D14": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended (THT)",
+   "LCSC": "C85161",
+   "MPN": "Everlight 204-10SYGD/S530-E3 (3 mm yellow-green diffused, 2.0 V)",
+   "Panel": "grn 4 (DUT3 selected)"
+  },
+  "footprint": "LED_THT:LED_D3.0mm",
+  "in_bom": true,
+  "pads": {
+   "1": "GRN4_K",
+   "2": "+3V3"
+  },
+  "uuid": "f593c74f-8e56-53d5-ab14-479e9c550476",
+  "value": "green 3mm"
+ },
+ "D15": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended (THT)",
+   "LCSC": "C85161",
+   "MPN": "Everlight 204-10SYGD/S530-E3 (3 mm yellow-green diffused, 2.0 V)",
+   "Panel": "grn 5 (DUT4 selected)"
+  },
+  "footprint": "LED_THT:LED_D3.0mm",
+  "in_bom": true,
+  "pads": {
+   "1": "GRN5_K",
+   "2": "+3V3"
+  },
+  "uuid": "2e21772b-f967-5992-aaf3-c707eaf8c3f8",
+  "value": "green 3mm"
+ },
+ "D16": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended (THT)",
+   "LCSC": "C85161",
+   "MPN": "Everlight 204-10SYGD/S530-E3 (3 mm yellow-green diffused, 2.0 V)",
+   "Panel": "grn 6 (DUT5 selected)"
+  },
+  "footprint": "LED_THT:LED_D3.0mm",
+  "in_bom": true,
+  "pads": {
+   "1": "GRN6_K",
+   "2": "+3V3"
+  },
+  "uuid": "ffa7483a-96a2-5c23-9d23-591ea52253db",
+  "value": "green 3mm"
+ },
+ "D17": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended (THT)",
+   "LCSC": "C85161",
+   "MPN": "Everlight 204-10SYGD/S530-E3 (3 mm yellow-green diffused, 2.0 V)",
+   "Panel": "grn 7 (DUT6 selected)"
+  },
+  "footprint": "LED_THT:LED_D3.0mm",
+  "in_bom": true,
+  "pads": {
+   "1": "GRN7_K",
+   "2": "+3V3"
+  },
+  "uuid": "e3bf8bb5-dbb2-5928-86d4-e8fbd6b14a95",
+  "value": "green 3mm"
+ },
+ "D18": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended (THT)",
+   "LCSC": "C85161",
+   "MPN": "Everlight 204-10SYGD/S530-E3 (3 mm yellow-green diffused, 2.0 V)",
+   "Panel": "grn 8 (DUT7 selected)"
+  },
+  "footprint": "LED_THT:LED_D3.0mm",
+  "in_bom": true,
+  "pads": {
+   "1": "GRN8_K",
+   "2": "+3V3"
+  },
+  "uuid": "33a3dc2f-1ad9-52cb-830e-d10b46c772c1",
+  "value": "green 3mm"
+ },
+ "D2": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended (THT)",
+   "LCSC": "C84774",
+   "MPN": "Everlight 204-10SDRD/S530-A3-L (3 mm red diffused, 2.0 V)",
+   "Panel": "red 2 (DUT1 powered)"
+  },
+  "footprint": "LED_THT:LED_D3.0mm",
+  "in_bom": true,
+  "pads": {
+   "1": "RED2_K",
+   "2": "+3V3"
+  },
+  "uuid": "5f161099-6841-5015-ae0c-1ece98c50ddd",
+  "value": "red 3mm"
+ },
+ "D3": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended (THT)",
+   "LCSC": "C84774",
+   "MPN": "Everlight 204-10SDRD/S530-A3-L (3 mm red diffused, 2.0 V)",
+   "Panel": "red 3 (DUT2 powered)"
+  },
+  "footprint": "LED_THT:LED_D3.0mm",
+  "in_bom": true,
+  "pads": {
+   "1": "RED3_K",
+   "2": "+3V3"
+  },
+  "uuid": "f4c4cbf8-3d69-52af-bed8-df3b42e1e685",
+  "value": "red 3mm"
+ },
+ "D4": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended (THT)",
+   "LCSC": "C84774",
+   "MPN": "Everlight 204-10SDRD/S530-A3-L (3 mm red diffused, 2.0 V)",
+   "Panel": "red 4 (DUT3 powered)"
+  },
+  "footprint": "LED_THT:LED_D3.0mm",
+  "in_bom": true,
+  "pads": {
+   "1": "RED4_K",
+   "2": "+3V3"
+  },
+  "uuid": "a82b6e8b-606b-5a1c-a992-9c44ac615b01",
+  "value": "red 3mm"
+ },
+ "D5": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended (THT)",
+   "LCSC": "C84774",
+   "MPN": "Everlight 204-10SDRD/S530-A3-L (3 mm red diffused, 2.0 V)",
+   "Panel": "red 5 (DUT4 powered)"
+  },
+  "footprint": "LED_THT:LED_D3.0mm",
+  "in_bom": true,
+  "pads": {
+   "1": "RED5_K",
+   "2": "+3V3"
+  },
+  "uuid": "a48c138e-4cee-5f13-b829-2e2ac13e3d92",
+  "value": "red 3mm"
+ },
+ "D6": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended (THT)",
+   "LCSC": "C84774",
+   "MPN": "Everlight 204-10SDRD/S530-A3-L (3 mm red diffused, 2.0 V)",
+   "Panel": "red 6 (DUT5 powered)"
+  },
+  "footprint": "LED_THT:LED_D3.0mm",
+  "in_bom": true,
+  "pads": {
+   "1": "RED6_K",
+   "2": "+3V3"
+  },
+  "uuid": "be47e3d2-17a2-575b-a0cf-ad5c5732db54",
+  "value": "red 3mm"
+ },
+ "D7": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended (THT)",
+   "LCSC": "C84774",
+   "MPN": "Everlight 204-10SDRD/S530-A3-L (3 mm red diffused, 2.0 V)",
+   "Panel": "red 7 (DUT6 powered)"
+  },
+  "footprint": "LED_THT:LED_D3.0mm",
+  "in_bom": true,
+  "pads": {
+   "1": "RED7_K",
+   "2": "+3V3"
+  },
+  "uuid": "b5c9e43c-e166-5338-9904-d90e81537425",
+  "value": "red 3mm"
+ },
+ "D8": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended (THT)",
+   "LCSC": "C84774",
+   "MPN": "Everlight 204-10SDRD/S530-A3-L (3 mm red diffused, 2.0 V)",
+   "Panel": "red 8 (DUT7 powered)"
+  },
+  "footprint": "LED_THT:LED_D3.0mm",
+  "in_bom": true,
+  "pads": {
+   "1": "RED8_K",
+   "2": "+3V3"
+  },
+  "uuid": "bd269817-4cd4-53d1-bda1-ba82fe4e7edd",
+  "value": "red 3mm"
+ },
+ "H1": {
+  "dnp": false,
+  "fields": {},
+  "footprint": "MountingHole:MountingHole_2.7mm_M2.5",
+  "in_bom": false,
+  "pads": {},
+  "uuid": "4478a3df-a154-58b8-bf69-9f4186f08eb2",
+  "value": "M2.5 LCD"
+ },
+ "H2": {
+  "dnp": false,
+  "fields": {},
+  "footprint": "MountingHole:MountingHole_2.7mm_M2.5",
+  "in_bom": false,
+  "pads": {},
+  "uuid": "2bd47a7b-a72f-539c-ad44-c69a5f4869b9",
+  "value": "M2.5 LCD"
+ },
+ "H3": {
+  "dnp": false,
+  "fields": {},
+  "footprint": "MountingHole:MountingHole_2.7mm_M2.5",
+  "in_bom": false,
+  "pads": {},
+  "uuid": "aed64088-7d27-5554-ae9c-5491f65c488f",
+  "value": "M2.5 LCD"
+ },
+ "H4": {
+  "dnp": false,
+  "fields": {},
+  "footprint": "MountingHole:MountingHole_2.7mm_M2.5",
+  "in_bom": false,
+  "pads": {},
+  "uuid": "a31c680b-e946-50ed-ac06-e605a4bb8267",
+  "value": "M2.5 LCD"
+ },
+ "H5": {
+  "dnp": false,
+  "fields": {},
+  "footprint": "MountingHole:MountingHole_3.2mm_M3",
+  "in_bom": false,
+  "pads": {},
+  "uuid": "4679213d-eaab-5b24-bae8-aa355b536447",
+  "value": "M3 panel"
+ },
+ "H6": {
+  "dnp": false,
+  "fields": {},
+  "footprint": "MountingHole:MountingHole_3.2mm_M3",
+  "in_bom": false,
+  "pads": {},
+  "uuid": "4b96f951-2245-5671-a90a-49fe08bdd832",
+  "value": "M3 panel"
+ },
+ "H7": {
+  "dnp": false,
+  "fields": {},
+  "footprint": "MountingHole:MountingHole_3.2mm_M3",
+  "in_bom": false,
+  "pads": {},
+  "uuid": "361e7bbd-bd72-5974-8b19-e33973507a8c",
+  "value": "M3 panel"
+ },
+ "H8": {
+  "dnp": false,
+  "fields": {},
+  "footprint": "MountingHole:MountingHole_3.2mm_M3",
+  "in_bom": false,
+  "pads": {},
+  "uuid": "22337028-74d1-5a44-af11-e2ea145ce429",
+  "value": "M3 panel"
+ },
+ "J1": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended (THT)",
+   "LCSC": "C37208",
+   "Note": "1 GND, 2 +5V, 3 +3V3, 4 SDA, 5 SCL, 6 /INT (open drain; 2.2k bus and 10k INT pull-ups on the shield)"
+  },
+  "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical",
+  "in_bom": true,
+  "pads": {
+   "1": "GND",
+   "2": "+5V",
+   "3": "+3V3",
+   "4": "SDA",
+   "5": "SCL",
+   "6": "~{INT}"
+  },
+  "uuid": "ab662d4d-ab86-5464-b50c-737d18752895",
+  "value": "SHIELD 1x6"
+ },
+ "J2": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended (THT)",
+   "LCSC": "C124378",
+   "Note": "1 GND, 2 VCC (VLCD), 3 SDA, 4 SCL: the usual PCF8574 backpack order; 4-way F-F Dupont lead to the backpack"
+  },
+  "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical",
+  "in_bom": true,
+  "pads": {
+   "1": "GND",
+   "2": "VLCD",
+   "3": "LCD_SDA",
+   "4": "LCD_SCL"
+  },
+  "uuid": "8ef92364-3f7a-5650-b098-9807d06553db",
+  "value": "LCD I2C 1x4"
+ },
+ "J3": {
+  "dnp": true,
+  "fields": {
+   "JLC": "extended (THT)",
+   "LCSC": "C57369",
+   "Note": "1 GND, 2 +3V3, 3-10 U2 P1.0-P1.7 (10k pull-ups): more buttons, a rotary encoder"
+  },
+  "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x10_P2.54mm_Vertical",
+  "in_bom": true,
+  "pads": {
+   "1": "GND",
+   "10": "EXP7",
+   "2": "+3V3",
+   "3": "EXP0",
+   "4": "EXP1",
+   "5": "EXP2",
+   "6": "EXP3",
+   "7": "EXP4",
+   "8": "EXP5",
+   "9": "EXP6"
+  },
+  "uuid": "150dc029-7844-5fb8-b43a-91552e297b81",
+  "value": "EXP 1x10 (DNP)"
+ },
+ "JP1": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended (THT)",
+   "LCSC": "C49257",
+   "Note": "1x3 header + 2.54 mm shunt (hand-fitted): 1-2 = 5 V LCD/backpack, 2-3 = 3.3 V LCD"
+  },
+  "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+  "in_bom": true,
+  "pads": {
+   "1": "+5V",
+   "2": "VLCD",
+   "3": "+3V3"
+  },
+  "uuid": "d019bc9c-aa0c-5204-bb07-4d73c67b2fba",
+  "value": "VLCD 5V|3V3"
+ },
+ "R1": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C23179",
+   "Note": "~2.5 mA at 3.3 V (Vf 2.0 V)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "RED1_K",
+   "2": "~{RED1}"
+  },
+  "uuid": "cc27947e-5e09-56bc-988a-a1fbe6a57dcf",
+  "value": "470"
+ },
+ "R11": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C23179",
+   "Note": "~2.5 mA at 3.3 V (Vf 2.0 V)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "GRN1_K",
+   "2": "~{GRN1}"
+  },
+  "uuid": "1173c76f-aab7-5752-b558-cf0fb9a86c21",
+  "value": "470"
+ },
+ "R12": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C23179",
+   "Note": "~2.5 mA at 3.3 V (Vf 2.0 V)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "GRN2_K",
+   "2": "~{GRN2}"
+  },
+  "uuid": "c872672d-cdb3-5932-b703-6acd647179e3",
+  "value": "470"
+ },
+ "R13": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C23179",
+   "Note": "~2.5 mA at 3.3 V (Vf 2.0 V)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "GRN3_K",
+   "2": "~{GRN3}"
+  },
+  "uuid": "eeee0440-daea-58e7-b031-b8a6bf9ce1cd",
+  "value": "470"
+ },
+ "R14": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C23179",
+   "Note": "~2.5 mA at 3.3 V (Vf 2.0 V)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "GRN4_K",
+   "2": "~{GRN4}"
+  },
+  "uuid": "8a13bd9e-b327-5c40-9ba6-e10a888e04a9",
+  "value": "470"
+ },
+ "R15": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C23179",
+   "Note": "~2.5 mA at 3.3 V (Vf 2.0 V)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "GRN5_K",
+   "2": "~{GRN5}"
+  },
+  "uuid": "09e3a39b-a52e-55b7-a14c-cc7c18aef72c",
+  "value": "470"
+ },
+ "R16": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C23179",
+   "Note": "~2.5 mA at 3.3 V (Vf 2.0 V)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "GRN6_K",
+   "2": "~{GRN6}"
+  },
+  "uuid": "30a23368-0461-54e6-86a0-0a67e130c504",
+  "value": "470"
+ },
+ "R17": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C23179",
+   "Note": "~2.5 mA at 3.3 V (Vf 2.0 V)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "GRN7_K",
+   "2": "~{GRN7}"
+  },
+  "uuid": "1ae85a8e-8118-5b76-bb50-ae8aa1e04667",
+  "value": "470"
+ },
+ "R18": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C23179",
+   "Note": "~2.5 mA at 3.3 V (Vf 2.0 V)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "GRN8_K",
+   "2": "~{GRN8}"
+  },
+  "uuid": "34e980db-8538-5ec5-a620-1b3f00981d09",
+  "value": "470"
+ },
+ "R2": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C23179",
+   "Note": "~2.5 mA at 3.3 V (Vf 2.0 V)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "RED2_K",
+   "2": "~{RED2}"
+  },
+  "uuid": "c72720e5-e92d-5805-93e6-e8df03467b0a",
+  "value": "470"
+ },
+ "R21": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C25804",
+   "Note": "LCD-side pull-up (the backpack usually adds 4.7k-10k too)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "VLCD",
+   "2": "LCD_SDA"
+  },
+  "uuid": "674efead-ea65-5a9d-9aec-97a6b63548d3",
+  "value": "10k"
+ },
+ "R22": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C25804",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "VLCD",
+   "2": "LCD_SCL"
+  },
+  "uuid": "4d6eb09a-cbd7-50dc-8823-21f8c33bcbf6",
+  "value": "10k"
+ },
+ "R23": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C25811",
+   "Note": "VREF2/EN bias (PCA9306 data sheet 8.3)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "VLCD",
+   "2": "VREF2"
+  },
+  "uuid": "6f303b2d-162d-5f6e-8f4c-66a42e59aefc",
+  "value": "200k"
+ },
+ "R3": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C23179",
+   "Note": "~2.5 mA at 3.3 V (Vf 2.0 V)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "RED3_K",
+   "2": "~{RED3}"
+  },
+  "uuid": "e6aefd45-ce67-59c8-83c3-4fbe3f4d5790",
+  "value": "470"
+ },
+ "R4": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C23179",
+   "Note": "~2.5 mA at 3.3 V (Vf 2.0 V)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "RED4_K",
+   "2": "~{RED4}"
+  },
+  "uuid": "694050a7-ba52-5de1-8401-80944b39749d",
+  "value": "470"
+ },
+ "R5": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C23179",
+   "Note": "~2.5 mA at 3.3 V (Vf 2.0 V)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "RED5_K",
+   "2": "~{RED5}"
+  },
+  "uuid": "155b94f8-2020-539d-9013-686d2f428d5a",
+  "value": "470"
+ },
+ "R6": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C23179",
+   "Note": "~2.5 mA at 3.3 V (Vf 2.0 V)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "RED6_K",
+   "2": "~{RED6}"
+  },
+  "uuid": "19588cac-3e5f-5d9e-80e2-ba03a8387a4b",
+  "value": "470"
+ },
+ "R7": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C23179",
+   "Note": "~2.5 mA at 3.3 V (Vf 2.0 V)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "RED7_K",
+   "2": "~{RED7}"
+  },
+  "uuid": "41d4f909-23b4-585b-9e57-6a64db7cd312",
+  "value": "470"
+ },
+ "R8": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C23179",
+   "Note": "~2.5 mA at 3.3 V (Vf 2.0 V)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "RED8_K",
+   "2": "~{RED8}"
+  },
+  "uuid": "2005056a-4e8f-5e3e-af2b-871c331c29cf",
+  "value": "470"
+ },
+ "RN1": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C29718",
+   "MPN": "UNI-ROYAL 4D03WGJ0103T5E",
+   "Note": "10k pull-ups: every U2 pin is held high (no floating inputs, no spurious /INT)"
+  },
+  "footprint": "Resistor_SMD:R_Array_Convex_4x0603",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "+3V3",
+   "3": "+3V3",
+   "4": "+3V3",
+   "5": "~{BTN_SPARE1}",
+   "6": "~{BTN_MODE}",
+   "7": "~{BTN_NEXT}",
+   "8": "~{BTN_PREV}"
+  },
+  "uuid": "8fd9d04d-838a-5441-a2d4-b7a902232c72",
+  "value": "4x10k"
+ },
+ "RN2": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C29718",
+   "MPN": "UNI-ROYAL 4D03WGJ0103T5E",
+   "Note": "10k pull-ups: every U2 pin is held high (no floating inputs, no spurious /INT)"
+  },
+  "footprint": "Resistor_SMD:R_Array_Convex_4x0603",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "+3V3",
+   "3": "+3V3",
+   "4": "+3V3",
+   "5": "P07_SP",
+   "6": "P06_SP",
+   "7": "P05_SP",
+   "8": "~{BTN_SPARE2}"
+  },
+  "uuid": "3afc479b-cb7c-5173-a3a8-8de4668a9422",
+  "value": "4x10k"
+ },
+ "RN3": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C29718",
+   "MPN": "UNI-ROYAL 4D03WGJ0103T5E",
+   "Note": "10k pull-ups: every U2 pin is held high (no floating inputs, no spurious /INT)"
+  },
+  "footprint": "Resistor_SMD:R_Array_Convex_4x0603",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "+3V3",
+   "3": "+3V3",
+   "4": "+3V3",
+   "5": "EXP3",
+   "6": "EXP2",
+   "7": "EXP1",
+   "8": "EXP0"
+  },
+  "uuid": "187ab35b-37fa-5861-bcd2-37787519d810",
+  "value": "4x10k"
+ },
+ "RN4": {
+  "dnp": false,
+  "fields": {
+   "JLC": "basic",
+   "LCSC": "C29718",
+   "MPN": "UNI-ROYAL 4D03WGJ0103T5E",
+   "Note": "10k pull-ups: every U2 pin is held high (no floating inputs, no spurious /INT)"
+  },
+  "footprint": "Resistor_SMD:R_Array_Convex_4x0603",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "+3V3",
+   "3": "+3V3",
+   "4": "+3V3",
+   "5": "EXP7",
+   "6": "EXP6",
+   "7": "EXP5",
+   "8": "EXP4"
+  },
+  "uuid": "ebdc93f4-b029-5e14-a802-7c2441a4958d",
+  "value": "4x10k"
+ },
+ "SW1": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended (THT)",
+   "LCSC": "C136679",
+   "MPN": "HRO K2-1102DP-L4SW-04 (6x6 mm THT, 9.5 mm, round stem)",
+   "Panel": "PREV"
+  },
+  "footprint": "Button_Switch_THT:SW_PUSH_6mm_H9.5mm",
+  "in_bom": true,
+  "pads": {
+   "1": "~{BTN_PREV}",
+   "2": "GND"
+  },
+  "uuid": "346f94cd-b4b5-5970-a344-811a80692560",
+  "value": "6x6 H9.5"
+ },
+ "SW2": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended (THT)",
+   "LCSC": "C136679",
+   "MPN": "HRO K2-1102DP-L4SW-04 (6x6 mm THT, 9.5 mm, round stem)",
+   "Panel": "NEXT"
+  },
+  "footprint": "Button_Switch_THT:SW_PUSH_6mm_H9.5mm",
+  "in_bom": true,
+  "pads": {
+   "1": "~{BTN_NEXT}",
+   "2": "GND"
+  },
+  "uuid": "016a7cb2-81be-5bc7-939d-62dc1642380e",
+  "value": "6x6 H9.5"
+ },
+ "SW3": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended (THT)",
+   "LCSC": "C136679",
+   "MPN": "HRO K2-1102DP-L4SW-04 (6x6 mm THT, 9.5 mm, round stem)",
+   "Panel": "MODE"
+  },
+  "footprint": "Button_Switch_THT:SW_PUSH_6mm_H9.5mm",
+  "in_bom": true,
+  "pads": {
+   "1": "~{BTN_MODE}",
+   "2": "GND"
+  },
+  "uuid": "e8622800-52d5-56b8-b7bb-7913f17dc95d",
+  "value": "6x6 H9.5"
+ },
+ "SW4": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended (THT)",
+   "LCSC": "C136679",
+   "MPN": "HRO K2-1102DP-L4SW-04 (6x6 mm THT, 9.5 mm, round stem)",
+   "Panel": "SPARE1"
+  },
+  "footprint": "Button_Switch_THT:SW_PUSH_6mm_H9.5mm",
+  "in_bom": true,
+  "pads": {
+   "1": "~{BTN_SPARE1}",
+   "2": "GND"
+  },
+  "uuid": "ffa16675-e111-5429-85ce-67494343ba6a",
+  "value": "6x6 H9.5"
+ },
+ "SW5": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended (THT)",
+   "LCSC": "C136679",
+   "MPN": "HRO K2-1102DP-L4SW-04 (6x6 mm THT, 9.5 mm, round stem)",
+   "Panel": "SPARE2"
+  },
+  "footprint": "Button_Switch_THT:SW_PUSH_6mm_H9.5mm",
+  "in_bom": true,
+  "pads": {
+   "1": "~{BTN_SPARE2}",
+   "2": "GND"
+  },
+  "uuid": "ef32434a-de91-598d-accb-0f7eede0efac",
+  "value": "6x6 H9.5"
+ },
+ "U1": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended",
+   "LCSC": "C130204",
+   "MPN": "TI TCA9535PWR",
+   "Note": "I2C 0x25; INT unused (all outputs)"
+  },
+  "footprint": "Package_SO:TSSOP-24_4.4x7.8mm_P0.65mm",
+  "in_bom": true,
+  "pads": {
+   "1": "unconnected-(U1-~{INT}-Pad1)",
+   "10": "~{RED7}",
+   "11": "~{RED8}",
+   "12": "GND",
+   "13": "~{GRN1}",
+   "14": "~{GRN2}",
+   "15": "~{GRN3}",
+   "16": "~{GRN4}",
+   "17": "~{GRN5}",
+   "18": "~{GRN6}",
+   "19": "~{GRN7}",
+   "2": "GND",
+   "20": "~{GRN8}",
+   "21": "+3V3",
+   "22": "SCL",
+   "23": "SDA",
+   "24": "+3V3",
+   "3": "+3V3",
+   "4": "~{RED1}",
+   "5": "~{RED2}",
+   "6": "~{RED3}",
+   "7": "~{RED4}",
+   "8": "~{RED5}",
+   "9": "~{RED6}"
+  },
+  "uuid": "17a9dd8b-8075-51a3-9b5b-816a71a84406",
+  "value": "TCA9535PWR"
+ },
+ "U2": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended",
+   "LCSC": "C130204",
+   "MPN": "TI TCA9535PWR",
+   "Note": "I2C 0x26; /INT = J1.6"
+  },
+  "footprint": "Package_SO:TSSOP-24_4.4x7.8mm_P0.65mm",
+  "in_bom": true,
+  "pads": {
+   "1": "~{INT}",
+   "10": "P06_SP",
+   "11": "P07_SP",
+   "12": "GND",
+   "13": "EXP0",
+   "14": "EXP1",
+   "15": "EXP2",
+   "16": "EXP3",
+   "17": "EXP4",
+   "18": "EXP5",
+   "19": "EXP6",
+   "2": "+3V3",
+   "20": "EXP7",
+   "21": "GND",
+   "22": "SCL",
+   "23": "SDA",
+   "24": "+3V3",
+   "3": "+3V3",
+   "4": "~{BTN_PREV}",
+   "5": "~{BTN_NEXT}",
+   "6": "~{BTN_MODE}",
+   "7": "~{BTN_SPARE1}",
+   "8": "~{BTN_SPARE2}",
+   "9": "P05_SP"
+  },
+  "uuid": "48725eec-5b8f-5ff7-b1d9-ea30deb321aa",
+  "value": "TCA9535PWR"
+ },
+ "U3": {
+  "dnp": false,
+  "fields": {
+   "JLC": "extended",
+   "LCSC": "C33196",
+   "MPN": "TI PCA9306DCUR"
+  },
+  "footprint": "Package_SO:VSSOP-8_2.3x2mm_P0.5mm",
+  "in_bom": true,
+  "pads": {
+   "1": "GND",
+   "2": "+3V3",
+   "3": "SCL",
+   "4": "SDA",
+   "5": "LCD_SDA",
+   "6": "LCD_SCL",
+   "7": "VREF2",
+   "8": "VREF2"
+  },
+  "uuid": "49ca89f7-f248-585b-b3c7-d11260c0cc03",
+  "value": "PCA9306DCUR"
+ }
+}
