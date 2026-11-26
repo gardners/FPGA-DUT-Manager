@@ -230,3 +230,11 @@ instead; not tried.)
 **Not done / not verified**: nothing on hardware; no Diamond build; the
 3 m cable (series resistors, slew, supply drop) is still to be tried; the
 "changed words first" schedule was not needed.
+
+## 2026-11-27 Vivado build of the final HDL (053367dc)
+
+TIMING MET: WNS +0.079 ns, WHS +0.014 ns (worst path DHCP client ->
+net_tx payload register, not the keyboard logic); 18373 LUTs (56.4 %),
+21554 FFs (33.1 %). Bitstream `build/bits/supervisor-053367dc.bit` in the
+agent worktree; not loaded on hardware. The HDL is unchanged after
+053367d (later commits are testbench/docs only).
