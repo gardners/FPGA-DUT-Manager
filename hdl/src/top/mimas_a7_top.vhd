@@ -62,6 +62,10 @@ entity mimas_a7_top is
     -- MK-II I2C SDA/SCL (open drain), auto-detected (issue 0009)
     pk_kio8, pk_kio9 : inout std_logic;
     pk_kio10         : in  std_logic;
+    -- physical keyboard CPLD JTAG, J5 pins 3-7 (issue 0046, ADR 0014):
+    -- tri-stated unless the keyboard JTAG target is enabled
+    pk_jtagen, pk_tck, pk_tms, pk_tdi : out std_logic;
+    pk_tdo                            : in  std_logic;
     -- K block
     dut0_kio8, dut0_kio9, dut0_kb_sense : in  std_logic;
     dut0_kio10                          : out std_logic;
@@ -93,6 +97,7 @@ architecture rtl of mimas_a7_top is
   signal jtck, jtms, jtdi, jtdo, joe, utx, uoe, urx : std_logic_vector(1 downto 0);
   signal kio8, kio9, kio10, kio10_oe, vio, kbs : std_logic_vector(1 downto 0);
   signal pk8_o, pk9_o, pk8_oe, pk9_oe : std_logic;
+  signal pkj_tck, pkj_tms, pkj_tdi, pkj_oe : std_logic;
   signal core_leds : std_logic_vector(7 downto 0);
   signal rst_cnt : unsigned(21 downto 0) := (others => '0');
   signal phy_rst : std_logic := '0';
@@ -210,6 +215,8 @@ begin
       kio8 => kio8, kio9 => kio9, kio10 => kio10, kio10_oe => kio10_oe,
       pk_kio8 => pk8_o, pk_kio9 => pk9_o, pk_kio8_oe => pk8_oe, pk_kio9_oe => pk9_oe,
       pk_kio8_in => pk_kio8, pk_kio10 => pk_kio10,
+      pk_tck => pkj_tck, pk_tms => pkj_tms, pk_tdi => pkj_tdi, pk_jtag_oe => pkj_oe,
+      pk_tdo => pk_tdo,
       buttons => btn, leds => core_leds, text_we => text_we, text_addr => text_addr, text_data => text_data,
       addr_src0 => src0, addr_src1 => src1, ep_enable_o => ep_en,
       stat_rx_good => good, stat_rx_bad => bad,
@@ -411,6 +418,10 @@ begin
   kio9 <= dut1_kio9 & dut0_kio9;
   pk_kio8 <= pk8_o when pk8_oe = '1' else 'Z';
   pk_kio9 <= pk9_o when pk9_oe = '1' else 'Z';
+  pk_jtagen <= '1'     when pkj_oe = '1' else 'Z';
+  pk_tck    <= pkj_tck when pkj_oe = '1' else 'Z';
+  pk_tms    <= pkj_tms when pkj_oe = '1' else 'Z';
+  pk_tdi    <= pkj_tdi when pkj_oe = '1' else 'Z';
   dut0_kio10 <= kio10(0) when kio10_oe(0) = '1' else 'Z';
   dut1_kio10 <= kio10(1) when kio10_oe(1) = '1' else 'Z';
 

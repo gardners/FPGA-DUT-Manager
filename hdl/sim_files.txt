@@ -3,10 +3,17 @@
 third_party/mega65-core/debugtools.vhdl
 third_party/mega65-core/kb_matrix_ram.vhdl
 third_party/mega65-core/mega65kbd_to_matrix.vhdl
+# MEGA65 keyboard CPLD (issue 0046): upstream 2ed09bd and type-3 firmware;
+# needs library machxo2 (hdl/sim/machxo2/, analysed first by the runner)
+third_party/mega65-keyboard-cpld/version_sim.vhd
+third_party/mega65-keyboard-cpld/top_2ed09bd.vhd
+third_party/mega65-keyboard-cpld/top_type3.vhd
+hdl/sim/kbd_matrix_model.vhd
 # Project sources
 hdl/src/kbd/kbd_mk1_device.vhd
 hdl/src/kbd/kbd_mk1_host.vhd
 hdl/src/kbd/kbd_mk2_host.vhd
+hdl/src/kbd/kbd_t3_host.vhd
 hdl/src/kbd/kbd_phys_host.vhd
 hdl/sim/i2c_expander_model.vhd
 hdl/src/kbd/kbd_arbiter.vhd

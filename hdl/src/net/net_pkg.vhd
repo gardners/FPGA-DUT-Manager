@@ -40,6 +40,8 @@ package net_pkg is
     thumb_mac  : std_logic_vector(47 downto 0);
     thumb_scale: std_logic_vector(7 downto 0);   -- 1 = 1/2, 2 = 1/4
     thumb_div  : std_logic_vector(7 downto 0);   -- frame divisor 1..15
+    -- physical keyboard CPLD JTAG (key 0x0061, ADR 0014): 0 auto, 1 on, 2 off
+    pk_jtag    : std_logic_vector(7 downto 0);
   end record;
 
   -- a pending reply addressed to a requester
@@ -54,6 +56,12 @@ package net_pkg is
   type reply_arr_t is array (0 to 1) of reply_t;
 
   type u32_arr_t is array (0 to 1) of unsigned(31 downto 0);
+  -- JTAG targets (ADR 0005 s7, ADR 0014): 0/1 = the endpoint's DUT, 2 = the
+  -- physical keyboard's CPLD (JTAG_REQ flags b1, reachable on either endpoint)
+  constant JT_KBD : natural := 2;
+  type jreply_arr_t is array (0 to 2) of reply_t;
+  type ju32_arr_t is array (0 to 2) of unsigned(31 downto 0);
+  type jslv8_arr_t is array (0 to 2) of std_logic_vector(7 downto 0);
   type u16_arr_t is array (0 to 1) of unsigned(15 downto 0);
   type slv8_arr_t is array (0 to 1) of std_logic_vector(7 downto 0);
   type kbd_arr_t is array (0 to 1) of std_logic_vector(79 downto 0);
