@@ -1,0 +1,462 @@
+{
+ "BAYS": 2,
+ "CASE_A": {
+  "height": 44.45,
+  "width": 445.0,
+  "depth": null,
+  "margin": 2.0,
+  "front_zone": 30.0,
+  "col_right_clear": 16.0,
+  "lid_screws": {
+   "front": 3,
+   "rear": 3,
+   "side": 2
+  },
+  "tslot": {
+   "screw_w": 3.2,
+   "depth": 12.0,
+   "nut_w": 5.7,
+   "nut_t": 2.6,
+   "nut_depth": 7.0
+  },
+  "bay_gap": 2.0,
+  "rear_order": [
+   "power_inputs",
+   "bulkhead",
+   "dut_power",
+   "keyboard",
+   "recess"
+  ],
+  "side_spill": true
+ },
+ "CASE_B": {
+  "outer": [
+   444.5,
+   409.0,
+   43.9
+  ],
+  "steel": 1.0,
+  "front_panel": [
+   440.0,
+   41.9
+  ],
+  "front_fix": [
+   [
+    5.0,
+    10.0
+   ],
+   [
+    5.0,
+    32.0
+   ],
+   [
+    435.0,
+    10.0
+   ],
+   [
+    435.0,
+    32.0
+   ]
+  ],
+  "standoff_h": 6.0,
+  "standoffs": [
+   [
+    20.0,
+    60.0
+   ],
+   [
+    220.0,
+    60.0
+   ],
+   [
+    420.0,
+    60.0
+   ],
+   [
+    20.0,
+    230.0
+   ],
+   [
+    220.0,
+    230.0
+   ],
+   [
+    420.0,
+    230.0
+   ]
+  ],
+  "standoff_hole": 3.4,
+  "iec_opening": [
+   400.0,
+   20.0,
+   28.0,
+   21.0
+  ],
+  "rps_opening": [
+   330.0,
+   20.0,
+   55.0,
+   22.0
+  ],
+  "cover_overlap": 6.0,
+  "cover_screw_d": 3.4,
+  "fan_opening": [
+   60.0,
+   20.0,
+   90.0,
+   40.0
+  ],
+  "plate": "pcb",
+  "plate_t": 1.6,
+  "plate_margin": 5.0,
+  "bay_gap": 2.0,
+  "front_order": [
+   "group",
+   "bulkhead",
+   "keyboard",
+   "dut_power"
+  ]
+ },
+ "CONN": {
+  "HDMI": [
+   16.5,
+   7.5,
+   1.0
+  ],
+  "2x6": [
+   23.3,
+   9.4,
+   0.5
+  ],
+  "2x5": [
+   20.8,
+   9.4,
+   0.5
+  ],
+  "2x8": [
+   28.4,
+   9.4,
+   0.5
+  ]
+ },
+ "DUTS_PER_BAY": 4,
+ "FAN": {
+  "size": 40.0,
+  "thick": 10.0,
+  "count": 2,
+  "hole_pitch": 32.0,
+  "hole_d": 3.4,
+  "grille_r": 18.0,
+  "grille_hole": 3.5,
+  "grille_pitch": 4.8,
+  "wall_gap": 2.0
+ },
+ "FINGER_W": 10.0,
+ "FRONT": {
+  "lcd": {
+   "window": [
+    71.6,
+    24.6
+   ],
+   "module": [
+    80.0,
+    36.0
+   ],
+   "holes": [
+    75.0,
+    31.0
+   ],
+   "hole_d": 2.7,
+   "depth": 27.0
+  },
+  "led_d": 3.1,
+  "led_pitch": 6.0,
+  "buttons": [
+   "PREV",
+   "NEXT",
+   "SCAN",
+   "FIXED",
+   "PIP"
+  ],
+  "button_d": 7.0,
+  "button_pitch": 10.5,
+  "rocker": [
+   13.0,
+   19.2
+  ],
+  "pcb_depth": 15.0,
+  "gap": 4.0
+ },
+ "GS105": {
+  "w": 94.0,
+  "d": 100.0,
+  "h": 27.0
+ },
+ "HOLE_EDGE_MIN": 1.5,
+ "ITEMS": {
+  "bulkhead": {
+   "hole": [
+    16.0,
+    13.5
+   ],
+   "screws": 13.0,
+   "screw_d": 3.4,
+   "depth": 25.0
+  },
+  "keyboard": {
+   "hole": [
+    20.8,
+    9.4
+   ],
+   "screws": 15.0,
+   "screw_d": 3.4,
+   "depth": 15.0
+  },
+  "dut_power": {
+   "hole_d": 5.0,
+   "pitch": 7.5
+  },
+  "recess": {
+   "w": 60.0,
+   "h": 24.0,
+   "depth": 45.0
+  }
+ },
+ "KERF": 0.15,
+ "MEGA65_FOOTPRINT": null,
+ "MIMAS": {
+  "w": 90.0,
+  "d": 120.0,
+  "pcb": 1.6,
+  "standoff": 3.0,
+  "holes": [
+   [
+    5.0,
+    84.86
+   ],
+   [
+    115.0,
+    85.0
+   ],
+   [
+    4.83,
+    5.0
+   ],
+   [
+    115.0,
+    5.0
+   ]
+  ],
+  "hole_d": 3.4,
+  "hdmi_in_my": 71.3,
+  "hdmi_out_my": 49.9,
+  "hdmi_cz": 2.9,
+  "rj45_my": [
+   60.8,
+   76.6
+  ],
+  "rj45_plug_clear": 35.0
+ },
+ "NARROW": {
+  "my": [
+   -30.0,
+   120.0
+  ],
+  "lower": [
+   [
+    "HDMI",
+    "DUT2",
+    -15.0
+   ],
+   [
+    "HDMI",
+    "OUT",
+    49.9
+   ],
+   [
+    "HDMI",
+    "DUT0",
+    71.3
+   ],
+   [
+    "HDMI",
+    "DUT3",
+    105.0
+   ]
+  ],
+  "upper": [
+   [
+    "2x8",
+    "DUT2",
+    -14.5
+   ],
+   [
+    "HDMI",
+    "DUT1",
+    11.5
+   ],
+   [
+    "2x8",
+    "DUT1",
+    37.5
+   ],
+   [
+    "2x8",
+    "DUT0",
+    67.5
+   ],
+   [
+    "2x8",
+    "DUT3",
+    104.5
+   ]
+  ]
+ },
+ "NEST_GAP": 4.0,
+ "POWER_IN": {
+  "pcb": "../mega-kvm-power/mega-kvm-power-inputs/mega-kvm-power-inputs.kicad_pcb",
+  "w": 150.0,
+  "h": 40.0,
+  "width_override": null,
+  "behind_panel": 8.0,
+  "depth": 22.0,
+  "banana_hole": 8.2,
+  "conn_clear": 1.0,
+  "led_hole": 3.2
+ },
+ "POWER_MAIN": {
+  "pcb": "../mega-kvm-power/mega-kvm-power-main/mega-kvm-power-main.kicad_pcb",
+  "w": 170.0,
+  "d": 80.0,
+  "standoff": 5.0,
+  "tallest": 16.0,
+  "rear_clear": 10.0
+ },
+ "RACK_MAX_WIDTH": 445.0,
+ "RU": 44.45,
+ "SHEETS": {
+  "mdf": [
+   900.0,
+   600.0
+  ],
+  "acrylic": [
+   600.0,
+   400.0
+  ]
+ },
+ "SHEET_MARGIN": 5.0,
+ "SHIELD": {
+  "stack": 11.0,
+  "pcb": 1.6,
+  "tallest": 14.0
+ },
+ "SHIELD190": {
+  "geometry_py": "../mega-kvm-shield/scripts/geometry.py",
+  "placement_json": "../mega-kvm-shield/out/placement.json",
+  "pcb": "../mega-kvm-shield/mega-kvm-shield.kicad_pcb",
+  "y_bot": -49.8,
+  "y_top": 139.8,
+  "z_mimas_top": 4.6,
+  "z_shield_bot": 15.64,
+  "z_shield_top": 17.24,
+  "support_holes": [
+   [
+    5.0,
+    -44.8
+   ],
+   [
+    5.0,
+    134.8
+   ],
+   [
+    70.0,
+    -44.8
+   ],
+   [
+    70.0,
+    134.8
+   ]
+  ],
+  "jb1_cz": 4.5,
+  "hdmi_cz": 3.25,
+  "j5_cz": 4.45,
+  "kbd_drop": 2.5,
+  "mimas_to_panel": 0.2
+ },
+ "T": 3.0,
+ "VARIANT": "shield190",
+ "VBOARD": {
+  "width": 110.0,
+  "height": 38.0,
+  "behind_panel": 6.0,
+  "pcb": 1.6,
+  "mimas_gap": 40.0,
+  "bay_gap": 4.0,
+  "hdmi_out": [
+   true,
+   true
+  ],
+  "hdmi_pitch": 21.5,
+  "box_pitch": 25.0,
+  "row_z": {
+   "hdmi": 7.5,
+   "jb1": 18.5,
+   "j5": 29.5
+  },
+  "label_z": 36.0,
+  "fix_holes_u": 52.5,
+  "pin1": "left-bottom"
+ },
+ "WIDE": {
+  "my": [
+   -118.7,
+   160.9
+  ],
+  "slots": {
+   "HDMI3J": [
+    90.6,
+    111.6
+   ],
+   "JTAG3J": [
+    112.2,
+    136.8
+   ],
+   "KBD3J": [
+    137.4,
+    159.4
+   ],
+   "JTAG0J": [
+    56.6,
+    81.2
+   ],
+   "KBD0J": [
+    34.0,
+    56.0
+   ],
+   "HDMI1J": [
+    12.4,
+    33.4
+   ],
+   "JTAG1J": [
+    -25.2,
+    -0.6
+   ],
+   "KBD1J": [
+    -47.8,
+    -25.8
+   ],
+   "HDMI2J": [
+    -69.4,
+    -48.4
+   ],
+   "JTAG2J": [
+    -94.6,
+    -70.0
+   ],
+   "KBD2J": [
+    -117.2,
+    -95.2
+   ]
+  }
+ }
+}

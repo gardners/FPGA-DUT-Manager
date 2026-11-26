@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" width="460.000mm" height="71.900mm" viewBox="0 0 460.000 71.900" version="1.1">
+<title>B steel front: window to cut (print 1:1)</title>
+<sodipodi:namedview inkscape:document-units="mm" pagecolor="#ffffff"/>
+
+<rect x="0" y="0" width="460" height="71.9" style="fill:#ffffff"/>
+<rect x="10" y="10" width="440" height="41.9" style="fill:none;fill-opacity:1.0;stroke:#000;stroke-width:0.2;stroke-dasharray:2,1"/>
+<rect x="10.3" y="11" width="439.4" height="39.9" style="fill:none;fill-opacity:1.0;stroke:#000;stroke-width:0.5"/>
+<text x="12" y="8" style="font-family:sans-serif;font-size:3px;fill:#000;text-anchor:start;font-weight:normal">dashed: our front panel (440 x 41.9); solid: open the steel front to this window (or remove the original front); print at 100%</text>
+</svg>
