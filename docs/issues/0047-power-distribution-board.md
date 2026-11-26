@@ -76,3 +76,42 @@ for the MEGA-KVM box.
 * **Fabrication:** JLCPCB PCB and assembly. Prefer LCSC/JLC basic parts,
   then extended parts. Note the LCSC number per BOM line; flag anything
   JLC can't source (hand-solder or consigned).
+
+## 2026-11-27 progress (agent, branch feature/power-board)
+
+* KiCad 10 projects under `hardware/mega-kvm-power/`: **main** (170 x 80
+  mm: 8 x TPS259470L 5 A switched outputs + TPS259470A 5 A always-on group
+  for 2 Mimas, GS105 and 2 fans) and **inputs** (150 x 40 mm vertical
+  rear-panel board: banana 25 A > PCIe 8-pin 15 A > Molex 4-pin 10 A, blade
+  fuse + SMCJ15A per input, LTC4417 + 8 x BSC030P03NS3G, input-selected
+  LEDs). Interconnect: VBUS/GND M4 lugs, 12 AWG.
+* Round-4 items: the master rocker (front panel, 3-wire JST XH to the input
+  board) switches LTC4417 EN from a diode-OR of the inputs. Lamp from 12 V
+  when on. Off or unplugged turns everything off, including the always-on
+  group. JLC/LCSC numbers are in the BOM. LTC4417 is short at LCSC
+  (consign/hand-fit); bananas, fuse holders and high-current headers are
+  hand-fit.
+* Generated from Python (`tools/build_all.sh`). ERC 0/0 on both. DRC with
+  schematic parity: 0 violations on both; only the unrouted connections
+  remain (polygons sketched, routing not started).
+* Proposed 1x11 order: 1 GND, 2 key (no pin), 3-10 CTRL0-7, 11 PRESENT
+  (3.3 V via 10 k when the power board is powered). Details, ratings, BOM and
+  open questions in `docs/hardware/power-board.md`.
+
+## 2026-11-27 owner answers (round 5) and lead decisions
+
+* One control cable, from the master shield, for all 8 outputs. 1x11
+  order as proposed, PRESENT high = present.
+* DUT outputs: **screw terminals with a + and a - per output**, for leads
+  ending in barrel plugs.
+* **No hand-fitting the LTC4417.** The chosen LTC4417CGN is the leaded
+  SSOP-24 (GN) package with no exposed pad (check against the datasheet). JLC
+  can fit it if it is bought through their global-sourcing/parts
+  pre-order. Also design a fallback that JLC stocks: three ideal-diode
+  controllers (e.g. TI LM74700-Q1 or LM5050-1 with back-to-back FETs) whose
+  EN pins come from simple priority logic (comparators/logic gates:
+  a valid higher-priority input disables the lower ones), plus the rocker
+  as a global disable.
+* Inrush on master-on: add soft start (gate RC) to the input FETs.
+* Current limit 5 A (owner).
+* Mimas feed connector: Mini-Fit Jr 2-pin (shield side matches).

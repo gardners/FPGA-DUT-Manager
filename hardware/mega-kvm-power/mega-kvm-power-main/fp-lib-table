@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "mega-kvm-power")(type "KiCad")(uri "${KIPRJMOD}/../lib/mega-kvm-power.pretty")(options "")(descr "MEGA-KVM power board footprints"))
+)

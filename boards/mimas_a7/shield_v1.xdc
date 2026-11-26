@@ -27,6 +27,7 @@ set_property -dict {PACKAGE_PIN A13 IOSTANDARD TMDS_33} [get_ports {shd_d_p[5]}]
 set_property -dict {PACKAGE_PIN A14 IOSTANDARD TMDS_33} [get_ports {shd_d_n[5]}]
 
 ## HDMI3 (DUT3): P12 (bank 15). Clock on IO_L14 SRCC (row 12).
+
 set_property -dict {PACKAGE_PIN L19 IOSTANDARD TMDS_33} [get_ports {shd_clk_p[2]}]
 set_property -dict {PACKAGE_PIN L20 IOSTANDARD TMDS_33} [get_ports {shd_clk_n[2]}]
 set_property -dict {PACKAGE_PIN M21 IOSTANDARD TMDS_33} [get_ports {shd_d_p[6]}]
