@@ -142,6 +142,9 @@ architecture rtl of net_rx is
   signal f_arp_ip, f_ip_dst, f_dhcp_mac, f_dut_ok : std_logic_vector(1 downto 0) := "00";
   signal f_udp, f_udp_bad, f_identity, f_mgmt, f_kbd, f_uart, f_jtag, f_text : boolean := false;
   signal f_dut_ff : std_logic := '0';
+  -- MGMT cmd_id equals the endpoint's last one (per endpoint; last_cmd only
+  -- changes in S_MGMT, which is entered after S_PRE) -- timing
+  signal f_same_cmd : std_logic_vector(1 downto 0) := "00";
   signal f_jbad   : boolean := false;                    -- JTAG request malformed
   signal j_nb_r   : unsigned(31 downto 0) := (others => '0');
   signal j_bits_r : unsigned(31 downto 0) := (others => '0');
@@ -338,6 +341,7 @@ begin
             if unsigned(h(48)) = i or h(48) = x"FF" then
               f_dut_ok(i) <= '1';
             end if;
+            if last_cmd(i) = be16(h, 50) then f_same_cmd(i) <= '1'; else f_same_cmd(i) <= '0'; end if;
           end loop;
           f_dut_ff <= h(48)(0);
           f_dhcp  <= h(23) = x"11" and be16(h, 34) = PORT_DHCP_S and be16(h, 36) = PORT_DHCP_C and
@@ -469,7 +473,7 @@ begin
             key  := to_integer(be16(h, 52));
             vlen := be16(h, 54);
             st   := ST_OK;
-            if last_cmd_v(d) = '1' and last_cmd(d) = be16(h, 50) and key /= K_IDENTITY then
+            if last_cmd_v(d) = '1' and f_same_cmd(d) = '1' and key /= K_IDENTITY then
               st := ST_DUPLICATE;
             else
               case key is

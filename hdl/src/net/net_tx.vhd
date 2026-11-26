@@ -173,6 +173,14 @@ architecture rtl of net_tx is
   signal rast_drops  : unsigned(15 downto 0) := (others => '0');
   signal last_rast   : std_logic := '0';    -- previous frame built was raster
   signal ep_ok       : std_logic_vector(1 downto 0) := "00";  -- enabled and addressed (registered, timing)
+  -- DHCP inputs of endpoint d, registered every cycle (timing): d is fixed
+  -- from S_LATCH on, so in S_PREP these hold dhcp(d), cfg(d).mac and the
+  -- DUT ID as sampled one cycle earlier (no per-DUT mux or 32-bit compare
+  -- in front of the payload fill)
+  signal dq       : dhcp_tx_t := (req => '0', typ => x"00", others => (others => '0'));
+  signal dq_mac   : mac_t := (others => '0');
+  signal dq_id    : byte_t := (others => '0');
+  signal dq_has50, dq_has54 : boolean := false;
 
   function b(v : std_logic_vector; i : natural) return byte_t is
     -- byte i counting from the most significant byte (big-endian)
@@ -193,15 +201,14 @@ architecture rtl of net_tx is
   end function;
 
   -- DHCP DISCOVER/REQUEST UDP payload (300 bytes, RFC 2131/2132)
-  function dhcp_byte(i : natural; mac : mac_t; t : dhcp_tx_t; id : std_logic_vector(7 downto 0))
+  -- has50/has54: t.reqip / t.server non-zero (precomputed, timing)
+  function dhcp_byte(i : natural; mac : mac_t; t : dhcp_tx_t; id : std_logic_vector(7 downto 0);
+                     has50, has54 : boolean)
     return byte_t is
     variable tens, ones : natural;
     -- options: 53 type, 61 client id, 12 host name, [50 req ip], [54 server], 55 params, 255
     variable o : integer;
-    variable has50, has54 : boolean;
   begin
-    has50 := t.reqip /= x"00000000";
-    has54 := t.server /= x"00000000";
     -- host name digits: DUT ID in lower-case hex (issue 0026), = MAC byte 5
     tens := to_integer(unsigned(id(7 downto 4)));
     ones := to_integer(unsigned(id(3 downto 0)));
@@ -306,6 +313,11 @@ begin
       for i in 0 to 1 loop
         if ep_enable(i) = '1' and ip_eff(i) /= x"00000000" then ep_ok(i) <= '1'; else ep_ok(i) <= '0'; end if;
       end loop;
+      dq       <= dhcp(d);
+      dq_mac   <= cfg(d).mac;
+      dq_id    <= dstat(d).dut_id;
+      dq_has50 <= dhcp(d).reqip /= x"00000000";
+      dq_has54 <= dhcp(d).server /= x"00000000";
 
       -- heartbeat timers
       for i in 0 to 1 loop
@@ -442,10 +454,10 @@ begin
               sport := PORT_DHCP_C; dport := std_logic_vector(to_unsigned(PORT_DHCP_S, 16));
               tl := 300;
               for i in 0 to 43 loop
-                pf(i) <= dhcp_byte(i, cfg(d).mac, dhcp(d), dstat(d).dut_id);
+                pf(i) <= dhcp_byte(i, dq_mac, dq, dq_id, dq_has50, dq_has54);
               end loop;
               for i in 0 to 63 loop
-                pf(44 + i) <= dhcp_byte(236 + i, cfg(d).mac, dhcp(d), dstat(d).dut_id);
+                pf(44 + i) <= dhcp_byte(236 + i, dq_mac, dq, dq_id, dq_has50, dq_has54);
               end loop;
             when K_ACK =>
               dmac := ack.mac; dip := ack.ip; dport := ack.port_n; sport := PORT_MGMT;
@@ -658,7 +670,7 @@ begin
             hdr(22) <= x"40"; hdr(23) <= proto; hdr(24) <= x"00"; hdr(25) <= x"00";
             for i in 0 to 3 loop
               if kind = K_DHCP then
-                hdr(26 + i) <= b(dhcp(d).ciaddr, i);   -- 0.0.0.0 unless renewing
+                hdr(26 + i) <= b(dq.ciaddr, i);        -- 0.0.0.0 unless renewing
               else
                 hdr(26 + i) <= b(ip_eff(d), i);
               end if;
