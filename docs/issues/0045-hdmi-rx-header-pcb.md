@@ -258,3 +258,10 @@ Each DUT's two connectors sit **one above the other**:
   vertical board-to-board header (slow signals: KIO8/9/10, GND, 3.3 V sense).
 The header HDMI receptacles stay on the shield level; the Mimas's own HDMI
 IN/OUT are at Mimas level.
+
+## 2026-11-27 owner (round 7)
+
+The three header HDMI receptacles sit on the shield over the Mimas (at the
+panel edge above the Mimas's own HDMI IN/OUT); the per-DUT JTAG (shield
+overhang) + keyboard (sub-board below) columns go on **both sides** of the
+Mimas.

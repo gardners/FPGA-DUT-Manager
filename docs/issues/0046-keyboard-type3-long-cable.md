@@ -255,3 +255,11 @@ agent worktree; not loaded on hardware. The HDL is unchanged after
   LUTs (57.1 %), 21569 FFs (33.1 %). `make test`: 31 HDL testbenches, 228 C
   and 52 relay checks pass.
 * Shield build e131ab30 (`VIVADO_GENERICS="SHIELD_RX=3"`): TIMING MET, WNS +0.175 ns, WHS +0.050 ns, 0 critical warnings (only "null port pk_jtagen ignored", as intended).
+
+## 2026-11-27 lead: owner reminders
+
+* **Owner to install Lattice Diamond** (remind the owner), then run
+  `./build.sh` on branch `type3` in ~/Projects/mega65/mega65-keyboard-cpld
+  and report the fit and timing.
+* The J5 pin 3 = JTAGENB check will be done by the lead on the attached
+  keyboard over remote JTAG (owner asked).
