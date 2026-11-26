@@ -290,3 +290,15 @@ Mimas.
   a short ribbon to the rear panel.
 * ERC 0 on both boards; DRC 0 errors on both (silk warnings, unrouted).
   Docs: `docs/hardware/shield.md` (width table, stack, pinouts, checklist).
+
+## 2026-11-27 owner answers (round 8)
+
+1. GS105 goes **behind** the boards.
+2. JB1 pin tails vs J5 bodies: owner OK with either fix; lead picks
+   **lowering the sub-boards** (longer stacking pins), so no hand-clipping.
+3. **One keyboard sub-board per side, identical design** (same board both
+   sides, no mirrored variant).
+4. Physical keyboard stays at the front edge with a short ribbon.
+5. LCD 5 V vs 3.3 V I2C: the front-panel board (0050) gets a PCA9306 level
+   shifter, so either a 5 V or a 3.3 V LCD backpack works (jumper for the
+   LCD supply).
