@@ -34,7 +34,7 @@
  },
  "J1": {
   "cluster": "B2B",
-  "descr": "2x6 male header 2.54 mm (same stack as the Mimas headers)",
+  "descr": "2x6 male header 2.54 mm, standard 2.54 mm plastic (into an 11 mm socket)",
   "dnp": false,
   "fp": "Connector_PinHeader_2.54mm:PinHeader_2x06_P2.54mm_Vertical",
   "lcsc": "",

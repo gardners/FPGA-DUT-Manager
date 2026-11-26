@@ -223,6 +223,7 @@ S_DUT = 'dut_ports'
 # sub-board under the shield overhang beside the Mimas. One sub-board per
 # side carries two J5 (slot A = lower Mimas y, slot B = higher), joined to
 # the shield by a 2x6 board-to-board header (KIO8/9/10 + 3.3 V sense per DUT).
+# One identical sub-board design on both sides (translated, not mirrored).
 KBD_SIDES = {'P12': {'A': 0, 'B': 3}, 'P13': {'A': 2, 'B': 1}}
 B2B_PINS = {'1': 'GND', '2': 'GND', '3': 'A_KIO8', '4': 'A_KIO9', '5': 'A_KIO10',
             '6': 'A_KB_SENSE', '7': 'B_KIO8', '8': 'B_KIO9', '9': 'B_KIO10',
@@ -253,14 +254,14 @@ for side, slots in KBD_SIDES.items():
             m[k] = 'DUT%d_%s' % (slots[slot], sig)
     part('J', 'Connector_Generic:Conn_02x06_Odd_Even', 'KBD SUB %s (B2B)' % side,
          'Connector_PinSocket_2.54mm:PinSocket_2x06_P2.54mm_Vertical', m, S_DUT,
-         'B2B' + side, descr='2x6 female socket 8.5 mm, shield bottom side')
+         'B2B' + side, descr='2x6 female socket 2.54 mm, 11 mm tall, shield bottom side')
 
 # ------------------------------- keyboard sub-board ----------------------
 BOARD[0] = 'kbd'
 S_KBD = 'kbd_sub'
 part('J', 'Connector_Generic:Conn_02x06_Odd_Even', 'B2B to shield',
      'Connector_PinHeader_2.54mm:PinHeader_2x06_P2.54mm_Vertical', B2B_PINS, S_KBD,
-     'B2B', descr='2x6 male header 2.54 mm (same stack as the Mimas headers)')
+     'B2B', descr='2x6 male header 2.54 mm, standard 2.54 mm plastic (into an 11 mm socket)')
 for slot in 'AB':
     k = lambda x: '%s_J_%s' % (slot, x)
     part('J', 'Connector_Generic:Conn_02x05_Odd_Even', 'KEYBOARD %s (J5)' % slot,
