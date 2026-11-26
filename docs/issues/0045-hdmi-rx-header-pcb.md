@@ -176,3 +176,22 @@ Sources: https://numato.com/wp-content/uploads/2018/06/MimasA7V3.0-pd.png
   one CMT per bank: so the receivers must be BUFG-clocked (not
   BUFIO/BUFR), or move an MMCM. **The gate build (issue 0049) decides 3 vs
   4.**
+
+## 2026-11-27 pin plan for the shield (issue 0049 step 1)
+
+`docs/hardware/shield-pinplan.md` (branch `feature/shield-pinplan`) is
+the pin plan for the KiCad shield: per-row tables with ball, bank, pair, CC
+type, current use, shield use and net name, plus the two expander bit maps.
+Changes against the plans above:
+
+* The second receiver is **HDMI1** on P13 rows 10-13/18 (clock C18/C19 row
+  11; D0 row 10, D1 row 13, D2 row 18), not rows 8-14 only: row 12
+  (D17/C17, the other free MRCC pair) is HDMI2's clock. HDMI2 = P13 rows
+  12/19/23/25, HDMI3 = P12 rows 12/13/18/19 (clock L19/L20 SRCC).
+* DDC per receiver on FPGA pins (HDMI1 C13/B13, HDMI2 D14/D15, HDMI3
+  H13/G13); HPD and +5V sense go to I2C expander B (TCA6416A, 0x20)
+  instead of FPGA pins; so do VIO and keyboard 3V3 sense of all four DUTs
+  and PK_JTAGEN. Expander A = TCA6424A at 0x22 (revision, features, 8
+  power-control outputs).
+* The rows 28-30 2x3 socket of the 2026-11-26 decision is superseded (those
+  pins now carry DUT2/DUT3 JTAG and the DDC lines).
