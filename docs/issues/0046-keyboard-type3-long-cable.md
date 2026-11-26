@@ -278,3 +278,15 @@ MET, WNS +0.179 ns, WHS +0.008 ns, 18461 LUTs, 21572 FFs; `make test`
 green (31 HDL, 228 C, 52 relay checks).
 
 Update: merged foundation f75b3e4 (net_tx/DHCP timing). Normal build c73c7b23: TIMING MET, WNS +0.200 ns, WHS +0.011 ns, 18510 LUTs, 21970 FFs; `make test` green. Bitstream for the pin-3 check: `build/bits/supervisor-c73c7b23.bit` (agent worktree).
+
+## 2026-11-27 hardware (lead): J5 pin 3 / JTAGEN test
+
+Build c73c7b23 on the board, the owner's MK-I keyboard on the physical
+keyboard strip. `dutctl set IP kbd-jtag N` then `dutctl jtag-idcode IP
+--kbd`: mode 1 (JTAGEN high) -> 0x012ba043; **mode 3 (JTAGEN driven low)
+-> 0x012ba043**; mode 1 and mode 0 (auto) again -> 0x012ba043. So the CPLD's
+JTAG port is enabled regardless of J5 pin 3: the configured CPLD has
+JTAG_PORT=ENABLE (the default), and pin 3 doesn't gate JTAG, whether or not
+it goes to JTAGENB. Flashing over remote JTAG doesn't depend on pin 3. The
+type-3 firmware keeps the same setting (strategy unchanged). hwtest 63/0
+on this build; c73c7b23 known-good.

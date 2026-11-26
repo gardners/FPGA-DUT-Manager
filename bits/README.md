@@ -10,7 +10,8 @@ Board must run from the DC jack (USB power alone browns out).
 
 | Build id | Commit | Verified on hardware (2026-11-25) | Notes |
 |---|---|---|---|
-| aba06812 | aba0681 | 2026-11-27: hwtest 63/0 (DHCP both DUTs, real DVI source, passthrough); keyboard IDCODE 0x012ba043 via remote JTAG | timing pipelining (net_tx DHCP, dhcp_client, thumb_rx_writer, mosaic), MGMT dup compare; normal WNS +0.200 ns, shield build +0.276 ns. **known-good** |
+| c73c7b23 | c73c7b2 | 2026-11-27: hwtest 63/0; keyboard IDCODE 0x012ba043 in kbd-jtag modes 0, 1 and 3 (JTAGEN low) | adds kbd-jtag mode 3 (pin-3 diagnostic); WNS +0.200 ns. **known-good** |
+| aba06812 | aba0681 | 2026-11-27: hwtest 63/0 (DHCP both DUTs, real DVI source, passthrough); keyboard IDCODE 0x012ba043 via remote JTAG | timing pipelining (net_tx DHCP, dhcp_client, thumb_rx_writer, mosaic), MGMT dup compare; normal WNS +0.200 ns, shield build +0.276 ns. |
 | 88734375 | 8873437 | 2026-11-27: hwtest 63/0 (real DVI source on HDMI IN, passthrough); keyboard CPLD IDCODE 0x012ba043 over remote JTAG (`dutctl jtag-idcode IP --kbd`) | keyboard type 3 host + keyboard JTAG (0046), shield receivers off (SHIELD_RX=0), WNS +0.234 ns. |
 | 6c2c91fd | 6c2c91f (main at cb5ca98, docs only on top) | hwtest 63/0 (caps 0x9F); select screen on the self-loop shows machine 1's live thumbnail (recursive picture), machine 0 colour bars, frowns for empty slots | **known-good**; thumbnails (0035) and Ethernet relay (0038) |
 | 523dd029 | 523dd02 | hwtest 63/0; HDMI OUT now HDMI (SPD/AVI InfoFrames); self-loop measures 720x480 of 858x525 with HDMI+islands flags; raster 720x480 complete; DDR3 ok | HDMI OUT SPD/AVI (0037, monitor OSD not yet checked by owner), HDMI-aware receiver (0040) |
