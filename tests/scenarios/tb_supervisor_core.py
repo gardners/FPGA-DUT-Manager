@@ -376,8 +376,8 @@ def check(path):
           % (len(ths), len(done), sorted(m for m, _ in nosrc)))
 
     print("DHCP: %d DISCOVER, %d REQUEST" % (len(disc), len(reqs)))
-    print("captured %d frames: %d ARP, %d ICMP, %d ACK, %d JTAG, %d snapshots, %d heartbeats"
-          % (len(frames), len(arps), len(icmps), len(acks), len(jr), len(snaps), len(hbs)))
+    print("captured %d frames: %d ARP, %d ICMP, %d ACK, %d JTAG (%d keyboard), %d snapshots, %d heartbeats"
+          % (len(frames), len(arps), len(icmps), len(acks), len(jrall), len(jk), len(snaps), len(hbs)))
     for e in errors:
         print("ERROR:", e)
     print("core_scenario check", "FAILED" if errors else "PASSED")

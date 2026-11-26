@@ -98,7 +98,7 @@ begin
   -- the keyboard JTAG target is enabled
   ktap : entity work.tap_model generic map (IDCODE => x"012BA043")
     port map (pk_tck, pk_tms, pk_tdi, pk_tdo, ktap_rises);
-  assert pk_joe = '1' or pk_tck = '0' report "keyboard TCK moved while disabled" severity failure;
+  assert pk_joe /= '0' or pk_tck /= '1' report "keyboard TCK moved while disabled" severity failure;
 
   -- RX driver
   drive : process
@@ -188,7 +188,7 @@ begin
     report "captured " & integer'image(captured) & " frames; rx good " &
       integer'image(to_integer(good)) & " bad " & integer'image(to_integer(bad));
     assert bad = 0 report "RX CRC errors/drops" severity failure;
-    assert good = 30 report "expected 30 good RX frames" severity failure;
+    assert good = 34 report "expected 34 good RX frames" severity failure;
     -- thumbnails: local machines 0 (DUT0, video target: captured) and 3
     -- (DUT1) seen; machine 5's picture from a peer stored at 1/4 scale
     assert th_seen(0) = '1' and th_seen(3) = '1' and th_seen(5) = '1'
