@@ -1,6 +1,6 @@
 # 0044: Keyboard and video for machines on another board
 
-Status: Open (needs owner decision: Ethernet or ribbon)
+Status: Open (owner decided 2026-11-26: Ethernet, no frame buffer)
 Opened: 2026-11-26 (from the owner's question "will chaining a 2nd board work now?")
 
 ## What works with two boards today
@@ -55,3 +55,37 @@ clock. Only P13 rows 10-13 are free in the clock-capable region, and issue
    board's (board, DUT); learn them from thumbnail and heartbeat traffic.
 3. Remote keyboard frames, then remote video into a DDR3 frame buffer and
    HDMI OUT from DDR3. Add a hwtest with two boards.
+
+## 2026-11-26 owner decision
+
+Over **Ethernet**, with **no frame buffer**. The master starts streaming
+the remote board's pixels to HDMI OUT using that board's relayed H and V
+sync, so there is essentially no added delay. DDR3 stays thumbnail-only, as
+CLAUDE.md says. Keyboard: snapshot every 1 ms, plus one immediately on any
+key-state change.
+
+Design notes (lead):
+* **Video.** The remote board's raster capture sends one line per frame,
+  unicast to the master: ~2.2 kB at 1 Gb/s = ~18 us on the wire, in a
+  31.7 us line period at 480p. The master keeps a small line FIFO (2-4 lines
+  of RGB888 = ~3 BRAM36) to absorb switch and queueing jitter (~0.1 ms total
+  delay). HDMI OUT timing follows the stream: a frame starts when the remote
+  frame's first line arrives; line and frame numbers in the raster header
+  give the relayed sync.
+* **Clock drift.** The remote source's pixel clock and the master's local
+  27 MHz differ by up to ~100 ppm, or ~45 pixels per frame. Keep the FIFO
+  centred by changing the last line of vertical blanking by a few pixels per
+  frame (sinks tolerate this better than jitter on every line). Re-sync
+  completely if the FIFO under- or overflows (one torn frame, logged in a
+  counter). A source whose mode differs from the master's console mode
+  switches HDMI OUT to that mode (same as passthrough 0032).
+* **Bandwidth.** 720x480@60 RGB888 ~500 Mb/s (RLE24 often much less). One
+  remote stream at a time: gigabit switch required. Keep it unicast (no
+  raster bulk to broadcast, as with thumbnails).
+* **Keyboard.** A raw frame (thumbnail-relay EtherType, new subtype) from
+  the master to the remote board: selection epoch, target DUT, full key
+  bitmap. Sent every 1 ms and at once on a change; stale epochs dropped. The
+  remote board's kbd_arbiter treats it like a local physical keyboard. LED
+  status comes back in the same frame type. With no frames for ~100 ms, the
+  remote keyboard is released (all keys up).
+* Audio could ride in the raster packets later.

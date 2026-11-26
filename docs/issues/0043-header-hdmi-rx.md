@@ -72,3 +72,8 @@ DP and adding a second HDMI (DVI/TMDS) receiver on header pins.
 3. If it locks reliably: give the second DUT its own capture, passthrough
    source and live thumbnail. Make the heartbeat "video target" per DUT,
    and let dutctl screenshot use either DUT.
+
+## 2026-11-26
+
+The adapter becomes a small PCB that sits straight on the header: issue
+0045.
