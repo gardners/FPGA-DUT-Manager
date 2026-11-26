@@ -981,10 +981,10 @@
  "J10": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (or hand-fit)",
-   "MPN": "Phoenix MSTBA 2,5/2-G-5,08 (1757242) + MSTB 2,5/2-ST-5,08 plug, 12 A"
+   "LCSC": "TBD: JLC-stocked KF128/DG128-5.08-2P clone (THT, machine/wave assembled)",
+   "MPN": "2-pole 5.08 mm PCB screw terminal, MKDS 1,5/2-5,08 class (13.5 A); pin 1 = + (OUTn), pin 2 = - (GND)"
   },
-  "footprint": "Connector_Phoenix_MSTB:PhoenixContact_MSTBA_2,5_2-G-5,08_1x02_P5.08mm_Horizontal",
+  "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal",
   "in_bom": true,
   "pads": {
    "1": "OUT0",
@@ -996,10 +996,10 @@
  "J11": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (or hand-fit)",
-   "MPN": "Phoenix MSTBA 2,5/2-G-5,08 (1757242) + MSTB 2,5/2-ST-5,08 plug, 12 A"
+   "LCSC": "TBD: JLC-stocked KF128/DG128-5.08-2P clone (THT, machine/wave assembled)",
+   "MPN": "2-pole 5.08 mm PCB screw terminal, MKDS 1,5/2-5,08 class (13.5 A); pin 1 = + (OUTn), pin 2 = - (GND)"
   },
-  "footprint": "Connector_Phoenix_MSTB:PhoenixContact_MSTBA_2,5_2-G-5,08_1x02_P5.08mm_Horizontal",
+  "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal",
   "in_bom": true,
   "pads": {
    "1": "OUT1",
@@ -1011,10 +1011,10 @@
  "J12": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (or hand-fit)",
-   "MPN": "Phoenix MSTBA 2,5/2-G-5,08 (1757242) + MSTB 2,5/2-ST-5,08 plug, 12 A"
+   "LCSC": "TBD: JLC-stocked KF128/DG128-5.08-2P clone (THT, machine/wave assembled)",
+   "MPN": "2-pole 5.08 mm PCB screw terminal, MKDS 1,5/2-5,08 class (13.5 A); pin 1 = + (OUTn), pin 2 = - (GND)"
   },
-  "footprint": "Connector_Phoenix_MSTB:PhoenixContact_MSTBA_2,5_2-G-5,08_1x02_P5.08mm_Horizontal",
+  "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal",
   "in_bom": true,
   "pads": {
    "1": "OUT2",
@@ -1026,10 +1026,10 @@
  "J13": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (or hand-fit)",
-   "MPN": "Phoenix MSTBA 2,5/2-G-5,08 (1757242) + MSTB 2,5/2-ST-5,08 plug, 12 A"
+   "LCSC": "TBD: JLC-stocked KF128/DG128-5.08-2P clone (THT, machine/wave assembled)",
+   "MPN": "2-pole 5.08 mm PCB screw terminal, MKDS 1,5/2-5,08 class (13.5 A); pin 1 = + (OUTn), pin 2 = - (GND)"
   },
-  "footprint": "Connector_Phoenix_MSTB:PhoenixContact_MSTBA_2,5_2-G-5,08_1x02_P5.08mm_Horizontal",
+  "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal",
   "in_bom": true,
   "pads": {
    "1": "OUT3",
@@ -1041,10 +1041,10 @@
  "J14": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (or hand-fit)",
-   "MPN": "Phoenix MSTBA 2,5/2-G-5,08 (1757242) + MSTB 2,5/2-ST-5,08 plug, 12 A"
+   "LCSC": "TBD: JLC-stocked KF128/DG128-5.08-2P clone (THT, machine/wave assembled)",
+   "MPN": "2-pole 5.08 mm PCB screw terminal, MKDS 1,5/2-5,08 class (13.5 A); pin 1 = + (OUTn), pin 2 = - (GND)"
   },
-  "footprint": "Connector_Phoenix_MSTB:PhoenixContact_MSTBA_2,5_2-G-5,08_1x02_P5.08mm_Horizontal",
+  "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal",
   "in_bom": true,
   "pads": {
    "1": "OUT4",
@@ -1056,10 +1056,10 @@
  "J15": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (or hand-fit)",
-   "MPN": "Phoenix MSTBA 2,5/2-G-5,08 (1757242) + MSTB 2,5/2-ST-5,08 plug, 12 A"
+   "LCSC": "TBD: JLC-stocked KF128/DG128-5.08-2P clone (THT, machine/wave assembled)",
+   "MPN": "2-pole 5.08 mm PCB screw terminal, MKDS 1,5/2-5,08 class (13.5 A); pin 1 = + (OUTn), pin 2 = - (GND)"
   },
-  "footprint": "Connector_Phoenix_MSTB:PhoenixContact_MSTBA_2,5_2-G-5,08_1x02_P5.08mm_Horizontal",
+  "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal",
   "in_bom": true,
   "pads": {
    "1": "OUT5",
@@ -1071,10 +1071,10 @@
  "J16": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (or hand-fit)",
-   "MPN": "Phoenix MSTBA 2,5/2-G-5,08 (1757242) + MSTB 2,5/2-ST-5,08 plug, 12 A"
+   "LCSC": "TBD: JLC-stocked KF128/DG128-5.08-2P clone (THT, machine/wave assembled)",
+   "MPN": "2-pole 5.08 mm PCB screw terminal, MKDS 1,5/2-5,08 class (13.5 A); pin 1 = + (OUTn), pin 2 = - (GND)"
   },
-  "footprint": "Connector_Phoenix_MSTB:PhoenixContact_MSTBA_2,5_2-G-5,08_1x02_P5.08mm_Horizontal",
+  "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal",
   "in_bom": true,
   "pads": {
    "1": "OUT6",
@@ -1086,10 +1086,10 @@
  "J17": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (or hand-fit)",
-   "MPN": "Phoenix MSTBA 2,5/2-G-5,08 (1757242) + MSTB 2,5/2-ST-5,08 plug, 12 A"
+   "LCSC": "TBD: JLC-stocked KF128/DG128-5.08-2P clone (THT, machine/wave assembled)",
+   "MPN": "2-pole 5.08 mm PCB screw terminal, MKDS 1,5/2-5,08 class (13.5 A); pin 1 = + (OUTn), pin 2 = - (GND)"
   },
-  "footprint": "Connector_Phoenix_MSTB:PhoenixContact_MSTBA_2,5_2-G-5,08_1x02_P5.08mm_Horizontal",
+  "footprint": "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal",
   "in_bom": true,
   "pads": {
    "1": "OUT7",

@@ -5060,6 +5060,229 @@
 			)
 		)
 	)
+	(label "G1"
+		(at 198.12 19.05 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "e1ae4cbd-74db-5550-a66b-b3f24686577e")
+	)
+	(label "GSS1"
+		(at 198.12 26.67 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "60ba459b-f5a3-567c-aa78-802d00ac6286")
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 198.12 22.86 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "4e4271e9-0e88-53d3-96ee-7c60730b2b23")
+		(property "Reference" "C11"
+			(at 200.66 21.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "22n"
+			(at 200.66 24.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+			(at 198.12 22.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 198.12 22.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 198.12 22.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "TBD (X7R 50V)"
+			(at 198.12 22.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Voltage" "50V"
+			(at 198.12 22.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "soft start: gate-drain (VBUS) Miller cap, value TBD on bench"
+			(at 198.12 22.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "67321997-7d52-55af-ac85-d52c9ebd1801")
+		)
+		(pin "2"
+			(uuid "0618fe6b-5d52-52ef-92fb-ad39a1bb69e4")
+		)
+		(instances
+			(project "mega-kvm-power-inputs"
+				(path "/3ff89d5b-8479-5fa2-8712-f27e20d5500c"
+					(reference "C11")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "GSS1"
+		(at 198.12 52.07 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "552f7df0-ca66-587b-9b97-33b30d6ddd50")
+	)
+	(label "VBUS"
+		(at 198.12 59.69 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "dbc897fb-476b-5401-b385-d04b56c21cb3")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 198.12 55.88 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "f2323093-24c1-5e41-8926-76dc8ed7ef5c")
+		(property "Reference" "R13"
+			(at 200.66 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1k"
+			(at 200.66 57.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 198.12 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 198.12 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 198.12 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C21190"
+			(at 198.12 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Tolerance" "1%"
+			(at 198.12 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "971a4aea-226c-5d2c-92bd-83ab3b8b5c29")
+		)
+		(pin "2"
+			(uuid "0086a143-bacd-500b-b2bf-d80a271462b0")
+		)
+		(instances
+			(project "mega-kvm-power-inputs"
+				(path "/3ff89d5b-8479-5fa2-8712-f27e20d5500c"
+					(reference "R13")
+					(unit 1)
+				)
+			)
+		)
+	)
 	(text "Q1/2: input side (D=V1)   Q3/4: output side (D=VBUS)   - two in parallel each side for 25 A"
 		(exclude_from_sim no)
 		(at 129.54 55.88 0)
@@ -6305,6 +6528,229 @@
 			)
 		)
 	)
+	(label "G2"
+		(at 198.12 77.47 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "57ca2066-6e62-5151-8b4c-67153a2145e6")
+	)
+	(label "GSS2"
+		(at 198.12 85.09 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "d43a5d43-3b11-52be-9966-3a7f3ed9e443")
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 198.12 81.28 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "dfbf2694-54e0-5a5f-b4e3-23487e683f72")
+		(property "Reference" "C12"
+			(at 200.66 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "22n"
+			(at 200.66 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+			(at 198.12 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 198.12 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 198.12 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "TBD (X7R 50V)"
+			(at 198.12 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Voltage" "50V"
+			(at 198.12 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "soft start: gate-drain (VBUS) Miller cap, value TBD on bench"
+			(at 198.12 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "f6274641-3c2f-5e9e-ad03-72d7c192f22b")
+		)
+		(pin "2"
+			(uuid "bc572429-2481-57f7-9583-27c3eec792ed")
+		)
+		(instances
+			(project "mega-kvm-power-inputs"
+				(path "/3ff89d5b-8479-5fa2-8712-f27e20d5500c"
+					(reference "C12")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "GSS2"
+		(at 198.12 110.49 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "fcccf896-8011-53e2-85f9-179ed34f04bc")
+	)
+	(label "VBUS"
+		(at 198.12 118.11 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "adf4a806-1e0a-5b96-8d75-1cc821a7526d")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 198.12 114.3 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "7d224c2e-e1de-5135-bb27-876e2395fae0")
+		(property "Reference" "R23"
+			(at 200.66 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1k"
+			(at 200.66 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 198.12 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 198.12 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 198.12 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C21190"
+			(at 198.12 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Tolerance" "1%"
+			(at 198.12 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "8e8d57a5-d297-54c4-b4fe-aed62a62d957")
+		)
+		(pin "2"
+			(uuid "547b8983-45de-5e1e-9614-89ba685c2472")
+		)
+		(instances
+			(project "mega-kvm-power-inputs"
+				(path "/3ff89d5b-8479-5fa2-8712-f27e20d5500c"
+					(reference "R23")
+					(unit 1)
+				)
+			)
+		)
+	)
 	(text "Q5: input side (D=V2)   Q6: output side (D=VBUS)"
 		(exclude_from_sim no)
 		(at 129.54 114.3 0)
@@ -7494,6 +7940,229 @@
 			)
 		)
 	)
+	(label "G3"
+		(at 198.12 135.89 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "f52059f1-3349-5bd8-9913-cf5addc0f18e")
+	)
+	(label "GSS3"
+		(at 198.12 143.51 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "1f2ee5d4-dcc4-5587-9366-98907a8b8d6c")
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 198.12 139.7 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "87eaacdc-4d4f-597e-90af-35e16f718ef2")
+		(property "Reference" "C13"
+			(at 200.66 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "22n"
+			(at 200.66 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+			(at 198.12 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 198.12 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 198.12 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "TBD (X7R 50V)"
+			(at 198.12 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Voltage" "50V"
+			(at 198.12 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "soft start: gate-drain (VBUS) Miller cap, value TBD on bench"
+			(at 198.12 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "3c815f7d-7c66-5c4a-9e4c-6d0126f91386")
+		)
+		(pin "2"
+			(uuid "876a6c00-6b3b-52d5-a1bc-7d8c24ba80d9")
+		)
+		(instances
+			(project "mega-kvm-power-inputs"
+				(path "/3ff89d5b-8479-5fa2-8712-f27e20d5500c"
+					(reference "C13")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "GSS3"
+		(at 198.12 168.91 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "0cab0cbb-aee2-506c-bbbd-2f3a11afb650")
+	)
+	(label "VBUS"
+		(at 198.12 176.53 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "eecfe0d1-021b-553d-97a6-85215d9c717e")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 198.12 172.72 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "287b6b63-016f-5d29-9bf6-961e7d65c0b5")
+		(property "Reference" "R33"
+			(at 200.66 171.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1k"
+			(at 200.66 173.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 198.12 172.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 198.12 172.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 198.12 172.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C21190"
+			(at 198.12 172.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Tolerance" "1%"
+			(at 198.12 172.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "cdd67560-8d10-50de-8838-3734f108d9c3")
+		)
+		(pin "2"
+			(uuid "27349d21-beec-56ce-afa8-028b801bb723")
+		)
+		(instances
+			(project "mega-kvm-power-inputs"
+				(path "/3ff89d5b-8479-5fa2-8712-f27e20d5500c"
+					(reference "R33")
+					(unit 1)
+				)
+			)
+		)
+	)
 	(text "Q7: input side (D=V3)   Q8: output side (D=VBUS)"
 		(exclude_from_sim no)
 		(at 129.54 172.72 0)
@@ -7814,7 +8483,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C688500 (LCSC stock very low: consign or hand-fit; LTC4417IUF C580907 is the QFN)"
+		(property "LCSC" "C688500 (low stock: order via JLC global sourcing / parts pre-order; SSOP-24, no exposed pad)"
 			(at 256.54 66.04 0)
 			(effects
 				(font

@@ -1,16 +1,18 @@
 # MEGA-KVM power board (issue 0047)
 
-Status: draft v0.1 (2026-11-27). The schematics pass ERC and the placed boards
-pass DRC with schematic parity. Polygons are sketched; the boards are **not routed**.
+Status: draft v0.2 (2026-11-27, owner round 5 applied). The schematics pass
+ERC and the placed boards pass DRC with schematic parity. Polygons are
+sketched; the boards are **not routed**.
 
 KiCad 10 projects: `hardware/mega-kvm-power/`
 
 | Path | What |
 |---|---|
 | `mega-kvm-power-main/` | main board: 8 switched DUT outputs and the always-on group (horizontal, 170 x 80 mm) |
-| `mega-kvm-power-inputs/` | input board: 3 inputs, LTC4417 priority selection, master switch (vertical behind the rear panel, 150 x 40 mm) |
-| `lib/` | project symbols (TPS259470, PMOS_TDSON8, TVS_Uni, LTC4417 copy) and footprints (TI RPW0010A, Molex 8981) |
-| `tools/` | generators: `gen_main.py`, `gen_inputs.py` (schematics), `placement.py` + `pcb_build.py` (boards), `build_all.sh` |
+| `mega-kvm-power-inputs/` | input board, **default**: 3 inputs, LTC4417CGN priority selection, master switch (vertical behind the rear panel, 150 x 40 mm) |
+| `mega-kvm-power-inputs-lm74700/` | input board, **JLC-stocked fallback** (schematic only): 3 x LM74700-Q1 ideal diodes + P-FET switches + LM339 priority logic |
+| `lib/` | project symbols (TPS259470, PMOS_TDSON8, NMOS_TDSON8, TVS_Uni, LTC4417 copy) and footprints (TI RPW0010A, Molex 8981) |
+| `tools/` | generators: `gen_main.py`, `gen_inputs.py`, `gen_inputs_lm74700.py` (schematics), `placement.py` + `pcb_build.py` (boards), `build_all.sh` |
 | `out/` | schematic PDFs, ERC/DRC reports, BOM CSVs, 3D renders (top/bottom PNG) |
 
 The schematics and boards are **generated**. Edit the Python and run
@@ -51,6 +53,90 @@ ugly but exact; KiCad's netlist and the PCB parity check agree.
   keep every output off while the shield is unplugged, unpowered or in reset (its
   TCA6424A outputs are high-Z at reset).
 
+## Input selection: why the LTC4417, and the fallback
+
+**The LTC4417 is a gate controller.** It carries no load current itself. It
+only drives the gates of external back-to-back P-FETs. The current rating is
+set by those FETs, their copper and the fuses. Small-current figures in
+its datasheet (gate drive, VALID sink, the "5 A typical" in some
+parametric tables) describe the controller or ADI's example, not a
+limit. Here each path is 3 mOhm BSC030P03NS3G FETs:
+
+| Path | FETs | Current per FET | Rds(on) hot (~1.4 x 4 mOhm at Vgs ~ -6 V) | Loss per FET | Total |
+|---|---|---|---|---|---|
+| banana, 20 A | 2 parallel per side (4) | 10 A | ~5.6 mOhm | ~0.56 W | ~2.2 W |
+| banana, 25 A (fuse) | 2 parallel per side (4) | 12.5 A | ~5.6 mOhm | ~0.88 W | ~3.5 W |
+| PCIe, 15 A | 1 per side (2) | 15 A | ~5.6 mOhm | ~1.26 W | ~2.5 W |
+| Molex, 10 A | 1 per side (2) | 10 A | ~5.6 mOhm | ~0.56 W | ~1.1 W |
+
+A TDSON-8 on a few cm2 of 2 oz copper is about 40-50 K/W, so the worst
+case is +35-60 K. A full 25 A is the fuse value; 20 A continuous is the
+design point. For the PCIe path at a full 15 A continuous, a second FET pair would
+halve the loss. The pads are cheap; add them when routing if the bench
+shows it is needed.
+
+**Package:** the default part is **LTC4417CGN**, the 24-lead narrow SSOP
+(ADI GN24 package, drawing 05-08-1641). It has gull-wing leads and **no
+exposed pad**; only the UF (4 x 4 QFN) version has one. The full ADI
+datasheet could not be downloaded from here, so please confirm the pin
+diagram once. LCSC lists C688500 (CGN) with very low stock, and the
+IGN/HGN variants (C688508, C117306) at zero. Order it through **JLC global
+sourcing / parts pre-order** so JLC places it like any other part; no hand
+fitting.
+
+**Soft start at master-on** (owner round 5): each channel has 22 nF + 1 k
+from the gate to VBUS (C11-C13, R13/R23/R33). This Miller capacitor limits
+the dV/dt of VBUS while the gate driver pulls the gate down, so about 1 mF of
+VBUS capacitance charges at roughly 1 A. The value is set on the bench,
+because the LTC4417 gate pull-down current is not in hand. FET SOA: about
+1 A at up to 12 V for about 12 ms (about 70 mJ, about 12 W at the start)
+should be a small fraction of the 10 ms SOA of a 100 A-class TDSON FET.
+Confirm against the BSC030P03NS3G SOA chart.
+
+**JLC-stocked fallback** (`mega-kvm-power-inputs-lm74700`, schematic only,
+ERC clean). Every part is leaded and stocked:
+
+* per input: an **LM74700-Q1** (SOT-23-6, C2941042) ideal-diode controller
+  with an N-FET (BSC014N04LS, 1.4 mOhm, C2760081). Inputs can never feed
+  each other or back-feed. Then a P-FET high-side switch (BSC030P03NS3G).
+  Two in parallel each for the banana path.
+* priority logic: one TL431 2.5 V reference and two LM339 quad comparators
+  (SOIC-14, C7948). Their open-collector outputs wire-AND onto
+  ON1..ON3, which are pulled up from the rocker's LOAD terminal:
+  ON1 = rocker & V1 ok, ON2 = rocker & V2 ok & !V1 ok,
+  ON3 = rocker & V3 ok & !V1 ok & !V2 ok ("ok" = above 10.4 V).
+* ONn drives a 2N7002 that pulls the P-FET gate to Vgs = -6 V through
+  100 k / 100 k. A 47 nF gate-to-VBUS Miller capacitor gives the soft start
+  (~1.3 V/ms). The "selected" LED sits in the same pull-down path.
+* The ideal diodes make the switch-over safe: when a higher-priority input
+  appears, the lower P-FET turns off slowly (soft-start RC), but neither PSU
+  can feed the other.
+
+Why the LTC4417 stays the default: one IC does UV/OV validation, the
+256 ms validation timer, hysteresis, break-before-make switching and the
+VALID outputs, all with fewer parts and less layout. The fallback needs about 30
+more parts, and its comparators have no hysteresis or timer (add them if it
+chatters). Use the fallback if JLC cannot source the LTC4417 in time. Its
+connectors, fuses, TVS and lugs are the same, so the board outline does not
+change.
+
+**Why not three cascaded eFuses?** eFuses that carry 20 A or more (TI
+TPS25985/TPS25984, TPS1663 with an external FET, and so on) come in QFN or
+other packages with exposed power pads. Each has its own current limit and
+thermal limits, and needs heavy thermal vias. Three of them plus the same
+priority logic is possible, but it costs about 3 x the money, adds a few
+mOhm or more per path, and makes every part a pad-only package, which the
+owner wants to avoid. Over-current
+protection is already done by the fuses and the per-output 5 A eFuses, so the input
+path does not need a limiter.
+
+**Hidden-pad audit** (owner round 5: no concealed or exposed pads that would
+need hand-fitting): all input-path parts are leaded or TDSON-8 (which JLC
+machine-places). The one exception is the **TPS259470 eFuse** (RPW, a
+2 x 2 mm QFN-HR with leads under the body and no thermal pad). It is stocked
+(C3662793) and machine-placed by JLC, never hand-fitted. No 5 A eFuse with
+reverse blocking comes in a leaded package.
+
 ## Connectors
 
 ### Input board (rear panel side = F side)
@@ -75,7 +161,7 @@ LDO on VBUS, so they are dark when the master switch is off.
 
 | Ref | Pins | Notes |
 |---|---|---|
-| J10-J17 "DUT0-7 12V" | 1 OUTn, 2 GND | Phoenix MSTBA 2,5/2-G-5,08 + pluggable MSTB plug, 12 A; one 2-pole block per DUT |
+| J10-J17 "DUT0-7 12V" | 1 + (OUTn), 2 - (GND) | 2-pole 5.08 mm **screw terminal** per DUT (MKDS 1,5/2-5,08 class, 13.5 A; JLC-stocked KF128/DG128 clone), for leads that end in barrel plugs (owner round 5) |
 | J20/J21 "MIMAS0/1 12V" | 1 +12 V (always on), 2 GND | Molex Mini-Fit Jr 2-pin (5566-02A), 9 A, latching, polarised: goes to the shield's 12 V input, then Mimas header VIN (0045) |
 | J22 "GS105 12V" | centre +12 V | CUI PJ-102AH 2.1 mm jack; needs a male-male 5.5/2.1 lead |
 | J23/J24 "FAN0/1" | 1 GND, 2 +12 V, 3 TACH | standard 3-pin fan header; R190/R191 0 R in series, fit 47-100 R to slow a fan |
@@ -84,7 +170,7 @@ LDO on VBUS, so they are dark when the master switch is off.
 | J4 "STATUS" 1x12 | 1 GND, 2-9 /FLT0-7, 10 /FLT_AON, 11-12 TACH0/1 | open drain, 10 k pull-ups to the local 3.3 V |
 | J5 "I2C" 1x5 | 1 GND, 2 3V3 (only via JP1), 3 SDA, 4 SCL, 5 /INT | for the optional TCA9535 |
 
-### Control header (J3): proposed pin order, coordinate with the shield
+### Control header (J3): pin order (adopted by the owner, round 5)
 
 Single row, 2.54 mm, 11 positions. **Pin 2 is the key:** pull pin 2 out of
 the header and block hole 2 of the plug. Pin 2 is off-centre, so the plug cannot go
@@ -97,12 +183,12 @@ on reversed; the middle pin (6) would not key.
 | 3-10 | CTRL0..CTRL7 = DUT0..DUT7 power on (active high, 3.3 V) | in, 1 k series, 20 k pull-down to GND |
 | 11 | PRESENT | out: 3.3 V through 10 k when the power board is connected **and powered**; the shield should pull it down (100 k) |
 
-The shield pin plan (`docs/hardware/shield-pinplan.md`, branch
-`feature/shield-pinplan`) drives PWR_CTL0..7 from expander A (TCA6424A at
-0x22) P2.0-7 and has SHD_FEAT1 = "power relay header fitted". It does not
-yet define the order of the 1x11 pins or a PRESENT input. The shield
-should adopt this table, or tell us its own. Note that PRESENT is "power
-board present", not a shield feature strap.
+One cable from the **master shield** drives all 8 outputs (owner round
+5). The shield pin plan (`docs/hardware/shield-pinplan.md`) drives
+PWR_CTL0..7 from expander A (TCA6424A at 0x22) P2.0-7. It must route them to
+pins 3-10 in this order and read PRESENT on a spare expander input, with a
+100 k pull-down. PRESENT is "power board present and powered", which is not the same
+as the shield's own SHD_FEAT1 strap.
 
 ## Ratings and sizing
 
@@ -137,14 +223,17 @@ fee. Check stock when ordering.
 |---|---|---|---|
 | TI **TPS259470LRPWR** | 8 DUT eFuses (latch-off) | C3662793 (stocked, ~6k) | 5.5 A, 28 mOhm, true reverse blocking, adjustable ILIM/OVLO/dVdt, EN works with 3.3 V logic, FLT output. Latch-off: a shorted DUT stays off until the shield toggles CTRLn and the host logs it. |
 | TI **TPS259470ARPWR** | always-on eFuse (auto-retry) | TBD (same family) | Nobody toggles EN on the always-on group, so it must retry by itself. |
-| ADI **LTC4417CGN** | 3-input priority PowerPath | C688500, **only ~3 in stock** | No stocked alternative at 25 A with priority and UV/OV validation. Plan: JLC global sourcing or a consigned part, or hand-fit. The QFN (LTC4417IUF, C580907) is a layout change. |
+| ADI **LTC4417CGN** | 3-input priority PowerPath (gate controller) | C688500, **only ~3 in stock** | Leaded SSOP-24, no exposed pad. Order through JLC global sourcing / parts pre-order; JLC places it, no hand-fitting. The fallback board is fully stocked (see above). |
+| TI **LM74700QDBVRQ1** (fallback) | ideal diode, 3 x | C2941042 (stocked) | SOT-23-6, leaded |
+| Infineon **BSC014N04LS** (fallback) | ideal-diode N-FETs | C2760081 | 40 V, 1.4 mOhm, TDSON-8 |
+| TI **LM339DR** + TL431 (fallback) | priority logic | C7948 / TBD | SOIC-14 / SOT-23 |
 | Infineon **BSC030P03NS3G** | 8 x input P-FETs | C152375 (stocked) | -30 V, 3 mOhm, PG-TDSON-8. A VBsemi second source (C7524921, 3.2 mOhm) exists. |
 | **SMCJ15A** | input TVS x 3 | C2834490 (MDD) | 1500 W, clamps below every downstream abs max. |
 | SS34 / B5819W / 2N7002 | output clamps / diode-OR / LED logic | C8678 / C8598 / C8545 | JLC basic parts (verify). |
 | **TCA9535PWR** | optional fault expander (DNP) | C130204 (extended) | 16 inputs: /FLT0-7 on P0, /FLT_AON on P1.0. Address **0x24** (A2 high), clear of the shield's 0x20/0x22. |
 | L78L33ACUTR | 3.3 V, 30 V input | TBD | Survives the TVS clamp level. (AP7381, 40 V, is not at LCSC.) |
 | Passives | 0603 resistors and capacitors | 10 k C25804, 100 k C25803, 4.7 k C23162, 1 k C21190, 20 k C4184, 100 n C14663; others TBD | JLC basic where possible. |
-| **Hand-fit / THT** | banana sockets, ATO fuse holders (Littelfuse 178.6165), PCIe and Molex headers, MSTBA terminals, Mini-Fit 2-pin, fan headers, barrel jack, JST XH | mostly TBD | JLC can do THT assembly for stocked parts; the panel-mount bananas, fuse holders and high-current headers are safest hand-fitted. |
+| **THT connectors** | banana sockets, ATO fuse holders (Littelfuse 178.6165), PCIe and Molex headers, screw terminals, Mini-Fit 2-pin, fan headers, barrel jack, JST XH | mostly TBD | JLC does THT assembly for stocked parts. Pick JLC-stocked equivalents when ordering. The panel-mount banana sockets (nut-fixed, through the panel) are mechanical and fitted at box assembly. |
 
 Fuse holders: ATO blade (Littelfuse FLR 178.6165), so 10/15/25 A fuses
 are cheap and easy to swap. The holder's current rating must be checked
@@ -163,26 +252,21 @@ against 25 A before ordering.
   the front edge.
 * Two M3 holes on the input board, four on the main board.
 
-## Open questions for the owner
+## Owner answers (round 5) and remaining questions
 
-1. **Which shield drives the 1x11 header?** There are 2 shields per unit and
-   8 outputs on one header: one shield drives all 8 (say the shield of
-   board 0), or we split 4+4 over two headers. The draft has one header.
-2. **1x11 pin order and PRESENT:** please confirm the table above, so that the
-   shield (feature/shield-pinplan) can match it and give PRESENT an
-   expander input.
-3. **Shield 12 V input connector:** the draft uses Mini-Fit Jr 2-pin for the
-   two Mimas feeds. The shield should use the mating part (or tell us
-   which connector it has).
-4. **DUT output connector:** pluggable 5.08 mm terminal blocks (as asked)
-   or barrel jacks on the rear panel? The MEGA65 PSU plug would then fit
-   directly.
-5. **LTC4417 sourcing:** OK to consign or hand-fit it? (LCSC has only a few.)
-6. **Inrush at master-on:** VBUS bulk is 2 x 470 uF + ceramics. The
-   LTC4417 turns the FETs on fairly fast, so a gate-to-source capacitor per
-   channel (footprint to add) or less bulk may be needed. Decide on the bench.
-7. **UL 2367 limit:** 665 R gives 5.0 A as asked. 750 R (4.45 A) keeps the
-   TPS25947 inside its UL recognition. Which one?
+Answered: one control cable from the master shield; 1x11 order adopted;
+screw terminals (+/-) per DUT; no hand-fitting (LTC4417 through JLC
+sourcing, stocked fallback designed); soft start added; 5 A limits kept
+(665 R; 750 R would keep UL 2367 recognition at 4.45 A); Mimas feed on Mini-Fit Jr
+2-pin.
+
+Still open:
+1. Shield 12 V input: the shield must fit the Mini-Fit Jr 2-pin mating
+   header (owner says it matches; record the part on the shield BOM).
+2. Soft-start capacitor values (C11-C13 here, C12/C22/C32 on the
+   fallback): set on the bench.
+3. LTC4417: confirm the GN pinout and UV/OV/HYS values against the ADI
+   datasheet (it could not be fetched here).
 
 ## Not yet done
 
@@ -191,3 +275,6 @@ against 25 A before ordering.
   **check both against the drawings before fab**.
 * LTC4417 HYS resistor (R1, DNP) and UV/OV thresholds: confirm with the
   datasheet (ADI's site could not be reached from here).
+* Fallback board: schematic only (no placement). Its footprints are all
+  standard library parts, so it can be placed in the same outline when it
+  is needed.

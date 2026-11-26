@@ -10,7 +10,7 @@ MAIN = {}
 for n in range(8):
     cx = 10 + n * 13.5
     base = 100 + 10 * n
-    MAIN['J%d' % (10 + n)] = (cx + 5.08, 11, 180)
+    MAIN['J%d' % (10 + n)] = (cx + 5.08, 7, 180)
     MAIN['U%d' % (n + 1)] = (cx + 2.5, 24, 90)
     MAIN['D%d' % base] = (cx + 5, 17, 0)
     MAIN['D%d' % (base + 1)] = (cx + 10.5, 21.5, 90)
@@ -95,6 +95,9 @@ INP = {
     'Q9': (63, 34, 0, 'B'), 'Q10': (58, 34, 0, 'B'), 'Q11': (58, 38, 0, 'B'),
     'H1': (3.5, 36.5), 'H2': (146.5, 36.5),
 }
+for n in (1, 2, 3):        # soft-start RC next to the output-side FETs
+    INP['C%d' % (10 + n)] = (126, 4 + 4 * n, 90, 'B')
+    INP['R%d' % (10 * n + 3)] = (129, 4 + 4 * n, 90, 'B')
 for n in (1, 2, 3):
     x0 = {1: 26, 2: 58, 3: 86}[n]
     for k in range(3):
