@@ -122,6 +122,8 @@ architecture rtl of net_rx is
                                    (others => '0'), x"01", x"02", x"00");
   signal last_cmd: u16_arr_t := (others => (others => '0'));
   signal last_cmd_v : std_logic_vector(1 downto 0) := "00";
+  signal mgmt_arm : std_logic := '0';
+  signal mgmt_dup : boolean := false;     -- registered: request id = last applied
 
   signal arp_r, icmp_r, ack_r : reply_t := REPLY_NONE;
   signal jr_r    : jreply_arr_t := (others => REPLY_NONE);
@@ -236,6 +238,7 @@ begin
       kbd_strobe <= "00";
       adm_valid  <= "00";
       uwr_valid  <= "00";
+      mgmt_dup   <= last_cmd_v(d) = '1' and last_cmd(d) = be16(h, 50);
       jreq_valid <= "000";
       jvec_we    <= "000";
       jgo        <= "000";
@@ -465,11 +468,15 @@ begin
           end if;
 
         when S_MGMT =>
-          if ack_r.pend = '0' then
+          -- first cycle: let mgmt_dup (registered duplicate-id compare)
+          -- see this request (timing: last_cmd read + compare, issue 0046)
+          if mgmt_arm = '0' then
+            mgmt_arm <= '1';
+          elsif ack_r.pend = '0' then
             key  := to_integer(be16(h, 52));
             vlen := be16(h, 54);
             st   := ST_OK;
-            if last_cmd_v(d) = '1' and last_cmd(d) = be16(h, 50) and key /= K_IDENTITY then
+            if mgmt_dup and key /= K_IDENTITY then
               st := ST_DUPLICATE;
             else
               case key is
@@ -562,6 +569,7 @@ begin
             ack_cmd_r <= h(50) & h(51);
             ack_key_r <= h(52) & h(53);
             ack_st_r  <= st;
+            mgmt_arm  <= '0';
             state     <= S_RELEASE;
           end if;
 
