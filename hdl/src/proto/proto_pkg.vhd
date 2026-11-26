@@ -40,6 +40,14 @@ package proto_pkg is
 
   -- capabilities word (heartbeat byte 32): b7 thumbnails (issues 0035/0038)
   constant CAP_THUMBS : natural := 7;
+  -- b8 JTAG to the physical keyboard's CPLD (JTAG_REQ flags b1, ADR 0014)
+  constant CAP_KBD_JTAG : natural := 8;
+  -- JTAG_REQ flags (offset 18): b0 abort/reset session, b1 target = the
+  -- physical keyboard's CPLD; JTAG_RESP byte 17 = target (0 DUT, 1 keyboard)
+  constant JF_ABORT  : natural := 0;
+  constant JF_KBD    : natural := 1;
+  -- heartbeat byte 76 kbd_phys_type: 0 none, 1 MK-I, 2 MK-II, 3 type 3
+  constant PHYS_TYPE3 : std_logic_vector(7 downto 0) := x"03";
 
   -- payload lengths (after the 8-byte common header)
   -- 100 fixed + 24 video block + 8 link block + 12 memory block
@@ -77,6 +85,7 @@ package proto_pkg is
   constant K_THUMB_FORCE  : natural := 16#0041#;  -- thumbnail relay to MAC(6) scale(1) div(1); MAC 0 = off
   constant K_HB_PERIOD    : natural := 16#0050#;
   constant K_OUT_POLICY   : natural := 16#0060#;
+  constant K_PK_JTAG      : natural := 16#0061#;  -- physical kbd CPLD JTAG: 0 auto, 1 on, 2 off (ADR 0014)
 
   -- MGMT_ACK status
   constant ST_OK        : std_logic_vector(7 downto 0) := x"00";

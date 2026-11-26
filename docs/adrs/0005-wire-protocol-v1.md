@@ -77,7 +77,7 @@ Sent per DUT at ~50 Hz (configurable period; 20 ms default), and expedited
 | 29 | 1 | topo_count |
 | 30 | 1 | dip_switches |
 | 31 | 1 | link_flags: b0 eth link up, b1 1000 Mb/s, b2 full duplex, b3 chain up-link ok, b4 chain down-link ok, b5 is master, b6 reserved (was DUT ID conflict; IDs cannot collide since ADR 0011 amendment) |
-| 32 | 4 | capabilities: b0 uart, b1 jtag, b2 kbd device, b3 phys kbd host, b4 hdmi capture, b5 chain, b6 audio, b7 thumbnails (section 10) |
+| 32 | 4 | capabilities: b0 uart, b1 jtag, b2 kbd device, b3 phys kbd host, b4 hdmi capture, b5 chain, b6 audio, b7 thumbnails (section 10), b8 JTAG to the physical keyboard's CPLD (section 7, ADR 0014) |
 | 36 | 4 | config_generation |
 | 40 | 1 | target_flags: b0 kbd 3V3 sense, b1 JTAG VREF sense, b2 outputs enabled, b3 sense valid |
 | 41 | 1 | kbd_owner: 0 UDP, 1 physical |
@@ -87,7 +87,7 @@ Sent per DUT at ~50 Hz (configurable period; 20 ms default), and expedited
 | 54 | 10 | kbd_udp |
 | 64 | 10 | kbd_physical (master: raw physical bitmap; else zero) |
 | 74 | 2 | kbd_phys_change_count |
-| 76 | 1 | kbd_phys_type: 0 none, 1 MK-I, 2 MK-II |
+| 76 | 1 | kbd_phys_type: 0 none, 1 MK-I, 2 MK-II, 3 type 3 (async UART, ADR 0014) |
 | 77 | 1 | jtag_status: b0 busy, b1 result ready, b2 aborted, b3 target unpowered |
 | 78 | 4 | jtag_next_seq |
 | 82 | 4 | uart_rx_seq |
@@ -173,6 +173,7 @@ Keys (whole values, never toggles):
 | 0x0041 | 8 | thumbnail relay forced destination (section 10): MAC(6), scale(1: 1 = 1/2, 2 = 1/4), frame divisor(1: 1..15). MAC 00:00:00:00:00:00 = off (default). A group (multicast/broadcast) MAC, another scale or divisor -> bad value. Board-wide |
 | 0x0050 | 2 | heartbeat period ms |
 | 0x0060 | 1 | target output enable policy: 0 auto (sense), 1 force on, 2 force off |
+| 0x0061 | 1 | physical keyboard CPLD JTAG (section 7, ADR 0014): 0 auto (pins driven while a keyboard is detected and for 10 s after the last detection or keyboard JTAG transaction; default), 1 force on, 2 force off. Board-wide |
 
 ## 5. Keyboard (port 6502)
 
@@ -232,7 +233,7 @@ mode (≥100 µs spacing, coalesced, last byte never lost).
 | 8 | 4 | seq (must equal `jtag_next_seq`) |
 | 12 | 4 | tck_half_period (in `clk_sys` cycles, ≥2 → ≤31.25 MHz; default 6 ≈ 10.4 MHz) |
 | 16 | 2 | report_period_us (0 = only on completion) |
-| 18 | 2 | flags: b0 abort/reset session |
+| 18 | 2 | flags: b0 abort/reset session, b1 target = the physical keyboard's CPLD instead of this endpoint's DUT (ADR 0014; same on either endpoint, own sequence/session) |
 | 20 | 4 | bit_count (1..8192) |
 | 24 | n | TMS bytes (ceil(bit_count/8)), LSB first |
 | 24+n | n | TDI bytes |
@@ -243,8 +244,8 @@ mode (≥100 µs spacing, coalesced, last byte never lost).
 |---|---|---|
 | 8 | 4 | seq (of the transaction this reports) |
 | 12 | 4 | next_seq |
-| 16 | 1 | status: 0 done, 1 busy, 2 rejected-seq, 3 rejected-format, 4 aborted-unpowered |
-| 17 | 1 | reserved |
+| 16 | 1 | status: 0 done, 1 busy, 2 rejected-seq, 3 rejected-format, 4 aborted-unpowered (keyboard target: JTAG off, key 0x0061) |
+| 17 | 1 | target: 0 the DUT, 1 the physical keyboard's CPLD (was reserved, 0) |
 | 18 | 2 | tdo_bytes (0 unless status = done) |
 | 20 | 4 | bit_count |
 | 24 | n | TDO (LSB first, unused high bits zero) |

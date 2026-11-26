@@ -8,8 +8,10 @@
  *   dutctl kbd IP [KEY ...]                    hold keys (none = all up)
  *   dutctl uart IP [--baud N] [--clear] [--from-start]
  *                                              interactive UART bridge
- *   dutctl jtag-idcode IP                      read JTAG IDCODE over UDP
- *   dutctl xvc IP [--port 2542]                XVC 1.0 server for Vivado
+ *   dutctl jtag-idcode IP [--kbd]              read JTAG IDCODE over UDP
+ *   dutctl xvc IP [--port 2542] [--kbd]        XVC 1.0 server for Vivado
+ *                                              (--kbd: the physical keyboard's
+ *                                              CPLD instead of the DUT, ADR 0014)
  *   dutctl relay TTY COMMAND...                Arduino relay controller
  *   dutctl thumbs IFACE [--request] [--force IP] thumbnail relay -> PPM (AF_PACKET)
  *   dutctl screenshot [TARGET] [-o FILE]        one frame -> PNG/PPM (alias -S)
@@ -209,6 +211,7 @@ static int cmd_set(int argc, char **argv)
     {"coupled", DP_K_COUPLED, 1}, {"capture", DP_K_CAPTURE_EN, 1},
     {"hb-period-ms", DP_K_HB_PERIOD, 2}, {"out-policy", DP_K_OUT_POLICY, 1},
     {"kbd-leds", DP_K_PK_LED_MODE, 1}, {"console-screen", DP_K_CON_SCREEN, 1},
+    {"kbd-jtag", DP_K_PK_JTAG, 1},
   };
   if (!strcmp(name, "kbd-led-rgb")) {
     unsigned c[4];
@@ -410,8 +413,10 @@ static int cmd_listen(int argc, char **argv)
     for (int k = 0; k < 80; k++)
       if (hb.kbd_eff[k / 8] & (1u << (k % 8)))
         printf(" %s", dp_key_name(k));
+    static const char *const ktypes[] = {"none", "MK-I", "MK-II", "type3"};
     if (hb.has_link)
-      printf("  kbd type %u  rx phase %u eye %u hunts %u bad %u%s", hb.phys_type, hb.rx_phase_pos,
+      printf("  kbd %s  rx phase %u eye %u hunts %u bad %u%s",
+             hb.phys_type < 4 ? ktypes[hb.phys_type] : "?", hb.rx_phase_pos,
              hb.rx_eye_width, hb.rx_hunts, hb.rx_bad_frames,
              (hb.rx_link_flags & 1) ? " HUNTING" : "");
     if (hb.has_video) {
@@ -579,13 +584,16 @@ typedef struct {
   struct sockaddr_in t;
   uint32_t seq;
   uint32_t half;
+  uint16_t target; /* 0 = the DUT, DP_JF_KBD = the physical keyboard's CPLD */
 } jtag_ctx_t;
 
 static int jtag_txn(jtag_ctx_t *j, uint32_t bits, const uint8_t *tms, const uint8_t *tdi, uint8_t *tdo,
                     uint16_t flags)
 {
   uint8_t pkt[DP_MAX_PACKET], rx[DP_MAX_PACKET];
-  size_t n = dp_encode_jtag_req(pkt, DP_DUT_ANY, j->seq, j->half, 0, flags, bits, tms, tdi);
+  size_t n = dp_encode_jtag_req(pkt, DP_DUT_ANY, j->seq, j->half, 0, (uint16_t)(flags | j->target),
+                                bits, tms, tdi);
+  uint8_t want_target = j->target ? DP_JT_KBD : DP_JT_DUT;
   if (!n)
     return -1;
   for (int attempt = 0; attempt < 50; attempt++) {
@@ -595,11 +603,12 @@ static int jtag_txn(jtag_ctx_t *j, uint32_t bits, const uint8_t *tms, const uint
     if (r < 0)
       continue; /* lost request or response: resend the SAME seq (never re-clocked) */
     static dp_jtag_resp_t resp;
-    if (dp_decode_jtag_resp(rx + DP_HDR_LEN, h.length, &resp) < 0 || resp.seq != j->seq)
+    if (dp_decode_jtag_resp(rx + DP_HDR_LEN, h.length, &resp) < 0 || resp.seq != j->seq ||
+        resp.target != want_target)
       continue;
     switch (resp.status) {
     case DP_JS_DONE:
-      if (flags & 1) { /* session reset */
+      if (flags & DP_JF_ABORT) { /* session reset */
         j->seq = resp.next_seq;
         return 0;
       }
@@ -617,7 +626,11 @@ static int jtag_txn(jtag_ctx_t *j, uint32_t bits, const uint8_t *tms, const uint
       fprintf(stderr, "jtag: request rejected as malformed\n");
       return -1;
     default:
-      fprintf(stderr, "jtag: target not powered\n");
+      if (j->target)
+        fprintf(stderr, "jtag: keyboard JTAG off (no keyboard detected; `dutctl set IP kbd-jtag 1` "
+                        "forces it on)\n");
+      else
+        fprintf(stderr, "jtag: target not powered\n");
       return -1;
     }
   }
@@ -625,15 +638,17 @@ static int jtag_txn(jtag_ctx_t *j, uint32_t bits, const uint8_t *tms, const uint
   return -1;
 }
 
-static int jtag_open(jtag_ctx_t *j, const char *ip)
+static int jtag_open(jtag_ctx_t *j, const char *ip, int kbd)
 {
   j->fd = udp_bind(0);
   j->t = parse_target(ip, DP_PORT_JTAG);
-  j->half = 6; /* ~10.4 MHz */
+  j->target = kbd ? DP_JF_KBD : 0;
+  /* ~10.4 MHz to a DUT; ~2 MHz over the keyboard cable (jumper strips) */
+  j->half = kbd ? 32 : 6;
   srand((unsigned)(time(NULL) ^ getpid()));
   j->seq = (uint32_t)rand();
   uint8_t z = 0;
-  return jtag_txn(j, 1, &z, &z, NULL, 1); /* session reset: nothing clocked */
+  return jtag_txn(j, 1, &z, &z, NULL, DP_JF_ABORT); /* session reset: nothing clocked */
 }
 
 static int jtag_shift(jtag_ctx_t *j, uint32_t bits, const uint8_t *tms, const uint8_t *tdi, uint8_t *tdo)
@@ -657,9 +672,16 @@ static int jtag_shift(jtag_ctx_t *j, uint32_t bits, const uint8_t *tms, const ui
 static int cmd_jtag_idcode(int argc, char **argv)
 {
   if (argc < 1)
-    return fprintf(stderr, "usage: dutctl jtag-idcode IP\n"), 2;
+    return fprintf(stderr, "usage: dutctl jtag-idcode IP [--kbd]\n"), 2;
+  int kbd = 0;
+  for (int i = 1; i < argc; i++) {
+    if (!strcmp(argv[i], "--kbd"))
+      kbd = 1;
+    else
+      return fprintf(stderr, "dutctl jtag-idcode: unknown option %s\n", argv[i]), 2;
+  }
   jtag_ctx_t j;
-  if (jtag_open(&j, argv[0]) < 0)
+  if (jtag_open(&j, argv[0], kbd) < 0)
     return 1;
   /* TLR (5x TMS=1), RTI, SELDR, CAPDR, SHDR, then 32 bits, exit on last */
   uint8_t tms[6] = {0}, tdi[6] = {0}, tdo[6];
@@ -680,18 +702,24 @@ static int cmd_jtag_idcode(int argc, char **argv)
 static int cmd_xvc(int argc, char **argv)
 {
   if (argc < 1)
-    return fprintf(stderr, "usage: dutctl xvc IP [--port 2542]\n"), 2;
-  int port = 2542;
-  for (int i = 1; i < argc; i++)
+    return fprintf(stderr, "usage: dutctl xvc IP [--port 2542] [--kbd]\n"), 2;
+  int port = 2542, kbd = 0;
+  for (int i = 1; i < argc; i++) {
     if (!strcmp(argv[i], "--port") && i + 1 < argc)
       port = atoi(argv[++i]);
+    else if (!strcmp(argv[i], "--kbd"))
+      kbd = 1;
+    else
+      return fprintf(stderr, "dutctl xvc: unknown option %s\n", argv[i]), 2;
+  }
   int ls = socket(AF_INET, SOCK_STREAM, 0);
   int one = 1;
   setsockopt(ls, SOL_SOCKET, SO_REUSEADDR, &one, sizeof one);
   struct sockaddr_in a = {.sin_family = AF_INET, .sin_port = htons((uint16_t)port), .sin_addr.s_addr = INADDR_ANY};
   if (bind(ls, (struct sockaddr *)&a, sizeof a) < 0 || listen(ls, 1) < 0)
     die("xvc listen");
-  fprintf(stderr, "XVC server for %s on port %d (max %d bits per UDP shift)\n", argv[0], port, DP_JTAG_MAX_BITS);
+  fprintf(stderr, "XVC server for %s%s on port %d (max %d bits per UDP shift)\n", argv[0],
+          kbd ? " keyboard CPLD" : "", port, DP_JTAG_MAX_BITS);
   signal(SIGPIPE, SIG_IGN);
   static xvc_parser_t xp;
   static uint8_t tdo[XVC_MAX_BYTES];
@@ -701,7 +729,7 @@ static int cmd_xvc(int argc, char **argv)
       continue;
     setsockopt(c, IPPROTO_TCP, TCP_NODELAY, &one, sizeof one);
     jtag_ctx_t j;
-    if (jtag_open(&j, argv[0]) < 0) { /* exclusive session per connection */
+    if (jtag_open(&j, argv[0], kbd) < 0) { /* exclusive session per connection */
       close(c);
       continue;
     }
@@ -898,8 +926,8 @@ static void usage(void)
           "  dutctl mgmt IP KEY [HEXVALUE] [--cmd-id N] [--dut N]   raw MGMT_SET\n"
           "  dutctl kbd IP [KEY ...]           keys by name (A, RETURN, F1...) or matrix number\n"
           "  dutctl uart IP [--baud N] [--clear] [--from-start]\n"
-          "  dutctl jtag-idcode IP\n"
-          "  dutctl xvc IP [--port 2542]\n"
+          "  dutctl jtag-idcode IP [--kbd]     (--kbd: the physical keyboard's CPLD)\n"
+          "  dutctl xvc IP [--port 2542] [--kbd]\n"
           "  dutctl relay TTY COMMAND...\n"
           "  dutctl text IP [--screen N] [--fg N] [--bg N] [--force] [--jumbo] [--file F | LINE ...]\n"
           "  dutctl video IP [--frames N] [--out PREFIX] [--enable] [--require-complete]\n"

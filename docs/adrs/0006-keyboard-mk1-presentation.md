@@ -52,3 +52,10 @@ MEGA65 mainboards (R3 onwards) share one 3-signal keyboard connector:
 * Testbench pairs our device emulator with the real `mega65kbd_to_matrix`
   (host) and checks every key reaches the matrix RAM, and that LED vectors
   round-trip.
+
+## Amendment 2026-11-27 (issue 0046): keyboard type 3
+
+`kbd_phys_host` also hosts keyboard type 3, an asynchronous 2 Mb/s UART
+mode of new MK-I keyboard CPLD firmware for cables up to 3 m (ADR 0014). It
+is probed before the MK-I/MK-II rule; heartbeat `kbd_phys_type` 3. DUTs
+still see an MK-I keyboard.

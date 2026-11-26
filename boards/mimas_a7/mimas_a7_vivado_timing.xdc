@@ -44,8 +44,8 @@ set_input_delay -clock rgmii_rxc -clock_fall -max -1.55 -add_delay $rgmii_in
 set_input_delay -clock rgmii_rxc -clock_fall -min -1.95 -add_delay $rgmii_in
 
 # DUT-facing and front-panel I/O are slow/asynchronous.
-set_false_path -to   [get_ports {dut*_* pk_kio8 pk_kio9 led[*] seg[*] seg_en[*] usb_uart_tx phy_rst_n phy_mdc phy_mdio hdmi_rx_hpa}]
-set_false_path -from [get_ports {dut*_* pk_kio8 pk_kio9 pk_kio10 dip[*] btn[*] usb_uart_rx phy_mdio}]
+set_false_path -to   [get_ports {dut*_* pk_kio8 pk_kio9 pk_jtagen pk_tck pk_tms pk_tdi led[*] seg[*] seg_en[*] usb_uart_tx phy_rst_n phy_mdc phy_mdio hdmi_rx_hpa}]
+set_false_path -from [get_ports {dut*_* pk_kio8 pk_kio9 pk_kio10 pk_tdo dip[*] btn[*] usb_uart_rx phy_mdio}]
 # HDMI IN DDC (I2C, <= 400 kHz; synchronised and filtered in ddc_edid)
 set_false_path -to   [get_ports hdmi_rx_sda]
 set_false_path -from [get_ports {hdmi_rx_scl hdmi_rx_sda}]

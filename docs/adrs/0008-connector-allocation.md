@@ -184,3 +184,15 @@ VIO and keyboard sense, PK_JTAGEN) on an I2C expander. Header receivers are
 PLLE2 + BUFG clocked (one CMT per region; two receivers share bank 16), one
 IDELAYCTRL per region. The shield bitstream is built with `SHIELD_RX=3`
 (boards/mimas_a7/shield_v1.xdc); a gate build met timing (issue 0049).
+
+## Amendment 7 2026-11-27 (issue 0046): physical keyboard JTAG pins used
+
+The physical keyboard harness's J5 pins 3-7 (P12 rows 13-11 B: KB_JTAGEN
+L21, KB_TMS M21, KB_TCK L20, KB_TDI L19, KB_TDO K19) are no longer
+"never driven": a third JTAG engine drives them (tri-stated unless the
+keyboard JTAG target is enabled, ADR 0014). The DUT keyboard harnesses'
+pins 3-7 stay unused. Issue 0045 may move these five (L19/L20 is the GPIO_7
+SRCC pair wanted for a third HDMI receiver clock); they are grouped in the
+XDC for that. In the shield build (`SHIELD_RX` > 0) `shield_v1.xdc` moves
+them to PK_TCK H19, PK_TMS M20, PK_TDI H18, PK_TDO K19 (shield-pinplan.md),
+with KB_JTAGEN from I2C expander B (port parked on spare B22 until then).

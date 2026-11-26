@@ -19,6 +19,8 @@ fi
 
 # heap for testbenches with large memories (mem_model, frame captures)
 NVC_OPTS=(--std=2008 -H "${NVC_HEAP:-512m}" -L "$WORK" --work=work:"$WORK/work")
+# vendor primitive models in their own libraries (keyboard CPLD: machxo2)
+"$NVC" --std=2008 -L "$WORK" --work=machxo2:"$WORK/machxo2" -a "$REPO"/hdl/sim/machxo2/*.vhd
 "$NVC" "${NVC_OPTS[@]}" -a --relaxed "${SRCS[@]}" "$REPO"/hdl/tb/tb_*.vhd
 pass=0; fail=0; failed=()
 for tb in "${TBS[@]}"; do
@@ -31,7 +33,11 @@ for tb in "${TBS[@]}"; do
 	fi
 	gens=()
 	[[ -f $hook ]] && gens=(-gVEC_IN="${tb}_in.txt" -gCAP_OUT="${tb}_out.txt")
-	if "$NVC" "${NVC_OPTS[@]}" -e "$tb" "${gens[@]}" -r --exit-severity=error \
+	# optional extra global nvc options, e.g. --ieee-warnings=off for
+	# upstream code without reset values (hdl/tb/<tb>.nvcopts, one line)
+	xopts=()
+	[[ -f $REPO/hdl/tb/$tb.nvcopts ]] && read -ra xopts < "$REPO/hdl/tb/$tb.nvcopts"
+	if "$NVC" "${xopts[@]}" "${NVC_OPTS[@]}" -e "$tb" "${gens[@]}" -r --exit-severity=error \
 		> "$WORK/$tb.log" 2>&1 &&
 		{ [[ ! -f $hook ]] || python3 -I "$hook" check "$WORK/${tb}_out.txt" >> "$WORK/$tb.log" 2>&1; }; then
 		grep -E 'PASSED|Note|captured' "$WORK/$tb.log" | tail -4

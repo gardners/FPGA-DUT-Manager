@@ -58,6 +58,11 @@ entity supervisor_core is
     pk_kio8_oe, pk_kio9_oe : out std_logic;
     pk_kio8_in             : in  std_logic;
     pk_kio10  : in  std_logic;
+    -- physical keyboard CPLD JTAG (J5 pins 3-7, ADR 0014): TCK/TMS/TDI and
+    -- JTAGEN (driven '1') are tri-stated unless pk_jtag_oe
+    pk_tck, pk_tms, pk_tdi : out std_logic;
+    pk_jtag_oe : out std_logic;
+    pk_tdo    : in  std_logic := '0';
     -- front panel
     buttons   : in  std_logic_vector(3 downto 0);   -- 0 prev, 1 next target
     leds      : out std_logic_vector(7 downto 0);
@@ -186,11 +191,11 @@ architecture rtl of supervisor_core is
   signal cfg   : dut_cfg_arr_t;
   signal bcfg  : board_cfg_t;
   signal arp, icmp, ack : reply_t;
-  signal jr    : reply_arr_t;
-  signal jr_status : slv8_arr_t;
-  signal jr_seq : u32_arr_t;
+  signal jr    : jreply_arr_t;
+  signal jr_status : jslv8_arr_t;
+  signal jr_seq : ju32_arr_t;
   signal arp_taken, icmp_taken, ack_taken : std_logic;
-  signal jr_taken : std_logic_vector(1 downto 0);
+  signal jr_taken : std_logic_vector(2 downto 0);
   signal icmp_len : unsigned(6 downto 0);
   signal icmp_raddr : unsigned(6 downto 0);
   signal icmp_rdata : std_logic_vector(7 downto 0);
@@ -246,15 +251,21 @@ architecture rtl of supervisor_core is
   signal baud : u32_arr_t;
 
   -- JTAG
-  signal jreq_valid, jdec_valid, jvec_we, jgo, jdone, jab, jbusy, jready : std_logic_vector(1 downto 0);
+  -- JTAG targets 0/1 = DUTs, 2 = physical keyboard CPLD (net_pkg JT_KBD)
+  signal jreq_valid, jdec_valid, jvec_we, jgo, jdone, jab, jbusy, jready : std_logic_vector(2 downto 0);
   signal jreq_seq, jreq_bits, jreq_half : unsigned(31 downto 0);
   signal jreq_abort : std_logic;
-  signal jdec_code0, jdec_code1 : unsigned(2 downto 0);
+  signal jdec_code0, jdec_code1, jdec_code2 : unsigned(2 downto 0);
   signal jvec_addr : unsigned(10 downto 0);
   signal jvec_data : std_logic_vector(7 downto 0);
   signal j_tdo_addr : unsigned(9 downto 0);
-  signal j_tdo0, j_tdo1 : std_logic_vector(7 downto 0);
-  signal j_next, j_last, j_bits : u32_arr_t;
+  signal j_tdo0, j_tdo1, j_tdo2 : std_logic_vector(7 downto 0);
+  signal j_next, j_last, j_bits : ju32_arr_t;
+  -- keyboard CPLD JTAG lease (ms): a detected keyboard or a transaction
+  -- keeps the pins driven this long (flashing stops the keyboard answering)
+  constant KJ_LEASE_MS : natural := 10_000;
+  signal kj_lease : integer range 0 to KJ_LEASE_MS := 0;
+  signal kj_pow   : std_logic := '0';
 
   -- sense / enables
   signal vio_s, kb_s, powered, out_en : std_logic_vector(1 downto 0);
@@ -368,7 +379,7 @@ begin
       adm_ok => adm_ok, uwr_valid => uwr_valid, uwr_data => uwr_data,
       jreq_valid => jreq_valid, jreq_seq => jreq_seq, jreq_bits => jreq_bits,
       jreq_half => jreq_half, jreq_abort => jreq_abort, jdec_valid => jdec_valid,
-      jdec_code0 => jdec_code0, jdec_code1 => jdec_code1, jvec_we => jvec_we,
+      jdec_code0 => jdec_code0, jdec_code1 => jdec_code1, jdec_code2 => jdec_code2, jvec_we => jvec_we,
       jvec_addr => jvec_addr, jvec_data => jvec_data, jgo => jgo,
       jdone => jdone, jaborted => jab,
       arp => arp, arp_tpa_o => arp_tpa, arp_taken => arp_taken,
@@ -418,7 +429,7 @@ begin
       ack => ack, ack_cmd => ack_cmd, ack_key => ack_key, ack_status => ack_status,
       ack_taken => ack_taken, jr => jr, jr_status => jr_status, jr_seq => jr_seq,
       jr_taken => jr_taken, j_next_seq => j_next, j_bits => j_bits,
-      j_tdo_addr => j_tdo_addr, j_tdo_data0 => j_tdo0, j_tdo_data1 => j_tdo1,
+      j_tdo_addr => j_tdo_addr, j_tdo_data0 => j_tdo0, j_tdo_data1 => j_tdo1, j_tdo_data2 => j_tdo2,
       snap_req => snap_req, snap_ack => snap_ack, snap => snap, baud_inc => baud,
       boot_id => boot_id, hist_addr => hist_addr, hist_data0 => hist_data0,
       hist_data1 => hist_data1, hist_latch => hist_latch,
@@ -567,11 +578,12 @@ begin
   -- capabilities (ADR 0005 s3): b0 uart, b1 jtag, b2 kbd device, b3 physical
   -- keyboard host, b4 hdmi capture (0023)
   -- b7 thumbnails (issues 0035/0038)
-  bstat.caps        <= x"0000009F";
+  -- b8 physical keyboard CPLD JTAG (ADR 0014)
+  bstat.caps        <= x"0000019F";
   bstat.selected    <= std_logic_vector(sel_vid) & std_logic_vector(sel_kbd);
   bstat.kbd_phys    <= pk_keys;
   bstat.phys_change <= pk_change;
-  bstat.phys_type   <= "000000" & pk_type;     -- 0 none, 1 MK-I, 2 MK-II
+  bstat.phys_type   <= "000000" & pk_type;     -- 0 none, 1 MK-I, 2 MK-II, 3 type 3
   bstat.rx_phase    <= std_logic_vector(hu_pos);
   bstat.rx_eye      <= std_logic_vector(hu_eye);
   bstat.rx_hunts    <= hu_hunts;
@@ -591,6 +603,47 @@ begin
   bstat.vid_h_active <= vid_h_active when vid_ok else (others => '0');
   bstat.vid_v_active <= vid_v_active when vid_ok else (others => '0');
   bstat.vid_pixel_hz <= vid_pixel_hz when vid_ok else (others => '0');
+
+  ---------------------------------------------------------------- keyboard CPLD JTAG
+  -- Third JTAG engine on the physical keyboard's J5 JTAG pins (issue 0046,
+  -- ADR 0014), reached with JTAG_REQ flags b1 on either endpoint. The
+  -- keyboard is powered from the Mimas, so "powered" means wanted: auto
+  -- (key 0x0061 = 0) drives the pins while a keyboard is detected and for
+  -- KJ_LEASE_MS after the last detection or keyboard JTAG transaction (a
+  -- CPLD being flashed stops answering on KIO10); 1 forces on (e.g. a blank
+  -- CPLD), 2 off.
+  process (clk_sys)
+  begin
+    if rising_edge(clk_sys) then
+      if pk_present = '1' or (kj_pow = '1' and (jbusy(JT_KBD) = '1' or jdone(JT_KBD) = '1')) then
+        kj_lease <= KJ_LEASE_MS;
+      elsif tick_1ms = '1' and kj_lease /= 0 then
+        kj_lease <= kj_lease - 1;
+      end if;
+      if bcfg.pk_jtag = x"01" then
+        kj_pow <= '1';
+      elsif bcfg.pk_jtag = x"02" then
+        kj_pow <= '0';
+      elsif kj_lease /= 0 then
+        kj_pow <= '1';
+      else
+        kj_pow <= '0';
+      end if;
+    end if;
+  end process;
+  kje : entity work.jtag_engine
+    port map (
+      clk => clk_sys, powered => kj_pow,
+      req_valid => jreq_valid(JT_KBD), req_seq => jreq_seq, req_bits => jreq_bits,
+      req_half => jreq_half, req_abort => jreq_abort,
+      dec_valid => jdec_valid(JT_KBD), dec_code => jdec_code2,
+      vec_we => jvec_we(JT_KBD), vec_addr => jvec_addr, vec_data => jvec_data,
+      go => jgo(JT_KBD), tdo_addr => j_tdo_addr, tdo_data => j_tdo2,
+      busy => jbusy(JT_KBD), result_ready => jready(JT_KBD), done_strobe => jdone(JT_KBD),
+      aborted => jab(JT_KBD), next_seq => j_next(JT_KBD), last_seq => j_last(JT_KBD),
+      last_bits => j_bits(JT_KBD),
+      tck => pk_tck, tms => pk_tms, tdi => pk_tdi, jtag_oe => pk_jtag_oe,
+      tdo => pk_tdo);
 
   ---------------------------------------------------------------- raster capture
   -- Lines are captured for the video target when it is one of this board's

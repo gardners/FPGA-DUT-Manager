@@ -50,20 +50,21 @@ entity net_rx is
     uwr_valid  : out std_logic_vector(1 downto 0);
     uwr_data   : out std_logic_vector(7 downto 0);
     -- JTAG engines
-    jreq_valid : out std_logic_vector(1 downto 0);
+    jreq_valid : out std_logic_vector(2 downto 0);   -- per JTAG target (net_pkg JT_*)
     jreq_seq   : out unsigned(31 downto 0);
     jreq_bits  : out unsigned(31 downto 0);
     jreq_half  : out unsigned(31 downto 0);
     jreq_abort : out std_logic;
-    jdec_valid : in  std_logic_vector(1 downto 0);
+    jdec_valid : in  std_logic_vector(2 downto 0);
     jdec_code0 : in  unsigned(2 downto 0);
     jdec_code1 : in  unsigned(2 downto 0);
-    jvec_we    : out std_logic_vector(1 downto 0);
+    jdec_code2 : in  unsigned(2 downto 0);
+    jvec_we    : out std_logic_vector(2 downto 0);
     jvec_addr  : out unsigned(10 downto 0);
     jvec_data  : out std_logic_vector(7 downto 0);
-    jgo        : out std_logic_vector(1 downto 0);
-    jdone      : in  std_logic_vector(1 downto 0);
-    jaborted   : in  std_logic_vector(1 downto 0);
+    jgo        : out std_logic_vector(2 downto 0);
+    jdone      : in  std_logic_vector(2 downto 0);
+    jaborted   : in  std_logic_vector(2 downto 0);
     -- reply requests to net_tx
     arp        : out reply_t;
     arp_tpa_o  : out ip_t;                 -- unused by tx (requester ip in arp.ip)
@@ -78,10 +79,10 @@ entity net_rx is
     ack_key    : out std_logic_vector(15 downto 0);
     ack_status : out std_logic_vector(7 downto 0);
     ack_taken  : in  std_logic;
-    jr         : out reply_arr_t;
-    jr_status  : out slv8_arr_t;
-    jr_seq     : out u32_arr_t;
-    jr_taken   : in  std_logic_vector(1 downto 0);
+    jr         : out jreply_arr_t;     -- per JTAG target; .dut = endpoint
+    jr_status  : out jslv8_arr_t;
+    jr_seq     : out ju32_arr_t;
+    jr_taken   : in  std_logic_vector(2 downto 0);
     -- DHCP replies for dhcp_client
     dhcp_strobe: out std_logic_vector(1 downto 0);
     dhcp_rx    : out dhcp_rx_t;
@@ -118,14 +119,15 @@ architecture rtl of net_rx is
   signal ids_seen: unsigned(9 downto 0) := (others => '1');
   signal cfg_init: std_logic := '0';
   signal bcfg_r  : board_cfg_t := (x"FF", x"FF", '1', "00", (others => '0'), x"00", (others => '0'), x"00",
-                                   (others => '0'), x"01", x"02");
+                                   (others => '0'), x"01", x"02", x"00");
   signal last_cmd: u16_arr_t := (others => (others => '0'));
   signal last_cmd_v : std_logic_vector(1 downto 0) := "00";
 
   signal arp_r, icmp_r, ack_r : reply_t := REPLY_NONE;
-  signal jr_r    : reply_arr_t := (REPLY_NONE, REPLY_NONE);
-  signal jrst_r  : slv8_arr_t := (others => x"00");
-  signal jrseq_r : u32_arr_t := (others => (others => '0'));
+  signal jr_r    : jreply_arr_t := (others => REPLY_NONE);
+  signal jrst_r  : jslv8_arr_t := (others => x"00");
+  signal jrseq_r : ju32_arr_t := (others => (others => '0'));
+  signal jt      : integer range 0 to 2 := 0;     -- JTAG target of the request
   type icmp_buf_t is array (0 to 71) of byte_t;
   signal icmp_buf : icmp_buf_t := (others => (others => '0'));
   signal icmp_len_r : unsigned(6 downto 0) := (others => '0');
@@ -224,6 +226,7 @@ begin
     variable bits     : unsigned(31 downto 0);
     variable nb       : unsigned(31 downto 0);
     variable dhcp_hit : boolean;
+    variable t        : integer range 0 to 2;
     variable ob       : byte_t;
 
   begin
@@ -233,9 +236,9 @@ begin
       kbd_strobe <= "00";
       adm_valid  <= "00";
       uwr_valid  <= "00";
-      jreq_valid <= "00";
-      jvec_we    <= "00";
-      jgo        <= "00";
+      jreq_valid <= "000";
+      jvec_we    <= "000";
+      jgo        <= "000";
 
       dhcp_strobe <= "00";
       -- (re)initialise per-endpoint defaults whenever the DIP DUT IDs change
@@ -251,7 +254,7 @@ begin
       if arp_taken = '1' then arp_r.pend <= '0'; end if;
       if icmp_taken = '1' then icmp_r.pend <= '0'; end if;
       if ack_taken = '1' then ack_r.pend <= '0'; end if;
-      for i in 0 to 1 loop
+      for i in 0 to 2 loop
         if jr_taken(i) = '1' then jr_r(i).pend <= '0'; end if;
         -- engine completion -> response
         if jdone(i) = '1' then
@@ -537,6 +540,9 @@ begin
                     bcfg_r.thumb_scale <= h(62);
                     bcfg_r.thumb_div   <= h(63);
                   end if;
+                when K_PK_JTAG =>
+                  if vlen = 1 and unsigned(h(56)) <= 2 then bcfg_r.pk_jtag <= h(56);
+                  elsif vlen = 1 then st := ST_BAD_VALUE; else st := ST_BAD_LEN; end if;
                 when K_HB_PERIOD =>
                   if vlen = 2 and be16(h, 56) >= 1 then cfg_r(d).hb_period_ms <= be16(h, 56);
                   elsif vlen = 2 then st := ST_BAD_VALUE; else st := ST_BAD_LEN; end if;
@@ -609,18 +615,21 @@ begin
           bits := j_bits_r;
           nb   := j_nb_r;
           j_seq <= be32(h, 50);
-          if jr_r(d).pend = '1' then
+          -- flags b1: the physical keyboard's CPLD instead of this DUT
+          if h(61)(JF_KBD) = '1' then t := JT_KBD; else t := d; end if;
+          jt <= t;
+          if jr_r(t).pend = '1' then
             null;                       -- wait for previous response to go
           elsif f_jbad then
             -- malformed: answer without involving the engine
-            jr_r(d)    <= ('1', d, slv48(h, 6), slv32(h, 26), h(34) & h(35));
-            jrst_r(d)  <= JS_BAD_FMT;
-            jrseq_r(d) <= be32(h, 50);
+            jr_r(t)    <= ('1', d, slv48(h, 6), slv32(h, 26), h(34) & h(35));
+            jrst_r(t)  <= JS_BAD_FMT;
+            jrseq_r(t) <= be32(h, 50);
             rej(d)     <= rej(d) + 1;
             state      <= S_RELEASE;
           else
             j_nbytes      <= resize(nb, 12);
-            jreq_valid(d) <= '1';
+            jreq_valid(t) <= '1';
             jreq_seq      <= be32(h, 50);
             jreq_half     <= be32(h, 54);
             jreq_abort    <= h(61)(0);
@@ -629,13 +638,17 @@ begin
           end if;
 
         when S_JTAG_WAIT =>
-          if jdec_valid(d) = '1' then
-            if d = 0 then code := jdec_code0; else code := jdec_code1; end if;
-            jr_r(d).dut    <= d;
-            jr_r(d).mac    <= slv48(h, 6);
-            jr_r(d).ip     <= slv32(h, 26);
-            jr_r(d).port_n <= h(34) & h(35);
-            jrseq_r(d)     <= j_seq;
+          if jdec_valid(jt) = '1' then
+            case jt is
+              when 0 => code := jdec_code0;
+              when 1 => code := jdec_code1;
+              when others => code := jdec_code2;
+            end case;
+            jr_r(jt).dut    <= d;
+            jr_r(jt).mac    <= slv48(h, 6);
+            jr_r(jt).ip     <= slv32(h, 26);
+            jr_r(jt).port_n <= h(34) & h(35);
+            jrseq_r(jt)     <= j_seq;
             case code is
               when "000" =>              -- accepted: copy vectors
                 ra       <= cur & to_unsigned(66, 11);
@@ -644,11 +657,11 @@ begin
                 cp_n     <= (others => '0');
                 cp_dst   <= (others => '0');
                 state    <= S_JTAG_COPY;
-              when "001" => jrst_r(d) <= JS_DONE;      jr_r(d).pend <= '1'; state <= S_RELEASE;
-              when "010" => jrst_r(d) <= JS_BUSY;      jr_r(d).pend <= '1'; state <= S_RELEASE;
-              when "011" => jrst_r(d) <= JS_BAD_SEQ;   jr_r(d).pend <= '1'; state <= S_RELEASE;
-              when "100" => jrst_r(d) <= JS_BAD_FMT;   jr_r(d).pend <= '1'; state <= S_RELEASE;
-              when others => jrst_r(d) <= JS_UNPOWERED; jr_r(d).pend <= '1'; state <= S_RELEASE;
+              when "001" => jrst_r(jt) <= JS_DONE;      jr_r(jt).pend <= '1'; state <= S_RELEASE;
+              when "010" => jrst_r(jt) <= JS_BUSY;      jr_r(jt).pend <= '1'; state <= S_RELEASE;
+              when "011" => jrst_r(jt) <= JS_BAD_SEQ;   jr_r(jt).pend <= '1'; state <= S_RELEASE;
+              when "100" => jrst_r(jt) <= JS_BAD_FMT;   jr_r(jt).pend <= '1'; state <= S_RELEASE;
+              when others => jrst_r(jt) <= JS_UNPOWERED; jr_r(jt).pend <= '1'; state <= S_RELEASE;
             end case;
           end if;
 
@@ -657,7 +670,7 @@ begin
             ra <= ra + 1;
           end if;
           if cp_n /= 0 then
-            jvec_we(d) <= '1';
+            jvec_we(jt) <= '1';
             jvec_data  <= mem_data;
             if cp_n - 1 < j_nbytes then
               jvec_addr <= resize(cp_n - 1, 11);                    -- TMS
@@ -672,7 +685,7 @@ begin
           end if;
 
         when S_JTAG_GO =>
-          jgo(d) <= '1';
+          jgo(jt) <= '1';
           state  <= S_RELEASE;
 
         when S_JTAG_REPLY =>

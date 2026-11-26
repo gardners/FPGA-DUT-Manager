@@ -27,6 +27,17 @@ set_property -dict {PACKAGE_PIN A13 IOSTANDARD TMDS_33} [get_ports {shd_d_p[5]}]
 set_property -dict {PACKAGE_PIN A14 IOSTANDARD TMDS_33} [get_ports {shd_d_n[5]}]
 
 ## HDMI3 (DUT3): P12 (bank 15). Clock on IO_L14 SRCC (row 12).
+## Physical keyboard JTAG (issue 0046) moves off the bodge strip's L21/M21/
+## L20/L19 (HDMI3 takes them) to the shield's pins (shield-pinplan.md). These
+## must come before the HDMI3 lines below, which reuse the old sites.
+## PK_JTAGEN is on expander B on the shield; the pk_jtagen port is parked on
+## the spare P13 B22 (not wired on the shield) until the I2C master exists.
+set_property PACKAGE_PIN H19 [get_ports pk_tck]
+set_property PACKAGE_PIN M20 [get_ports pk_tms]
+set_property PACKAGE_PIN H18 [get_ports pk_tdi]
+set_property PACKAGE_PIN K19 [get_ports pk_tdo]
+set_property PACKAGE_PIN B22 [get_ports pk_jtagen]
+
 set_property -dict {PACKAGE_PIN L19 IOSTANDARD TMDS_33} [get_ports {shd_clk_p[2]}]
 set_property -dict {PACKAGE_PIN L20 IOSTANDARD TMDS_33} [get_ports {shd_clk_n[2]}]
 set_property -dict {PACKAGE_PIN M21 IOSTANDARD TMDS_33} [get_ports {shd_d_p[6]}]
