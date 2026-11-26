@@ -1281,7 +1281,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "2x6 male header 2.54 mm (same stack as the Mimas headers)"
+		(property "Description" "2x6 male header 2.54 mm, standard 2.54 mm plastic (into an 11 mm socket)"
 			(at 43.18 38.1 0)
 			(effects
 				(font

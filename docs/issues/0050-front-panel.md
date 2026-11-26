@@ -20,3 +20,10 @@ Display modes (FPGA/host features, to design when the panel exists):
 * **scan:** cycle through the DUTs that have video, with a settable dwell;
 * **PIP:** selected DUT full screen plus small live inset(s) of others,
   reusing the thumbnail store (0035/0036).
+
+## 2026-11-27 lead
+
+The shield's front-panel header is 1x6: GND, 5V, 3V3, SDA, SCL, INT (I2C
+pulled up to 3.3 V). The front-panel board carries a PCA9306 to the LCD
+header, and a jumper chooses a 5 V or 3.3 V LCD supply (owner: 5 V
+backpack or a cheap 3.3 V LCD, either fine).
