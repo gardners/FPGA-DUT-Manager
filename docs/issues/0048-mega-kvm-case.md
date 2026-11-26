@@ -77,3 +77,31 @@ DUT LEDs for 8 DUTs.
 * DUT connectors are native JB1 2x6 + J5 2x5 per DUT on a vertical DUT
   connector board per Mimas (0045), so the panel cut-outs are two rows of
   box headers plus the HDMI row, per bay.
+
+## 2026-11-27 progress: parametric case generator (agent, branch feature/case)
+
+* `hardware/mega-kvm-case/`: Python 3 generator (standard library only; `make`
+  regenerates `out/`). Write-up, parameters, assembly, laser notes and
+  measurement checklist: `docs/hardware/case.md`; numbers:
+  `out/fit-report.md`.
+* Output: Inkscape SVGs in mm (red 0.01 mm hairline = cut, black = engrave,
+  single-stroke font), one per panel, sub-SVGs per Mimas bay, front-panel
+  group and rear power block, nested MDF 900 x 600 and acrylic sheets,
+  top-view fit drawings (SVG + PNG); option B mounting plate also as DXF and
+  a KiCad Edge.Cuts board (KiCad 10 DRC clean).
+* Primary DUT face = the rev B shield (189.6 mm per Mimas, J5 on keyboard
+  sub-boards, `kbd_drop` parameter 2.5 mm), read from the shield project.
+  Alternates in the report: vertical DUT board (110 mm), rev A single row
+  (279.6 mm: two do not fit 19 inch), ~150 mm 2x8.
+* **Option A** (445 x 272 x 44.45, finger joints, lid on M3 T-slots, GS105 +
+  power main board on the Mimas RJ45 side, 2 x NF-A4x10 on the left wall in
+  base/lid slots) fits, except that the **input board is 40 mm tall vs 38.45 mm
+  inside** (make it <= 36 mm). The rear has 53.8 mm free beside the two bays:
+  only the Ethernet bulkhead + 8 DUT power lead holes fit there; the power
+  inputs and the keyboard feed-through go on the right side wall near the
+  rear. No room for the DC-lead recess.
+* **Option B** (3560G-48TS, 444.5 x 409 x 43.9 per Cisco's guide): the front panel
+  holds the two bays + bulkhead, but **not the LCD/LED/button/rocker group,
+  keyboard and DUT power (238 mm short)**. IEC/RPS cover plates, fan plate
+  and mounting plate are generated; all carcass numbers are placeholders
+  (checklist in case.md).
