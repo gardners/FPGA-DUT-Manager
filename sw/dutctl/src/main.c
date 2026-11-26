@@ -191,6 +191,7 @@ static int cmd_set(int argc, char **argv)
             "         hb-period-ms out-policy (0 auto, 1 on, 2 off)\n"
             "         kbd-leds (physical keyboard LEDs: 0 status colour, 1 DUT's, 2 host)\n"
             "         console-screen (0 auto incl. passthrough, 1 editable, 2 no video, 3 select)\n"
+            "         kbd-jtag (keyboard CPLD JTAG: 0 auto, 1 on, 2 off, 3 on with JTAGEN low)\n"
             "         kbd-led-rgb RRGGBB,RRGGBB,RRGGBB,RRGGBB (LED0..3 for kbd-leds 2;\n"
             "                     LED0/1 = drive LED, LED2/3 = power LED)\n");
     return 2;

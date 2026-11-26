@@ -178,7 +178,11 @@ identifies the exact firmware build.
   auto mode (MGMT key **0x0061** = 0) the pins are driven while a keyboard
   is detected and for 10 s after the last detection or keyboard JTAG
   transaction (a CPLD being flashed stops answering on KIO10, and erase
-  takes seconds). 1 forces them on (a blank CPLD is never detected), 2 off.
+  takes seconds). 1 forces them on (a blank CPLD is never detected), 2 off,
+  3 on with KB_JTAGEN driven **low** (TCK/TMS/TDI as normal): a diagnostic
+  for the pin-3 question below (IDCODE in mode 1 and mode 3: fails in mode
+  3 = pin 3 is JTAGENB with `JTAG_PORT = DISABLE`; works = the JTAG port is
+  always enabled; flashing works either way in mode 0/1).
   Otherwise TCK/TMS/TDI/JTAGEN are tri-stated, with weak pulls holding the
   TAP quiet (TCK and JTAGEN low, TMS/TDI high, TDO pulled up).
 * **KB_JTAGEN** is driven high while enabled. MachXO2 semantics (TN1204):

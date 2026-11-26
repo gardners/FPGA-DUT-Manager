@@ -62,6 +62,7 @@ entity supervisor_core is
     -- JTAGEN (driven '1') are tri-stated unless pk_jtag_oe
     pk_tck, pk_tms, pk_tdi : out std_logic;
     pk_jtag_oe : out std_logic;
+    pk_jtagen_o: out std_logic := '1';   -- level for JTAGEN while pk_jtag_oe
     pk_tdo    : in  std_logic := '0';
     -- front panel
     buttons   : in  std_logic_vector(3 downto 0);   -- 0 prev, 1 next target
@@ -611,7 +612,8 @@ begin
   -- (key 0x0061 = 0) drives the pins while a keyboard is detected and for
   -- KJ_LEASE_MS after the last detection or keyboard JTAG transaction (a
   -- CPLD being flashed stops answering on KIO10); 1 forces on (e.g. a blank
-  -- CPLD), 2 off.
+  -- CPLD), 2 off, 3 on with JTAGEN driven low (diagnostic: does J5 pin 3
+  -- gate the CPLD's JTAG port? ADR 0014).
   process (clk_sys)
   begin
     if rising_edge(clk_sys) then
@@ -620,8 +622,12 @@ begin
       elsif tick_1ms = '1' and kj_lease /= 0 then
         kj_lease <= kj_lease - 1;
       end if;
+      pk_jtagen_o <= '1';
       if bcfg.pk_jtag = x"01" then
         kj_pow <= '1';
+      elsif bcfg.pk_jtag = x"03" then
+        kj_pow      <= '1';
+        pk_jtagen_o <= '0';
       elsif bcfg.pk_jtag = x"02" then
         kj_pow <= '0';
       elsif kj_lease /= 0 then

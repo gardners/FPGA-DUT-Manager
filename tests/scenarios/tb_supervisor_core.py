@@ -105,9 +105,12 @@ def scenario():
     # keyboard CPLD JTAG (ADR 0014): no keyboard detected -> unpowered; forced
     # on (key 0x0061) -> IDCODE of the keyboard's TAP, through DUT1's endpoint
     f.append((5, udp_to(0, P.PORT_JTAG, P.jtag_req(0, 0, JTAG_TMS, JTAG_TDI, half=2, flags=P.JF_KBD))))
-    f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 15, P.K_PK_JTAG, b"\x03"))))   # bad value
+    f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 15, P.K_PK_JTAG, b"\x04"))))   # bad value
     f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 16, P.K_PK_JTAG, b"\x01"))))   # force on
     f.append((5, udp_to(1, P.PORT_JTAG, P.jtag_req(1, 0, JTAG_TMS, JTAG_TDI, half=2, flags=P.JF_KBD))))
+    # mode 3: engine on, JTAGEN low (the tb's TAP ignores JTAGEN): seq 1 works
+    f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 17, P.K_PK_JTAG, b"\x03"))))
+    f.append((5, udp_to(0, P.PORT_JTAG, P.jtag_req(0, 1, JTAG_TMS, JTAG_TDI, half=2, flags=P.JF_KBD))))
     return f
 
 
@@ -187,21 +190,24 @@ def check(path):
             (4, P.K_PK_LED_MODE, 0), (5, P.K_PK_LED_MODE, 3), (6, P.K_PK_LED_HOST, 0),
             (7, P.K_PK_LED_HOST, 2), (10, 0x0004, 0), (11, 0x0003, 0), (8, K_CAPTURE_EN, 0),
             (13, K_THUMB_FORCE, 0), (14, K_THUMB_FORCE, 3), (12, P.K_CON_SCREEN, 0),
-            (15, P.K_PK_JTAG, 3), (16, P.K_PK_JTAG, 0)]
+            (15, P.K_PK_JTAG, 3), (16, P.K_PK_JTAG, 0), (17, P.K_PK_JTAG, 0)]
     got = [(a["cmd_id"], a["key"], a["status"]) for a in acks]
     if got != want:
         err("MGMT acks %r != %r" % (got, want))
-    elif acks[-1]["cfg_gen"] != 11:  # baud, hb period, LED mode, LED vector, dest x2, capture,
-        err("cfg_gen %d != 11" % acks[-1]["cfg_gen"])  # thumb force, DUT1 hb period, console screen, kbd JTAG
+    elif acks[-1]["cfg_gen"] != 12:  # baud, hb period, LED mode, LED vector, dest x2, capture,
+        err("cfg_gen %d != 12" % acks[-1]["cfg_gen"])  # thumb force, DUT1 hb period, console screen, kbd JTAG
 
     jrall = [(d["dut"], P.decode_jtag_resp(d["body"])) for d in parsed
              if d.get("kind") == "udp" and d.get("ptype") == P.T_JTAG_RESP]
     jr = [r for (_, r) in jrall if r["target"] == P.JT_DUT]
     jk = [(dut, r) for (dut, r) in jrall if r["target"] == P.JT_KBD]
-    if len(jk) != 2:
-        err("expected 2 keyboard JTAG responses, got %d" % len(jk))
+    if len(jk) != 3:
+        err("expected 3 keyboard JTAG responses, got %d" % len(jk))
     else:
-        (d0, r0), (d1, r1) = jk
+        (d0, r0), (d1, r1), (d2, r2) = jk
+        if r2["status"] != 0 or r2["seq"] != 1 or r2["next_seq"] != 2 or \
+           (int.from_bytes(r2["tdo"], "little") >> 9) & 0xFFFFFFFF != KBD_IDCODE:
+            err("keyboard JTAG in mode 3 (JTAGEN low): %r" % (jk[2],))
         if d0 != 0 or r0["status"] != 4 or r0["seq"] != 0 or r0["next_seq"] != 0 or r0["tdo_bytes"]:
             err("keyboard JTAG while off: %r" % (jk[0],))
         if d1 != 1 or r1["status"] != 0 or r1["bit_count"] != len(JTAG_TMS) or r1["next_seq"] != 1:
