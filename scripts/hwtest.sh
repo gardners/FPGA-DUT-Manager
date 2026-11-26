@@ -320,11 +320,13 @@ for pair in "01 0" "02 1" "03 2" "00 $((vid_present ? 0 : 1))"; do
 	for try in 1 2 3; do
 		fresh "$d" && got=$(field "$REPLY" console_screen)
 		[[ $got == "$want" ]] && break
+		# auto with a real source: passthrough (3) replaces the editable screen
+		[[ $v == 00 && $want == 0 && $got == 3 ]] && break
 	done
 	cs_txt+=" $v->$got"
-	[[ $got == "$want" ]] || { cs_ok=0; cs_txt+="(want $want)"; }
+	[[ $got == "$want" || ($v == 00 && $want == 0 && $got == 3) ]] || { cs_ok=0; cs_txt+="(want $want)"; }
 done
-((cs_ok)) && report PASS console-screen "set->shown:$cs_txt (0 editable, 1 no video, 2 select)" ||
+((cs_ok)) && report PASS console-screen "set->shown:$cs_txt (0 editable, 1 no video, 2 select, 3 passthrough)" ||
 	report FAIL console-screen "set->shown:$cs_txt"
 
 # -------------------------------------------------------- physical keyboard
