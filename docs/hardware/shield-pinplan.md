@@ -1,8 +1,8 @@
 # Shield v1 pin plan (Mimas A7 P12/P13)
 
-Status: **draft 1** (2026-11-27), issue 0049 step 1 / issue 0045. The
-gate build (Vivado, `SHIELD_RX=3`) checks the receiver pins; results are
-appended at the end. Consumers: the KiCad shield (`feature/shield-pcb`),
+Status: **v1, gate build passed** (2026-11-27), issue 0049 step 1 / issue
+0045. The Vivado gate build (`SHIELD_RX=3`, all four receivers on these
+pins) places, routes and meets timing; results at the end. Consumers: the KiCad shield (`feature/shield-pcb`),
 `boards/mimas_a7/shield_v1.xdc`, the keyboard type 3 work (0046).
 
 ## Summary
@@ -263,6 +263,24 @@ Current use = `boards/mimas_a7/mimas_a7.xdc` and the bodge harnesses
 | 39 | A+B | - | - | - | FPGA JTAG TCK/TDI/TDO/TMS, INIT_B, DONE, PROGRAM_B, M0-2 | **do not connect** | NC |
 | 40 | A+B | - | - | - | ground | ground | GND |
 
-## Gate build results
+## Gate build results (2026-11-27, commit 8e473b8)
 
-(pending: Vivado `VIVADO_GENERICS="SHIELD_RX=3"`, see issue 0049)
+`VIVADO_OUT=build/vivado-shield VIVADO_GENERICS="SHIELD_RX=3" make bitstream`:
+on-board HDMI IN + HDMI1..HDMI3 on the pins above, each with its own DDC
+EDID server and video_meas.
+
+* Placed and routed, DRC as the normal build (4 known warnings, MIG/pk_kio9).
+* **TIMING MET: WNS +0.238 ns, WHS +0.051 ns** (normal build path limits;
+  the header receiver pixel domains have 25-28 ns setup slack, +0.074 ns
+  hold).
+* Utilisation: LUT 19603 / 32600 (60 %), FF 23961 (37 %), BRAM 32 / 75,
+  bonded IOB 168 / 250, **PLLE2 5 / 5**, MMCM 5 / 5, BUFG 21 / 32, BUFIO 1,
+  BUFR 1, **IDELAYCTRL 5 / 5**, IDELAYE2 33, ISERDESE2 40.
+* Placement: HDMI1 PLL in X1Y1 and HDMI2 PLL in X0Y0 (both fed through a
+  BUFG from bank 16), HDMI3 PLL in X0Y1 (its own region, dedicated route).
+  IDELAYCTRL: one per region (X0Y0 RGMII, X0Y1 HDMI3, X0Y2 HDMI1+HDMI2
+  shared, X1Y0 DDR3, X1Y1 on-board HDMI IN).
+
+Verdict: **4 DUTs per board fit**, with no clocking resource left
+(all PLLs, MMCMs and IDELAYCTRL sites used). A later clock need would use
+the shared-PLL fallback for HDMI2/HDMI3 (issue 0049).
