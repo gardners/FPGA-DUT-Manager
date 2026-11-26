@@ -17,7 +17,7 @@ LCSC_C = {'100n': 'C14663'}
 
 def r(value, tol='1%'):
     return dict(lib='Device:R', fp=FP_R, value=value,
-                fields={'LCSC': LCSC_R.get(value, 'TBD (0603 %s)' % tol), 'Tolerance': tol})
+                fields={'LCSC': LCSC_R.get(value, 'TBD (%s, JLC basic if stocked)' % tol), 'Tolerance': tol})
 
 
 def c(value, volt='25V', fp=FP_C):

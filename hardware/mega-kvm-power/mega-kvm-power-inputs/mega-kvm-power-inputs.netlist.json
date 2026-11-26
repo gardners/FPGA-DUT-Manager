@@ -6,6 +6,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "V1",
    "2": "GND"
@@ -20,6 +21,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "V2",
    "2": "GND"
@@ -34,6 +36,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "V3",
    "2": "GND"
@@ -48,6 +51,7 @@
    "Voltage": "25V"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "VBUS",
    "2": "GND"
@@ -62,6 +66,7 @@
    "Voltage": "25V"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "VBUS",
    "2": "GND"
@@ -76,6 +81,7 @@
    "Voltage": "25V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "EN",
    "2": "GND"
@@ -90,6 +96,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "VIN_OR",
    "2": "GND"
@@ -104,6 +111,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "VBUS",
    "2": "GND"
@@ -118,6 +126,7 @@
    "Voltage": "16V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "+3V3",
    "2": "GND"
@@ -132,6 +141,7 @@
    "MPN": "MDD SMCJ15A 1500 W, Vrwm 15 V, Vc 24.4 V"
   },
   "footprint": "Diode_SMD:D_SMC",
+  "in_bom": true,
   "pads": {
    "1": "V1",
    "2": "GND"
@@ -146,6 +156,7 @@
    "MPN": "MDD SMCJ15A 1500 W, Vrwm 15 V, Vc 24.4 V"
   },
   "footprint": "Diode_SMD:D_SMC",
+  "in_bom": true,
   "pads": {
    "1": "V2",
    "2": "GND"
@@ -160,6 +171,7 @@
    "MPN": "MDD SMCJ15A 1500 W, Vrwm 15 V, Vc 24.4 V"
   },
   "footprint": "Diode_SMD:D_SMC",
+  "in_bom": true,
   "pads": {
    "1": "V3",
    "2": "GND"
@@ -175,6 +187,7 @@
    "Note": "diode-OR: master-switch supply that exists before VBUS"
   },
   "footprint": "Diode_SMD:D_SOD-123",
+  "in_bom": true,
   "pads": {
    "1": "VIN_OR",
    "2": "V1"
@@ -190,6 +203,7 @@
    "Note": "diode-OR: master-switch supply that exists before VBUS"
   },
   "footprint": "Diode_SMD:D_SOD-123",
+  "in_bom": true,
   "pads": {
    "1": "VIN_OR",
    "2": "V2"
@@ -205,6 +219,7 @@
    "Note": "diode-OR: master-switch supply that exists before VBUS"
   },
   "footprint": "Diode_SMD:D_SOD-123",
+  "in_bom": true,
   "pads": {
    "1": "VIN_OR",
    "2": "V3"
@@ -219,6 +234,7 @@
    "Note": "IN1 banana selected"
   },
   "footprint": "LED_SMD:LED_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "~{VALID1}",
    "2": "LA1"
@@ -233,6 +249,7 @@
    "Note": "IN2 PCIe selected"
   },
   "footprint": "LED_SMD:LED_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "LK2",
    "2": "LA2"
@@ -247,6 +264,7 @@
    "Note": "IN3 Molex selected"
   },
   "footprint": "LED_SMD:LED_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "LK3",
    "2": "LA3"
@@ -262,6 +280,7 @@
    "MPN": "Littelfuse 178.6165.0002 ATO PCB holder + ATO blade fuse 25A ATO"
   },
   "footprint": "Fuse:FuseHolder_Blade_ATO_Littelfuse_FLR_178.6165",
+  "in_bom": true,
   "pads": {
    "1": "IN1_RAW",
    "2": "V1"
@@ -277,6 +296,7 @@
    "MPN": "Littelfuse 178.6165.0002 ATO PCB holder + ATO blade fuse 15A ATO"
   },
   "footprint": "Fuse:FuseHolder_Blade_ATO_Littelfuse_FLR_178.6165",
+  "in_bom": true,
   "pads": {
    "1": "IN2_RAW",
    "2": "V2"
@@ -292,6 +312,7 @@
    "MPN": "Littelfuse 178.6165.0002 ATO PCB holder + ATO blade fuse 10A ATO"
   },
   "footprint": "Fuse:FuseHolder_Blade_ATO_Littelfuse_FLR_178.6165",
+  "in_bom": true,
   "pads": {
    "1": "IN3_RAW",
    "2": "V3"
@@ -303,6 +324,7 @@
   "dnp": false,
   "fields": {},
   "footprint": "MountingHole:MountingHole_3.2mm_M3",
+  "in_bom": false,
   "pads": {},
   "uuid": "c2cc31b6-b10d-59c3-9b3f-92d46bdb0499",
   "value": "M3"
@@ -311,6 +333,7 @@
   "dnp": false,
   "fields": {},
   "footprint": "MountingHole:MountingHole_3.2mm_M3",
+  "in_bom": false,
   "pads": {},
   "uuid": "57f3fb7a-2b82-5c4c-b260-a85e5b076e80",
   "value": "M3"
@@ -323,6 +346,7 @@
    "MPN": "4 mm panel socket >=30 A, red, through-PCB with nut + solder lug (e.g. Staubli/Multi-Contact or Cliff, choose at order)"
   },
   "footprint": "Connector:Banana_Jack_1Pin",
+  "in_bom": true,
   "pads": {
    "1": "IN1_RAW"
   },
@@ -337,6 +361,7 @@
    "MPN": "4 mm panel socket >=30 A, black"
   },
   "footprint": "Connector:Banana_Jack_1Pin",
+  "in_bom": true,
   "pads": {
    "1": "GND"
   },
@@ -351,6 +376,7 @@
    "MPN": "Molex Mini-Fit Jr 8-pin vertical header with PCIe keying (45558-series or 39-28-1083 + check keying); pins 1-3 +12 V, 4-8 GND (sense pins grounded)"
   },
   "footprint": "Connector_Molex:Molex_Mini-Fit_Jr_5566-08A_2x04_P4.20mm_Vertical",
+  "in_bom": true,
   "pads": {
    "1": "IN2_RAW",
    "2": "IN2_RAW",
@@ -372,10 +398,12 @@
    "MPN": "Molex 8981 4-pin male PCB header, vertical (e.g. 15-24-4048); 1 +12 V, 2-3 GND, 4 +5 V unused"
   },
   "footprint": "mega-kvm-power:Molex_8981_PeripheralPower_1x04_P5.08mm_Vertical",
+  "in_bom": true,
   "pads": {
    "1": "IN3_RAW",
    "2": "GND",
-   "3": "GND"
+   "3": "GND",
+   "4": "unconnected-(J4-Pin_4-Pad4)"
   },
   "uuid": "e68189e9-347a-55b1-b8b5-5b18182a1e1b",
   "value": "Molex 4-pin"
@@ -388,6 +416,7 @@
    "Note": "1 SUPPLY (rocker +), 2 LOAD (rocker switched, lamp +), 3 GND (lamp -)"
   },
   "footprint": "Connector_JST:JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical",
+  "in_bom": true,
   "pads": {
    "1": "SW_SUP",
    "2": "EN_SW",
@@ -403,6 +432,7 @@
    "LCSC": "n/a (ring terminal + M4 screw/nut)"
   },
   "footprint": "MountingHole:MountingHole_4.3mm_M4_Pad_Via",
+  "in_bom": false,
   "pads": {
    "1": "VBUS"
   },
@@ -416,6 +446,7 @@
    "LCSC": "n/a (ring terminal + M4 screw/nut)"
   },
   "footprint": "MountingHole:MountingHole_4.3mm_M4_Pad_Via",
+  "in_bom": false,
   "pads": {
    "1": "GND"
   },
@@ -426,6 +457,7 @@
   "dnp": false,
   "fields": {},
   "footprint": "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm",
+  "in_bom": false,
   "pads": {
    "1": "SW_SUP",
    "2": "EN_SW"
@@ -440,6 +472,7 @@
    "MPN": "Infineon BSC030P03NS3G -30 V 3 mOhm"
   },
   "footprint": "Package_SON:Infineon_PG-TDSON-8_6.15x5.15mm",
+  "in_bom": true,
   "pads": {
    "1": "VS1",
    "2": "VS1",
@@ -456,6 +489,7 @@
    "LCSC": "C8545"
   },
   "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "in_bom": true,
   "pads": {
    "1": "~{VALID1}",
    "2": "LK3B",
@@ -470,6 +504,7 @@
    "LCSC": "C8545"
   },
   "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "in_bom": true,
   "pads": {
    "1": "~{VALID2}",
    "2": "~{VALID3}",
@@ -485,6 +520,7 @@
    "MPN": "Infineon BSC030P03NS3G -30 V 3 mOhm"
   },
   "footprint": "Package_SON:Infineon_PG-TDSON-8_6.15x5.15mm",
+  "in_bom": true,
   "pads": {
    "1": "VS1",
    "2": "VS1",
@@ -502,6 +538,7 @@
    "MPN": "Infineon BSC030P03NS3G -30 V 3 mOhm"
   },
   "footprint": "Package_SON:Infineon_PG-TDSON-8_6.15x5.15mm",
+  "in_bom": true,
   "pads": {
    "1": "VS1",
    "2": "VS1",
@@ -519,6 +556,7 @@
    "MPN": "Infineon BSC030P03NS3G -30 V 3 mOhm"
   },
   "footprint": "Package_SON:Infineon_PG-TDSON-8_6.15x5.15mm",
+  "in_bom": true,
   "pads": {
    "1": "VS1",
    "2": "VS1",
@@ -536,6 +574,7 @@
    "MPN": "Infineon BSC030P03NS3G -30 V 3 mOhm"
   },
   "footprint": "Package_SON:Infineon_PG-TDSON-8_6.15x5.15mm",
+  "in_bom": true,
   "pads": {
    "1": "VS2",
    "2": "VS2",
@@ -553,6 +592,7 @@
    "MPN": "Infineon BSC030P03NS3G -30 V 3 mOhm"
   },
   "footprint": "Package_SON:Infineon_PG-TDSON-8_6.15x5.15mm",
+  "in_bom": true,
   "pads": {
    "1": "VS2",
    "2": "VS2",
@@ -570,6 +610,7 @@
    "MPN": "Infineon BSC030P03NS3G -30 V 3 mOhm"
   },
   "footprint": "Package_SON:Infineon_PG-TDSON-8_6.15x5.15mm",
+  "in_bom": true,
   "pads": {
    "1": "VS3",
    "2": "VS3",
@@ -587,6 +628,7 @@
    "MPN": "Infineon BSC030P03NS3G -30 V 3 mOhm"
   },
   "footprint": "Package_SON:Infineon_PG-TDSON-8_6.15x5.15mm",
+  "in_bom": true,
   "pads": {
    "1": "VS3",
    "2": "VS3",
@@ -603,6 +645,7 @@
    "LCSC": "C8545"
   },
   "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "in_bom": true,
   "pads": {
    "1": "~{VALID1}",
    "2": "~{VALID2}",
@@ -614,11 +657,12 @@
  "R1": {
   "dnp": true,
   "fields": {
-   "LCSC": "TBD (0603 1%)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
    "Note": "DNP = internal ~30 mV hysteresis; fit to set 63 mV/RHYS (check datasheet)",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "HYS",
    "2": "GND"
@@ -629,10 +673,11 @@
  "R10": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (0603 1%)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "V1",
    "2": "UV1"
@@ -643,10 +688,11 @@
  "R11": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (0603 1%)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "UV1",
    "2": "OV1"
@@ -661,6 +707,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "OV1",
    "2": "GND"
@@ -671,11 +718,12 @@
  "R2": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (0603 1%)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
    "Note": "limits lamp/short current on the front-panel cable",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "VIN_OR",
    "2": "SW_SUP"
@@ -686,10 +734,11 @@
  "R20": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (0603 1%)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "V2",
    "2": "UV2"
@@ -700,10 +749,11 @@
  "R21": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (0603 1%)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "UV2",
    "2": "OV2"
@@ -718,6 +768,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "OV2",
    "2": "GND"
@@ -732,6 +783,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "EN_SW",
    "2": "EN"
@@ -742,10 +794,11 @@
  "R30": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (0603 1%)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "V3",
    "2": "UV3"
@@ -756,10 +809,11 @@
  "R31": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (0603 1%)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "UV3",
    "2": "OV3"
@@ -774,6 +828,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "OV3",
    "2": "GND"
@@ -784,11 +839,12 @@
  "R4": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (0603 1%)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
    "Note": "EN = 12 V * 33/133 = 3 V on, pulled low when open",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "EN",
    "2": "GND"
@@ -799,10 +855,11 @@
  "R40": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (0603 1%)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "+3V3",
    "2": "LA1"
@@ -813,10 +870,11 @@
  "R41": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (0603 1%)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "+3V3",
    "2": "LA2"
@@ -827,10 +885,11 @@
  "R42": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (0603 1%)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "+3V3",
    "2": "LA3"
@@ -845,6 +904,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "VIN_OR",
    "2": "~{SHDN}"
@@ -855,10 +915,11 @@
  "R6": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (0603 1%)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "~{SHDN}",
    "2": "GND"
@@ -873,6 +934,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "+3V3",
    "2": "~{VALID1}"
@@ -887,6 +949,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "+3V3",
    "2": "~{VALID2}"
@@ -901,6 +964,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "+3V3",
    "2": "~{VALID3}"
@@ -915,12 +979,14 @@
    "MPN": "ADI LTC4417CGN#PBF"
   },
   "footprint": "Package_SO:SSOP-24_3.9x8.7mm_P0.635mm",
+  "in_bom": true,
   "pads": {
    "1": "EN",
    "10": "~{VALID1}",
    "11": "~{VALID2}",
    "12": "~{VALID3}",
    "13": "GND",
+   "14": "unconnected-(U1-CAS-Pad14)",
    "15": "VBUS",
    "16": "G3",
    "17": "VS3",
@@ -950,6 +1016,7 @@
    "MPN": "ST L78L33ACUTR"
   },
   "footprint": "Package_TO_SOT_SMD:SOT-89-3",
+  "in_bom": true,
   "pads": {
    "1": "+3V3",
    "2": "GND",

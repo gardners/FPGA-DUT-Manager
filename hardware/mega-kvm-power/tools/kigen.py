@@ -126,15 +126,17 @@ class Schematic:
         self.pwr_n = 0
 
     def place(self, lib_id, ref, value, x, y, nets, footprint='', unit=1,
-              dnp=False, fields=None, nc=(), rot=0):
+              dnp=False, fields=None, nc=(), rot=0, in_bom=None):
         """nets: pin number (or pin name) -> net name. Pins not mentioned must
         be listed in nc (no-connect) or an error is raised."""
+        if in_bom is None:
+            in_bom = not (ref.startswith('#') or footprint.startswith(('MountingHole:', 'Jumper:')))
         if lib_id not in self.lib_ids:
             self.lib_ids.append(lib_id)
         pins = self.libs.pins(lib_id, unit)
         sid = uid(self.name, ref, unit)
         sym = ['symbol', ['lib_id', Q(lib_id)], ['at', x, y, rot], ['unit', unit],
-               ['exclude_from_sim', 'no'], ['in_bom', 'no' if ref.startswith('#') else 'yes'],
+               ['exclude_from_sim', 'no'], ['in_bom', 'yes' if (in_bom if in_bom is not None else not ref.startswith('#')) else 'no'],
                ['on_board', 'no' if ref.startswith('#') else 'yes'],
                ['dnp', 'yes' if dnp else 'no'], ['uuid', Q(sid)]]
         angs = {p['ang'] for p in pins}
@@ -173,10 +175,12 @@ class Schematic:
                 net = nets[key]
                 padnets[p['num']] = net
                 if net is None:
+                    padnets[p['num']] = 'unconnected-(%s-%s-Pad%s)' % (ref, p['name'], p['num'])
                     self._nc(sx, sy)
                 else:
                     self._label(net, sx, sy, (ang + 180) % 360)
             elif p['num'] in nc or p['name'] in nc or '*' in nc:
+                padnets[p['num']] = 'unconnected-(%s-%s-Pad%s)' % (ref, p['name'], p['num'])
                 self._nc(sx, sy)
             else:
                 raise ValueError('%s pin %s (%s) unconnected' % (ref, p['num'], p['name']))
@@ -189,6 +193,7 @@ class Schematic:
         if not ref.startswith('#'):
             part = self.parts.setdefault(ref, {'footprint': footprint, 'value': value,
                                                'uuid': sid, 'pads': {}, 'dnp': dnp,
+                                               'in_bom': in_bom if in_bom is not None else True,
                                                'fields': fields or {}})
             part['pads'].update(padnets)
         return sid

@@ -4563,7 +4563,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "TBD (0603 1%)"
+		(property "LCSC" "TBD (1%, JLC basic if stocked)"
 			(at 35.56 60.96 0)
 			(effects
 				(font
@@ -6082,7 +6082,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "TBD (0603 1%)"
+		(property "LCSC" "TBD (1%, JLC basic if stocked)"
 			(at 132.08 60.96 0)
 			(effects
 				(font
@@ -7601,7 +7601,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "TBD (0603 1%)"
+		(property "LCSC" "TBD (1%, JLC basic if stocked)"
 			(at 228.6 60.96 0)
 			(effects
 				(font
@@ -9120,7 +9120,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "TBD (0603 1%)"
+		(property "LCSC" "TBD (1%, JLC basic if stocked)"
 			(at 325.12 60.96 0)
 			(effects
 				(font
@@ -10639,7 +10639,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "TBD (0603 1%)"
+		(property "LCSC" "TBD (1%, JLC basic if stocked)"
 			(at 35.56 127 0)
 			(effects
 				(font
@@ -12158,7 +12158,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "TBD (0603 1%)"
+		(property "LCSC" "TBD (1%, JLC basic if stocked)"
 			(at 132.08 127 0)
 			(effects
 				(font
@@ -13677,7 +13677,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "TBD (0603 1%)"
+		(property "LCSC" "TBD (1%, JLC basic if stocked)"
 			(at 228.6 127 0)
 			(effects
 				(font
@@ -15196,7 +15196,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "TBD (0603 1%)"
+		(property "LCSC" "TBD (1%, JLC basic if stocked)"
 			(at 325.12 127 0)
 			(effects
 				(font
@@ -16608,7 +16608,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "TBD (0603 1%)"
+		(property "LCSC" "TBD (1%, JLC basic if stocked)"
 			(at 27.94 193.04 0)
 			(effects
 				(font
@@ -16715,7 +16715,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "TBD (0603 1%)"
+		(property "LCSC" "TBD (1%, JLC basic if stocked)"
 			(at 35.56 193.04 0)
 			(effects
 				(font
@@ -18071,7 +18071,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "TBD (0603 1%)"
+		(property "LCSC" "TBD (1%, JLC basic if stocked)"
 			(at 147.32 177.8 0)
 			(effects
 				(font
@@ -18423,7 +18423,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "TBD (0603 1%)"
+		(property "LCSC" "TBD (1%, JLC basic if stocked)"
 			(at 175.26 177.8 0)
 			(effects
 				(font
@@ -18739,7 +18739,7 @@
 		(at 215.9 162.56 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "011d3782-4b92-5320-813e-2a34b5c6bce3")
@@ -18833,7 +18833,7 @@
 		(at 215.9 172.72 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "171bfc44-634c-59ff-a2fb-611c61a8026d")
@@ -20000,7 +20000,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "TBD (0603 1%)"
+		(property "LCSC" "TBD (1%, JLC basic if stocked)"
 			(at 241.3 190.5 0)
 			(effects
 				(font
@@ -22338,7 +22338,7 @@
 		(at 152.4 271.78 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "7b20bce4-dfdb-5523-8492-895c469bd633")
@@ -22493,7 +22493,7 @@
 		(at 220.98 271.78 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "e25861a6-1591-5744-a0a8-980c3facd3c6")
@@ -22556,7 +22556,7 @@
 		(at 233.68 271.78 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "fca1097a-a811-5a8c-95fb-c583792bfb30")
@@ -22619,7 +22619,7 @@
 		(at 246.38 271.78 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "bdd1e079-61dc-51b7-9809-64250be280ba")
@@ -22682,7 +22682,7 @@
 		(at 259.08 271.78 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(uuid "51c9b2c4-5db1-5e4a-a889-67a5b946a428")

@@ -6,6 +6,7 @@
    "Value2": "470uF 25V low-ESR"
   },
   "footprint": "Capacitor_SMD:CP_Elec_10x10",
+  "in_bom": true,
   "pads": {
    "1": "VBUS",
    "2": "GND"
@@ -20,6 +21,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "DVDT0",
    "2": "GND"
@@ -34,6 +36,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "ITMR0",
    "2": "GND"
@@ -48,6 +51,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "VBUS",
    "2": "GND"
@@ -62,6 +66,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "OUT0",
    "2": "GND"
@@ -76,6 +81,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "DVDT1",
    "2": "GND"
@@ -90,6 +96,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "ITMR1",
    "2": "GND"
@@ -104,6 +111,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "VBUS",
    "2": "GND"
@@ -118,6 +126,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "OUT1",
    "2": "GND"
@@ -132,6 +141,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "DVDT2",
    "2": "GND"
@@ -146,6 +156,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "ITMR2",
    "2": "GND"
@@ -160,6 +171,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "VBUS",
    "2": "GND"
@@ -174,6 +186,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "OUT2",
    "2": "GND"
@@ -188,6 +201,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "DVDT3",
    "2": "GND"
@@ -202,6 +216,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "ITMR3",
    "2": "GND"
@@ -216,6 +231,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "VBUS",
    "2": "GND"
@@ -230,6 +246,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "OUT3",
    "2": "GND"
@@ -244,6 +261,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "DVDT4",
    "2": "GND"
@@ -258,6 +276,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "ITMR4",
    "2": "GND"
@@ -272,6 +291,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "VBUS",
    "2": "GND"
@@ -286,6 +306,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "OUT4",
    "2": "GND"
@@ -300,6 +321,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "DVDT5",
    "2": "GND"
@@ -314,6 +336,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "ITMR5",
    "2": "GND"
@@ -328,6 +351,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "VBUS",
    "2": "GND"
@@ -342,6 +366,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "OUT5",
    "2": "GND"
@@ -356,6 +381,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "DVDT6",
    "2": "GND"
@@ -370,6 +396,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "ITMR6",
    "2": "GND"
@@ -384,6 +411,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "VBUS",
    "2": "GND"
@@ -398,6 +426,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "OUT6",
    "2": "GND"
@@ -412,6 +441,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "DVDT7",
    "2": "GND"
@@ -426,6 +456,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "ITMR7",
    "2": "GND"
@@ -440,6 +471,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "VBUS",
    "2": "GND"
@@ -454,6 +486,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "OUT7",
    "2": "GND"
@@ -468,6 +501,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "DVDT8",
    "2": "GND"
@@ -482,6 +516,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "ITMR8",
    "2": "GND"
@@ -496,6 +531,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "VBUS",
    "2": "GND"
@@ -510,6 +546,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "AON12",
    "2": "GND"
@@ -524,6 +561,7 @@
    "Value2": "470uF 25V low-ESR"
   },
   "footprint": "Capacitor_SMD:CP_Elec_10x10",
+  "in_bom": true,
   "pads": {
    "1": "VBUS",
    "2": "GND"
@@ -538,6 +576,7 @@
    "Voltage": "25V"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "VBUS",
    "2": "GND"
@@ -552,6 +591,7 @@
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "VBUS",
    "2": "GND"
@@ -566,6 +606,7 @@
    "Voltage": "16V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "+3V3",
    "2": "GND"
@@ -580,6 +621,7 @@
    "Voltage": "25V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "OVLO",
    "2": "GND"
@@ -594,6 +636,7 @@
    "Voltage": "25V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "+3V3",
    "2": "GND"
@@ -607,6 +650,7 @@
    "LCSC": "TBD (0603 green, JLC basic)"
   },
   "footprint": "LED_SMD:LED_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "GND",
    "2": "LEDVB"
@@ -622,6 +666,7 @@
    "Note": "negative-spike clamp on OUT (TI 8.3 layout)"
   },
   "footprint": "Diode_SMD:D_SMA",
+  "in_bom": true,
   "pads": {
    "1": "OUT0",
    "2": "GND"
@@ -635,6 +680,7 @@
    "LCSC": "TBD (0603 green, JLC basic)"
   },
   "footprint": "LED_SMD:LED_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "GND",
    "2": "LED0"
@@ -650,6 +696,7 @@
    "Note": "negative-spike clamp on OUT (TI 8.3 layout)"
   },
   "footprint": "Diode_SMD:D_SMA",
+  "in_bom": true,
   "pads": {
    "1": "OUT1",
    "2": "GND"
@@ -663,6 +710,7 @@
    "LCSC": "TBD (0603 green, JLC basic)"
   },
   "footprint": "LED_SMD:LED_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "GND",
    "2": "LED1"
@@ -678,6 +726,7 @@
    "Note": "negative-spike clamp on OUT (TI 8.3 layout)"
   },
   "footprint": "Diode_SMD:D_SMA",
+  "in_bom": true,
   "pads": {
    "1": "OUT2",
    "2": "GND"
@@ -691,6 +740,7 @@
    "LCSC": "TBD (0603 green, JLC basic)"
   },
   "footprint": "LED_SMD:LED_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "GND",
    "2": "LED2"
@@ -706,6 +756,7 @@
    "Note": "negative-spike clamp on OUT (TI 8.3 layout)"
   },
   "footprint": "Diode_SMD:D_SMA",
+  "in_bom": true,
   "pads": {
    "1": "OUT3",
    "2": "GND"
@@ -719,6 +770,7 @@
    "LCSC": "TBD (0603 green, JLC basic)"
   },
   "footprint": "LED_SMD:LED_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "GND",
    "2": "LED3"
@@ -734,6 +786,7 @@
    "Note": "negative-spike clamp on OUT (TI 8.3 layout)"
   },
   "footprint": "Diode_SMD:D_SMA",
+  "in_bom": true,
   "pads": {
    "1": "OUT4",
    "2": "GND"
@@ -747,6 +800,7 @@
    "LCSC": "TBD (0603 green, JLC basic)"
   },
   "footprint": "LED_SMD:LED_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "GND",
    "2": "LED4"
@@ -762,6 +816,7 @@
    "Note": "negative-spike clamp on OUT (TI 8.3 layout)"
   },
   "footprint": "Diode_SMD:D_SMA",
+  "in_bom": true,
   "pads": {
    "1": "OUT5",
    "2": "GND"
@@ -775,6 +830,7 @@
    "LCSC": "TBD (0603 green, JLC basic)"
   },
   "footprint": "LED_SMD:LED_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "GND",
    "2": "LED5"
@@ -790,6 +846,7 @@
    "Note": "negative-spike clamp on OUT (TI 8.3 layout)"
   },
   "footprint": "Diode_SMD:D_SMA",
+  "in_bom": true,
   "pads": {
    "1": "OUT6",
    "2": "GND"
@@ -803,6 +860,7 @@
    "LCSC": "TBD (0603 green, JLC basic)"
   },
   "footprint": "LED_SMD:LED_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "GND",
    "2": "LED6"
@@ -818,6 +876,7 @@
    "Note": "negative-spike clamp on OUT (TI 8.3 layout)"
   },
   "footprint": "Diode_SMD:D_SMA",
+  "in_bom": true,
   "pads": {
    "1": "OUT7",
    "2": "GND"
@@ -831,6 +890,7 @@
    "LCSC": "TBD (0603 green, JLC basic)"
   },
   "footprint": "LED_SMD:LED_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "GND",
    "2": "LED7"
@@ -846,6 +906,7 @@
    "Note": "negative-spike clamp on OUT (TI 8.3 layout)"
   },
   "footprint": "Diode_SMD:D_SMA",
+  "in_bom": true,
   "pads": {
    "1": "AON12",
    "2": "GND"
@@ -859,6 +920,7 @@
    "LCSC": "TBD (0603 green, JLC basic)"
   },
   "footprint": "LED_SMD:LED_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "GND",
    "2": "LED8"
@@ -870,6 +932,7 @@
   "dnp": false,
   "fields": {},
   "footprint": "MountingHole:MountingHole_3.2mm_M3",
+  "in_bom": false,
   "pads": {},
   "uuid": "e25861a6-1591-5744-a0a8-980c3facd3c6",
   "value": "M3"
@@ -878,6 +941,7 @@
   "dnp": false,
   "fields": {},
   "footprint": "MountingHole:MountingHole_3.2mm_M3",
+  "in_bom": false,
   "pads": {},
   "uuid": "fca1097a-a811-5a8c-95fb-c583792bfb30",
   "value": "M3"
@@ -886,6 +950,7 @@
   "dnp": false,
   "fields": {},
   "footprint": "MountingHole:MountingHole_3.2mm_M3",
+  "in_bom": false,
   "pads": {},
   "uuid": "bdd1e079-61dc-51b7-9809-64250be280ba",
   "value": "M3"
@@ -894,6 +959,7 @@
   "dnp": false,
   "fields": {},
   "footprint": "MountingHole:MountingHole_3.2mm_M3",
+  "in_bom": false,
   "pads": {},
   "uuid": "51c9b2c4-5db1-5e4a-a889-67a5b946a428",
   "value": "M3"
@@ -905,6 +971,7 @@
    "LCSC": "n/a (ring terminal + M4 screw/nut)"
   },
   "footprint": "MountingHole:MountingHole_4.3mm_M4_Pad_Via",
+  "in_bom": false,
   "pads": {
    "1": "VBUS"
   },
@@ -918,6 +985,7 @@
    "MPN": "Phoenix MSTBA 2,5/2-G-5,08 (1757242) + MSTB 2,5/2-ST-5,08 plug, 12 A"
   },
   "footprint": "Connector_Phoenix_MSTB:PhoenixContact_MSTBA_2,5_2-G-5,08_1x02_P5.08mm_Horizontal",
+  "in_bom": true,
   "pads": {
    "1": "OUT0",
    "2": "GND"
@@ -932,6 +1000,7 @@
    "MPN": "Phoenix MSTBA 2,5/2-G-5,08 (1757242) + MSTB 2,5/2-ST-5,08 plug, 12 A"
   },
   "footprint": "Connector_Phoenix_MSTB:PhoenixContact_MSTBA_2,5_2-G-5,08_1x02_P5.08mm_Horizontal",
+  "in_bom": true,
   "pads": {
    "1": "OUT1",
    "2": "GND"
@@ -946,6 +1015,7 @@
    "MPN": "Phoenix MSTBA 2,5/2-G-5,08 (1757242) + MSTB 2,5/2-ST-5,08 plug, 12 A"
   },
   "footprint": "Connector_Phoenix_MSTB:PhoenixContact_MSTBA_2,5_2-G-5,08_1x02_P5.08mm_Horizontal",
+  "in_bom": true,
   "pads": {
    "1": "OUT2",
    "2": "GND"
@@ -960,6 +1030,7 @@
    "MPN": "Phoenix MSTBA 2,5/2-G-5,08 (1757242) + MSTB 2,5/2-ST-5,08 plug, 12 A"
   },
   "footprint": "Connector_Phoenix_MSTB:PhoenixContact_MSTBA_2,5_2-G-5,08_1x02_P5.08mm_Horizontal",
+  "in_bom": true,
   "pads": {
    "1": "OUT3",
    "2": "GND"
@@ -974,6 +1045,7 @@
    "MPN": "Phoenix MSTBA 2,5/2-G-5,08 (1757242) + MSTB 2,5/2-ST-5,08 plug, 12 A"
   },
   "footprint": "Connector_Phoenix_MSTB:PhoenixContact_MSTBA_2,5_2-G-5,08_1x02_P5.08mm_Horizontal",
+  "in_bom": true,
   "pads": {
    "1": "OUT4",
    "2": "GND"
@@ -988,6 +1060,7 @@
    "MPN": "Phoenix MSTBA 2,5/2-G-5,08 (1757242) + MSTB 2,5/2-ST-5,08 plug, 12 A"
   },
   "footprint": "Connector_Phoenix_MSTB:PhoenixContact_MSTBA_2,5_2-G-5,08_1x02_P5.08mm_Horizontal",
+  "in_bom": true,
   "pads": {
    "1": "OUT5",
    "2": "GND"
@@ -1002,6 +1075,7 @@
    "MPN": "Phoenix MSTBA 2,5/2-G-5,08 (1757242) + MSTB 2,5/2-ST-5,08 plug, 12 A"
   },
   "footprint": "Connector_Phoenix_MSTB:PhoenixContact_MSTBA_2,5_2-G-5,08_1x02_P5.08mm_Horizontal",
+  "in_bom": true,
   "pads": {
    "1": "OUT6",
    "2": "GND"
@@ -1016,6 +1090,7 @@
    "MPN": "Phoenix MSTBA 2,5/2-G-5,08 (1757242) + MSTB 2,5/2-ST-5,08 plug, 12 A"
   },
   "footprint": "Connector_Phoenix_MSTB:PhoenixContact_MSTBA_2,5_2-G-5,08_1x02_P5.08mm_Horizontal",
+  "in_bom": true,
   "pads": {
    "1": "OUT7",
    "2": "GND"
@@ -1030,6 +1105,7 @@
    "LCSC": "n/a (ring terminal + M4 screw/nut)"
   },
   "footprint": "MountingHole:MountingHole_4.3mm_M4_Pad_Via",
+  "in_bom": false,
   "pads": {
    "1": "GND"
   },
@@ -1044,6 +1120,7 @@
    "Note": "to shield power input -> Mimas header VIN (issue 0045)"
   },
   "footprint": "Connector_Molex:Molex_Mini-Fit_Jr_5566-02A_2x01_P4.20mm_Vertical",
+  "in_bom": true,
   "pads": {
    "1": "AON12",
    "2": "GND"
@@ -1059,6 +1136,7 @@
    "Note": "to shield power input -> Mimas header VIN (issue 0045)"
   },
   "footprint": "Connector_Molex:Molex_Mini-Fit_Jr_5566-02A_2x01_P4.20mm_Vertical",
+  "in_bom": true,
   "pads": {
    "1": "AON12",
    "2": "GND"
@@ -1074,6 +1152,7 @@
    "Note": "male-male 5.5/2.1 lead to the Netgear GS105"
   },
   "footprint": "Connector_BarrelJack:BarrelJack_CUI_PJ-102AH_Horizontal",
+  "in_bom": true,
   "pads": {
    "1": "AON12",
    "2": "GND",
@@ -1090,6 +1169,7 @@
    "Note": "Noctua NF-A4x10 FLX 12 V (50 mA)"
   },
   "footprint": "Connector:FanPinHeader_1x03_P2.54mm_Vertical",
+  "in_bom": true,
   "pads": {
    "1": "GND",
    "2": "FANPWR0",
@@ -1106,6 +1186,7 @@
    "Note": "Noctua NF-A4x10 FLX 12 V (50 mA)"
   },
   "footprint": "Connector:FanPinHeader_1x03_P2.54mm_Vertical",
+  "in_bom": true,
   "pads": {
    "1": "GND",
    "2": "FANPWR1",
@@ -1121,11 +1202,12 @@
    "Note": "1 GND, 2 KEY (pin removed / plug hole blocked), 3-10 CTRL0-7 active high, 11 PRESENT"
   },
   "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x11_P2.54mm_Vertical",
+  "in_bom": true,
   "pads": {
    "1": "GND",
    "10": "CTRL7",
    "11": "PRESENT",
-   "2": null,
+   "2": "unconnected-(J3-Pin_2-Pad2)",
    "3": "CTRL0",
    "4": "CTRL1",
    "5": "CTRL2",
@@ -1144,6 +1226,7 @@
    "Note": "1 GND, 2-9 /FLT0-7, 10 /FLT_AON (open drain, 10k to 3V3), 11-12 fan tach"
   },
   "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x12_P2.54mm_Vertical",
+  "in_bom": true,
   "pads": {
    "1": "GND",
    "10": "~{FLT_AON}",
@@ -1168,6 +1251,7 @@
    "Note": "1 GND, 2 3V3 (via JP1), 3 SDA, 4 SCL, 5 /INT"
   },
   "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical",
+  "in_bom": true,
   "pads": {
    "1": "GND",
    "2": "3V3_I2C",
@@ -1184,6 +1268,7 @@
    "Note": "open: board does not drive the shield 3V3; close for pull-ups from this board"
   },
   "footprint": "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm",
+  "in_bom": false,
   "pads": {
    "1": "+3V3",
    "2": "3V3_I2C"
@@ -1198,6 +1283,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "VBUS",
    "2": "LEDVB"
@@ -1213,6 +1299,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "3V3_I2C",
    "2": "~{I2C_INT}"
@@ -1227,6 +1314,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "CTRL0",
    "2": "EN0"
@@ -1241,6 +1329,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "EN0",
    "2": "GND"
@@ -1251,11 +1340,12 @@
  "R102": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (0603 1%)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
    "Note": "ILIM 5.0 A (3334/R); 750R = 4.45 A for UL 2367",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "ILM0",
    "2": "GND"
@@ -1270,6 +1360,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "+3V3",
    "2": "~{FLT0}"
@@ -1284,6 +1375,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "OUT0",
    "2": "LED0"
@@ -1299,6 +1391,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "EXUNUSED",
    "2": "GND"
@@ -1313,6 +1406,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "CTRL1",
    "2": "EN1"
@@ -1327,6 +1421,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "EN1",
    "2": "GND"
@@ -1337,11 +1432,12 @@
  "R112": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (0603 1%)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
    "Note": "ILIM 5.0 A (3334/R); 750R = 4.45 A for UL 2367",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "ILM1",
    "2": "GND"
@@ -1356,6 +1452,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "+3V3",
    "2": "~{FLT1}"
@@ -1370,6 +1467,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "OUT1",
    "2": "LED1"
@@ -1384,6 +1482,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "CTRL2",
    "2": "EN2"
@@ -1398,6 +1497,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "EN2",
    "2": "GND"
@@ -1408,11 +1508,12 @@
  "R122": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (0603 1%)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
    "Note": "ILIM 5.0 A (3334/R); 750R = 4.45 A for UL 2367",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "ILM2",
    "2": "GND"
@@ -1427,6 +1528,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "+3V3",
    "2": "~{FLT2}"
@@ -1441,6 +1543,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "OUT2",
    "2": "LED2"
@@ -1455,6 +1558,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "CTRL3",
    "2": "EN3"
@@ -1469,6 +1573,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "EN3",
    "2": "GND"
@@ -1479,11 +1584,12 @@
  "R132": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (0603 1%)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
    "Note": "ILIM 5.0 A (3334/R); 750R = 4.45 A for UL 2367",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "ILM3",
    "2": "GND"
@@ -1498,6 +1604,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "+3V3",
    "2": "~{FLT3}"
@@ -1512,6 +1619,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "OUT3",
    "2": "LED3"
@@ -1526,6 +1634,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "CTRL4",
    "2": "EN4"
@@ -1540,6 +1649,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "EN4",
    "2": "GND"
@@ -1550,11 +1660,12 @@
  "R142": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (0603 1%)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
    "Note": "ILIM 5.0 A (3334/R); 750R = 4.45 A for UL 2367",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "ILM4",
    "2": "GND"
@@ -1569,6 +1680,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "+3V3",
    "2": "~{FLT4}"
@@ -1583,6 +1695,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "OUT4",
    "2": "LED4"
@@ -1597,6 +1710,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "CTRL5",
    "2": "EN5"
@@ -1611,6 +1725,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "EN5",
    "2": "GND"
@@ -1621,11 +1736,12 @@
  "R152": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (0603 1%)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
    "Note": "ILIM 5.0 A (3334/R); 750R = 4.45 A for UL 2367",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "ILM5",
    "2": "GND"
@@ -1640,6 +1756,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "+3V3",
    "2": "~{FLT5}"
@@ -1654,6 +1771,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "OUT5",
    "2": "LED5"
@@ -1668,6 +1786,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "CTRL6",
    "2": "EN6"
@@ -1682,6 +1801,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "EN6",
    "2": "GND"
@@ -1692,11 +1812,12 @@
  "R162": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (0603 1%)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
    "Note": "ILIM 5.0 A (3334/R); 750R = 4.45 A for UL 2367",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "ILM6",
    "2": "GND"
@@ -1711,6 +1832,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "+3V3",
    "2": "~{FLT6}"
@@ -1725,6 +1847,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "OUT6",
    "2": "LED6"
@@ -1739,6 +1862,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "CTRL7",
    "2": "EN7"
@@ -1753,6 +1877,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "EN7",
    "2": "GND"
@@ -1763,11 +1888,12 @@
  "R172": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (0603 1%)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
    "Note": "ILIM 5.0 A (3334/R); 750R = 4.45 A for UL 2367",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "ILM7",
    "2": "GND"
@@ -1782,6 +1908,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "+3V3",
    "2": "~{FLT7}"
@@ -1796,6 +1923,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "OUT7",
    "2": "LED7"
@@ -1810,6 +1938,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "VBUS",
    "2": "EN_AON"
@@ -1820,10 +1949,11 @@
  "R181": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (0603 1%)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "EN_AON",
    "2": "GND"
@@ -1834,11 +1964,12 @@
  "R182": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (0603 1%)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
    "Note": "ILIM 5.0 A (3334/R); 750R = 4.45 A for UL 2367",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "ILM8",
    "2": "GND"
@@ -1853,6 +1984,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "+3V3",
    "2": "~{FLT_AON}"
@@ -1867,6 +1999,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "AON12",
    "2": "LED8"
@@ -1877,11 +2010,12 @@
  "R190": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (0603 1%)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
    "Note": "0R; fit ~47-100R (1 W) to slow a fan for silence",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "AON12",
    "2": "FANPWR0"
@@ -1892,11 +2026,12 @@
  "R191": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (0603 1%)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
    "Note": "0R; fit ~47-100R (1 W) to slow a fan for silence",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_1206_3216Metric",
+  "in_bom": true,
   "pads": {
    "1": "AON12",
    "2": "FANPWR1"
@@ -1911,6 +2046,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "+3V3",
    "2": "TACH0"
@@ -1925,6 +2061,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "+3V3",
    "2": "TACH1"
@@ -1935,11 +2072,12 @@
  "R2": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (0603 1%)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
    "Note": "OVLO 14.8 V shared by all 9 eFuses",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "VBUS",
    "2": "OVLO"
@@ -1954,6 +2092,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "OVLO",
    "2": "GND"
@@ -1969,6 +2108,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "+3V3",
    "2": "PRESENT"
@@ -1983,6 +2123,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "EXA0",
    "2": "GND"
@@ -1997,6 +2138,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "EXA1",
    "2": "GND"
@@ -2011,6 +2153,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "+3V3",
    "2": "EXA2"
@@ -2026,6 +2169,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "3V3_I2C",
    "2": "SDA"
@@ -2041,6 +2185,7 @@
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
   "pads": {
    "1": "3V3_I2C",
    "2": "SCL"
@@ -2055,10 +2200,12 @@
    "MPN": "TI TPS259470LRPWR"
   },
   "footprint": "mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm",
+  "in_bom": true,
   "pads": {
    "1": "EN0",
    "10": "ITMR0",
    "2": "OVLO",
+   "3": "unconnected-(U1-AUXOFF-Pad3)",
    "4": "~{FLT0}",
    "5": "VBUS",
    "6": "OUT0",
@@ -2076,6 +2223,7 @@
    "MPN": "ST L78L33ACUTR"
   },
   "footprint": "Package_TO_SOT_SMD:SOT-89-3",
+  "in_bom": true,
   "pads": {
    "1": "+3V3",
    "2": "GND",
@@ -2091,6 +2239,7 @@
    "Note": "DNP by default; P00-07 /FLT0-7, P10 /FLT_AON"
   },
   "footprint": "Package_SO:TSSOP-24_4.4x7.8mm_P0.65mm",
+  "in_bom": true,
   "pads": {
    "1": "~{I2C_INT}",
    "10": "~{FLT6}",
@@ -2127,10 +2276,12 @@
    "MPN": "TI TPS259470LRPWR"
   },
   "footprint": "mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm",
+  "in_bom": true,
   "pads": {
    "1": "EN1",
    "10": "ITMR1",
    "2": "OVLO",
+   "3": "unconnected-(U2-AUXOFF-Pad3)",
    "4": "~{FLT1}",
    "5": "VBUS",
    "6": "OUT1",
@@ -2148,10 +2299,12 @@
    "MPN": "TI TPS259470LRPWR"
   },
   "footprint": "mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm",
+  "in_bom": true,
   "pads": {
    "1": "EN2",
    "10": "ITMR2",
    "2": "OVLO",
+   "3": "unconnected-(U3-AUXOFF-Pad3)",
    "4": "~{FLT2}",
    "5": "VBUS",
    "6": "OUT2",
@@ -2169,10 +2322,12 @@
    "MPN": "TI TPS259470LRPWR"
   },
   "footprint": "mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm",
+  "in_bom": true,
   "pads": {
    "1": "EN3",
    "10": "ITMR3",
    "2": "OVLO",
+   "3": "unconnected-(U4-AUXOFF-Pad3)",
    "4": "~{FLT3}",
    "5": "VBUS",
    "6": "OUT3",
@@ -2190,10 +2345,12 @@
    "MPN": "TI TPS259470LRPWR"
   },
   "footprint": "mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm",
+  "in_bom": true,
   "pads": {
    "1": "EN4",
    "10": "ITMR4",
    "2": "OVLO",
+   "3": "unconnected-(U5-AUXOFF-Pad3)",
    "4": "~{FLT4}",
    "5": "VBUS",
    "6": "OUT4",
@@ -2211,10 +2368,12 @@
    "MPN": "TI TPS259470LRPWR"
   },
   "footprint": "mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm",
+  "in_bom": true,
   "pads": {
    "1": "EN5",
    "10": "ITMR5",
    "2": "OVLO",
+   "3": "unconnected-(U6-AUXOFF-Pad3)",
    "4": "~{FLT5}",
    "5": "VBUS",
    "6": "OUT5",
@@ -2232,10 +2391,12 @@
    "MPN": "TI TPS259470LRPWR"
   },
   "footprint": "mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm",
+  "in_bom": true,
   "pads": {
    "1": "EN6",
    "10": "ITMR6",
    "2": "OVLO",
+   "3": "unconnected-(U7-AUXOFF-Pad3)",
    "4": "~{FLT6}",
    "5": "VBUS",
    "6": "OUT6",
@@ -2253,10 +2414,12 @@
    "MPN": "TI TPS259470LRPWR"
   },
   "footprint": "mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm",
+  "in_bom": true,
   "pads": {
    "1": "EN7",
    "10": "ITMR7",
    "2": "OVLO",
+   "3": "unconnected-(U8-AUXOFF-Pad3)",
    "4": "~{FLT7}",
    "5": "VBUS",
    "6": "OUT7",
@@ -2274,10 +2437,12 @@
    "MPN": "TI TPS259470ARPWR"
   },
   "footprint": "mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm",
+  "in_bom": true,
   "pads": {
    "1": "EN_AON",
    "10": "ITMR8",
    "2": "OVLO",
+   "3": "unconnected-(U9-AUXOFF-Pad3)",
    "4": "~{FLT_AON}",
    "5": "VBUS",
    "6": "AON12",
