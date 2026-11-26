@@ -9,7 +9,7 @@ KiCad 10 projects: `hardware/mega-kvm-power/`
 | Path | What |
 |---|---|
 | `mega-kvm-power-main/` | main board: 8 switched DUT outputs and the always-on group (horizontal, 170 x 80 mm) |
-| `mega-kvm-power-inputs/` | input board, **default**: 3 inputs, LTC4417CGN priority selection, master switch (vertical behind the rear panel, 150 x 40 mm) |
+| `mega-kvm-power-inputs/` | input board, **default**: 3 inputs, LTC4417CGN priority selection, master switch (vertical, 197 x 34 mm to fit the 38.45 mm 1RU interior) |
 | `mega-kvm-power-inputs-lm74700/` | input board, **JLC-stocked fallback** (schematic only): 3 x LM74700-Q1 ideal diodes + P-FET switches + LM339 priority logic |
 | `lib/` | project symbols (TPS259470, PMOS_TDSON8, NMOS_TDSON8, TVS_Uni, LTC4417 copy) and footprints (TI RPW0010A, Molex 8981) |
 | `tools/` | generators: `gen_main.py`, `gen_inputs.py`, `gen_inputs_lm74700.py` (schematics), `placement.py` + `pcb_build.py` (boards), `build_all.sh` |
@@ -241,12 +241,28 @@ against 25 A before ordering.
 
 ## Mechanical (1RU box, issues 0048/0050)
 
-* The input board stands vertically behind the **rear panel** (owner round
-  4: all power inputs on the rear, next to the Ethernet bulkhead). The F side
+* The input board stands vertically behind a panel. It is the rear panel per owner round
+  4, but the case fit check (`hardware/mega-kvm-case/out/fit-report.md`) has no room on
+  the rear beside the two DUT bays, so it may go on the right side wall. The F side
   faces out: banana pair (19 mm pitch), PCIe and Molex headers, three LEDs.
   The B side faces in: fuse holders (blade fuses replaceable with the lid
-  off), TVS, FETs, LTC4417, lugs, master-switch connector. Height 40 mm fits
-  1RU (44.45 mm outside).
+  off), TVS, FETs, LTC4417, lugs, master-switch connector.
+* **Outline v0.2: 197 x 34 mm** (was 150 x 40, which hit the lid by 1.55 mm:
+  the 1RU interior is 38.45 mm with a 3 mm floor and a 3 mm lid). Every part, connector
+  bodies included, stays inside the 34 mm band. That leaves 4.45 mm for a
+  slot or standoffs. Left to right: connectors (x 2-83) | fuse column |
+  TVS + diode-OR | UV/OV dividers | FETs + LTC4417 | soft start | M4 lugs.
+  The LM74700 fallback uses the same outline and connector positions; it
+  has more small parts, but they fit the same 34 mm band.
+* **Narrow variant (concept, not drawn):** if the inputs must sit on the
+  rear next to the DUT bays (about 54 mm free), a **48 x 34 mm connector-only
+  board** fits. It holds the banana pair stacked vertically (x 2-14), the PCIe
+  header turned 90 degrees (about 12 x 19 mm) and the Molex header turned 90 degrees
+  (about 9 x 22 mm): about 42 mm of connectors. The fuse holders, TVS, FETs
+  and LTC4417 do not fit behind it. They would move onto the main board
+  (about 60 x 34 mm of extra area), fed by three raw input pairs (V1/V2/V3 +
+  GND, 12 AWG for the banana path) from the connector board. Say if you want
+  it and I will draw it; the electrical design does not change.
 * The main board lies flat near the rear. Its DUT terminals and the always-on connectors
   are on the rear edge, and the control/status/I2C headers and VBUS lugs on
   the front edge.

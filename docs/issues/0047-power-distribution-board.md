@@ -133,3 +133,14 @@ for the MEGA-KVM box.
   ON3 = rocker & V3 & !V1 & !V2), Miller soft start, all leaded parts.
 * ERC 0/0 on all three schematics; DRC 0 violations on both boards
   (unrouted connections only).
+
+## 2026-11-27 progress: input board fits 1RU (agent)
+
+* The case fit check showed the 150 x 40 mm input board hitting the lid (the
+  interior is 38.45 mm). The input board is now **197 x 34 mm**, laid out in
+  columns: connectors | fuses | TVS/OR | dividers | FETs + LTC4417 | soft
+  start | lugs. DRC 0 violations (unrouted only); ERC clean on all three
+  schematics. The LM74700 fallback uses the same outline.
+* Narrow variant (48 x 34 mm, connectors only, with the selection electronics on the
+  main board), for a rear position beside the DUT bays: written up as a concept in
+  power-board.md. Not drawn unless the owner wants it.
