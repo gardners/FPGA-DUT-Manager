@@ -14,6 +14,54 @@
   "uuid": "ef89edcc-759c-57db-8fe5-240418b7726d",
   "value": "1u"
  },
+ "C11": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "TBD (X7R 50V)",
+   "Note": "soft start: gate-drain (VBUS) Miller cap, value TBD on bench",
+   "Voltage": "50V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "G1",
+   "2": "GSS1"
+  },
+  "uuid": "4e4271e9-0e88-53d3-96ee-7c60730b2b23",
+  "value": "22n"
+ },
+ "C12": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "TBD (X7R 50V)",
+   "Note": "soft start: gate-drain (VBUS) Miller cap, value TBD on bench",
+   "Voltage": "50V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "G2",
+   "2": "GSS2"
+  },
+  "uuid": "dfbf2694-54e0-5a5f-b4e3-23487e683f72",
+  "value": "22n"
+ },
+ "C13": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "TBD (X7R 50V)",
+   "Note": "soft start: gate-drain (VBUS) Miller cap, value TBD on bench",
+   "Voltage": "50V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "G3",
+   "2": "GSS3"
+  },
+  "uuid": "87eaacdc-4d4f-597e-90af-35e16f718ef2",
+  "value": "22n"
+ },
  "C2": {
   "dnp": false,
   "fields": {
@@ -715,6 +763,21 @@
   "uuid": "d10e6046-7631-5bdb-baa1-d22539e667d7",
   "value": "100k"
  },
+ "R13": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C21190",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "GSS1",
+   "2": "VBUS"
+  },
+  "uuid": "f2323093-24c1-5e41-8926-76dc8ed7ef5c",
+  "value": "1k"
+ },
  "R2": {
   "dnp": false,
   "fields": {
@@ -776,6 +839,21 @@
   "uuid": "b84d3982-f9b8-5a6d-8b81-192dda2f2290",
   "value": "100k"
  },
+ "R23": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C21190",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "GSS2",
+   "2": "VBUS"
+  },
+  "uuid": "7d224c2e-e1de-5135-bb27-876e2395fae0",
+  "value": "1k"
+ },
  "R3": {
   "dnp": false,
   "fields": {
@@ -835,6 +913,21 @@
   },
   "uuid": "943a20d9-28e9-55a9-828e-9e16676a3ca9",
   "value": "100k"
+ },
+ "R33": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C21190",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "GSS3",
+   "2": "VBUS"
+  },
+  "uuid": "287b6b63-016f-5d29-9bf6-961e7d65c0b5",
+  "value": "1k"
  },
  "R4": {
   "dnp": false,
@@ -975,7 +1068,7 @@
  "U1": {
   "dnp": false,
   "fields": {
-   "LCSC": "C688500 (LCSC stock very low: consign or hand-fit; LTC4417IUF C580907 is the QFN)",
+   "LCSC": "C688500 (low stock: order via JLC global sourcing / parts pre-order; SSOP-24, no exposed pad)",
    "MPN": "ADI LTC4417CGN#PBF"
   },
   "footprint": "Package_SO:SSOP-24_3.9x8.7mm_P0.635mm",

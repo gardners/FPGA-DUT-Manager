@@ -80,6 +80,11 @@ for n, label, fuse, kind in INPUTS:
         P(PFET, 'Q%d' % q, bx + 127 + k * 15.24, by + 22.86, {'D': vn, 'S': 'VS%d' % n, 'G': 'G%d' % n})
     for k, q in enumerate(qb):
         P(PFET, 'Q%d' % q, bx + 160.02 + k * 15.24, by + 22.86, {'D': 'VBUS', 'S': 'VS%d' % n, 'G': 'G%d' % n})
+    # soft start (owner round 5): Miller capacitor gate -> VBUS limits dV/dt of VBUS at
+    # master-on (I_gate / C). Start value 22 nF + 1 k; set on the bench for ~1 A into ~1 mF.
+    P(c('22n', '50V'), 'C%d' % (10 + n), bx + 185.42, by + 7.62, {'1': 'G%d' % n, '2': 'GSS%d' % n},
+      fields={'Note': 'soft start: gate-drain (VBUS) Miller cap, value TBD on bench'})
+    P(r('1k'), 'R%d' % (10 * n + 3), bx + 185.42, by + 40.64, {'1': 'GSS%d' % n, '2': 'VBUS'})
     S.text('Q%s: input side (D=V%d)   Q%s: output side (D=VBUS)%s' % (
         '/'.join(map(str, qa)), n, '/'.join(map(str, qb)),
         '   - two in parallel each side for 25 A' if n == 1 else ''), bx + 116.84, by + 40.64, 1.27)
@@ -94,7 +99,7 @@ nets = {'V1': 'V1', 'V2': 'V2', 'V3': 'V3', 'VS1': 'VS1', 'VS2': 'VS2', 'VS3': '
         '~{VALID3}': '~{VALID3}'}
 S.place('mega-kvm-power:LTC4417CGN', 'U1', 'LTC4417CGN', bx + 45.72, by + 50.8, nets,
         footprint='Package_SO:SSOP-24_3.9x8.7mm_P0.635mm', nc=('CAS',),
-        fields={'LCSC': 'C688500 (LCSC stock very low: consign or hand-fit; LTC4417IUF C580907 is the QFN)',
+        fields={'LCSC': 'C688500 (low stock: order via JLC global sourcing / parts pre-order; SSOP-24, no exposed pad)',
                 'MPN': 'ADI LTC4417CGN#PBF'})
 P(r('158k'), 'R1', bx + 101.6, by + 25.4, {'1': 'HYS', '2': 'GND'}, dnp=True,
   fields={'Note': 'DNP = internal ~30 mV hysteresis; fit to set 63 mV/RHYS (check datasheet)'})

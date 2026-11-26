@@ -66,8 +66,7 @@ def efuse_cell(i, bx, by, part, en, out, flt, term):
     return ux, uy
 
 
-CH_TERM = 'PhoenixContact:MSTBA_2,5/2-G-5,08'
-FP_TERM = 'Connector_Phoenix_MSTB:PhoenixContact_MSTBA_2,5_2-G-5,08_1x02_P5.08mm_Horizontal'
+FP_TERM = 'TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal'
 
 for n in range(8):
     col, row = n % 4, n // 4
@@ -76,8 +75,9 @@ for n in range(8):
                ('DUT%d switched 12 V, 5 A' % n,))
     conn(2, 'J%d' % (10 + n), bx + 76.2, by + 22.86, {'1': 'OUT%d' % n, '2': 'GND'},
          'DUT%d 12V' % n, FP_TERM,
-         fields={'MPN': 'Phoenix MSTBA 2,5/2-G-5,08 (1757242) + MSTB 2,5/2-ST-5,08 plug, 12 A',
-                 'LCSC': 'TBD (or hand-fit)'})
+         fields={'MPN': '2-pole 5.08 mm PCB screw terminal, MKDS 1,5/2-5,08 class (13.5 A); '
+                        'pin 1 = + (OUTn), pin 2 = - (GND)',
+                 'LCSC': 'TBD: JLC-stocked KF128/DG128-5.08-2P clone (THT, machine/wave assembled)'})
 
 # Always-on cell
 bx, by = 12.7, 147.32

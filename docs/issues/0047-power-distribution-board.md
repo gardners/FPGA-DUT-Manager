@@ -115,3 +115,21 @@ for the MEGA-KVM box.
 * Inrush on master-on: add soft start (gate RC) to the input FETs.
 * Current limit 5 A (owner).
 * Mimas feed connector: Mini-Fit Jr 2-pin (shield side matches).
+
+## 2026-11-27 progress: round 5 applied (agent, feature/power-board)
+
+* DUT outputs are now 2-pole 5.08 mm screw terminals (+/-) per DUT.
+  Mini-Fit Jr 2-pin for the Mimas feeds. 1x11 order as adopted. 5 A
+  limits kept.
+* Default input board: still the **LTC4417CGN** (leaded SSOP-24, no exposed
+  pad; ordered through JLC global sourcing / pre-order, no hand-fitting).
+  Soft start added: 22 nF + 1 k Miller RC from each gate to VBUS (set on the
+  bench). docs/hardware/power-board.md explains that the LTC4417 is a gate
+  controller: the current is set by the 3 mOhm FETs. It includes the I2R
+  table at 20/25 A, the SOA note and "why not 3 eFuses".
+* JLC-stocked fallback, `mega-kvm-power-inputs-lm74700` (schematic, ERC
+  clean): 3 x LM74700-Q1 + BSC014N04LS ideal diodes, P-FET switches,
+  LM339/TL431 priority logic (ON1 = rocker & V1, ON2 = rocker & V2 & !V1,
+  ON3 = rocker & V3 & !V1 & !V2), Miller soft start, all leaded parts.
+* ERC 0/0 on all three schematics; DRC 0 violations on both boards
+  (unrouted connections only).

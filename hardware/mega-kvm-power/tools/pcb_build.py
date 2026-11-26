@@ -54,6 +54,7 @@ def add_zone(board, nets, net, layer, pts, prio=0, name=None):
     z.SetLocalClearance(MM(0.3))
     z.SetMinThickness(MM(0.25))
     z.SetPadConnection(pcbnew.ZONE_CONNECTION_FULL)
+    z.SetIslandRemovalMode(pcbnew.ISLAND_REMOVAL_MODE_ALWAYS)
     if name:
         z.SetZoneName(name)
     ol = z.Outline()

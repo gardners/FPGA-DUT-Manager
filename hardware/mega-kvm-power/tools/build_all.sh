@@ -12,6 +12,7 @@ mkdir -p out
 python3 tools/gen_footprints.py
 python3 tools/gen_main.py
 python3 tools/gen_inputs.py
+python3 tools/gen_inputs_lm74700.py
 $KICAD_PY tools/pcb_build.py main inputs 2>&1 | grep -v -i 'gtk-warning' || true
 
 for b in main inputs; do
@@ -28,3 +29,13 @@ for b in main inputs; do
     echo "$b: $(grep 'ERC messages' out/$b-erc.rpt)"
     grep -E '^\*\* Found' out/$b-drc.rpt | sed "s/^/$b: /"
 done
+
+# fallback input board (JLC-stocked LM74700 variant): schematic only
+p=mega-kvm-power-inputs-lm74700
+$KICAD_CLI sch erc --severity-all -o out/inputs-lm74700-erc.rpt $p/$p.kicad_sch >/dev/null
+$KICAD_CLI sch export pdf -o out/$p-schematic.pdf $p/$p.kicad_sch >/dev/null
+$KICAD_CLI sch export bom -o out/$p-bom.csv \
+    --fields 'Reference,Value,Footprint,LCSC,MPN,${QUANTITY},${DNP}' \
+    --labels 'Refs,Value,Footprint,LCSC,MPN,Qty,DNP' \
+    --group-by 'Value,Footprint,LCSC,${DNP}' --ref-range-delimiter '' $p/$p.kicad_sch >/dev/null
+echo "inputs-lm74700: $(grep 'ERC messages' out/inputs-lm74700-erc.rpt)"
