@@ -61,7 +61,15 @@ use UNISIM.VComponents.all;
 
 entity TMDS_Clocking is
    Generic (
-      kClkRange : natural := 1);  -- MULT_F = kClkRange*5 (choose >=120MHz=1, >=60MHz=2, >=40MHz=3, >=30MHz=4, >=25MHz=5
+      kClkRange : natural := 1;  -- MULT_F = kClkRange*5 (choose >=120MHz=1, >=60MHz=2, >=40MHz=3, >=30MHz=4, >=25MHz=5
+      -- FPGA-DUT-Manager change (issue 0049): kPllBufg = true replaces the
+      -- MMCM + BUFIO/BUFR with a PLLE2 whose 5x and 1x outputs drive BUFGs,
+      -- so several receivers can share a clock region (one CMT per region,
+      -- BUFIO/BUFR are regional). kClkInBufg = true routes the TMDS clock
+      -- through a BUFG to the PLL, which may then be in any clock region;
+      -- false needs a free PLL in the pin's own region (dedicated route).
+      kPllBufg : boolean := false;
+      kClkInBufg : boolean := true);
    Port (
       TMDS_Clk_p : in std_logic;
       TMDS_Clk_n : in std_logic;
@@ -80,6 +88,11 @@ entity TMDS_Clocking is
 end TMDS_Clocking;
 
 architecture Behavioral of TMDS_Clocking is
+-- FPGA-DUT-Manager change (issue 0049): PLL multiplier per kClkRange
+function PllMult(r : natural) return natural is
+begin
+   if r >= 4 then return 40; elsif r >= 2 then return 20; else return 10; end if;
+end function;
 constant kDlyRstDelay : natural := 32;
 signal aDlyLckd, rDlyRst, rBUFR_Rst, rLockLostRst : std_logic;
 signal rDlyRstCnt : natural range 0 to kDlyRstDelay - 1 := kDlyRstDelay - 1;
@@ -147,6 +160,45 @@ InputBuffer: IBUFDS
       I => TMDS_Clk_p,
       IB => TMDS_Clk_n);
       
+-- FPGA-DUT-Manager change (issue 0049): PLLE2 + BUFG variant. VCO
+-- 800-1600 MHz (-1): M = 40 for 20-40 MHz (27 MHz MEGA65 modes: 1080 MHz),
+-- 20 for 40-80 MHz, 10 for 80-160 MHz; CLKOUT0 = 5x, CLKOUT1 = 1x. Internal
+-- feedback: the output phase relative to CLKIN is fixed after every lock
+-- (dividers restart on reset), and the per-lane IDELAY/bitslip search
+-- absorbs the BUFG insertion delay.
+GenPll: if kPllBufg generate
+   constant kM : natural := PllMult(kClkRange);
+   signal ClkIn_g, PllFb, Pll5x, Pll1x : std_logic;
+begin
+   GenInBufg: if kClkInBufg generate
+      ClkInBuffer: BUFG port map (I => CLK_IN_hdmi_clk, O => ClkIn_g);
+   end generate;
+   GenInDirect: if not kClkInBufg generate
+      ClkIn_g <= CLK_IN_hdmi_clk;
+   end generate;
+   DVI_PllGenerator: PLLE2_BASE
+      generic map (
+         BANDWIDTH => "OPTIMIZED",
+         CLKFBOUT_MULT => kM,
+         CLKFBOUT_PHASE => 0.0,
+         CLKIN1_PERIOD => real(kM) / 1.2,   -- nominal: VCO 1200 MHz
+         CLKOUT0_DIVIDE => kM / 5,
+         CLKOUT1_DIVIDE => kM,
+         DIVCLK_DIVIDE => 1,
+         REF_JITTER1 => 0.010,
+         STARTUP_WAIT => "FALSE")
+      port map (
+         CLKOUT0 => Pll5x, CLKOUT1 => Pll1x, CLKOUT2 => open, CLKOUT3 => open,
+         CLKOUT4 => open, CLKOUT5 => open,
+         CLKFBOUT => PllFb, LOCKED => aMMCM_Locked,
+         CLKIN1 => ClkIn_g, PWRDWN => '0', RST => rMMCM_Reset_q(0),
+         CLKFBIN => PllFb);
+   SerialClkBuffer: BUFG port map (I => Pll5x, O => SerialClk);
+   PixelClkBuffer: BUFG port map (I => Pll1x, O => PixelClk);
+   rBUFR_Rst <= '0';
+end generate GenPll;
+
+GenMmcm: if not kPllBufg generate
 -- The TMDS Clk channel carries a character-rate frequency reference
 -- In a single Clk period a whole character (10 bits) is transmitted
 -- on each data channel. For deserialization of data channel a faster,
@@ -254,6 +306,8 @@ PixelClkBuffer: BUFR
       I => CLK_OUT_5x_hdmi_clk      -- 1-bit input: Clock buffer input driven by an IBUF, MMCM or local interconnect
    );     
 rBUFR_Rst <= rMMCM_LckdRisingFlag; --pulse CLR on BUFR once the clock returns
+
+end generate GenMmcm;
 
 MMCM_Reset: process(rLockLostRst, RefClk)
 begin

@@ -72,6 +72,12 @@ entity dvi2rgb is
       -- FPGA-DUT-Manager change (issue 0040): HDMI-aware DE (guard bands and
       -- data islands are not video), see hdl/src/video/hdmi_rx_period.vhd
       kHdmiAware : boolean := false;
+      -- FPGA-DUT-Manager change (issue 0049): PLLE2 + BUFG clocking (see
+      -- TMDS_Clocking), TMDS clock through a BUFG to the PLL, and per-lane
+      -- P/N swap (bit i = TMDS_Data(i) pins swapped on the board)
+      kPllBufg : boolean := false;
+      kClkInBufg : boolean := true;
+      kInvert : std_logic_vector(2 downto 0) := "000";
       -- 7-series specific
       kIDLY_TapValuePs : natural := 78; --delay in ps per tap
       kIDLY_TapWidth : natural := 5); --number of bits for IDELAYE2 tap counter   
@@ -190,7 +196,7 @@ end generate ResetActiveHigh;
 -- Clocking infrastructure to obtain a usable fast serial clock and a slow parallel clock
 TMDS_ClockingX: entity work.TMDS_Clocking
    generic map (
-      kClkRange => kClkRange)
+      kClkRange => kClkRange, kPllBufg => kPllBufg, kClkInBufg => kClkInBufg)
    port map (
       aRst       => aRst_int, 
       RefClk     => RefClk,
@@ -240,7 +246,8 @@ DataDecoders: for iCh in 2 downto 0 generate
          kTimeoutMs => kBlankTimeoutMs, --what is the maximum time interval for a blank to be detected (DVI spec)
          kRefClkFrqMHz => 200, --what is the RefClk frequency
          kIDLY_TapValuePs => kIDLY_TapValuePs, --delay in ps per tap
-         kIDLY_TapWidth => kIDLY_TapWidth) --number of bits for IDELAYE2 tap counter   
+         kIDLY_TapWidth => kIDLY_TapWidth, --number of bits for IDELAYE2 tap counter   
+         kInvert => kInvert(iCh) = '1')
       port map (
          aRst                    => pLockLostRst,               
          PixelClk                => PixelClk_int,

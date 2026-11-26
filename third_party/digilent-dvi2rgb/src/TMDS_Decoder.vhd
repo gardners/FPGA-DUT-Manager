@@ -64,7 +64,9 @@ entity TMDS_Decoder is
       kTimeoutMs : natural := 50; --what is the maximum time interval for a blank to be detected
       kRefClkFrqMHz : natural := 200; --what is the RefClk frequency
       kIDLY_TapValuePs : natural := 78; --delay in ps per tap
-      kIDLY_TapWidth : natural := 5); --number of bits for IDELAYE2 tap counter
+      kIDLY_TapWidth : natural := 5; --number of bits for IDELAYE2 tap counter
+      -- FPGA-DUT-Manager change (issue 0049): P/N swapped on the board
+      kInvert : boolean := false);
    Port (
       PixelClk : in std_logic;   --Recovered TMDS clock x1 (CLKDIV)
       SerialClk : in std_logic;  --Recovered TMDS clock x5 (CLK)
@@ -101,7 +103,7 @@ signal pAlignRst, pLockLostRst_n : std_logic;
 signal pBitslipCnt : natural range 0 to kBitslipDelay - 1 := kBitslipDelay - 1; 
 signal pDataIn8b : std_logic_vector(7 downto 0);
 signal pDataInBnd : std_logic_vector(9 downto 0);
-signal pDataInRaw : std_logic_vector(9 downto 0);
+signal pDataInRaw, pDataInSer : std_logic_vector(9 downto 0);
 signal pMeRdy_int, pAligned, pAlignErr_int, pAlignErr_q, pBitslip : std_logic;
 signal pIDLY_LD, pIDLY_CE, pIDLY_INC : std_logic;
 signal pIDLY_CNT : std_logic_vector(kIDLY_TapWidth-1 downto 0);
@@ -112,6 +114,8 @@ signal pTimeoutRst, pTimeoutOvf, rTimeoutRst, rTimeoutOvf : std_logic;
 begin
 
 dbg_pAlignErr <= pAlignErr_int;
+-- FPGA-DUT-Manager change (issue 0049): undo a P/N swap of the lane
+pDataInRaw <= not pDataInSer when kInvert else pDataInSer;
 dbg_pBitslip <= pBitslip;
 
 -- Deserialization block
@@ -127,7 +131,7 @@ InputSERDES_X: entity work.InputSERDES
       sDataIn_n => sDataIn_n,
       
       --Encoded parallel data (raw)
-      pDataIn => pDataInRaw,
+      pDataIn => pDataInSer,
       
       --Control for phase alignment
       pBitslip => pBitslip,
