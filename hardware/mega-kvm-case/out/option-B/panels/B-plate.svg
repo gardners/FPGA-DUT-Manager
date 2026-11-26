@@ -34,9 +34,9 @@
 <circle cx="203.6" cy="215" r="1.7" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
 <circle cx="383.2" cy="215" r="1.7" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
 <circle cx="287.5" cy="57" r="1.7" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
-<circle cx="287.5" cy="103.5" r="1.7" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
-<circle cx="124.5" cy="103.5" r="1.7" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
 <circle cx="124.5" cy="67" r="1.7" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
+<circle cx="124.5" cy="103.5" r="1.7" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
+<circle cx="287.5" cy="103.5" r="1.7" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
 <path d="M 14.25,79.5 L 14.75,79.5 A 1,1 0 0 1 15.75,80.5 L 15.75,83.5 A 1,1 0 0 1 14.75,84.5 L 14.25,84.5 A 1,1 0 0 1 13.25,83.5 L 13.25,80.5 A 1,1 0 0 1 14.25,79.5 Z" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
 <path d="M 113.25,79.5 L 113.75,79.5 A 1,1 0 0 1 114.75,80.5 L 114.75,83.5 A 1,1 0 0 1 113.75,84.5 L 113.25,84.5 A 1,1 0 0 1 112.25,83.5 L 112.25,80.5 A 1,1 0 0 1 113.25,79.5 Z" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
 <path d="M 14.25,29.5 L 14.75,29.5 A 1,1 0 0 1 15.75,30.5 L 15.75,33.5 A 1,1 0 0 1 14.75,34.5 L 14.25,34.5 A 1,1 0 0 1 13.25,33.5 L 13.25,30.5 A 1,1 0 0 1 14.25,29.5 Z" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
