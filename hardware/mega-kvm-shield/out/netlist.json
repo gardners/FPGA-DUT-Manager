@@ -98,6 +98,20 @@
   "value": "100n"
  },
  "C16": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "100n"
+ },
+ "C17": {
   "cluster": "PK",
   "descr": "",
   "dnp": false,
@@ -445,22 +459,22 @@
   "mpn": "",
   "pads": {
    "1": "GND",
-   "10": "PWR_EN7",
+   "10": "PWR_CTL7",
    "11": "PWRB_PRESENT_N",
-   "3": "PWR_EN0",
-   "4": "PWR_EN1",
-   "5": "PWR_EN2",
-   "6": "PWR_EN3",
-   "7": "PWR_EN4",
-   "8": "PWR_EN5",
-   "9": "PWR_EN6"
+   "3": "PWR_CTL0",
+   "4": "PWR_CTL1",
+   "5": "PWR_CTL2",
+   "6": "PWR_CTL3",
+   "7": "PWR_CTL4",
+   "8": "PWR_CTL5",
+   "9": "PWR_CTL6"
   },
   "sheet": "io_expanders",
   "value": "POWER CTRL (pin 2 = key)"
  },
  "J14": {
   "cluster": "I2CJ",
-  "descr": "1x5 right-angle header",
+  "descr": "1x5 right-angle header: GND 3V3 SDA SCL INT",
   "dnp": false,
   "fp": "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Horizontal",
   "lcsc": "",
@@ -470,7 +484,7 @@
    "2": "+3V3",
    "3": "I2C_SDA",
    "4": "I2C_SCL",
-   "5": "I2C_INT_N"
+   "5": "EXPB_INT_N"
   },
   "sheet": "io_expanders",
   "value": "I2C (front panel)"
@@ -506,8 +520,8 @@
   "mpn": "",
   "pads": {
    "1": "GND",
-   "2": "LINKA_J_TX",
-   "3": "LINKA_J_RX"
+   "2": "LINKA_TX",
+   "3": "LINKA_RX"
   },
   "sheet": "keyboard_link",
   "value": "LINK A UART"
@@ -521,8 +535,8 @@
   "mpn": "",
   "pads": {
    "1": "LINKA_12V",
-   "2": "LINKA_J_TX",
-   "3": "LINKA_J_RX",
+   "2": "LINKA_TX",
+   "3": "LINKA_RX",
    "4": "GND"
   },
   "sheet": "keyboard_link",
@@ -537,8 +551,8 @@
   "mpn": "",
   "pads": {
    "1": "GND",
-   "2": "LINKB_J_TX",
-   "3": "LINKB_J_RX"
+   "2": "LINKB_TX",
+   "3": "LINKB_RX"
   },
   "sheet": "keyboard_link",
   "value": "LINK B UART"
@@ -552,8 +566,8 @@
   "mpn": "",
   "pads": {
    "1": "LINKB_12V",
-   "2": "LINKB_J_RX",
-   "3": "LINKB_J_TX",
+   "2": "LINKB_RX",
+   "3": "LINKB_TX",
    "4": "GND"
   },
   "sheet": "keyboard_link",
@@ -757,29 +771,28 @@
    "A1": "+12V",
    "A10": "PK_KIO10",
    "A11": "PK_KIO8",
-   "A12": "HDMI2_CLK_P",
-   "A13": "HDMI2_D0_P",
+   "A12": "HDMI3_CLK_P",
+   "A13": "HDMI3_D0_P",
    "A14": "GND",
    "A15": "+3V3",
    "A16": "DUT0_KIO10",
    "A17": "DUT0_KIO8",
-   "A18": "HDMI2_D1_P",
-   "A19": "HDMI2_D2_P",
+   "A18": "HDMI3_D1_P",
+   "A19": "HDMI3_D2_P",
    "A2": "+12V",
    "A20": "GND",
    "A21": "+3V3",
-   "A22": "DUT2_TDO",
-   "A23": "DUT2_UART_FROM",
+   "A23": "NB_UART_TX",
    "A24": "GND",
-   "A25": "DUT2_KIO9",
-   "A26": "HDMI2_SCL",
+   "A25": "I2C_SCL",
+   "A26": "DUT3_KIO10",
    "A27": "GND",
-   "A28": "PK_JTAGEN",
-   "A29": "PK_TCK",
+   "A28": "DUT3_TCK",
+   "A29": "DUT3_TDI",
    "A3": "GND",
    "A30": "GND",
-   "A31": "I2C_SCL",
-   "A32": "LINKA_TX",
+   "A31": "DUT3_TMS",
+   "A32": "HDMI3_SCL",
    "A33": "GND",
    "A4": "DUT0_TCK",
    "A40": "GND",
@@ -791,40 +804,40 @@
    "B1": "+12V",
    "B10": "PK_KIO9",
    "B11": "PK_TDO",
-   "B12": "HDMI2_CLK_N",
-   "B13": "HDMI2_D0_N",
+   "B12": "HDMI3_CLK_N",
+   "B13": "HDMI3_D0_N",
    "B14": "GND",
    "B15": "+3V3",
    "B16": "DUT0_KIO9",
-   "B17": "DUT2_TDI",
-   "B18": "HDMI2_D1_N",
-   "B19": "HDMI2_D2_N",
+   "B17": "PK_TMS",
+   "B18": "HDMI3_D1_N",
+   "B19": "HDMI3_D2_N",
    "B2": "+12V",
    "B20": "GND",
    "B21": "+3V3",
-   "B22": "DUT2_UART_TO",
-   "B23": "DUT2_KIO8",
+   "B22": "PK_TDI",
+   "B23": "NB_UART_RX",
    "B24": "GND",
-   "B25": "DUT2_KIO10",
-   "B26": "HDMI2_SDA",
+   "B25": "I2C_SDA",
+   "B26": "DUT3_KIO9",
    "B27": "GND",
-   "B28": "PK_TMS",
-   "B29": "PK_TDI",
+   "B28": "DUT3_UART_FROM",
+   "B29": "DUT3_UART_TO",
    "B3": "GND",
    "B30": "GND",
-   "B31": "I2C_SDA",
-   "B32": "LINKA_RX",
+   "B31": "DUT3_KIO8",
+   "B32": "HDMI3_SDA",
    "B33": "GND",
    "B4": "DUT0_UART_FROM",
    "B40": "GND",
    "B5": "DUT0_UART_TO",
-   "B6": "DUT2_TCK",
-   "B7": "DUT2_TMS",
+   "B6": "DUT3_TDO",
+   "B7": "PK_TCK",
    "B8": "GND",
    "B9": "+3V3"
   },
   "sheet": "mimas_headers",
-  "value": "P12 socket (DUT0/DUT2 side)"
+  "value": "P12 socket (DUT0/DUT3 side)"
  },
  "P2": {
   "cluster": "P13",
@@ -837,29 +850,29 @@
    "A1": "+12V",
    "A10": "HDMI1_D0_P",
    "A11": "HDMI1_CLK_P",
-   "A12": "HDMI3_CLK_P",
-   "A13": "HDMI1_D2_P",
+   "A12": "HDMI2_CLK_P",
+   "A13": "HDMI1_D1_P",
    "A14": "GND",
    "A15": "+3V3",
    "A16": "DUT1_KIO10",
    "A17": "DUT1_KIO8",
-   "A18": "HDMI1_D1_P",
-   "A19": "HDMI3_D0_P",
+   "A18": "HDMI1_D2_P",
+   "A19": "HDMI2_D0_P",
    "A2": "+12V",
    "A20": "GND",
    "A21": "+3V3",
-   "A22": "DUT3_TDO",
-   "A23": "HDMI3_D1_P",
+   "A22": "DUT2_KIO9",
+   "A23": "HDMI2_D1_P",
    "A24": "GND",
-   "A25": "HDMI3_D2_P",
-   "A26": "DUT3_UART_FROM",
+   "A25": "HDMI2_D2_P",
+   "A26": "HDMI1_SCL",
    "A27": "GND",
-   "A28": "HDMI1_SCL",
-   "A29": "DUT3_KIO9",
+   "A28": "HDMI2_SCL",
+   "A29": "DUT2_TCK",
    "A3": "GND",
    "A30": "GND",
-   "A31": "HDMI3_SCL",
-   "A32": "LINKB_TX",
+   "A31": "DUT2_TDI",
+   "A32": "DUT2_TMS",
    "A33": "GND",
    "A4": "DUT1_TCK",
    "A40": "GND",
@@ -871,40 +884,38 @@
    "B1": "+12V",
    "B10": "HDMI1_D0_N",
    "B11": "HDMI1_CLK_N",
-   "B12": "HDMI3_CLK_N",
-   "B13": "HDMI1_D2_N",
+   "B12": "HDMI2_CLK_N",
+   "B13": "HDMI1_D1_N",
    "B14": "GND",
    "B15": "+3V3",
    "B16": "DUT1_KIO9",
-   "B17": "DUT3_TDI",
-   "B18": "HDMI1_D1_N",
-   "B19": "HDMI3_D0_N",
+   "B18": "HDMI1_D2_N",
+   "B19": "HDMI2_D0_N",
    "B2": "+12V",
    "B20": "GND",
    "B21": "+3V3",
-   "B22": "DUT3_UART_TO",
-   "B23": "HDMI3_D1_N",
+   "B22": "DUT2_KIO10",
+   "B23": "HDMI2_D1_N",
    "B24": "GND",
-   "B25": "HDMI3_D2_N",
-   "B26": "DUT3_KIO8",
+   "B25": "HDMI2_D2_N",
+   "B26": "HDMI1_SDA",
    "B27": "GND",
-   "B28": "HDMI1_SDA",
-   "B29": "DUT3_KIO10",
+   "B28": "HDMI2_SDA",
+   "B29": "DUT2_UART_FROM",
    "B3": "GND",
    "B30": "GND",
-   "B31": "HDMI3_SDA",
-   "B32": "LINKB_RX",
+   "B31": "DUT2_UART_TO",
+   "B32": "DUT2_KIO8",
    "B33": "GND",
    "B4": "DUT1_UART_FROM",
    "B40": "GND",
    "B5": "DUT1_UART_TO",
-   "B6": "DUT3_TCK",
-   "B7": "DUT3_TMS",
+   "B6": "DUT2_TDO",
    "B8": "GND",
    "B9": "+3V3"
   },
   "sheet": "mimas_headers",
-  "value": "P13 socket (DUT1/DUT3 side)"
+  "value": "P13 socket (DUT1/DUT2 side)"
  },
  "Q1": {
   "cluster": "HDMI1",
@@ -1201,7 +1212,7 @@
   "mpn": "",
   "pads": {
    "1": "+3V3",
-   "2": "REV0"
+   "2": "EXPA_INT_N"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1209,13 +1220,13 @@
  "R112": {
   "cluster": "EXP",
   "descr": "",
-  "dnp": true,
+  "dnp": false,
   "fp": "Resistor_SMD:R_0402_1005Metric",
   "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "REV0",
-   "2": "GND"
+   "1": "+3V3",
+   "2": "SHD_REV0"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1228,8 +1239,8 @@
   "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "+3V3",
-   "2": "REV1"
+   "1": "SHD_REV0",
+   "2": "GND"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1237,13 +1248,13 @@
  "R114": {
   "cluster": "EXP",
   "descr": "",
-  "dnp": false,
+  "dnp": true,
   "fp": "Resistor_SMD:R_0402_1005Metric",
   "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "REV1",
-   "2": "GND"
+   "1": "+3V3",
+   "2": "SHD_REV1"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1251,13 +1262,13 @@
  "R115": {
   "cluster": "EXP",
   "descr": "",
-  "dnp": true,
+  "dnp": false,
   "fp": "Resistor_SMD:R_0402_1005Metric",
   "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "+3V3",
-   "2": "REV2"
+   "1": "SHD_REV1",
+   "2": "GND"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1265,13 +1276,13 @@
  "R116": {
   "cluster": "EXP",
   "descr": "",
-  "dnp": false,
+  "dnp": true,
   "fp": "Resistor_SMD:R_0402_1005Metric",
   "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "REV2",
-   "2": "GND"
+   "1": "+3V3",
+   "2": "SHD_REV2"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1279,13 +1290,13 @@
  "R117": {
   "cluster": "EXP",
   "descr": "",
-  "dnp": true,
+  "dnp": false,
   "fp": "Resistor_SMD:R_0402_1005Metric",
   "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "+3V3",
-   "2": "REV3"
+   "1": "SHD_REV2",
+   "2": "GND"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1293,13 +1304,13 @@
  "R118": {
   "cluster": "EXP",
   "descr": "",
-  "dnp": false,
+  "dnp": true,
   "fp": "Resistor_SMD:R_0402_1005Metric",
   "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "REV3",
-   "2": "GND"
+   "1": "+3V3",
+   "2": "SHD_REV3"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1307,13 +1318,13 @@
  "R119": {
   "cluster": "EXP",
   "descr": "",
-  "dnp": true,
+  "dnp": false,
   "fp": "Resistor_SMD:R_0402_1005Metric",
   "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "+3V3",
-   "2": "REV4"
+   "1": "SHD_REV3",
+   "2": "GND"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1335,13 +1346,13 @@
  "R120": {
   "cluster": "EXP",
   "descr": "",
-  "dnp": false,
+  "dnp": true,
   "fp": "Resistor_SMD:R_0402_1005Metric",
   "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "REV4",
-   "2": "GND"
+   "1": "+3V3",
+   "2": "SHD_REV4"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1349,13 +1360,13 @@
  "R121": {
   "cluster": "EXP",
   "descr": "",
-  "dnp": true,
+  "dnp": false,
   "fp": "Resistor_SMD:R_0402_1005Metric",
   "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "+3V3",
-   "2": "REV5"
+   "1": "SHD_REV4",
+   "2": "GND"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1363,13 +1374,13 @@
  "R122": {
   "cluster": "EXP",
   "descr": "",
-  "dnp": false,
+  "dnp": true,
   "fp": "Resistor_SMD:R_0402_1005Metric",
   "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "REV5",
-   "2": "GND"
+   "1": "+3V3",
+   "2": "SHD_REV5"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1377,13 +1388,13 @@
  "R123": {
   "cluster": "EXP",
   "descr": "",
-  "dnp": true,
+  "dnp": false,
   "fp": "Resistor_SMD:R_0402_1005Metric",
   "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "+3V3",
-   "2": "REV6"
+   "1": "SHD_REV5",
+   "2": "GND"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1391,18 +1402,32 @@
  "R124": {
   "cluster": "EXP",
   "descr": "",
-  "dnp": false,
+  "dnp": true,
   "fp": "Resistor_SMD:R_0402_1005Metric",
   "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "REV6",
-   "2": "GND"
+   "1": "+3V3",
+   "2": "SHD_REV6"
   },
   "sheet": "io_expanders",
   "value": "10k"
  },
  "R125": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "SHD_REV6",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R126": {
   "cluster": "EXP",
   "descr": "",
   "dnp": true,
@@ -1411,21 +1436,7 @@
   "mpn": "",
   "pads": {
    "1": "+3V3",
-   "2": "REV7"
-  },
-  "sheet": "io_expanders",
-  "value": "10k"
- },
- "R126": {
-  "cluster": "EXP",
-  "descr": "",
-  "dnp": false,
-  "fp": "Resistor_SMD:R_0402_1005Metric",
-  "lcsc": "C25744",
-  "mpn": "",
-  "pads": {
-   "1": "REV7",
-   "2": "GND"
+   "2": "SHD_REV7"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1438,27 +1449,13 @@
   "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "+3V3",
-   "2": "FEAT0"
-  },
-  "sheet": "io_expanders",
-  "value": "10k"
- },
- "R128": {
-  "cluster": "EXP",
-  "descr": "",
-  "dnp": true,
-  "fp": "Resistor_SMD:R_0402_1005Metric",
-  "lcsc": "C25744",
-  "mpn": "",
-  "pads": {
-   "1": "FEAT0",
+   "1": "SHD_REV7",
    "2": "GND"
   },
   "sheet": "io_expanders",
   "value": "10k"
  },
- "R129": {
+ "R128": {
   "cluster": "EXP",
   "descr": "",
   "dnp": false,
@@ -1467,7 +1464,21 @@
   "mpn": "",
   "pads": {
    "1": "+3V3",
-   "2": "FEAT2"
+   "2": "SHD_FEAT0"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R129": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": true,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "SHD_FEAT0",
+   "2": "GND"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1489,13 +1500,13 @@
  "R130": {
   "cluster": "EXP",
   "descr": "",
-  "dnp": true,
+  "dnp": false,
   "fp": "Resistor_SMD:R_0402_1005Metric",
   "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "FEAT2",
-   "2": "GND"
+   "1": "+3V3",
+   "2": "SHD_FEAT1"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1508,8 +1519,8 @@
   "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "+3V3",
-   "2": "FEAT3"
+   "1": "SHD_FEAT1",
+   "2": "GND"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1522,8 +1533,8 @@
   "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "FEAT3",
-   "2": "GND"
+   "1": "+3V3",
+   "2": "SHD_FEAT2"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1536,8 +1547,8 @@
   "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "+3V3",
-   "2": "FEAT4"
+   "1": "SHD_FEAT2",
+   "2": "GND"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1550,8 +1561,8 @@
   "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "FEAT4",
-   "2": "GND"
+   "1": "+3V3",
+   "2": "SHD_FEAT3"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1564,8 +1575,8 @@
   "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "+3V3",
-   "2": "FEAT5"
+   "1": "SHD_FEAT3",
+   "2": "GND"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1578,8 +1589,8 @@
   "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "FEAT5",
-   "2": "GND"
+   "1": "+3V3",
+   "2": "SHD_FEAT4"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1592,8 +1603,8 @@
   "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "+3V3",
-   "2": "FEAT6"
+   "1": "SHD_FEAT4",
+   "2": "GND"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1606,8 +1617,8 @@
   "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "FEAT6",
-   "2": "GND"
+   "1": "+3V3",
+   "2": "SHD_FEAT5"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1620,8 +1631,8 @@
   "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "+3V3",
-   "2": "FEAT7"
+   "1": "SHD_FEAT5",
+   "2": "GND"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1648,8 +1659,8 @@
   "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "FEAT7",
-   "2": "GND"
+   "1": "+3V3",
+   "2": "SHD_FEAT6"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1657,27 +1668,27 @@
  "R141": {
   "cluster": "EXP",
   "descr": "",
-  "dnp": false,
+  "dnp": true,
   "fp": "Resistor_SMD:R_0402_1005Metric",
-  "lcsc": "C17168",
+  "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "FEAT1",
-   "2": "PWRB_PRESENT_N"
+   "1": "SHD_FEAT6",
+   "2": "GND"
   },
   "sheet": "io_expanders",
-  "value": "0"
+  "value": "10k"
  },
  "R142": {
   "cluster": "EXP",
   "descr": "",
-  "dnp": false,
+  "dnp": true,
   "fp": "Resistor_SMD:R_0402_1005Metric",
   "lcsc": "C25744",
   "mpn": "",
   "pads": {
    "1": "+3V3",
-   "2": "PWRB_PRESENT_N"
+   "2": "SHD_FEAT7"
   },
   "sheet": "io_expanders",
   "value": "10k"
@@ -1687,14 +1698,14 @@
   "descr": "",
   "dnp": false,
   "fp": "Resistor_SMD:R_0402_1005Metric",
-  "lcsc": "C25765",
+  "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "PWR_EN0",
+   "1": "SHD_FEAT7",
    "2": "GND"
   },
   "sheet": "io_expanders",
-  "value": "20k"
+  "value": "10k"
  },
  "R144": {
   "cluster": "EXP",
@@ -1704,7 +1715,7 @@
   "lcsc": "C25765",
   "mpn": "",
   "pads": {
-   "1": "PWR_EN1",
+   "1": "PWR_CTL0",
    "2": "GND"
   },
   "sheet": "io_expanders",
@@ -1718,7 +1729,7 @@
   "lcsc": "C25765",
   "mpn": "",
   "pads": {
-   "1": "PWR_EN2",
+   "1": "PWR_CTL1",
    "2": "GND"
   },
   "sheet": "io_expanders",
@@ -1732,7 +1743,7 @@
   "lcsc": "C25765",
   "mpn": "",
   "pads": {
-   "1": "PWR_EN3",
+   "1": "PWR_CTL2",
    "2": "GND"
   },
   "sheet": "io_expanders",
@@ -1746,7 +1757,7 @@
   "lcsc": "C25765",
   "mpn": "",
   "pads": {
-   "1": "PWR_EN4",
+   "1": "PWR_CTL3",
    "2": "GND"
   },
   "sheet": "io_expanders",
@@ -1760,7 +1771,7 @@
   "lcsc": "C25765",
   "mpn": "",
   "pads": {
-   "1": "PWR_EN5",
+   "1": "PWR_CTL4",
    "2": "GND"
   },
   "sheet": "io_expanders",
@@ -1774,7 +1785,7 @@
   "lcsc": "C25765",
   "mpn": "",
   "pads": {
-   "1": "PWR_EN6",
+   "1": "PWR_CTL5",
    "2": "GND"
   },
   "sheet": "io_expanders",
@@ -1802,7 +1813,7 @@
   "lcsc": "C25765",
   "mpn": "",
   "pads": {
-   "1": "PWR_EN7",
+   "1": "PWR_CTL6",
    "2": "GND"
   },
   "sheet": "io_expanders",
@@ -1813,30 +1824,44 @@
   "descr": "",
   "dnp": false,
   "fp": "Resistor_SMD:R_0402_1005Metric",
-  "lcsc": "C25741",
+  "lcsc": "C25765",
   "mpn": "",
   "pads": {
-   "1": "EXP_SPARE0",
+   "1": "PWR_CTL7",
    "2": "GND"
   },
   "sheet": "io_expanders",
-  "value": "100k"
+  "value": "20k"
  },
  "R152": {
   "cluster": "EXP",
   "descr": "",
   "dnp": false,
   "fp": "Resistor_SMD:R_0402_1005Metric",
-  "lcsc": "C25741",
+  "lcsc": "C25744",
   "mpn": "",
   "pads": {
-   "1": "EXP_SPARE1",
-   "2": "GND"
+   "1": "+3V3",
+   "2": "PWRB_PRESENT_N"
   },
   "sheet": "io_expanders",
-  "value": "100k"
+  "value": "10k"
  },
  "R153": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "EXPB_INT_N"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R154": {
   "cluster": "EXP",
   "descr": "",
   "dnp": false,
@@ -1850,7 +1875,7 @@
   "sheet": "io_expanders",
   "value": "2.2k"
  },
- "R154": {
+ "R155": {
   "cluster": "EXP",
   "descr": "",
   "dnp": false,
@@ -1863,20 +1888,6 @@
   },
   "sheet": "io_expanders",
   "value": "2.2k"
- },
- "R155": {
-  "cluster": "EXP",
-  "descr": "",
-  "dnp": false,
-  "fp": "Resistor_SMD:R_0402_1005Metric",
-  "lcsc": "C25744",
-  "mpn": "",
-  "pads": {
-   "1": "+3V3",
-   "2": "I2C_INT_N"
-  },
-  "sheet": "io_expanders",
-  "value": "10k"
  },
  "R156": {
   "cluster": "PK",
@@ -2005,18 +2016,18 @@
   "value": "33"
  },
  "R164": {
-  "cluster": "LINKA",
+  "cluster": "PK",
   "descr": "",
   "dnp": false,
   "fp": "Resistor_SMD:R_0402_1005Metric",
-  "lcsc": "C25076",
+  "lcsc": "C25741",
   "mpn": "",
   "pads": {
-   "1": "LINKA_TX",
-   "2": "LINKA_J_TX"
+   "1": "PK_JTAGEN",
+   "2": "GND"
   },
   "sheet": "keyboard_link",
-  "value": "100"
+  "value": "100k"
  },
  "R165": {
   "cluster": "LINKA",
@@ -2026,22 +2037,22 @@
   "lcsc": "C25076",
   "mpn": "",
   "pads": {
-   "1": "LINKA_RX",
-   "2": "LINKA_J_RX"
+   "1": "NB_UART_TX",
+   "2": "LINKA_TX"
   },
   "sheet": "keyboard_link",
   "value": "100"
  },
  "R166": {
-  "cluster": "LINKB",
+  "cluster": "LINKA",
   "descr": "",
   "dnp": false,
   "fp": "Resistor_SMD:R_0402_1005Metric",
   "lcsc": "C25076",
   "mpn": "",
   "pads": {
-   "1": "LINKB_TX",
-   "2": "LINKB_J_TX"
+   "1": "NB_UART_RX",
+   "2": "LINKA_RX"
   },
   "sheet": "keyboard_link",
   "value": "100"
@@ -2054,8 +2065,22 @@
   "lcsc": "C25076",
   "mpn": "",
   "pads": {
-   "1": "LINKB_RX",
-   "2": "LINKB_J_RX"
+   "1": "NB_UART_TX",
+   "2": "LINKB_TX"
+  },
+  "sheet": "keyboard_link",
+  "value": "100"
+ },
+ "R168": {
+  "cluster": "LINKB",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25076",
+  "mpn": "",
+  "pads": {
+   "1": "NB_UART_RX",
+   "2": "LINKB_RX"
   },
   "sheet": "keyboard_link",
   "value": "100"
@@ -3354,32 +3379,32 @@
  },
  "U10": {
   "cluster": "EXP",
-  "descr": "24-bit I2C GPIO expander, addr 0x22",
+  "descr": "24-bit I2C GPIO expander A, addr 0x22",
   "dnp": false,
   "fp": "Package_DFN_QFN:QFN-32-1EP_5x5mm_P0.5mm_EP3.45x3.45mm",
   "lcsc": "",
   "mpn": "",
   "pads": {
-   "1": "I2C_INT_N",
-   "10": "REV6",
-   "11": "REV7",
-   "12": "FEAT0",
-   "13": "FEAT1",
-   "14": "FEAT2",
-   "15": "FEAT3",
-   "16": "FEAT4",
-   "17": "FEAT5",
-   "18": "FEAT6",
-   "19": "FEAT7",
+   "1": "EXPA_INT_N",
+   "10": "SHD_REV6",
+   "11": "SHD_REV7",
+   "12": "SHD_FEAT0",
+   "13": "SHD_FEAT1",
+   "14": "SHD_FEAT2",
+   "15": "SHD_FEAT3",
+   "16": "SHD_FEAT4",
+   "17": "SHD_FEAT5",
+   "18": "SHD_FEAT6",
+   "19": "SHD_FEAT7",
    "2": "+3V3",
-   "20": "PWR_EN0",
-   "21": "PWR_EN1",
-   "22": "PWR_EN2",
-   "23": "PWR_EN3",
-   "24": "PWR_EN4",
-   "25": "PWR_EN5",
-   "26": "PWR_EN6",
-   "27": "PWR_EN7",
+   "20": "PWR_CTL0",
+   "21": "PWR_CTL1",
+   "22": "PWR_CTL2",
+   "23": "PWR_CTL3",
+   "24": "PWR_CTL4",
+   "25": "PWR_CTL5",
+   "26": "PWR_CTL6",
+   "27": "PWR_CTL7",
    "28": "GND",
    "29": "I2C_SCL",
    "3": "EXP_RESET_N",
@@ -3387,51 +3412,51 @@
    "31": "+3V3",
    "32": "GND",
    "33": "GND",
-   "4": "REV0",
-   "5": "REV1",
-   "6": "REV2",
-   "7": "REV3",
-   "8": "REV4",
-   "9": "REV5"
+   "4": "SHD_REV0",
+   "5": "SHD_REV1",
+   "6": "SHD_REV2",
+   "7": "SHD_REV3",
+   "8": "SHD_REV4",
+   "9": "SHD_REV5"
   },
   "sheet": "io_expanders",
   "value": "TCA6424ARGJR"
  },
  "U11": {
   "cluster": "EXP",
-  "descr": "16-bit I2C GPIO expander, no pull-ups, addr 0x20",
+  "descr": "16-bit I2C GPIO expander B, addr 0x20 (TI TCA6416A)",
   "dnp": false,
   "fp": "Package_SO:TSSOP-24_4.4x7.8mm_P0.65mm",
   "lcsc": "",
   "mpn": "",
   "pads": {
-   "1": "I2C_INT_N",
-   "10": "DUT2_KB_SENSE",
-   "11": "DUT3_KB_SENSE",
+   "1": "EXPB_INT_N",
+   "10": "HDMI3_5V_SENSE",
+   "11": "PWRB_PRESENT_N",
    "12": "GND",
-   "13": "HDMI1_HPD_EN",
-   "14": "HDMI2_HPD_EN",
-   "15": "HDMI3_HPD_EN",
-   "16": "HDMI1_5V_SENSE",
-   "17": "HDMI2_5V_SENSE",
-   "18": "HDMI3_5V_SENSE",
-   "19": "EXP_SPARE0",
-   "2": "GND",
-   "20": "EXP_SPARE1",
+   "13": "DUT0_VIO_SENSE",
+   "14": "DUT1_VIO_SENSE",
+   "15": "DUT2_VIO_SENSE",
+   "16": "DUT3_VIO_SENSE",
+   "17": "DUT0_KB_SENSE",
+   "18": "DUT1_KB_SENSE",
+   "19": "DUT2_KB_SENSE",
+   "2": "+3V3",
+   "20": "DUT3_KB_SENSE",
    "21": "GND",
    "22": "I2C_SCL",
    "23": "I2C_SDA",
    "24": "+3V3",
-   "3": "GND",
-   "4": "DUT0_VIO_SENSE",
-   "5": "DUT1_VIO_SENSE",
-   "6": "DUT2_VIO_SENSE",
-   "7": "DUT3_VIO_SENSE",
-   "8": "DUT0_KB_SENSE",
-   "9": "DUT1_KB_SENSE"
+   "3": "EXP_RESET_N",
+   "4": "HDMI1_HPD_EN",
+   "5": "HDMI2_HPD_EN",
+   "6": "HDMI3_HPD_EN",
+   "7": "PK_JTAGEN",
+   "8": "HDMI1_5V_SENSE",
+   "9": "HDMI2_5V_SENSE"
   },
   "sheet": "io_expanders",
-  "value": "TCA9535PWR"
+  "value": "TCA6416APWR"
  },
  "U2": {
   "cluster": "HDMI1",

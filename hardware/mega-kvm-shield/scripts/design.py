@@ -5,9 +5,9 @@ the sheet it is drawn on, the PCB cluster it is placed in, and its pin->net
 map. gen_sch.py turns this into the KiCad schematic, gen_pcb.py into the
 board. Change the circuit here, then rerun `make` in this directory.
 
-Header pin plan: HEADER_PLAN below is a PLACEHOLDER until the pin-plan
-work (docs/hardware/shield-pinplan.md, branch feature/shield-pinplan,
-issue 0049) fixes it; only that table needs to change.
+Header pin plan and expander bit maps: docs/hardware/shield-pinplan.md v1
+(issue 0049 gate build passed, 4 DUTs). Net names follow that document;
+the Mimas VADJ_3V3 rows are the +3V3 power net here.
 """
 
 N_DUT = 4                 # DUT0..DUT3; DUT0 video = Mimas HDMI IN
@@ -15,59 +15,55 @@ HDMI_DUTS = [1, 2, 3]     # DUTs with a header HDMI receiver on the shield
 REVISION = 0x01           # shield revision strapped on TCA6424A port 0
 
 # --------------------------------------------------------------------------
-# Header pin plan (PLACEHOLDER).  Keys: (header, row, column).  Rows 1-2 VIN,
+# Header pin plan, shield-pinplan.md v1. Keys: (row, column). Rows 1-2 VIN,
 # 9/15/21 VADJ 3.3 V, 3/8/14/20/24/27/30/33/40 GND, 34-39 configuration pins
-# (never connected).  Column A = P, column B = N of each pair.
-# Existing assignments kept (ADR 0008 am. 5, xdc): DUT0/DUT1 JTAG rows 4-7,
-# DUT keyboards 16A/16B/17A, physical keyboard P12 10A/10B/11A (+11B TDO),
-# header HDMI (0043) P13 rows 10-13 (D1 moved to row 18 so that the MRCC pair
-# on row 12 can clock DUT3, see issue 0045 round 3), DDC P13 row 28.
-# VIO/keyboard sense, HPD and +5V sense move to the TCA9535 expander.
+# (never connected). Column A = P, column B = N of each pair. Spares are
+# left unconnected (no pad net).
 # --------------------------------------------------------------------------
 HEADER_PLAN = {
     'P12': {
         (4, 'A'): 'DUT0_TCK', (4, 'B'): 'DUT0_UART_FROM',
         (5, 'A'): 'DUT0_TDO', (5, 'B'): 'DUT0_UART_TO',
-        (6, 'A'): 'DUT0_TDI', (6, 'B'): 'DUT2_TCK',
-        (7, 'A'): 'DUT0_TMS', (7, 'B'): 'DUT2_TMS',
+        (6, 'A'): 'DUT0_TDI', (6, 'B'): 'DUT3_TDO',
+        (7, 'A'): 'DUT0_TMS', (7, 'B'): 'PK_TCK',
         (10, 'A'): 'PK_KIO10', (10, 'B'): 'PK_KIO9',
         (11, 'A'): 'PK_KIO8', (11, 'B'): 'PK_TDO',
-        (12, 'A'): 'HDMI2_CLK_P', (12, 'B'): 'HDMI2_CLK_N',
-        (13, 'A'): 'HDMI2_D0_P', (13, 'B'): 'HDMI2_D0_N',
+        (12, 'A'): 'HDMI3_CLK_P', (12, 'B'): 'HDMI3_CLK_N',
+        (13, 'A'): 'HDMI3_D0_P', (13, 'B'): 'HDMI3_D0_N',
         (16, 'A'): 'DUT0_KIO10', (16, 'B'): 'DUT0_KIO9',
-        (17, 'A'): 'DUT0_KIO8', (17, 'B'): 'DUT2_TDI',
-        (18, 'A'): 'HDMI2_D1_P', (18, 'B'): 'HDMI2_D1_N',
-        (19, 'A'): 'HDMI2_D2_P', (19, 'B'): 'HDMI2_D2_N',
-        (22, 'A'): 'DUT2_TDO', (22, 'B'): 'DUT2_UART_TO',
-        (23, 'A'): 'DUT2_UART_FROM', (23, 'B'): 'DUT2_KIO8',
-        (25, 'A'): 'DUT2_KIO9', (25, 'B'): 'DUT2_KIO10',
-        (26, 'A'): 'HDMI2_SCL', (26, 'B'): 'HDMI2_SDA',
-        (28, 'A'): 'PK_JTAGEN', (28, 'B'): 'PK_TMS',
-        (29, 'A'): 'PK_TCK', (29, 'B'): 'PK_TDI',
-        (31, 'A'): 'I2C_SCL', (31, 'B'): 'I2C_SDA',
-        (32, 'A'): 'LINKA_TX', (32, 'B'): 'LINKA_RX',
+        (17, 'A'): 'DUT0_KIO8', (17, 'B'): 'PK_TMS',
+        (18, 'A'): 'HDMI3_D1_P', (18, 'B'): 'HDMI3_D1_N',
+        (19, 'A'): 'HDMI3_D2_P', (19, 'B'): 'HDMI3_D2_N',
+        (22, 'A'): None, (22, 'B'): 'PK_TDI',          # 22A = SP_P12_H17
+        (23, 'A'): 'NB_UART_TX', (23, 'B'): 'NB_UART_RX',
+        (25, 'A'): 'I2C_SCL', (25, 'B'): 'I2C_SDA',
+        (26, 'A'): 'DUT3_KIO10', (26, 'B'): 'DUT3_KIO9',
+        (28, 'A'): 'DUT3_TCK', (28, 'B'): 'DUT3_UART_FROM',
+        (29, 'A'): 'DUT3_TDI', (29, 'B'): 'DUT3_UART_TO',
+        (31, 'A'): 'DUT3_TMS', (31, 'B'): 'DUT3_KIO8',
+        (32, 'A'): 'HDMI3_SCL', (32, 'B'): 'HDMI3_SDA',
     },
     'P13': {
         (4, 'A'): 'DUT1_TCK', (4, 'B'): 'DUT1_UART_FROM',
         (5, 'A'): 'DUT1_TDO', (5, 'B'): 'DUT1_UART_TO',
-        (6, 'A'): 'DUT1_TDI', (6, 'B'): 'DUT3_TCK',
-        (7, 'A'): 'DUT1_TMS', (7, 'B'): 'DUT3_TMS',
+        (6, 'A'): 'DUT1_TDI', (6, 'B'): 'DUT2_TDO',
+        (7, 'A'): 'DUT1_TMS', (7, 'B'): None,           # SP_P13_B22
         (10, 'A'): 'HDMI1_D0_P', (10, 'B'): 'HDMI1_D0_N',
         (11, 'A'): 'HDMI1_CLK_P', (11, 'B'): 'HDMI1_CLK_N',
-        (12, 'A'): 'HDMI3_CLK_P', (12, 'B'): 'HDMI3_CLK_N',
-        (13, 'A'): 'HDMI1_D2_P', (13, 'B'): 'HDMI1_D2_N',
+        (12, 'A'): 'HDMI2_CLK_P', (12, 'B'): 'HDMI2_CLK_N',
+        (13, 'A'): 'HDMI1_D1_P', (13, 'B'): 'HDMI1_D1_N',
         (16, 'A'): 'DUT1_KIO10', (16, 'B'): 'DUT1_KIO9',
-        (17, 'A'): 'DUT1_KIO8', (17, 'B'): 'DUT3_TDI',
-        (18, 'A'): 'HDMI1_D1_P', (18, 'B'): 'HDMI1_D1_N',
-        (19, 'A'): 'HDMI3_D0_P', (19, 'B'): 'HDMI3_D0_N',
-        (22, 'A'): 'DUT3_TDO', (22, 'B'): 'DUT3_UART_TO',
-        (23, 'A'): 'HDMI3_D1_P', (23, 'B'): 'HDMI3_D1_N',
-        (25, 'A'): 'HDMI3_D2_P', (25, 'B'): 'HDMI3_D2_N',
-        (26, 'A'): 'DUT3_UART_FROM', (26, 'B'): 'DUT3_KIO8',
-        (28, 'A'): 'HDMI1_SCL', (28, 'B'): 'HDMI1_SDA',
-        (29, 'A'): 'DUT3_KIO9', (29, 'B'): 'DUT3_KIO10',
-        (31, 'A'): 'HDMI3_SCL', (31, 'B'): 'HDMI3_SDA',
-        (32, 'A'): 'LINKB_TX', (32, 'B'): 'LINKB_RX',
+        (17, 'A'): 'DUT1_KIO8', (17, 'B'): None,         # SP_P13_A19
+        (18, 'A'): 'HDMI1_D2_P', (18, 'B'): 'HDMI1_D2_N',
+        (19, 'A'): 'HDMI2_D0_P', (19, 'B'): 'HDMI2_D0_N',
+        (22, 'A'): 'DUT2_KIO9', (22, 'B'): 'DUT2_KIO10',
+        (23, 'A'): 'HDMI2_D1_P', (23, 'B'): 'HDMI2_D1_N',
+        (25, 'A'): 'HDMI2_D2_P', (25, 'B'): 'HDMI2_D2_N',
+        (26, 'A'): 'HDMI1_SCL', (26, 'B'): 'HDMI1_SDA',
+        (28, 'A'): 'HDMI2_SCL', (28, 'B'): 'HDMI2_SDA',
+        (29, 'A'): 'DUT2_TCK', (29, 'B'): 'DUT2_UART_FROM',
+        (31, 'A'): 'DUT2_TDI', (31, 'B'): 'DUT2_UART_TO',
+        (32, 'A'): 'DUT2_TMS', (32, 'B'): 'DUT2_KIO8',
     },
 }
 
@@ -137,10 +133,10 @@ def header_pins(h):
 
 
 S_HDR = 'mimas_headers'
-part('P', 'shield:Mimas_Header_2x40', 'P12 socket (DUT0/DUT2 side)',
+part('P', 'shield:Mimas_Header_2x40', 'P12 socket (DUT0/DUT3 side)',
      'shield:Mimas_Header_Socket_2x40', header_pins('P12'), S_HDR, 'P12',
      descr='2x40 female socket 2.54 mm, 8.5 mm, bottom side, mates Mimas P12')
-part('P', 'shield:Mimas_Header_2x40', 'P13 socket (DUT1/DUT3 side)',
+part('P', 'shield:Mimas_Header_2x40', 'P13 socket (DUT1/DUT2 side)',
      'shield:Mimas_Header_Socket_2x40', header_pins('P13'), S_HDR, 'P13',
      descr='2x40 female socket 2.54 mm, 8.5 mm, bottom side, mates Mimas P13')
 
@@ -250,66 +246,70 @@ for n in range(N_DUT):
 
 # ------------------------------- I/O expanders ---------------------------
 S_EXP = 'io_expanders'
-# TCA6424A (0x22): P0 revision straps, P1 feature presence, P2 power control
-exp24 = {'1': 'I2C_INT_N', '2': '+3V3', '3': 'EXP_RESET_N', '28': 'GND',
+# Expander A, TCA6424A @0x22: P0 revision straps, P1 feature straps,
+# P2 power-control outputs (shield-pinplan.md "I2C expanders")
+exp24 = {'1': 'EXPA_INT_N', '2': '+3V3', '3': 'EXP_RESET_N', '28': 'GND',
          '29': 'I2C_SCL', '30': 'I2C_SDA', '31': '+3V3', '32': 'GND', '33': 'GND'}
 for b in range(8):
-    exp24[str(4 + b)] = 'REV%d' % b
-    exp24[str(12 + b)] = 'FEAT%d' % b
-    exp24[str(20 + b)] = 'PWR_EN%d' % b
+    exp24[str(4 + b)] = 'SHD_REV%d' % b
+    exp24[str(12 + b)] = 'SHD_FEAT%d' % b
+    exp24[str(20 + b)] = 'PWR_CTL%d' % b
 part('U', 'shield:TCA6424A', 'TCA6424ARGJR',
      'Package_DFN_QFN:QFN-32-1EP_5x5mm_P0.5mm_EP3.45x3.45mm', exp24, S_EXP, 'EXP',
-     descr='24-bit I2C GPIO expander, addr 0x22')
+     descr='24-bit I2C GPIO expander A, addr 0x22')
 C('100n', '+3V3', 'GND', S_EXP, 'EXP')
 C('100n', '+3V3', 'GND', S_EXP, 'EXP')
 R('10k', '+3V3', 'EXP_RESET_N', S_EXP, 'EXP')
-for b in range(8):                         # revision straps: populate one of two
-    up = bool(REVISION >> b & 1)
-    R('10k', '+3V3', 'REV%d' % b, S_EXP, 'EXP', dnp=not up)
-    R('10k', 'REV%d' % b, 'GND', S_EXP, 'EXP', dnp=up)
-FEATURES = {0: True, 2: N_DUT >= 4}        # b0 HDMI capture fitted, b2 DUT3 fitted
+R('10k', '+3V3', 'EXPA_INT_N', S_EXP, 'EXP')
+
+
+def strap(netname, high):
+    """Two footprints per strap bit, exactly one populated."""
+    R('10k', '+3V3', netname, S_EXP, 'EXP', dnp=not high)
+    R('10k', netname, 'GND', S_EXP, 'EXP', dnp=high)
+
+
 for b in range(8):
-    if b == 1:
-        continue                           # b1 = power board present (live)
-    up = FEATURES.get(b, False)
-    R('10k', '+3V3', 'FEAT%d' % b, S_EXP, 'EXP', dnp=not up)
-    R('10k', 'FEAT%d' % b, 'GND', S_EXP, 'EXP', dnp=up)
-part('R', 'Device:R', '0', R0402, {'1': 'FEAT1', '2': 'PWRB_PRESENT_N'}, S_EXP, 'EXP',
-     'C17168')
-R('10k', '+3V3', 'PWRB_PRESENT_N', S_EXP, 'EXP')
+    strap('SHD_REV%d' % b, bool(REVISION >> b & 1))
+# b0 HDMI1, b1 power header, b2 HDMI2, b3 HDMI3, b4 DUT2 ports, b5 DUT3
+# ports, b6 neighbour UART, b7 reserved
+FEATURES = [1 in HDMI_DUTS, True, 2 in HDMI_DUTS, 3 in HDMI_DUTS,
+            N_DUT > 2, N_DUT > 3, True, False]
 for b in range(8):
-    R('20k', 'PWR_EN%d' % b, 'GND', S_EXP, 'EXP')
+    strap('SHD_FEAT%d' % b, FEATURES[b])
+for b in range(8):
+    R('20k', 'PWR_CTL%d' % b, 'GND', S_EXP, 'EXP')
 # power-control header to the power board: 1x11, pin 2 removed (key)
 relay = {'1': 'GND', '2': None, '11': 'PWRB_PRESENT_N'}
 for b in range(8):
-    relay[str(3 + b)] = 'PWR_EN%d' % b
+    relay[str(3 + b)] = 'PWR_CTL%d' % b
 part('J', 'Connector_Generic:Conn_01x11', 'POWER CTRL (pin 2 = key)',
      'Connector_PinHeader_2.54mm:PinHeader_1x11_P2.54mm_Vertical', relay, S_EXP,
      'RELAYJ', descr='1x11 pin header, pin 2 pulled for keying')
+R('10k', '+3V3', 'PWRB_PRESENT_N', S_EXP, 'EXP')
 
-# TCA9535 (0x20): slow lines (sense inputs, HPD outputs)
-exp16 = {'23': 'I2C_SDA', '22': 'I2C_SCL', '1': 'I2C_INT_N', '3': 'GND', '2': 'GND',
-         '21': 'GND', '24': '+3V3', '12': 'GND'}
-p0 = ['DUT%d_VIO_SENSE' % n for n in range(4)] + ['DUT%d_KB_SENSE' % n for n in range(4)]
-p1 = ['HDMI%d_HPD_EN' % n for n in (1, 2, 3)] + ['HDMI%d_5V_SENSE' % n for n in (1, 2, 3)] \
-    + ['EXP_SPARE0', 'EXP_SPARE1']
+# Expander B, TCA6416A @0x20 (PCAL6416A symbol, same pinout): slow lines
+expb_p0 = ['HDMI1_HPD_EN', 'HDMI2_HPD_EN', 'HDMI3_HPD_EN', 'PK_JTAGEN',
+           'HDMI1_5V_SENSE', 'HDMI2_5V_SENSE', 'HDMI3_5V_SENSE', 'PWRB_PRESENT_N']
+expb_p1 = ['DUT%d_VIO_SENSE' % n for n in range(4)] + ['DUT%d_KB_SENSE' % n for n in range(4)]
+exp16 = {'22': 'I2C_SCL', '23': 'I2C_SDA', '1': 'EXPB_INT_N', '3': 'EXP_RESET_N',
+         '21': 'GND', '2': '+3V3', '24': '+3V3', '12': 'GND'}
 for b in range(8):
-    exp16[str(4 + b)] = p0[b]
-    exp16[str(13 + b)] = p1[b]
-part('U', 'Interface_Expansion:TCA9535PWR', 'TCA9535PWR',
+    exp16[str(4 + b)] = expb_p0[b]
+    exp16[str(13 + b)] = expb_p1[b]
+part('U', 'Interface_Expansion:PCAL6416APW', 'TCA6416APWR',
      'Package_SO:TSSOP-24_4.4x7.8mm_P0.65mm', exp16, S_EXP, 'EXP',
-     descr='16-bit I2C GPIO expander, no pull-ups, addr 0x20')
+     descr='16-bit I2C GPIO expander B, addr 0x20 (TI TCA6416A)')
 C('100n', '+3V3', 'GND', S_EXP, 'EXP')
-R('100k', 'EXP_SPARE0', 'GND', S_EXP, 'EXP')
-R('100k', 'EXP_SPARE1', 'GND', S_EXP, 'EXP')
-# I2C bus pull-ups and the front-panel I2C header
+C('100n', '+3V3', 'GND', S_EXP, 'EXP')
+R('10k', '+3V3', 'EXPB_INT_N', S_EXP, 'EXP')
+# I2C bus pull-ups and the front-panel I2C header (issue 0050)
 R('2.2k', '+3V3', 'I2C_SCL', S_EXP, 'EXP')
 R('2.2k', '+3V3', 'I2C_SDA', S_EXP, 'EXP')
-R('10k', '+3V3', 'I2C_INT_N', S_EXP, 'EXP')
 part('J', 'Connector_Generic:Conn_01x05', 'I2C (front panel)',
      'Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Horizontal',
-     {'1': 'GND', '2': '+3V3', '3': 'I2C_SDA', '4': 'I2C_SCL', '5': 'I2C_INT_N'},
-     S_EXP, 'I2CJ', descr='1x5 right-angle header')
+     {'1': 'GND', '2': '+3V3', '3': 'I2C_SDA', '4': 'I2C_SCL', '5': 'EXPB_INT_N'},
+     S_EXP, 'I2CJ', descr='1x5 right-angle header: GND 3V3 SDA SCL INT')
 
 # ------------------------------- physical keyboard + links ---------------
 S_LNK = 'keyboard_link'
@@ -318,6 +318,7 @@ for pin, sig in (('3', 'JTAGEN'), ('4', 'TMS'), ('5', 'TCK'), ('6', 'TDI'),
                  ('7', 'TDO'), ('8', 'KIO8'), ('9', 'KIO9'), ('10', 'KIO10')):
     pk[pin] = 'PK_J_' + sig
     R('33', 'PK_' + sig, 'PK_J_' + sig, S_LNK, 'PK')
+R('100k', 'PK_JTAGEN', 'GND', S_LNK, 'PK')
 part('J', 'Connector_Generic:Conn_02x05_Odd_Even', 'PHYSICAL KEYBOARD (J5, with JTAG)',
      'Connector_IDC:IDC-Header_2x05_P2.54mm_Horizontal', pk, S_LNK, 'PKJ',
      descr='2x5 box header, right angle')
@@ -325,24 +326,25 @@ part('F', 'Device:Polyfuse', '0.5A', 'Fuse:Fuse_1206_3216Metric',
      {'1': '+3V3', '2': 'PK_3V3'}, S_LNK, 'PK', descr='PTC 0.5 A hold, keyboard supply')
 C('100n', 'PK_3V3', 'GND', S_LNK, 'PK')
 
-for side, other in (('A', 'P12'), ('B', 'P13')):
+# Neighbour link: one UART (NB_UART_TX/RX) to both side edges; with two
+# Mimas per unit only one side is cabled. 100 ohm series per side.
+for side in ('A', 'B'):
     L = lambda x: 'LINK%s_%s' % (side, x)
     cl = 'LINK' + side
-    # series resistors protect the FPGA pins on a cable
-    R('100', L('TX'), L('J_TX'), S_LNK, cl)
-    R('100', L('RX'), L('J_RX'), S_LNK, cl)
+    R('100', 'NB_UART_TX', L('TX'), S_LNK, cl)
+    R('100', 'NB_UART_RX', L('RX'), S_LNK, cl)
     part('J', 'Connector_Generic:Conn_01x03', 'LINK %s UART' % side,
          'Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical',
-         {'1': 'GND', '2': L('J_TX'), '3': L('J_RX')}, S_LNK, cl + 'U',
+         {'1': 'GND', '2': L('TX'), '3': L('RX')}, S_LNK, cl + 'U',
          descr='1x3 header: GND, TX, RX (Dupont)')
     # side connector: 12 V pass-through + UART. A = socket, B = pins, so
     # neighbouring shields plug together; TX/RX swap between the two so a
     # straight lead also works.
     if side == 'A':
-        pins = {'1': L('12V'), '2': L('J_TX'), '3': L('J_RX'), '4': 'GND'}
+        pins = {'1': L('12V'), '2': L('TX'), '3': L('RX'), '4': 'GND'}
         fp = 'Connector_PinSocket_2.54mm:PinSocket_1x04_P2.54mm_Horizontal'
     else:
-        pins = {'1': L('12V'), '2': L('J_RX'), '3': L('J_TX'), '4': 'GND'}
+        pins = {'1': L('12V'), '2': L('RX'), '3': L('TX'), '4': 'GND'}
         fp = 'Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Horizontal'
     part('J', 'Connector_Generic:Conn_01x04', 'LINK %s (12V, UART)' % side, fp, pins,
          S_LNK, cl + 'S', descr='1x4 right angle: 12V, TX/RX, GND')

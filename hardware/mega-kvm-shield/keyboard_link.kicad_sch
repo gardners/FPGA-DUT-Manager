@@ -2715,32 +2715,32 @@
 		(uuid "30c5dd06-e51f-521b-9720-69793867bde8")
 	)
 	(symbol
-		(lib_id "Connector_Generic:Conn_02x05_Odd_Even")
-		(at 193.04 38.1 0)
+		(lib_id "Device:R")
+		(at 172.72 55.88 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "9054fad2-4750-59ce-b71f-06ee2ff956cd")
-		(property "Reference" "J15"
-			(at 194.31 30.48 0)
+		(uuid "243b5c2e-a379-557b-8e38-69a344e8b2c1")
+		(property "Reference" "R164"
+			(at 174.752 55.88 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "PHYSICAL KEYBOARD (J5, with JTAG)"
-			(at 194.31 45.72 0)
+		(property "Value" "100k"
+			(at 172.72 55.88 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Footprint" "Connector_IDC:IDC-Header_2x05_P2.54mm_Horizontal"
-			(at 193.04 38.1 0)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 170.942 55.88 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2749,7 +2749,200 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 193.04 38.1 0)
+			(at 172.72 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 172.72 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_keywords" "R res resistor"
+			(at 172.72 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_fp_filters" "R_*"
+			(at 172.72 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C25741"
+			(at 172.72 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "127f7313-c992-5a59-a5c2-6bc48d6950ac")
+		)
+		(pin "2"
+			(uuid "a1fb4d27-2a14-5192-8656-e42f44cf2500")
+		)
+		(instances
+			(project "mega-kvm-shield"
+				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "R164")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 172.72 52.07)
+			(xy 172.72 46.99)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c6edaeb6-4288-5ed3-89f5-d05c9605c198")
+	)
+	(global_label "PK_JTAGEN"
+		(shape bidirectional)
+		(at 172.72 46.99 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "0ae7c052-03c6-5a51-9df3-bd0a994624be")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 172.72 46.99 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 172.72 59.69)
+			(xy 172.72 64.77)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7bda9121-b4fd-5e60-a512-d9492f761ed9")
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 172.72 64.77 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "3f403bac-9af2-57fe-a897-9fc87dabbbc8")
+		(property "Reference" "#PWR240"
+			(at 172.72 64.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 172.72 67.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 172.72 64.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 172.72 64.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "4d4d1c63-d2b4-51f1-909c-ae79bf0fe262")
+		)
+		(instances
+			(project "mega-kvm-shield"
+				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "#PWR240")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector_Generic:Conn_02x05_Odd_Even")
+		(at 210.82 38.1 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "9054fad2-4750-59ce-b71f-06ee2ff956cd")
+		(property "Reference" "J15"
+			(at 212.09 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "PHYSICAL KEYBOARD (J5, with JTAG)"
+			(at 212.09 45.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Connector_IDC:IDC-Header_2x05_P2.54mm_Horizontal"
+			(at 210.82 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 210.82 38.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2758,7 +2951,7 @@
 			)
 		)
 		(property "Description" "2x5 box header, right angle"
-			(at 193.04 38.1 0)
+			(at 210.82 38.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2767,7 +2960,7 @@
 			)
 		)
 		(property "ki_keywords" "connector"
-			(at 193.04 38.1 0)
+			(at 210.82 38.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2776,7 +2969,7 @@
 			)
 		)
 		(property "ki_fp_filters" "Connector*:*_2x??_*"
-			(at 193.04 38.1 0)
+			(at 210.82 38.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2825,8 +3018,8 @@
 	)
 	(wire
 		(pts
-			(xy 187.96 33.02)
-			(xy 182.88 33.02)
+			(xy 205.74 33.02)
+			(xy 200.66 33.02)
 		)
 		(stroke
 			(width 0)
@@ -2836,15 +3029,15 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 182.88 33.02 270)
+		(at 200.66 33.02 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "833533dc-ef28-5701-9bfd-4bbdb84f0c4a")
-		(property "Reference" "#PWR238"
-			(at 182.88 33.02 0)
+		(uuid "b14bdd6c-5248-5cc0-b819-377b83269664")
+		(property "Reference" "#PWR241"
+			(at 200.66 33.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2853,7 +3046,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 182.88 36.02 0)
+			(at 200.66 36.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2861,7 +3054,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 182.88 33.02 0)
+			(at 200.66 33.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2870,7 +3063,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 182.88 33.02 0)
+			(at 200.66 33.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2879,12 +3072,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "c5237a1a-3532-5906-b965-147943bfbbeb")
+			(uuid "bca77115-3f44-5ca0-8af9-3dddca06a17f")
 		)
 		(instances
 			(project "mega-kvm-shield"
 				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "#PWR238")
+					(reference "#PWR241")
 					(unit 1)
 				)
 			)
@@ -2892,8 +3085,8 @@
 	)
 	(wire
 		(pts
-			(xy 187.96 35.56)
-			(xy 182.88 35.56)
+			(xy 205.74 35.56)
+			(xy 200.66 35.56)
 		)
 		(stroke
 			(width 0)
@@ -2902,7 +3095,7 @@
 		(uuid "999f6398-9736-505b-9c0a-f537d1268726")
 	)
 	(label "PK_J_JTAGEN"
-		(at 182.88 35.56 180)
+		(at 200.66 35.56 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2913,8 +3106,8 @@
 	)
 	(wire
 		(pts
-			(xy 187.96 38.1)
-			(xy 182.88 38.1)
+			(xy 205.74 38.1)
+			(xy 200.66 38.1)
 		)
 		(stroke
 			(width 0)
@@ -2923,7 +3116,7 @@
 		(uuid "ea9ca2fa-16b6-5106-895f-46b151f9e0ee")
 	)
 	(label "PK_J_TCK"
-		(at 182.88 38.1 180)
+		(at 200.66 38.1 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2934,8 +3127,8 @@
 	)
 	(wire
 		(pts
-			(xy 187.96 40.64)
-			(xy 182.88 40.64)
+			(xy 205.74 40.64)
+			(xy 200.66 40.64)
 		)
 		(stroke
 			(width 0)
@@ -2944,7 +3137,7 @@
 		(uuid "f8f9d210-08b4-583c-b42d-aa182fcdcf89")
 	)
 	(label "PK_J_TDO"
-		(at 182.88 40.64 180)
+		(at 200.66 40.64 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2955,8 +3148,8 @@
 	)
 	(wire
 		(pts
-			(xy 187.96 43.18)
-			(xy 182.88 43.18)
+			(xy 205.74 43.18)
+			(xy 200.66 43.18)
 		)
 		(stroke
 			(width 0)
@@ -2965,7 +3158,7 @@
 		(uuid "557ede5f-01bc-5e57-87b5-1bc8a971b884")
 	)
 	(label "PK_J_KIO9"
-		(at 182.88 43.18 180)
+		(at 200.66 43.18 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2976,8 +3169,8 @@
 	)
 	(wire
 		(pts
-			(xy 200.66 33.02)
-			(xy 205.74 33.02)
+			(xy 218.44 33.02)
+			(xy 223.52 33.02)
 		)
 		(stroke
 			(width 0)
@@ -2986,7 +3179,7 @@
 		(uuid "7c660013-90a5-59f3-b9d8-c547a8cc69b6")
 	)
 	(label "PK_3V3"
-		(at 205.74 33.02 0)
+		(at 223.52 33.02 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2997,8 +3190,8 @@
 	)
 	(wire
 		(pts
-			(xy 200.66 35.56)
-			(xy 205.74 35.56)
+			(xy 218.44 35.56)
+			(xy 223.52 35.56)
 		)
 		(stroke
 			(width 0)
@@ -3007,7 +3200,7 @@
 		(uuid "dfc292ed-873a-578d-96db-ed2b35865dcc")
 	)
 	(label "PK_J_TMS"
-		(at 205.74 35.56 0)
+		(at 223.52 35.56 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3018,8 +3211,8 @@
 	)
 	(wire
 		(pts
-			(xy 200.66 38.1)
-			(xy 205.74 38.1)
+			(xy 218.44 38.1)
+			(xy 223.52 38.1)
 		)
 		(stroke
 			(width 0)
@@ -3028,7 +3221,7 @@
 		(uuid "eb9499f5-c422-5030-9ff5-4a14673c6b37")
 	)
 	(label "PK_J_TDI"
-		(at 205.74 38.1 0)
+		(at 223.52 38.1 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3039,8 +3232,8 @@
 	)
 	(wire
 		(pts
-			(xy 200.66 40.64)
-			(xy 205.74 40.64)
+			(xy 218.44 40.64)
+			(xy 223.52 40.64)
 		)
 		(stroke
 			(width 0)
@@ -3049,7 +3242,7 @@
 		(uuid "941301cb-ac18-5ea6-ae45-213fb9ca9c16")
 	)
 	(label "PK_J_KIO8"
-		(at 205.74 40.64 0)
+		(at 223.52 40.64 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3060,8 +3253,8 @@
 	)
 	(wire
 		(pts
-			(xy 200.66 43.18)
-			(xy 205.74 43.18)
+			(xy 218.44 43.18)
+			(xy 223.52 43.18)
 		)
 		(stroke
 			(width 0)
@@ -3070,7 +3263,7 @@
 		(uuid "85ba6d65-c020-5b20-84dd-2344e0b1d20e")
 	)
 	(label "PK_J_KIO10"
-		(at 205.74 43.18 0)
+		(at 223.52 43.18 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3081,7 +3274,7 @@
 	)
 	(symbol
 		(lib_id "Device:Polyfuse")
-		(at 233.68 45.72 0)
+		(at 251.46 45.72 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3089,7 +3282,7 @@
 		(dnp no)
 		(uuid "17b7952d-0d88-50fc-b951-e8634a6c47e2")
 		(property "Reference" "F1"
-			(at 231.14 45.72 90)
+			(at 248.92 45.72 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3097,7 +3290,7 @@
 			)
 		)
 		(property "Value" "0.5A"
-			(at 236.22 45.72 90)
+			(at 254 45.72 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3105,7 +3298,7 @@
 			)
 		)
 		(property "Footprint" "Fuse:Fuse_1206_3216Metric"
-			(at 234.95 50.8 0)
+			(at 252.73 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3114,7 +3307,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 233.68 45.72 0)
+			(at 251.46 45.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3123,7 +3316,7 @@
 			)
 		)
 		(property "Description" "PTC 0.5 A hold, keyboard supply"
-			(at 233.68 45.72 0)
+			(at 251.46 45.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3132,7 +3325,7 @@
 			)
 		)
 		(property "ki_keywords" "resettable fuse PTC PPTC polyfuse polyswitch"
-			(at 233.68 45.72 0)
+			(at 251.46 45.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3141,7 +3334,7 @@
 			)
 		)
 		(property "ki_fp_filters" "*polyfuse* *PTC*"
-			(at 233.68 45.72 0)
+			(at 251.46 45.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3166,8 +3359,8 @@
 	)
 	(wire
 		(pts
-			(xy 233.68 41.91)
-			(xy 233.68 36.83)
+			(xy 251.46 41.91)
+			(xy 251.46 36.83)
 		)
 		(stroke
 			(width 0)
@@ -3177,15 +3370,15 @@
 	)
 	(symbol
 		(lib_id "power:+3V3")
-		(at 233.68 36.83 0)
+		(at 251.46 36.83 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "03aec3eb-b04e-5521-9cbb-ffb17690a77f")
-		(property "Reference" "#PWR239"
-			(at 233.68 36.83 0)
+		(uuid "174b5e5b-212a-5c99-ba27-c4606fb2bd4d")
+		(property "Reference" "#PWR242"
+			(at 251.46 36.83 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3194,7 +3387,7 @@
 			)
 		)
 		(property "Value" "+3V3"
-			(at 233.68 33.83 0)
+			(at 251.46 33.83 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3202,7 +3395,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 233.68 36.83 0)
+			(at 251.46 36.83 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3211,7 +3404,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 233.68 36.83 0)
+			(at 251.46 36.83 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3220,12 +3413,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "e9d2f916-f5a5-5998-98c4-c97b3662d3c9")
+			(uuid "a0cdb7f0-4125-5541-a087-61e671e27c86")
 		)
 		(instances
 			(project "mega-kvm-shield"
 				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "#PWR239")
+					(reference "#PWR242")
 					(unit 1)
 				)
 			)
@@ -3233,8 +3426,8 @@
 	)
 	(wire
 		(pts
-			(xy 233.68 49.53)
-			(xy 233.68 54.61)
+			(xy 251.46 49.53)
+			(xy 251.46 54.61)
 		)
 		(stroke
 			(width 0)
@@ -3243,7 +3436,7 @@
 		(uuid "f7cf0afe-0a5b-51a6-895b-74d9cd5ea358")
 	)
 	(label "PK_3V3"
-		(at 233.68 54.61 270)
+		(at 251.46 54.61 270)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3254,15 +3447,15 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 251.46 50.8 0)
+		(at 269.24 50.8 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "ec78a8ff-c7ff-5b6f-a918-836dbd6cf49d")
-		(property "Reference" "C16"
-			(at 252.095 48.26 0)
+		(uuid "6d923113-3691-5939-9ea8-3b1ab18b98f6")
+		(property "Reference" "C17"
+			(at 269.875 48.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3270,7 +3463,7 @@
 			)
 		)
 		(property "Value" "100n"
-			(at 252.095 53.34 0)
+			(at 269.875 53.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3278,7 +3471,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
-			(at 252.4252 54.61 0)
+			(at 270.2052 54.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3287,7 +3480,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 251.46 50.8 0)
+			(at 269.24 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3296,7 +3489,7 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
-			(at 251.46 50.8 0)
+			(at 269.24 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3305,7 +3498,7 @@
 			)
 		)
 		(property "ki_keywords" "cap capacitor"
-			(at 251.46 50.8 0)
+			(at 269.24 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3314,7 +3507,7 @@
 			)
 		)
 		(property "ki_fp_filters" "C_*"
-			(at 251.46 50.8 0)
+			(at 269.24 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3323,7 +3516,7 @@
 			)
 		)
 		(property "LCSC" "C1525"
-			(at 251.46 50.8 0)
+			(at 269.24 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3332,15 +3525,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "4dc1756c-1627-5e92-9df4-bc64ed7c7fb3")
+			(uuid "01acb7bd-2619-5a78-80ed-449f8f0e8740")
 		)
 		(pin "2"
-			(uuid "53ea07f0-d346-5089-be60-534bd8e5689e")
+			(uuid "439034fa-bd29-540c-a17a-5577e0e86fd4")
 		)
 		(instances
 			(project "mega-kvm-shield"
 				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "C16")
+					(reference "C17")
 					(unit 1)
 				)
 			)
@@ -3348,47 +3541,47 @@
 	)
 	(wire
 		(pts
-			(xy 251.46 46.99)
-			(xy 251.46 41.91)
+			(xy 269.24 46.99)
+			(xy 269.24 41.91)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "2ac55c19-543d-565f-aa31-cb775a9e1e56")
+		(uuid "293c71b7-6bdd-56c3-baec-608a684109b9")
 	)
 	(label "PK_3V3"
-		(at 251.46 41.91 90)
+		(at 269.24 41.91 90)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "c80ebe68-3969-50a9-9f1d-3b06c3aa9957")
+		(uuid "ce8cffd5-97fa-56ec-bda9-83c6d49a9399")
 	)
 	(wire
 		(pts
-			(xy 251.46 54.61)
-			(xy 251.46 59.69)
+			(xy 269.24 54.61)
+			(xy 269.24 59.69)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "9071dece-9225-533b-8604-436c524af84c")
+		(uuid "fd2cd67d-629b-50b8-bb6b-d50163f95a9b")
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 251.46 59.69 0)
+		(at 269.24 59.69 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "3f403bac-9af2-57fe-a897-9fc87dabbbc8")
-		(property "Reference" "#PWR240"
-			(at 251.46 59.69 0)
+		(uuid "0a2fcf81-2a05-5bde-a541-da18b1280459")
+		(property "Reference" "#PWR243"
+			(at 269.24 59.69 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3397,7 +3590,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 251.46 62.69 0)
+			(at 269.24 62.69 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3405,7 +3598,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 251.46 59.69 0)
+			(at 269.24 59.69 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3414,7 +3607,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 251.46 59.69 0)
+			(at 269.24 59.69 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3423,12 +3616,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "4d4d1c63-d2b4-51f1-909c-ae79bf0fe262")
+			(uuid "52b8cbfe-6bf4-5676-9646-56541667f518")
 		)
 		(instances
 			(project "mega-kvm-shield"
 				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "#PWR240")
+					(reference "#PWR243")
 					(unit 1)
 				)
 			)
@@ -3436,154 +3629,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 269.24 53.34 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "243b5c2e-a379-557b-8e38-69a344e8b2c1")
-		(property "Reference" "R164"
-			(at 271.272 53.34 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "100"
-			(at 269.24 53.34 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 267.462 53.34 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 269.24 53.34 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 269.24 53.34 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "ki_keywords" "R res resistor"
-			(at 269.24 53.34 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "ki_fp_filters" "R_*"
-			(at 269.24 53.34 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "LCSC" "C25076"
-			(at 269.24 53.34 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "127f7313-c992-5a59-a5c2-6bc48d6950ac")
-		)
-		(pin "2"
-			(uuid "a1fb4d27-2a14-5192-8656-e42f44cf2500")
-		)
-		(instances
-			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "R164")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(wire
-		(pts
-			(xy 269.24 49.53)
-			(xy 269.24 44.45)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c6edaeb6-4288-5ed3-89f5-d05c9605c198")
-	)
-	(global_label "LINKA_TX"
-		(shape bidirectional)
-		(at 269.24 44.45 90)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "0ae7c052-03c6-5a51-9df3-bd0a994624be")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 269.24 44.45 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-	)
-	(wire
-		(pts
-			(xy 269.24 57.15)
-			(xy 269.24 62.23)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7bda9121-b4fd-5e60-a512-d9492f761ed9")
-	)
-	(label "LINKA_J_TX"
-		(at 269.24 62.23 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "cac9ef30-0ab8-5040-95e0-a28efba07771")
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 287.02 53.34 0)
+		(at 287.02 55.88 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3591,7 +3637,7 @@
 		(dnp no)
 		(uuid "b0a6d49a-25fe-52c6-90e7-9a3c207c9ffc")
 		(property "Reference" "R165"
-			(at 289.052 53.34 90)
+			(at 289.052 55.88 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3599,7 +3645,7 @@
 			)
 		)
 		(property "Value" "100"
-			(at 287.02 53.34 90)
+			(at 287.02 55.88 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3607,7 +3653,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 285.242 53.34 90)
+			(at 285.242 55.88 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3616,7 +3662,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 287.02 53.34 0)
+			(at 287.02 55.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3625,7 +3671,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 287.02 53.34 0)
+			(at 287.02 55.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3634,7 +3680,7 @@
 			)
 		)
 		(property "ki_keywords" "R res resistor"
-			(at 287.02 53.34 0)
+			(at 287.02 55.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3643,7 +3689,7 @@
 			)
 		)
 		(property "ki_fp_filters" "R_*"
-			(at 287.02 53.34 0)
+			(at 287.02 55.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3652,7 +3698,7 @@
 			)
 		)
 		(property "LCSC" "C25076"
-			(at 287.02 53.34 0)
+			(at 287.02 55.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3677,8 +3723,8 @@
 	)
 	(wire
 		(pts
-			(xy 287.02 49.53)
-			(xy 287.02 44.45)
+			(xy 287.02 52.07)
+			(xy 287.02 46.99)
 		)
 		(stroke
 			(width 0)
@@ -3686,9 +3732,9 @@
 		)
 		(uuid "a6b1c716-ffdf-5f64-8d48-bfae4c105c4f")
 	)
-	(global_label "LINKA_RX"
+	(global_label "NB_UART_TX"
 		(shape bidirectional)
-		(at 287.02 44.45 90)
+		(at 287.02 46.99 90)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3698,7 +3744,7 @@
 		)
 		(uuid "9930c016-a8f9-52c3-a484-7838aa26ac29")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 287.02 44.45 90)
+			(at 287.02 46.99 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3709,8 +3755,8 @@
 	)
 	(wire
 		(pts
-			(xy 287.02 57.15)
-			(xy 287.02 62.23)
+			(xy 287.02 59.69)
+			(xy 287.02 64.77)
 		)
 		(stroke
 			(width 0)
@@ -3718,8 +3764,8 @@
 		)
 		(uuid "80050773-ed84-5aac-aaa1-c26da2b2dc76")
 	)
-	(label "LINKA_J_RX"
-		(at 287.02 62.23 270)
+	(label "LINKA_TX"
+		(at 287.02 64.77 270)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3729,32 +3775,32 @@
 		(uuid "5b4729aa-bda6-5147-b54b-96fd1e15c9a2")
 	)
 	(symbol
-		(lib_id "Connector_Generic:Conn_01x03")
-		(at 325.12 35.56 0)
+		(lib_id "Device:R")
+		(at 304.8 55.88 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "e8590c81-31d2-525f-8203-7b63e3f68cf5")
-		(property "Reference" "J16"
-			(at 325.12 30.48 0)
+		(uuid "bb773769-91a5-56bc-bc0b-d5e8402241f3")
+		(property "Reference" "R166"
+			(at 306.832 55.88 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "LINK A UART"
-			(at 325.12 40.64 0)
+		(property "Value" "100"
+			(at 304.8 55.88 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
-			(at 325.12 35.56 0)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 303.022 55.88 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3763,7 +3809,154 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 325.12 35.56 0)
+			(at 304.8 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 304.8 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_keywords" "R res resistor"
+			(at 304.8 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_fp_filters" "R_*"
+			(at 304.8 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C25076"
+			(at 304.8 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "bda6dda6-f142-5c62-85dd-5c2132d8fc65")
+		)
+		(pin "2"
+			(uuid "c98c28f1-8017-5d2f-ae4f-7f11d1916334")
+		)
+		(instances
+			(project "mega-kvm-shield"
+				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "R166")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 304.8 52.07)
+			(xy 304.8 46.99)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a5d12b04-7695-5d8d-8dba-f42e99eaecde")
+	)
+	(global_label "NB_UART_RX"
+		(shape bidirectional)
+		(at 304.8 46.99 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "e5f43219-3463-54a6-804b-0cf4764f03d1")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 304.8 46.99 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 304.8 59.69)
+			(xy 304.8 64.77)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ffbde96a-fab6-5ed8-b715-9b7a4fffc0fb")
+	)
+	(label "LINKA_RX"
+		(at 304.8 64.77 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "dc90f302-4597-5aea-b18f-071238d9fff2")
+	)
+	(symbol
+		(lib_id "Connector_Generic:Conn_01x03")
+		(at 340.36 35.56 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "e8590c81-31d2-525f-8203-7b63e3f68cf5")
+		(property "Reference" "J16"
+			(at 340.36 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "LINK A UART"
+			(at 340.36 40.64 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
+			(at 340.36 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 340.36 35.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3772,7 +3965,7 @@
 			)
 		)
 		(property "Description" "1x3 header: GND, TX, RX (Dupont)"
-			(at 325.12 35.56 0)
+			(at 340.36 35.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3781,7 +3974,7 @@
 			)
 		)
 		(property "ki_keywords" "connector"
-			(at 325.12 35.56 0)
+			(at 340.36 35.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3790,7 +3983,7 @@
 			)
 		)
 		(property "ki_fp_filters" "Connector*:*_1x??_*"
-			(at 325.12 35.56 0)
+			(at 340.36 35.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3818,8 +4011,8 @@
 	)
 	(wire
 		(pts
-			(xy 320.04 33.02)
-			(xy 314.96 33.02)
+			(xy 335.28 33.02)
+			(xy 330.2 33.02)
 		)
 		(stroke
 			(width 0)
@@ -3829,15 +4022,15 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 314.96 33.02 270)
+		(at 330.2 33.02 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "b14bdd6c-5248-5cc0-b819-377b83269664")
-		(property "Reference" "#PWR241"
-			(at 314.96 33.02 0)
+		(uuid "a7ddadac-7017-5885-958e-09269460e10f")
+		(property "Reference" "#PWR244"
+			(at 330.2 33.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3846,7 +4039,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 314.96 36.02 0)
+			(at 330.2 36.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3854,7 +4047,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 314.96 33.02 0)
+			(at 330.2 33.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3863,7 +4056,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 314.96 33.02 0)
+			(at 330.2 33.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3872,12 +4065,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "bca77115-3f44-5ca0-8af9-3dddca06a17f")
+			(uuid "dc1fa7b9-5d4c-57c4-b537-e2c938b9eef5")
 		)
 		(instances
 			(project "mega-kvm-shield"
 				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "#PWR241")
+					(reference "#PWR244")
 					(unit 1)
 				)
 			)
@@ -3885,8 +4078,8 @@
 	)
 	(wire
 		(pts
-			(xy 320.04 35.56)
-			(xy 314.96 35.56)
+			(xy 335.28 35.56)
+			(xy 330.2 35.56)
 		)
 		(stroke
 			(width 0)
@@ -3894,8 +4087,8 @@
 		)
 		(uuid "78f55cb0-abe6-5e05-8b42-0351966a5c31")
 	)
-	(label "LINKA_J_TX"
-		(at 314.96 35.56 180)
+	(label "LINKA_TX"
+		(at 330.2 35.56 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3906,8 +4099,8 @@
 	)
 	(wire
 		(pts
-			(xy 320.04 38.1)
-			(xy 314.96 38.1)
+			(xy 335.28 38.1)
+			(xy 330.2 38.1)
 		)
 		(stroke
 			(width 0)
@@ -3915,8 +4108,8 @@
 		)
 		(uuid "2202499a-ad10-5975-b3b8-feb3ff56f524")
 	)
-	(label "LINKA_J_RX"
-		(at 314.96 38.1 180)
+	(label "LINKA_RX"
+		(at 330.2 38.1 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3927,7 +4120,7 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x04")
-		(at 363.22 35.56 0)
+		(at 375.92 35.56 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3935,7 +4128,7 @@
 		(dnp no)
 		(uuid "90bad561-225e-5977-a7fb-45269e7157b2")
 		(property "Reference" "J17"
-			(at 363.22 30.48 0)
+			(at 375.92 30.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3943,7 +4136,7 @@
 			)
 		)
 		(property "Value" "LINK A (12V, UART)"
-			(at 363.22 43.18 0)
+			(at 375.92 43.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3951,7 +4144,7 @@
 			)
 		)
 		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x04_P2.54mm_Horizontal"
-			(at 363.22 35.56 0)
+			(at 375.92 35.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3960,7 +4153,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 363.22 35.56 0)
+			(at 375.92 35.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3969,7 +4162,7 @@
 			)
 		)
 		(property "Description" "1x4 right angle: 12V, TX/RX, GND"
-			(at 363.22 35.56 0)
+			(at 375.92 35.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3978,7 +4171,7 @@
 			)
 		)
 		(property "ki_keywords" "connector"
-			(at 363.22 35.56 0)
+			(at 375.92 35.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3987,7 +4180,7 @@
 			)
 		)
 		(property "ki_fp_filters" "Connector*:*_1x??_*"
-			(at 363.22 35.56 0)
+			(at 375.92 35.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4018,8 +4211,8 @@
 	)
 	(wire
 		(pts
-			(xy 358.14 33.02)
-			(xy 353.06 33.02)
+			(xy 370.84 33.02)
+			(xy 365.76 33.02)
 		)
 		(stroke
 			(width 0)
@@ -4028,7 +4221,7 @@
 		(uuid "3d04ca1f-9422-593f-8069-9b572a505419")
 	)
 	(label "LINKA_12V"
-		(at 353.06 33.02 180)
+		(at 365.76 33.02 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4039,8 +4232,8 @@
 	)
 	(wire
 		(pts
-			(xy 358.14 35.56)
-			(xy 353.06 35.56)
+			(xy 370.84 35.56)
+			(xy 365.76 35.56)
 		)
 		(stroke
 			(width 0)
@@ -4048,8 +4241,8 @@
 		)
 		(uuid "29804484-af67-5e7c-a948-b49da52fda57")
 	)
-	(label "LINKA_J_TX"
-		(at 353.06 35.56 180)
+	(label "LINKA_TX"
+		(at 365.76 35.56 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4060,8 +4253,8 @@
 	)
 	(wire
 		(pts
-			(xy 358.14 38.1)
-			(xy 353.06 38.1)
+			(xy 370.84 38.1)
+			(xy 365.76 38.1)
 		)
 		(stroke
 			(width 0)
@@ -4069,8 +4262,8 @@
 		)
 		(uuid "a63674a8-d73b-587e-a7b3-57daa20604f6")
 	)
-	(label "LINKA_J_RX"
-		(at 353.06 38.1 180)
+	(label "LINKA_RX"
+		(at 365.76 38.1 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4081,8 +4274,8 @@
 	)
 	(wire
 		(pts
-			(xy 358.14 40.64)
-			(xy 353.06 40.64)
+			(xy 370.84 40.64)
+			(xy 365.76 40.64)
 		)
 		(stroke
 			(width 0)
@@ -4092,15 +4285,15 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 353.06 40.64 270)
+		(at 365.76 40.64 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "174b5e5b-212a-5c99-ba27-c4606fb2bd4d")
-		(property "Reference" "#PWR242"
-			(at 353.06 40.64 0)
+		(uuid "bbc1927c-2050-5599-9a12-73ba160bdf61")
+		(property "Reference" "#PWR245"
+			(at 365.76 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4109,7 +4302,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 353.06 43.64 0)
+			(at 365.76 43.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4117,7 +4310,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 353.06 40.64 0)
+			(at 365.76 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4126,7 +4319,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 353.06 40.64 0)
+			(at 365.76 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4135,12 +4328,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "a0cdb7f0-4125-5541-a087-61e671e27c86")
+			(uuid "8f1f2f7c-3b8b-5068-84a4-3af1e5ce3ea1")
 		)
 		(instances
 			(project "mega-kvm-shield"
 				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "#PWR242")
+					(reference "#PWR245")
 					(unit 1)
 				)
 			)
@@ -4148,7 +4341,7 @@
 	)
 	(symbol
 		(lib_id "Device:Polyfuse")
-		(at 381 45.72 0)
+		(at 27.94 101.6 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4156,7 +4349,7 @@
 		(dnp no)
 		(uuid "ebfe8c70-f853-52de-a9dc-83f75136190c")
 		(property "Reference" "F2"
-			(at 378.46 45.72 90)
+			(at 25.4 101.6 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4164,7 +4357,7 @@
 			)
 		)
 		(property "Value" "2A"
-			(at 383.54 45.72 90)
+			(at 30.48 101.6 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4172,7 +4365,7 @@
 			)
 		)
 		(property "Footprint" "Fuse:Fuse_1812_4532Metric"
-			(at 382.27 50.8 0)
+			(at 29.21 106.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4181,7 +4374,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 381 45.72 0)
+			(at 27.94 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4190,7 +4383,7 @@
 			)
 		)
 		(property "Description" "PTC 2 A hold, 12 V pass-through"
-			(at 381 45.72 0)
+			(at 27.94 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4199,7 +4392,7 @@
 			)
 		)
 		(property "ki_keywords" "resettable fuse PTC PPTC polyfuse polyswitch"
-			(at 381 45.72 0)
+			(at 27.94 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4208,7 +4401,7 @@
 			)
 		)
 		(property "ki_fp_filters" "*polyfuse* *PTC*"
-			(at 381 45.72 0)
+			(at 27.94 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4233,8 +4426,8 @@
 	)
 	(wire
 		(pts
-			(xy 381 41.91)
-			(xy 381 36.83)
+			(xy 27.94 97.79)
+			(xy 27.94 92.71)
 		)
 		(stroke
 			(width 0)
@@ -4244,15 +4437,15 @@
 	)
 	(symbol
 		(lib_id "power:+12V")
-		(at 381 36.83 0)
+		(at 27.94 92.71 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "0a2fcf81-2a05-5bde-a541-da18b1280459")
-		(property "Reference" "#PWR243"
-			(at 381 36.83 0)
+		(uuid "2fe05cf3-a9c4-58fe-a322-91fb2ad9d7a7")
+		(property "Reference" "#PWR246"
+			(at 27.94 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4261,7 +4454,7 @@
 			)
 		)
 		(property "Value" "+12V"
-			(at 381 33.83 0)
+			(at 27.94 89.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4269,7 +4462,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 381 36.83 0)
+			(at 27.94 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4278,7 +4471,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 381 36.83 0)
+			(at 27.94 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4287,12 +4480,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "52b8cbfe-6bf4-5676-9646-56541667f518")
+			(uuid "d2cf7bbd-78b0-507a-9c8f-1683da846b12")
 		)
 		(instances
 			(project "mega-kvm-shield"
 				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "#PWR243")
+					(reference "#PWR246")
 					(unit 1)
 				)
 			)
@@ -4300,8 +4493,8 @@
 	)
 	(wire
 		(pts
-			(xy 381 49.53)
-			(xy 381 54.61)
+			(xy 27.94 105.41)
+			(xy 27.94 110.49)
 		)
 		(stroke
 			(width 0)
@@ -4310,7 +4503,7 @@
 		(uuid "5e33a8da-c344-5e79-a6ad-368bb8ccbae8")
 	)
 	(label "LINKA_12V"
-		(at 381 54.61 270)
+		(at 27.94 110.49 270)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4321,154 +4514,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 27.94 109.22 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "bb773769-91a5-56bc-bc0b-d5e8402241f3")
-		(property "Reference" "R166"
-			(at 29.972 109.22 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "100"
-			(at 27.94 109.22 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 26.162 109.22 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 27.94 109.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 27.94 109.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "ki_keywords" "R res resistor"
-			(at 27.94 109.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "ki_fp_filters" "R_*"
-			(at 27.94 109.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "LCSC" "C25076"
-			(at 27.94 109.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "bda6dda6-f142-5c62-85dd-5c2132d8fc65")
-		)
-		(pin "2"
-			(uuid "c98c28f1-8017-5d2f-ae4f-7f11d1916334")
-		)
-		(instances
-			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "R166")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(wire
-		(pts
-			(xy 27.94 105.41)
-			(xy 27.94 100.33)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a5d12b04-7695-5d8d-8dba-f42e99eaecde")
-	)
-	(global_label "LINKB_TX"
-		(shape bidirectional)
-		(at 27.94 100.33 90)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "e5f43219-3463-54a6-804b-0cf4764f03d1")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 27.94 100.33 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-	)
-	(wire
-		(pts
-			(xy 27.94 113.03)
-			(xy 27.94 118.11)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ffbde96a-fab6-5ed8-b715-9b7a4fffc0fb")
-	)
-	(label "LINKB_J_TX"
-		(at 27.94 118.11 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "dc90f302-4597-5aea-b18f-071238d9fff2")
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 45.72 109.22 0)
+		(at 45.72 111.76 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4476,7 +4522,7 @@
 		(dnp no)
 		(uuid "635b124b-6b6b-5375-9bd1-343f36a34c96")
 		(property "Reference" "R167"
-			(at 47.752 109.22 90)
+			(at 47.752 111.76 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4484,7 +4530,7 @@
 			)
 		)
 		(property "Value" "100"
-			(at 45.72 109.22 90)
+			(at 45.72 111.76 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4492,7 +4538,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 43.942 109.22 90)
+			(at 43.942 111.76 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4501,7 +4547,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 45.72 109.22 0)
+			(at 45.72 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4510,7 +4556,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 45.72 109.22 0)
+			(at 45.72 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4519,7 +4565,7 @@
 			)
 		)
 		(property "ki_keywords" "R res resistor"
-			(at 45.72 109.22 0)
+			(at 45.72 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4528,7 +4574,7 @@
 			)
 		)
 		(property "ki_fp_filters" "R_*"
-			(at 45.72 109.22 0)
+			(at 45.72 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4537,7 +4583,7 @@
 			)
 		)
 		(property "LCSC" "C25076"
-			(at 45.72 109.22 0)
+			(at 45.72 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4562,8 +4608,8 @@
 	)
 	(wire
 		(pts
-			(xy 45.72 105.41)
-			(xy 45.72 100.33)
+			(xy 45.72 107.95)
+			(xy 45.72 102.87)
 		)
 		(stroke
 			(width 0)
@@ -4571,9 +4617,9 @@
 		)
 		(uuid "3b4142df-a849-5f74-b5f2-daf463373a8a")
 	)
-	(global_label "LINKB_RX"
+	(global_label "NB_UART_TX"
 		(shape bidirectional)
-		(at 45.72 100.33 90)
+		(at 45.72 102.87 90)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4583,7 +4629,7 @@
 		)
 		(uuid "b0639d5b-696f-54e5-9597-57cc6142631f")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 45.72 100.33 90)
+			(at 45.72 102.87 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4594,8 +4640,8 @@
 	)
 	(wire
 		(pts
-			(xy 45.72 113.03)
-			(xy 45.72 118.11)
+			(xy 45.72 115.57)
+			(xy 45.72 120.65)
 		)
 		(stroke
 			(width 0)
@@ -4603,8 +4649,8 @@
 		)
 		(uuid "5c2c4c8a-8548-579f-a66c-4f6966b81965")
 	)
-	(label "LINKB_J_RX"
-		(at 45.72 118.11 270)
+	(label "LINKB_TX"
+		(at 45.72 120.65 270)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4614,32 +4660,32 @@
 		(uuid "bda08d78-e0b2-5094-8ccd-136616efdda3")
 	)
 	(symbol
-		(lib_id "Connector_Generic:Conn_01x03")
-		(at 83.82 91.44 0)
+		(lib_id "Device:R")
+		(at 63.5 111.76 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "58b41ad2-3506-59ad-92f5-9ca11574b02a")
-		(property "Reference" "J18"
-			(at 83.82 86.36 0)
+		(uuid "a7b5e0ab-a3d5-5d97-9788-90bf94b5779b")
+		(property "Reference" "R168"
+			(at 65.532 111.76 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "LINK B UART"
-			(at 83.82 96.52 0)
+		(property "Value" "100"
+			(at 63.5 111.76 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
-			(at 83.82 91.44 0)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 61.722 111.76 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4648,7 +4694,154 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 83.82 91.44 0)
+			(at 63.5 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 63.5 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_keywords" "R res resistor"
+			(at 63.5 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_fp_filters" "R_*"
+			(at 63.5 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C25076"
+			(at 63.5 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "984fcd53-1989-55bb-80ce-0193c478c064")
+		)
+		(pin "2"
+			(uuid "cbcdf239-0f1c-502a-9278-cd4b44be742e")
+		)
+		(instances
+			(project "mega-kvm-shield"
+				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "R168")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 63.5 107.95)
+			(xy 63.5 102.87)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "da507dde-fd9e-561c-a043-a00e7fe165cc")
+	)
+	(global_label "NB_UART_RX"
+		(shape bidirectional)
+		(at 63.5 102.87 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "b6de43db-2bd9-5e58-a021-bbff5b0a82ed")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 63.5 102.87 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 63.5 115.57)
+			(xy 63.5 120.65)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "edc184a1-ecb3-5ad6-8dea-b76f788fed62")
+	)
+	(label "LINKB_RX"
+		(at 63.5 120.65 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "8273ddb2-a9fb-5c7f-83c9-59dacd16b4d5")
+	)
+	(symbol
+		(lib_id "Connector_Generic:Conn_01x03")
+		(at 99.06 91.44 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "58b41ad2-3506-59ad-92f5-9ca11574b02a")
+		(property "Reference" "J18"
+			(at 99.06 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "LINK B UART"
+			(at 99.06 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
+			(at 99.06 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 99.06 91.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4657,7 +4850,7 @@
 			)
 		)
 		(property "Description" "1x3 header: GND, TX, RX (Dupont)"
-			(at 83.82 91.44 0)
+			(at 99.06 91.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4666,7 +4859,7 @@
 			)
 		)
 		(property "ki_keywords" "connector"
-			(at 83.82 91.44 0)
+			(at 99.06 91.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4675,7 +4868,7 @@
 			)
 		)
 		(property "ki_fp_filters" "Connector*:*_1x??_*"
-			(at 83.82 91.44 0)
+			(at 99.06 91.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4703,8 +4896,8 @@
 	)
 	(wire
 		(pts
-			(xy 78.74 88.9)
-			(xy 73.66 88.9)
+			(xy 93.98 88.9)
+			(xy 88.9 88.9)
 		)
 		(stroke
 			(width 0)
@@ -4714,15 +4907,15 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 73.66 88.9 270)
+		(at 88.9 88.9 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "a7ddadac-7017-5885-958e-09269460e10f")
-		(property "Reference" "#PWR244"
-			(at 73.66 88.9 0)
+		(uuid "7105b337-53c0-5c20-849e-f1966b7f0f69")
+		(property "Reference" "#PWR247"
+			(at 88.9 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4731,7 +4924,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 73.66 91.9 0)
+			(at 88.9 91.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4739,7 +4932,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 73.66 88.9 0)
+			(at 88.9 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4748,7 +4941,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 73.66 88.9 0)
+			(at 88.9 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4757,12 +4950,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "dc1fa7b9-5d4c-57c4-b537-e2c938b9eef5")
+			(uuid "eed27f56-bb3f-5f02-a3fb-07b9f2c0a79d")
 		)
 		(instances
 			(project "mega-kvm-shield"
 				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "#PWR244")
+					(reference "#PWR247")
 					(unit 1)
 				)
 			)
@@ -4770,8 +4963,8 @@
 	)
 	(wire
 		(pts
-			(xy 78.74 91.44)
-			(xy 73.66 91.44)
+			(xy 93.98 91.44)
+			(xy 88.9 91.44)
 		)
 		(stroke
 			(width 0)
@@ -4779,8 +4972,8 @@
 		)
 		(uuid "f66d16db-d1b1-5a82-a056-4b2be402c209")
 	)
-	(label "LINKB_J_TX"
-		(at 73.66 91.44 180)
+	(label "LINKB_TX"
+		(at 88.9 91.44 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4791,8 +4984,8 @@
 	)
 	(wire
 		(pts
-			(xy 78.74 93.98)
-			(xy 73.66 93.98)
+			(xy 93.98 93.98)
+			(xy 88.9 93.98)
 		)
 		(stroke
 			(width 0)
@@ -4800,8 +4993,8 @@
 		)
 		(uuid "6746ef4f-62a7-5cfa-929c-c18d6224470f")
 	)
-	(label "LINKB_J_RX"
-		(at 73.66 93.98 180)
+	(label "LINKB_RX"
+		(at 88.9 93.98 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4812,7 +5005,7 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x04")
-		(at 121.92 91.44 0)
+		(at 137.16 91.44 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4820,7 +5013,7 @@
 		(dnp no)
 		(uuid "154e5bea-d541-525a-bd4d-16406b880d71")
 		(property "Reference" "J19"
-			(at 121.92 86.36 0)
+			(at 137.16 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4828,7 +5021,7 @@
 			)
 		)
 		(property "Value" "LINK B (12V, UART)"
-			(at 121.92 99.06 0)
+			(at 137.16 99.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4836,7 +5029,7 @@
 			)
 		)
 		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Horizontal"
-			(at 121.92 91.44 0)
+			(at 137.16 91.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4845,7 +5038,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 121.92 91.44 0)
+			(at 137.16 91.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4854,7 +5047,7 @@
 			)
 		)
 		(property "Description" "1x4 right angle: 12V, TX/RX, GND"
-			(at 121.92 91.44 0)
+			(at 137.16 91.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4863,7 +5056,7 @@
 			)
 		)
 		(property "ki_keywords" "connector"
-			(at 121.92 91.44 0)
+			(at 137.16 91.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4872,7 +5065,7 @@
 			)
 		)
 		(property "ki_fp_filters" "Connector*:*_1x??_*"
-			(at 121.92 91.44 0)
+			(at 137.16 91.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4903,8 +5096,8 @@
 	)
 	(wire
 		(pts
-			(xy 116.84 88.9)
-			(xy 111.76 88.9)
+			(xy 132.08 88.9)
+			(xy 127 88.9)
 		)
 		(stroke
 			(width 0)
@@ -4913,7 +5106,7 @@
 		(uuid "962ede41-32d8-573b-9829-6d3839dd39ed")
 	)
 	(label "LINKB_12V"
-		(at 111.76 88.9 180)
+		(at 127 88.9 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4924,8 +5117,8 @@
 	)
 	(wire
 		(pts
-			(xy 116.84 91.44)
-			(xy 111.76 91.44)
+			(xy 132.08 91.44)
+			(xy 127 91.44)
 		)
 		(stroke
 			(width 0)
@@ -4933,8 +5126,8 @@
 		)
 		(uuid "bb574397-3f23-5076-8074-26b0c3daac98")
 	)
-	(label "LINKB_J_RX"
-		(at 111.76 91.44 180)
+	(label "LINKB_RX"
+		(at 127 91.44 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4945,8 +5138,8 @@
 	)
 	(wire
 		(pts
-			(xy 116.84 93.98)
-			(xy 111.76 93.98)
+			(xy 132.08 93.98)
+			(xy 127 93.98)
 		)
 		(stroke
 			(width 0)
@@ -4954,8 +5147,8 @@
 		)
 		(uuid "5bc32b74-a683-507d-8154-e435325d341b")
 	)
-	(label "LINKB_J_TX"
-		(at 111.76 93.98 180)
+	(label "LINKB_TX"
+		(at 127 93.98 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4966,8 +5159,8 @@
 	)
 	(wire
 		(pts
-			(xy 116.84 96.52)
-			(xy 111.76 96.52)
+			(xy 132.08 96.52)
+			(xy 127 96.52)
 		)
 		(stroke
 			(width 0)
@@ -4977,15 +5170,15 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 111.76 96.52 270)
+		(at 127 96.52 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "bbc1927c-2050-5599-9a12-73ba160bdf61")
-		(property "Reference" "#PWR245"
-			(at 111.76 96.52 0)
+		(uuid "ea95f4d5-62d3-5d8e-bda6-be87385fc8dd")
+		(property "Reference" "#PWR248"
+			(at 127 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4994,7 +5187,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 111.76 99.52 0)
+			(at 127 99.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5002,7 +5195,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 111.76 96.52 0)
+			(at 127 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5011,7 +5204,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 111.76 96.52 0)
+			(at 127 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5020,12 +5213,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "8f1f2f7c-3b8b-5068-84a4-3af1e5ce3ea1")
+			(uuid "693f9830-53ac-5c60-a994-cf5460ffe084")
 		)
 		(instances
 			(project "mega-kvm-shield"
 				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "#PWR245")
+					(reference "#PWR248")
 					(unit 1)
 				)
 			)
@@ -5033,7 +5226,7 @@
 	)
 	(symbol
 		(lib_id "Device:Polyfuse")
-		(at 139.7 101.6 0)
+		(at 154.94 101.6 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5041,7 +5234,7 @@
 		(dnp no)
 		(uuid "35c06cdb-af0b-592b-bd87-16874f2b40a3")
 		(property "Reference" "F3"
-			(at 137.16 101.6 90)
+			(at 152.4 101.6 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5049,7 +5242,7 @@
 			)
 		)
 		(property "Value" "2A"
-			(at 142.24 101.6 90)
+			(at 157.48 101.6 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5057,7 +5250,7 @@
 			)
 		)
 		(property "Footprint" "Fuse:Fuse_1812_4532Metric"
-			(at 140.97 106.68 0)
+			(at 156.21 106.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5066,7 +5259,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 139.7 101.6 0)
+			(at 154.94 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5075,7 +5268,7 @@
 			)
 		)
 		(property "Description" "PTC 2 A hold, 12 V pass-through"
-			(at 139.7 101.6 0)
+			(at 154.94 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5084,7 +5277,7 @@
 			)
 		)
 		(property "ki_keywords" "resettable fuse PTC PPTC polyfuse polyswitch"
-			(at 139.7 101.6 0)
+			(at 154.94 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5093,7 +5286,7 @@
 			)
 		)
 		(property "ki_fp_filters" "*polyfuse* *PTC*"
-			(at 139.7 101.6 0)
+			(at 154.94 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5118,8 +5311,8 @@
 	)
 	(wire
 		(pts
-			(xy 139.7 97.79)
-			(xy 139.7 92.71)
+			(xy 154.94 97.79)
+			(xy 154.94 92.71)
 		)
 		(stroke
 			(width 0)
@@ -5129,15 +5322,15 @@
 	)
 	(symbol
 		(lib_id "power:+12V")
-		(at 139.7 92.71 0)
+		(at 154.94 92.71 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "2fe05cf3-a9c4-58fe-a322-91fb2ad9d7a7")
-		(property "Reference" "#PWR246"
-			(at 139.7 92.71 0)
+		(uuid "bbcd9f15-f8bc-5059-bc3f-9a1541864c19")
+		(property "Reference" "#PWR249"
+			(at 154.94 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5146,7 +5339,7 @@
 			)
 		)
 		(property "Value" "+12V"
-			(at 139.7 89.71 0)
+			(at 154.94 89.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5154,7 +5347,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 139.7 92.71 0)
+			(at 154.94 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5163,7 +5356,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 139.7 92.71 0)
+			(at 154.94 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5172,12 +5365,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "d2cf7bbd-78b0-507a-9c8f-1683da846b12")
+			(uuid "d13e8422-7f46-5000-8e03-20f5120ca18c")
 		)
 		(instances
 			(project "mega-kvm-shield"
 				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "#PWR246")
+					(reference "#PWR249")
 					(unit 1)
 				)
 			)
@@ -5185,8 +5378,8 @@
 	)
 	(wire
 		(pts
-			(xy 139.7 105.41)
-			(xy 139.7 110.49)
+			(xy 154.94 105.41)
+			(xy 154.94 110.49)
 		)
 		(stroke
 			(width 0)
@@ -5195,7 +5388,7 @@
 		(uuid "6d42c31b-743a-5feb-bc5d-170674601c5b")
 	)
 	(label "LINKB_12V"
-		(at 139.7 110.49 270)
+		(at 154.94 110.49 270)
 		(effects
 			(font
 				(size 1.27 1.27)
