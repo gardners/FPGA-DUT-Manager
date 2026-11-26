@@ -307,6 +307,11 @@ begin
     type u16_arr is array (natural range <>) of unsigned(15 downto 0);
     type u32_arr is array (natural range <>) of unsigned(31 downto 0);
     constant CLKIN_BUFG : std_logic_vector(0 to 2) := "110";
+    -- IDELAYCTRL per clock region: HDMI1+HDMI2 share bank 16 (X0Y2) and
+    -- HDMI1's controller, HDMI3 has its own in bank 15 (X0Y1)
+    constant IDC_OWN : std_logic_vector(0 to 2) := "101";
+    type grp_arr is array (0 to 2) of string(1 to 10);
+    constant GRP : grp_arr := ("shd_b16_dg", "shd_b16_dg", "shd_b15_dg");
     signal s_pclk, s_de, s_hs, s_vs, s_lk, s_hd, s_is, s_pr : std_logic_vector(0 to SHIELD_RX - 1);
     signal s_ht, s_vt, s_ha, s_va : u16_arr(0 to SHIELD_RX - 1);
     signal s_hz : u32_arr(0 to SHIELD_RX - 1);
@@ -317,7 +322,8 @@ begin
   begin
     g_rx : for i in 0 to SHIELD_RX - 1 generate
       srx : entity work.hdmi_rx_xc7
-        generic map (PLL_BUFG => true, CLKIN_BUFG => CLKIN_BUFG(i) = '1')
+        generic map (PLL_BUFG => true, CLKIN_BUFG => CLKIN_BUFG(i) = '1',
+                     IODELAY_GROUP => GRP(i), IDELAYCTRL => IDC_OWN(i) = '1')
         port map (tmds_clk_p => shd_clk_p(i), tmds_clk_n => shd_clk_n(i),
                   tmds_p => shd_d_p(3 * i + 2 downto 3 * i), tmds_n => shd_d_n(3 * i + 2 downto 3 * i),
                   hpd => open, ddc_scl => shd_scl(i), ddc_sda => shd_sda(i),

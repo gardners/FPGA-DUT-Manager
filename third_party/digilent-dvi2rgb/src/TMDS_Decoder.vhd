@@ -66,7 +66,8 @@ entity TMDS_Decoder is
       kIDLY_TapValuePs : natural := 78; --delay in ps per tap
       kIDLY_TapWidth : natural := 5; --number of bits for IDELAYE2 tap counter
       -- FPGA-DUT-Manager change (issue 0049): P/N swapped on the board
-      kInvert : boolean := false);
+      kInvert : boolean := false;
+      kIodelayGroup : string := "dvi2rgb_iodelay_grp");
    Port (
       PixelClk : in std_logic;   --Recovered TMDS clock x1 (CLKDIV)
       SerialClk : in std_logic;  --Recovered TMDS clock x5 (CLK)
@@ -122,7 +123,8 @@ dbg_pBitslip <= pBitslip;
 InputSERDES_X: entity work.InputSERDES
    generic map (
       kIDLY_TapWidth => kIDLY_TapWidth,
-      kParallelWidth => 10 -- TMDS uses 1:10 serialization
+      kParallelWidth => 10, -- TMDS uses 1:10 serialization
+      kIodelayGroup => kIodelayGroup
       )
    port map (
       PixelClk => PixelClk,

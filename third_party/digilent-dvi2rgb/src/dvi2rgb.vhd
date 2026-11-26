@@ -78,6 +78,10 @@ entity dvi2rgb is
       kPllBufg : boolean := false;
       kClkInBufg : boolean := true;
       kInvert : std_logic_vector(2 downto 0) := "000";
+      -- IODELAY_GROUP of this receiver; kIdelayCtrl = false: no IDELAYCTRL
+      -- here, another instance in the same region and group has it
+      kIodelayGroup : string := "dvi2rgb_iodelay_grp";
+      kIdelayCtrl : boolean := true;
       -- 7-series specific
       kIDLY_TapValuePs : natural := 78; --delay in ps per tap
       kIDLY_TapWidth : natural := 5); --number of bits for IDELAYE2 tap counter   
@@ -196,7 +200,8 @@ end generate ResetActiveHigh;
 -- Clocking infrastructure to obtain a usable fast serial clock and a slow parallel clock
 TMDS_ClockingX: entity work.TMDS_Clocking
    generic map (
-      kClkRange => kClkRange, kPllBufg => kPllBufg, kClkInBufg => kClkInBufg)
+      kClkRange => kClkRange, kPllBufg => kPllBufg, kClkInBufg => kClkInBufg,
+      kIodelayGroup => kIodelayGroup, kIdelayCtrl => kIdelayCtrl)
    port map (
       aRst       => aRst_int, 
       RefClk     => RefClk,
@@ -247,7 +252,7 @@ DataDecoders: for iCh in 2 downto 0 generate
          kRefClkFrqMHz => 200, --what is the RefClk frequency
          kIDLY_TapValuePs => kIDLY_TapValuePs, --delay in ps per tap
          kIDLY_TapWidth => kIDLY_TapWidth, --number of bits for IDELAYE2 tap counter   
-         kInvert => kInvert(iCh) = '1')
+         kInvert => kInvert(iCh) = '1', kIodelayGroup => kIodelayGroup)
       port map (
          aRst                    => pLockLostRst,               
          PixelClk                => PixelClk_int,

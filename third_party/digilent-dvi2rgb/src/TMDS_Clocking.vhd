@@ -69,7 +69,13 @@ entity TMDS_Clocking is
       -- through a BUFG to the PLL, which may then be in any clock region;
       -- false needs a free PLL in the pin's own region (dedicated route).
       kPllBufg : boolean := false;
-      kClkInBufg : boolean := true);
+      kClkInBufg : boolean := true;
+      -- FPGA-DUT-Manager change (issue 0049): the IDELAYCTRL's IODELAY_GROUP
+      -- (attribute; was in dvi2rgb.xdc). kIdelayCtrl = false leaves it out:
+      -- another receiver in the same clock region and group provides it
+      -- (one IDELAYCTRL site per region), RDY is then taken as '1'.
+      kIodelayGroup : string := "dvi2rgb_iodelay_grp";
+      kIdelayCtrl : boolean := true);
    Port (
       TMDS_Clk_p : in std_logic;
       TMDS_Clk_n : in std_logic;
@@ -105,6 +111,7 @@ signal LOCKED_int, rRdyRst : std_logic;
 signal aMMCM_Locked, rMMCM_Locked_ms, rMMCM_Locked, rMMCM_LckdFallingFlag, rMMCM_LckdRisingFlag : std_logic;
 signal rMMCM_Reset_q : std_logic_vector(1 downto 0);
 signal rMMCM_Locked_q : std_logic_vector(1 downto 0);
+attribute IODELAY_GROUP : string;
 
 begin
 
@@ -135,11 +142,18 @@ begin
    end if;
 end process;
     
+GenIdelayCtrl: if kIdelayCtrl generate
+   attribute IODELAY_GROUP of IDelayCtrlX : label is kIodelayGroup;
+begin
 IDelayCtrlX: IDELAYCTRL
    port map (
       RDY         => aDlyLckd,
       REFCLK      => RefClk,
-      RST         => rDlyRst);   
+      RST         => rDlyRst);
+end generate GenIdelayCtrl;
+GenNoIdelayCtrl: if not kIdelayCtrl generate
+   aDlyLckd <= '1';
+end generate GenNoIdelayCtrl;   
 
 RdyLostReset: entity work.ResetBridge
    generic map (
