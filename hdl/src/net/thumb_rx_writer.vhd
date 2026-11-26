@@ -63,15 +63,25 @@ architecture rtl of thumb_rx_writer is
   signal npic : unsigned(31 downto 0) := (others => '0');
   signal fin : std_logic := '0';
   signal fin_rows : unsigned(7 downto 0) := (others => '0');
+  -- one-entry input register between the FIFO (block RAM output) and the
+  -- decode (timing): e_v/e_d hold the next entry; it is refilled in the
+  -- cycle it is consumed, so throughput stays one entry per cycle
+  signal e_v  : std_logic := '0';
+  signal e_d  : std_logic_vector(35 downto 0) := (others => '0');
+  signal idle : std_logic;
+  signal pop_i : std_logic;
 begin
-  tag <= f_dout(35 downto 34);
+  tag <= e_d(35 downto 34);
   mem_req.valid <= wpend;
   mem_req.we    <= '1';
   mem_req.addr  <= thumb_addr(lm, lbuf, lrow, w(6 downto 0));
   mem_req.wdata <= wbuf;
   mem_req.wmask <= (others => '1');
-  -- pop when idle: no word waiting, no run being expanded
-  f_pop <= '1' when f_valid = '1' and wpend = '0' and rcnt = 0 and fin = '0' else '0';
+  -- the entry in e_d is consumed when idle: no word waiting, no run being
+  -- expanded; the FIFO is popped into e_d when it is empty or consumed
+  idle  <= '1' when wpend = '0' and rcnt = 0 and fin = '0' else '0';
+  pop_i <= f_valid and (not e_v or idle);
+  f_pop <= pop_i;
   pictures <= npic;
 
   process (clk)
@@ -84,6 +94,12 @@ begin
     if rising_edge(clk) then
       ev <= '0';
       seen_ev <= '0';
+      if pop_i = '1' then
+        e_v <= '1';
+        e_d <= f_dout;
+      elsif idle = '1' then
+        e_v <= '0';
+      end if;
       if fin = '1' then
         fin <= '0';
         seen_ev <= '1';
@@ -123,26 +139,26 @@ begin
         else
           pos <= np(2 downto 0);
         end if;
-      elsif f_valid = '1' then
+      elsif e_v = '1' then
         case tag is
           when "00" =>                                    -- LINE
-            m  := unsigned(f_dout(29 downto 25));
-            f8 := unsigned(f_dout(16 downto 9));
+            m  := unsigned(e_d(29 downto 25));
+            f8 := unsigned(e_d(16 downto 9));
             lm   <= m;
-            lrow <= unsigned(f_dout(24 downto 17));
-            lq   <= f_dout(8);
+            lrow <= unsigned(e_d(24 downto 17));
+            lq   <= e_d(8);
             w    <= (others => '0');
             pos  <= (others => '0');
-            if f_dout(8) = '1' then nw <= to_unsigned(40, 8); else nw <= to_unsigned(80, 8); end if;
+            if e_d(8) = '1' then nw <= to_unsigned(40, 8); else nw <= to_unsigned(80, 8); end if;
             if m = local0 or m = local1 or (pk = '1' and m /= pm) then
               ign <= '1';
             else
               ign  <= '0';
               lbuf <= not cur(to_integer(m));
               if pk = '0' then
-                pk <= '1'; pm <= m; pq <= f_dout(8);
+                pk <= '1'; pm <= m; pq <= e_d(8);
                 pbuf <= not cur(to_integer(m));
-                pheight <= unsigned(f_dout(7 downto 0));
+                pheight <= unsigned(e_d(7 downto 0));
                 plines <= (others => '0');
                 if f8 /= rframe(to_integer(m)) then
                   rframe(to_integer(m)) <= f8;
@@ -151,18 +167,18 @@ begin
               end if;
             end if;
           when "01" =>                                    -- RUN
-            rcnt <= unsigned(f_dout(31 downto 24));
-            rpx  <= f_dout(23 downto 0);
+            rcnt <= unsigned(e_d(31 downto 24));
+            rpx  <= e_d(23 downto 0);
           when "10" =>                                    -- END
             -- rows are added in the next cycle (fin; timing)
-            if pk = '1' and f_dout(0) = '1' then
+            if pk = '1' and e_d(0) = '1' then
               fin <= '1';
               fin_rows <= rrows(to_integer(pm)) + plines;
             end if;
             pk <= '0';
             ign <= '1';
           when others =>                                  -- SEEN
-            m := unsigned(f_dout(4 downto 0));
+            m := unsigned(e_d(4 downto 0));
             if m /= local0 and m /= local1 then
               seen_ev <= '1';
               seen_machine <= m;

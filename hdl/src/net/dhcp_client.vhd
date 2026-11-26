@@ -62,6 +62,16 @@ architecture rtl of dhcp_client is
   signal offer_ip, server : std_logic_vector(31 downto 0) := (others => '0');
   signal have    : std_logic := '0';
   signal since   : integer range 0 to FALLBACK_MS + 1 := 0;
+  -- parsed reply, registered one cycle (timing): the 32-bit xid compare is
+  -- done in the register stage. x_upd marks an xid change on that edge; a
+  -- reply compared against the old xid is then ignored (it arrived while
+  -- the state machine was in a state that ignores replies anyway).
+  signal q_strobe : std_logic := '0';
+  signal q_xid_ok : boolean := false;
+  signal q_type   : std_logic_vector(7 downto 0) := (others => '0');
+  signal q_yiaddr, q_server : std_logic_vector(31 downto 0) := (others => '0');
+  signal q_lease, q_t1 : unsigned(31 downto 0) := (others => '0');
+  signal x_upd    : std_logic := '0';
 begin
   tx_req   <= req;
   tx_xid   <= std_logic_vector(xid);
@@ -84,6 +94,14 @@ begin
     end procedure;
   begin
     if rising_edge(clk) then
+      q_strobe <= rx_strobe;
+      q_xid_ok <= unsigned(rx_xid) = xid;
+      q_type   <= rx_type;
+      q_yiaddr <= rx_yiaddr;
+      q_server <= rx_server;
+      q_lease  <= rx_lease;
+      q_t1     <= rx_t1;
+      x_upd    <= '0';
       sec_tick <= '0';
       if tick_1ms = '1' then
         if ms = MS_PER_S - 1 then
@@ -106,20 +124,22 @@ begin
         case st is
           when S_OFF =>
             xid     <= unsigned(xid_base);
+            x_upd   <= '1';
             backoff <= to_unsigned(1, 5);
             st      <= S_INIT;
 
           when S_INIT =>
             xid    <= xid + 1;
+            x_upd  <= '1';
             send(x"01", x"00000000", x"00000000", x"00000000");
             wait_s <= backoff + 1;
             st     <= S_SELECTING;
 
           when S_SELECTING =>
-            if rx_strobe = '1' and rx_type = x"02" and unsigned(rx_xid) = xid then
-              offer_ip <= rx_yiaddr;
-              server   <= rx_server;
-              send(x"03", x"00000000", rx_yiaddr, rx_server);
+            if q_strobe = '1' and q_type = x"02" and q_xid_ok and x_upd = '0' then
+              offer_ip <= q_yiaddr;
+              server   <= q_server;
+              send(x"03", x"00000000", q_yiaddr, q_server);
               wait_s   <= to_unsigned(4, 5);
               st       <= S_REQUESTING;
             elsif sec_tick = '1' then
@@ -132,20 +152,20 @@ begin
             end if;
 
           when S_REQUESTING | S_RENEWING =>
-            if rx_strobe = '1' and unsigned(rx_xid) = xid and rx_type = x"05" then
+            if q_strobe = '1' and q_xid_ok and x_upd = '0' and q_type = x"05" then
               have    <= '1';
-              ip      <= rx_yiaddr;
-              server  <= rx_server;
+              ip      <= q_yiaddr;
+              server  <= q_server;
               backoff <= to_unsigned(1, 5);
-              if rx_lease = 0 or rx_lease = x"FFFFFFFF" then
+              if q_lease = 0 or q_lease = x"FFFFFFFF" then
                 infinite <= '1';
               else
                 infinite <= '0';
-                exp_left <= rx_lease;
-                if rx_t1 /= 0 then t1_left <= rx_t1; else t1_left <= shift_right(rx_lease, 1); end if;
+                exp_left <= q_lease;
+                if q_t1 /= 0 then t1_left <= q_t1; else t1_left <= shift_right(q_lease, 1); end if;
               end if;
               st <= S_BOUND;
-            elsif rx_strobe = '1' and unsigned(rx_xid) = xid and rx_type = x"06" then
+            elsif q_strobe = '1' and q_xid_ok and x_upd = '0' and q_type = x"06" then
               have <= '0';
               st   <= S_INIT;
             elsif sec_tick = '1' then
@@ -173,6 +193,7 @@ begin
               exp_left <= exp_left - 1;
               if t1_left <= 1 then
                 xid    <= xid + 1;
+                x_upd  <= '1';
                 send(x"03", ip, x"00000000", x"00000000");
                 wait_s <= to_unsigned(4, 5);
                 st     <= S_RENEWING;

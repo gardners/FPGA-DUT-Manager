@@ -12,7 +12,7 @@ be accepted (owner instruction 2026-11-25); refine rather than block.
 | [0004](0004-clocking-and-ethernet.md) | Clocking and RGMII Ethernet | Proposed |
 | [0005](0005-wire-protocol-v1.md) | UDP wire protocol v1 (ICD) | Proposed |
 | [0006](0006-keyboard-mk1-presentation.md) | Keyboard: always present MK-I; MK-I + MK-II physical | Accepted |
-| [0007](0007-chain-link.md) | Links between boards: Ethernet for KVM/enumeration, neighbour UART + 12 V on the shield (ribbon chain superseded) | Proposed |
+| [0007](0007-chain-link.md) | Links between boards: Ethernet for KVM/enumeration, neighbour UART on the shield (ribbon chain superseded) | Proposed |
 | [0008](0008-connector-allocation.md) | Header P12/P13 allocation and cable families | Proposed |
 | [0009](0009-power-relay-controller.md) | Relay controller protocol (Arduino, later Mimas GPIO) | Proposed |
 | [0010](0010-jtag-over-udp.md) | JTAG engine and host XVC proxy | Proposed |

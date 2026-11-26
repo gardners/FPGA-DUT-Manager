@@ -15,8 +15,8 @@ Status: Proposed (rewritten 2026-11-27). Supersedes the original ADR 0007
   runs over **Ethernet** (keyboard snapshots and live raster lines, no
   frame buffer); boards are discovered on the LAN; a unit is **two Mimas
   boards**, each with its own non-staggered shield; neighbouring shields
-  have only a **UART** between them, plus optionally 12 V pass-through on
-  a right-angle connector.
+  have only a **UART** between them (a 12 V pass-through was considered
+  and dropped in round 5).
 
 ## Decision
 
@@ -25,19 +25,14 @@ Status: Proposed (rewritten 2026-11-27). Supersedes the original ADR 0007
    (1 ms + on change), remote video (raster lines relayed with H/V sync,
    issue 0044), thumbnails (0038), management. The boards share a gigabit
    switch (GS105) inside the unit; no board is special in hardware.
-2. **Neighbour link on the shield** (issue 0045), one per board:
-   * one UART, `NB_UART_TX`/`NB_UART_RX` on P12 row 23 (G17/G18), 3.3 V
-     LVCMOS, 100 ohm series resistor per side connector;
-   * on each side edge of the shield a 1x3 Dupont header (GND, TX, RX)
-     and a 1x4 right-angle connector (12V, TX, RX, GND). Side A (P12 edge)
-     is a socket, side B (P13 edge) is a pin header with TX/RX swapped, so
-     two shields plug together directly or with a straight 4-way lead;
-   * 12 V pass-through on pin 1 through a 2 A polyfuse per side, so one
-     power-board feed can supply both Mimas of a unit.
-   Both side connectors carry the same UART: with two boards per unit only
-   one side is cabled. Use: low-latency hints between neighbours (e.g.
-   "I am master", a fallback path when the switch is down, wake-up),
-   protocol to be defined when needed.
+2. **Neighbour link on the shield** (issue 0045), one per board: one UART,
+   `NB_UART_TX`/`NB_UART_RX` on P12 row 23 (G17/G18), 3.3 V LVCMOS, on a
+   1x3 Dupont header (GND, TX, RX) with 100 ohm series resistors. Owner
+   round 5: no 12 V pass-through and no right-angle side connector (each
+   Mimas gets its own 12 V lead from the power board, on a Mini-Fit Jr).
+   With two boards per unit there is exactly one neighbour. Use: low-latency
+   hints between neighbours (e.g. "I am master", a fallback path when the
+   switch is down); protocol to be defined when needed.
 3. **No chain clock/video lanes.** If Ethernet latency ever proves too
    high, the fallback is a faster Ethernet path, not a ribbon.
 

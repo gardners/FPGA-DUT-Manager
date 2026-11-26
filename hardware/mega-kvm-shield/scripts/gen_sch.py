@@ -20,7 +20,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 PROJ = os.path.dirname(HERE)
 NAME = 'mega-kvm-shield'
 LIBSYM = os.path.join(PROJ, 'lib', 'shield.kicad_sym')
-POWER_NETS = {'GND': 'power:GND', '+3V3': 'power:+3V3', '+12V': 'power:+12V'}
+POWER_NETS = {'GND': 'power:GND', '+3V3': 'power:+3V3', '+12V': 'power:+12V', '+5V': 'power:+5V'}
 G = 2.54
 NS = uuidlib.UUID('6f1d3c1e-7a51-4d0e-9a55-6d2b3e1f0a45')
 
@@ -114,12 +114,8 @@ def write_symlib(syms):
 
 
 # --------------------------------------------------------------------------
-def main():
-    syms = custom_symbols()
-    write_symlib(syms)
-    symlib._cache.pop('shield', None)
-
-    parts = design.parts
+def main(board, PROJ, NAME, SHEETS, notes):
+    parts = [p for p in design.parts if p['board'] == board]
     # references
     counters = defaultdict(int)
     for p in parts:
@@ -147,13 +143,13 @@ def main():
             libsyms[libid] = symlib.load(libid, LIBSYM)
         return libsyms[libid]
 
-    root_uuid = U('root')
-    sheet_uuids = {s: U('sheet', s) for s, _ in design.SHEETS}
+    root_uuid = U('root', board)
+    sheet_uuids = {s: U('sheet', s) for s, _ in SHEETS}
     pwr_count = [0]
     sheet_files = {}
     netlist = {}
 
-    for page, (sname, stitle) in enumerate(design.SHEETS, start=2):
+    for page, (sname, stitle) in enumerate(SHEETS, start=2):
         sp = [p for p in parts if p['sheet'] == sname]
         items = []
         used = set()
@@ -309,7 +305,7 @@ def main():
         doc = [Sym('kicad_sch'), [Sym('version'), 20250114], [Sym('generator'), 'eeschema'],
                [Sym('generator_version'), '9.0'], [Sym('uuid'), U('file', sname)],
                [Sym('paper'), paper],
-               [Sym('title_block'), [Sym('title'), 'MEGA-KVM link-board shield: ' + stitle],
+               [Sym('title_block'), [Sym('title'), 'MEGA-KVM %s: %s' % ('shield' if board == 'shield' else 'keyboard sub-board', stitle)],
                 [Sym('date'), '2026-11-27'], [Sym('rev'), 'A (draft)'],
                 [Sym('company'), 'FPGA-DUT-Manager / MEGA65'],
                 [Sym('comment'), 1, 'Issue 0045; pin plan placeholder until docs/hardware/shield-pinplan.md']],
@@ -322,7 +318,7 @@ def main():
     # root sheet
     items = []
     x, y = 25.4, 40.64
-    for page, (sname, stitle) in enumerate(design.SHEETS, start=2):
+    for page, (sname, stitle) in enumerate(SHEETS, start=2):
         w, h = 76.2, 20.32
         items.append([Sym('sheet'), [Sym('at'), x, y], [Sym('size'), w, h],
                       [Sym('exclude_from_sim'), Sym('no')], [Sym('in_bom'), Sym('yes')],
@@ -339,13 +335,12 @@ def main():
         x += 96.52
         if x > 300:
             x, y = 25.4, y + 33.02
-    notes = open(os.path.join(HERE, 'root_notes.txt')).read().strip()
     items.append([Sym('text'), notes, [Sym('exclude_from_sim'), Sym('no')], [Sym('at'), 25.4, 140, 0],
                   [Sym('effects'), [Sym('font'), [Sym('size'), 1.6, 1.6]], [Sym('justify'), Sym('left'), Sym('top')]],
                   [Sym('uuid'), U('rootnotes')]])
     root = [Sym('kicad_sch'), [Sym('version'), 20250114], [Sym('generator'), 'eeschema'],
             [Sym('generator_version'), '9.0'], [Sym('uuid'), root_uuid], [Sym('paper'), 'A3'],
-            [Sym('title_block'), [Sym('title'), 'MEGA-KVM link-board shield (Mimas A7 V3)'],
+            [Sym('title_block'), [Sym('title'), 'MEGA-KVM link-board shield (Mimas A7 V3)' if board == 'shield' else 'MEGA-KVM keyboard sub-board (2 x J5)'],
              [Sym('date'), '2026-11-27'], [Sym('rev'), 'A (draft)'],
              [Sym('company'), 'FPGA-DUT-Manager / MEGA65'],
              [Sym('comment'), 1, 'Issue 0045, ADR 0007; docs/hardware/shield.md']],
@@ -376,4 +371,9 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    write_symlib(custom_symbols())
+    symlib._cache.pop('shield', None)
+    main('shield', os.path.dirname(HERE), 'mega-kvm-shield', design.SHEETS,
+         open(os.path.join(HERE, 'root_notes.txt')).read().strip())
+    main('kbd', os.path.join(os.path.dirname(HERE), 'kbd-sub'), 'mega-kvm-kbdsub',
+         design.KBD_SHEETS, open(os.path.join(HERE, 'kbd_notes.txt')).read().strip())

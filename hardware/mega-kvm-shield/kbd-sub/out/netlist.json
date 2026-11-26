@@ -1,0 +1,205 @@
+{
+ "H1": {
+  "cluster": "HOLE0",
+  "descr": "",
+  "dnp": false,
+  "fp": "MountingHole:MountingHole_3.2mm_M3",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {},
+  "sheet": "kbd_sub",
+  "value": "M3"
+ },
+ "H2": {
+  "cluster": "HOLE1",
+  "descr": "",
+  "dnp": false,
+  "fp": "MountingHole:MountingHole_3.2mm_M3",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {},
+  "sheet": "kbd_sub",
+  "value": "M3"
+ },
+ "H3": {
+  "cluster": "HOLE2",
+  "descr": "",
+  "dnp": false,
+  "fp": "MountingHole:MountingHole_3.2mm_M3",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {},
+  "sheet": "kbd_sub",
+  "value": "M3"
+ },
+ "J1": {
+  "cluster": "B2B",
+  "descr": "2x6 male header 2.54 mm (same stack as the Mimas headers)",
+  "dnp": false,
+  "fp": "Connector_PinHeader_2.54mm:PinHeader_2x06_P2.54mm_Vertical",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "GND",
+   "10": "B_KB_SENSE",
+   "11": "GND",
+   "12": "GND",
+   "2": "GND",
+   "3": "A_KIO8",
+   "4": "A_KIO9",
+   "5": "A_KIO10",
+   "6": "A_KB_SENSE",
+   "7": "B_KIO8",
+   "8": "B_KIO9",
+   "9": "B_KIO10"
+  },
+  "sheet": "kbd_sub",
+  "value": "B2B to shield"
+ },
+ "J2": {
+  "cluster": "KBDAJ",
+  "descr": "2x5 box header, right angle",
+  "dnp": false,
+  "fp": "Connector_IDC:IDC-Header_2x05_P2.54mm_Horizontal",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "GND",
+   "10": "A_J_KIO10",
+   "2": "A_J_3V3",
+   "8": "A_J_KIO8",
+   "9": "A_J_KIO9"
+  },
+  "sheet": "kbd_sub",
+  "value": "KEYBOARD A (J5)"
+ },
+ "J3": {
+  "cluster": "KBDBJ",
+  "descr": "2x5 box header, right angle",
+  "dnp": false,
+  "fp": "Connector_IDC:IDC-Header_2x05_P2.54mm_Horizontal",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "GND",
+   "10": "B_J_KIO10",
+   "2": "B_J_3V3",
+   "8": "B_J_KIO8",
+   "9": "B_J_KIO9"
+  },
+  "sheet": "kbd_sub",
+  "value": "KEYBOARD B (J5)"
+ },
+ "R1": {
+  "cluster": "KBDA",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "A_KIO8",
+   "2": "A_J_KIO8"
+  },
+  "sheet": "kbd_sub",
+  "value": "47"
+ },
+ "R2": {
+  "cluster": "KBDA",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "A_KIO9",
+   "2": "A_J_KIO9"
+  },
+  "sheet": "kbd_sub",
+  "value": "47"
+ },
+ "R3": {
+  "cluster": "KBDA",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "A_KIO10",
+   "2": "A_J_KIO10"
+  },
+  "sheet": "kbd_sub",
+  "value": "47"
+ },
+ "R4": {
+  "cluster": "KBDA",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "A_J_3V3",
+   "2": "A_KB_SENSE"
+  },
+  "sheet": "kbd_sub",
+  "value": "10k"
+ },
+ "R5": {
+  "cluster": "KBDB",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "B_KIO8",
+   "2": "B_J_KIO8"
+  },
+  "sheet": "kbd_sub",
+  "value": "47"
+ },
+ "R6": {
+  "cluster": "KBDB",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "B_KIO9",
+   "2": "B_J_KIO9"
+  },
+  "sheet": "kbd_sub",
+  "value": "47"
+ },
+ "R7": {
+  "cluster": "KBDB",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "B_KIO10",
+   "2": "B_J_KIO10"
+  },
+  "sheet": "kbd_sub",
+  "value": "47"
+ },
+ "R8": {
+  "cluster": "KBDB",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "B_J_3V3",
+   "2": "B_KB_SENSE"
+  },
+  "sheet": "kbd_sub",
+  "value": "10k"
+ }
+}

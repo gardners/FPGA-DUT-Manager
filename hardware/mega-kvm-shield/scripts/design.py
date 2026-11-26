@@ -86,13 +86,14 @@ LCSC_R = {  # 0402 1 % thick film, JLC basic parts
 }
 
 parts = []
+BOARD = ['shield']          # board the next parts belong to
 
 
 def part(prefix, sym, value, fp, pins, sheet, cluster, lcsc='', dnp=False,
          descr='', mpn=''):
     p = dict(prefix=prefix, sym=sym, value=value, fp=fp, pins=dict(pins),
              sheet=sheet, cluster=cluster, lcsc=lcsc, dnp=dnp, descr=descr,
-             mpn=mpn)
+             mpn=mpn, board=BOARD[0])
     parts.append(p)
     return p
 
@@ -142,9 +143,9 @@ part('P', 'shield:Mimas_Header_2x40', 'P13 socket (DUT1/DUT2 side)',
 
 # 12 V input from the power board (0047 always-on output) -> header VIN
 part('J', 'Connector_Generic:Conn_01x02', '12V IN',
-     'Connector_JST:JST_VH_B2P-VH_1x02_P3.96mm_Vertical',
-     {'1': '+12V', '2': 'GND'}, S_HDR, 'PWR', descr='JST VH 2-pin, 12 V in',
-     mpn='JST B2P-VH')
+     'Connector_Molex:Molex_Mini-Fit_Jr_5566-02A_2x01_P4.20mm_Vertical',
+     {'1': '+12V', '2': 'GND'}, S_HDR, 'PWR', descr='Molex Mini-Fit Jr 2-pin vertical, 12 V in',
+     mpn='Molex 5566-02A (39-30-1020 class)')
 part('D', 'Device:D_TVS', 'SMBJ15A', 'Diode_SMD:D_SMB',
      {'1': '+12V', '2': 'GND'}, S_HDR, 'PWR', descr='TVS 15 V standoff')
 C('10u', '+12V', 'GND', S_HDR, 'PWR', fp='Capacitor_SMD:C_1206_3216Metric', lcsc='')
@@ -217,11 +218,19 @@ for n in HDMI_DUTS:
 
 # ------------------------------- DUT ports -------------------------------
 S_DUT = 'dut_ports'
+# Round 6 (owner): per DUT the JB1 2x6 sits on the shield at the panel edge
+# (shortest JTAG routes); its J5 2x5 sits directly below on a keyboard
+# sub-board under the shield overhang beside the Mimas. One sub-board per
+# side carries two J5 (slot A = lower Mimas y, slot B = higher), joined to
+# the shield by a 2x6 board-to-board header (KIO8/9/10 + 3.3 V sense per DUT).
+KBD_SIDES = {'P12': {'A': 0, 'B': 3}, 'P13': {'A': 2, 'B': 1}}
+B2B_PINS = {'1': 'GND', '2': 'GND', '3': 'A_KIO8', '4': 'A_KIO9', '5': 'A_KIO10',
+            '6': 'A_KB_SENSE', '7': 'B_KIO8', '8': 'B_KIO9', '9': 'B_KIO10',
+            '10': 'B_KB_SENSE', '11': 'GND', '12': 'GND'}
 for n in range(N_DUT):
     d = lambda x: 'DUT%d_%s' % (n, x)
     j = lambda x: 'DUT%d_JB_%s' % (n, x)
-    k = lambda x: 'DUT%d_KB_%s' % (n, x)
-    cj, ck = 'JTAG%d' % n, 'KBD%d' % n
+    cj = 'JTAG%d' % n
     # JB1 / TE0790 style 2x6, MEGA65 pin numbering
     part('J', 'Connector_Generic:Conn_02x06_Odd_Even', 'DUT%d JTAG+UART (JB1)' % n,
          'Connector_IDC:IDC-Header_2x06_P2.54mm_Horizontal',
@@ -233,16 +242,41 @@ for n in range(N_DUT):
         R('47', d(sig), j(sig), S_DUT, cj)
     R('10k', j('VIO'), d('VIO_SENSE'), S_DUT, cj)
     R('100k', d('VIO_SENSE'), 'GND', S_DUT, cj)
-    # J5 style 2x5 (no keyboard JTAG on DUT ports)
-    part('J', 'Connector_Generic:Conn_02x05_Odd_Even', 'DUT%d KEYBOARD (J5)' % n,
+    R('100k', d('KB_SENSE'), 'GND', S_DUT, cj)
+for side, slots in KBD_SIDES.items():
+    m = {}
+    for k, v in B2B_PINS.items():
+        if v == 'GND':
+            m[k] = 'GND'
+        else:
+            slot, sig = v.split('_', 1)
+            m[k] = 'DUT%d_%s' % (slots[slot], sig)
+    part('J', 'Connector_Generic:Conn_02x06_Odd_Even', 'KBD SUB %s (B2B)' % side,
+         'Connector_PinSocket_2.54mm:PinSocket_2x06_P2.54mm_Vertical', m, S_DUT,
+         'B2B' + side, descr='2x6 female socket 8.5 mm, shield bottom side')
+
+# ------------------------------- keyboard sub-board ----------------------
+BOARD[0] = 'kbd'
+S_KBD = 'kbd_sub'
+part('J', 'Connector_Generic:Conn_02x06_Odd_Even', 'B2B to shield',
+     'Connector_PinHeader_2.54mm:PinHeader_2x06_P2.54mm_Vertical', B2B_PINS, S_KBD,
+     'B2B', descr='2x6 male header 2.54 mm (same stack as the Mimas headers)')
+for slot in 'AB':
+    k = lambda x: '%s_J_%s' % (slot, x)
+    part('J', 'Connector_Generic:Conn_02x05_Odd_Even', 'KEYBOARD %s (J5)' % slot,
          'Connector_IDC:IDC-Header_2x05_P2.54mm_Horizontal',
          {'1': 'GND', '2': k('3V3'), '3': None, '4': None, '5': None, '6': None,
           '7': None, '8': k('KIO8'), '9': k('KIO9'), '10': k('KIO10')},
-         S_DUT, ck + 'J', descr='2x5 box header, right angle')
+         S_KBD, 'KBD' + slot + 'J', descr='2x5 box header, right angle')
     for sig in ('KIO8', 'KIO9', 'KIO10'):
-        R('47', d(sig), k(sig), S_DUT, ck)
-    R('10k', k('3V3'), d('KB_SENSE'), S_DUT, ck)
-    R('100k', d('KB_SENSE'), 'GND', S_DUT, ck)
+        R('47', '%s_%s' % (slot, sig), k(sig), S_KBD, 'KBD' + slot)
+    R('10k', k('3V3'), '%s_KB_SENSE' % slot, S_KBD, 'KBD' + slot)
+flag('GND', S_KBD)
+for i in range(3):
+    part('H', 'Mechanical:MountingHole', 'M3', 'MountingHole:MountingHole_3.2mm_M3',
+         {}, S_KBD, 'HOLE%d' % i)
+BOARD[0] = 'shield'
+KBD_SHEETS = [(S_KBD, 'Keyboard sub-board: 2 x J5 (DUT keyboards)')]
 
 # ------------------------------- I/O expanders ---------------------------
 S_EXP = 'io_expanders'
@@ -280,17 +314,18 @@ for b in range(8):
 for b in range(8):
     R('20k', 'PWR_CTL%d' % b, 'GND', S_EXP, 'EXP')
 # power-control header to the power board: 1x11, pin 2 removed (key)
-relay = {'1': 'GND', '2': None, '11': 'PWRB_PRESENT_N'}
+relay = {'1': 'GND', '2': None, '11': 'PWRB_PRESENT'}
 for b in range(8):
     relay[str(3 + b)] = 'PWR_CTL%d' % b
 part('J', 'Connector_Generic:Conn_01x11', 'POWER CTRL (pin 2 = key)',
      'Connector_PinHeader_2.54mm:PinHeader_1x11_P2.54mm_Vertical', relay, S_EXP,
      'RELAYJ', descr='1x11 pin header, pin 2 pulled for keying')
-R('10k', '+3V3', 'PWRB_PRESENT_N', S_EXP, 'EXP')
+# PRESENT: the power board pulls it to 3.3 V through 10 k; weak pull-down here
+R('100k', 'PWRB_PRESENT', 'GND', S_EXP, 'EXP')
 
 # Expander B, TCA6416A @0x20 (PCAL6416A symbol, same pinout): slow lines
 expb_p0 = ['HDMI1_HPD_EN', 'HDMI2_HPD_EN', 'HDMI3_HPD_EN', 'PK_JTAGEN',
-           'HDMI1_5V_SENSE', 'HDMI2_5V_SENSE', 'HDMI3_5V_SENSE', 'PWRB_PRESENT_N']
+           'HDMI1_5V_SENSE', 'HDMI2_5V_SENSE', 'HDMI3_5V_SENSE', 'PWRB_PRESENT']
 expb_p1 = ['DUT%d_VIO_SENSE' % n for n in range(4)] + ['DUT%d_KB_SENSE' % n for n in range(4)]
 exp16 = {'22': 'I2C_SCL', '23': 'I2C_SDA', '1': 'EXPB_INT_N', '3': 'EXP_RESET_N',
          '21': 'GND', '2': '+3V3', '24': '+3V3', '12': 'GND'}
@@ -306,10 +341,10 @@ R('10k', '+3V3', 'EXPB_INT_N', S_EXP, 'EXP')
 # I2C bus pull-ups and the front-panel I2C header (issue 0050)
 R('2.2k', '+3V3', 'I2C_SCL', S_EXP, 'EXP')
 R('2.2k', '+3V3', 'I2C_SDA', S_EXP, 'EXP')
-part('J', 'Connector_Generic:Conn_01x05', 'I2C (front panel)',
-     'Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Horizontal',
-     {'1': 'GND', '2': '+3V3', '3': 'I2C_SDA', '4': 'I2C_SCL', '5': 'EXPB_INT_N'},
-     S_EXP, 'I2CJ', descr='1x5 right-angle header: GND 3V3 SDA SCL INT')
+part('J', 'Connector_Generic:Conn_01x06', 'I2C (front panel)',
+     'Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Horizontal',
+     {'1': 'GND', '2': '+5V', '3': '+3V3', '4': 'I2C_SDA', '5': 'I2C_SCL', '6': 'EXPB_INT_N'},
+     S_EXP, 'I2CJ', descr='1x6 right-angle header: GND 5V 3V3 SDA SCL INT')
 
 # ------------------------------- physical keyboard + links ---------------
 S_LNK = 'keyboard_link'
@@ -326,35 +361,32 @@ part('F', 'Device:Polyfuse', '0.5A', 'Fuse:Fuse_1206_3216Metric',
      {'1': '+3V3', '2': 'PK_3V3'}, S_LNK, 'PK', descr='PTC 0.5 A hold, keyboard supply')
 C('100n', 'PK_3V3', 'GND', S_LNK, 'PK')
 
-# Neighbour link: one UART (NB_UART_TX/RX) to both side edges; with two
-# Mimas per unit only one side is cabled. 100 ohm series per side.
-for side in ('A', 'B'):
-    L = lambda x: 'LINK%s_%s' % (side, x)
-    cl = 'LINK' + side
-    R('100', 'NB_UART_TX', L('TX'), S_LNK, cl)
-    R('100', 'NB_UART_RX', L('RX'), S_LNK, cl)
-    part('J', 'Connector_Generic:Conn_01x03', 'LINK %s UART' % side,
-         'Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical',
-         {'1': 'GND', '2': L('TX'), '3': L('RX')}, S_LNK, cl + 'U',
-         descr='1x3 header: GND, TX, RX (Dupont)')
-    # side connector: 12 V pass-through + UART. A = socket, B = pins, so
-    # neighbouring shields plug together; TX/RX swap between the two so a
-    # straight lead also works.
-    if side == 'A':
-        pins = {'1': L('12V'), '2': L('TX'), '3': L('RX'), '4': 'GND'}
-        fp = 'Connector_PinSocket_2.54mm:PinSocket_1x04_P2.54mm_Horizontal'
-    else:
-        pins = {'1': L('12V'), '2': L('RX'), '3': L('TX'), '4': 'GND'}
-        fp = 'Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Horizontal'
-    part('J', 'Connector_Generic:Conn_01x04', 'LINK %s (12V, UART)' % side, fp, pins,
-         S_LNK, cl + 'S', descr='1x4 right angle: 12V, TX/RX, GND')
-    part('F', 'Device:Polyfuse', '2A', 'Fuse:Fuse_1812_4532Metric',
-         {'1': '+12V', '2': L('12V')}, S_LNK, cl, descr='PTC 2 A hold, 12 V pass-through')
+# Neighbour link (ADR 0007): one UART, plain 3-pin Dupont header
+# (GND, TX, RX), 100 ohm series. No 12 V pass-through (owner round 5).
+R('100', 'NB_UART_TX', 'NB_J_TX', S_LNK, 'LINK')
+R('100', 'NB_UART_RX', 'NB_J_RX', S_LNK, 'LINK')
+part('J', 'Connector_Generic:Conn_01x03', 'NEIGHBOUR UART',
+     'Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical',
+     {'1': 'GND', '2': 'NB_J_TX', '3': 'NB_J_RX'}, S_LNK, 'LINKU',
+     descr='1x3 header: GND, TX, RX (Dupont)')
+
+# 12 V -> 5 V buck for the front-panel I2C header (LCD backpacks need 5 V)
+part('U', 'Regulator_Switching:AP63205WU', 'AP63205WU', 'Package_TO_SOT_SMD:TSOT-23-6',
+     {'3': '+12V', '2': '+12V', '4': 'GND', '5': 'BUCK_SW', '6': 'BUCK_BST', '1': '+5V'},
+     S_LNK, 'BUCK', descr='2 A sync buck, fixed 5 V, 3.8-32 V in')
+C('10u', '+12V', 'GND', S_LNK, 'BUCK', fp='Capacitor_SMD:C_1206_3216Metric', lcsc='')
+C('100n', '+12V', 'GND', S_LNK, 'BUCK')
+C('100n', 'BUCK_BST', 'BUCK_SW', S_LNK, 'BUCK')
+part('L', 'Device:L', '4.7u', 'Inductor_SMD:L_Changjiang_FXL0530',
+     {'1': 'BUCK_SW', '2': '+5V'}, S_LNK, 'BUCK', descr='4.7 uH >= 1.5 A, 5x5 mm')
+C('22u', '+5V', 'GND', S_LNK, 'BUCK', fp='Capacitor_SMD:C_0805_2012Metric', lcsc='')
+C('22u', '+5V', 'GND', S_LNK, 'BUCK', fp='Capacitor_SMD:C_0805_2012Metric', lcsc='')
+flag('+5V', S_LNK)
 
 SHEETS = [
     (S_HDR, 'Mimas headers, 12 V input, mounting'),
 ] + [('hdmi_rx_dut%d' % n, 'DUT%d HDMI input' % n) for n in HDMI_DUTS] + [
-    (S_DUT, 'DUT JTAG/UART and keyboard ports'),
+    (S_DUT, 'DUT JTAG/UART ports, keyboard sub-board sockets'),
     (S_EXP, 'I2C expanders, revision/features, power control, I2C header'),
-    (S_LNK, 'Physical keyboard and neighbour links'),
+    (S_LNK, 'Physical keyboard, neighbour UART, 5 V buck'),
 ]

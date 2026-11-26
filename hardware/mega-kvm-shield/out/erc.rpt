@@ -1,4 +1,4 @@
-ERC report (2026-11-27T04:34:13, Encoding UTF8)
+ERC report (2026-11-27T05:05:08, Encoding UTF8)
 Report includes: Errors, Warnings, Exclusions
 
 ***** Sheet /
@@ -11,11 +11,11 @@ Report includes: Errors, Warnings, Exclusions
 
 ***** Sheet /DUT3 HDMI input/
 
-***** Sheet /DUT JTAG/UART and keyboard ports/
+***** Sheet /DUT JTAG/UART ports, keyboard sub-board sockets/
 
 ***** Sheet /I2C expanders, revision/features, power control, I2C header/
 
-***** Sheet /Physical keyboard and neighbour links/
+***** Sheet /Physical keyboard, neighbour UART, 5 V buck/
 
  ** ERC messages: 0  Errors 0  Warnings 0
 

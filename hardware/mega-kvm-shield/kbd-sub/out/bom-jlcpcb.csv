@@ -1,0 +1,6 @@
+Comment,Designator,Footprint,LCSC Part #,MPN,Qty
+B2B to shield,J1,PinHeader_2x06_P2.54mm_Vertical,TBD,,1
+KEYBOARD A (J5),J2,IDC-Header_2x05_P2.54mm_Horizontal,TBD,,1
+KEYBOARD B (J5),J3,IDC-Header_2x05_P2.54mm_Horizontal,TBD,,1
+47,"R1,R2,R3,R5,R6,R7",R_0402_1005Metric,C25118,,6
+10k,"R4,R8",R_0402_1005Metric,C25744,,2
