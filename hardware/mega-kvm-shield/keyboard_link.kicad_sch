@@ -5,7 +5,7 @@
 	(uuid "efe76270-fdf1-5aca-b8c3-8d11b29e87d6")
 	(paper "A3")
 	(title_block
-		(title "MEGA-KVM link-board shield: Physical keyboard and neighbour links")
+		(title "MEGA-KVM shield: Physical keyboard, neighbour UART, 5 V buck")
 		(date "2026-11-27")
 		(rev "A (draft)")
 		(company "FPGA-DUT-Manager / MEGA65")
@@ -148,6 +148,112 @@
 								(size 1.27 1.27)
 							)
 						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "power:PWR_FLAG"
+			(power)
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "#FLG"
+				(at 0 1.905 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Value" "PWR_FLAG"
+				(at 0 3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Special symbol for telling ERC where power comes from"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "flag power"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "PWR_FLAG_0_0"
+				(pin power_out line
+					(at 0 0 90)
+					(length 0)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(symbol "PWR_FLAG_0_1"
+				(polyline
+					(pts
+						(xy 0 0)
+						(xy 0 1.27)
+						(xy -1.016 1.905)
+						(xy 0 2.54)
+						(xy 1.016 1.905)
+						(xy 0 1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
 					)
 				)
 			)
@@ -629,6 +735,134 @@
 						)
 					)
 					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "power:+5V"
+			(power)
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "#PWR"
+				(at 0 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Value" "+5V"
+				(at 0 3.556 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Power symbol creates a global label with name \"+5V\""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "global power"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "+5V_0_1"
+				(polyline
+					(pts
+						(xy -0.762 1.27)
+						(xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 2.54)
+						(xy 0.762 1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 0)
+						(xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "+5V_1_1"
+				(pin power_in line
+					(at 0 0 90)
+					(length 0)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1337,7 +1571,200 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "Connector_Generic:Conn_01x04"
+		(symbol "Regulator_Switching:AP63205WU"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at -7.62 6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "AP63205WU"
+				(at 2.54 6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" "Package_TO_SOT_SMD:TSOT-23-6"
+				(at 0 -22.86 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "https://www.diodes.com/assets/Datasheets/AP63200-AP63201-AP63203-AP63205.pdf"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "2A, 1.1MHz Buck DC/DC Converter, fixed 5.0V output voltage, TSOT-23-6"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "2A Buck DC/DC"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "TSOT?23*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "AP63205WU_0_1"
+				(rectangle
+					(start -7.62 5.08)
+					(end 7.62 -5.08)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(symbol "AP63205WU_1_1"
+				(pin power_in line
+					(at -10.16 2.54 0)
+					(length 2.54)
+					(name "IN"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -10.16 -2.54 0)
+					(length 2.54)
+					(name "EN"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at 0 -7.62 90)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 10.16 2.54 180)
+					(length 2.54)
+					(name "SW"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 10.16 0 180)
+					(length 2.54)
+					(name "BST"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at 10.16 -2.54 180)
+					(length 2.54)
+					(name "FB"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "Device:L"
+			(pin_numbers
+				(hide yes)
+			)
 			(pin_names
 				(offset 1.016)
 				(hide yes)
@@ -1345,16 +1772,16 @@
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "J"
-				(at 0 5.08 0)
+			(property "Reference" "L"
+				(at -1.27 0 90)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
 				)
 			)
-			(property "Value" "Conn_01x04"
-				(at 0 -7.62 0)
+			(property "Value" "L"
+				(at 1.905 0 90)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -1379,7 +1806,7 @@
 					(hide yes)
 				)
 			)
-			(property "Description" "Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(property "Description" "Inductor"
 				(at 0 0 0)
 				(effects
 					(font
@@ -1388,7 +1815,7 @@
 					(hide yes)
 				)
 			)
-			(property "ki_keywords" "connector"
+			(property "ki_keywords" "inductor choke coil reactor magnetic"
 				(at 0 0 0)
 				(effects
 					(font
@@ -1397,7 +1824,7 @@
 					(hide yes)
 				)
 			)
-			(property "ki_fp_filters" "Connector*:*_1x??_*"
+			(property "ki_fp_filters" "Choke_* *Coil* Inductor_* L_*"
 				(at 0 0 0)
 				(effects
 					(font
@@ -1406,66 +1833,61 @@
 					(hide yes)
 				)
 			)
-			(symbol "Conn_01x04_1_1"
-				(rectangle
-					(start -1.27 3.81)
-					(end 1.27 -6.35)
+			(symbol "L_0_1"
+				(arc
+					(start 0 2.54)
+					(mid 0.6323 1.905)
+					(end 0 1.27)
 					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-				(rectangle
-					(start -1.27 2.667)
-					(end 0 2.413)
-					(stroke
-						(width 0.1524)
+						(width 0)
 						(type default)
 					)
 					(fill
 						(type none)
 					)
 				)
-				(rectangle
-					(start -1.27 0.127)
-					(end 0 -0.127)
+				(arc
+					(start 0 1.27)
+					(mid 0.6323 0.635)
+					(end 0 0)
 					(stroke
-						(width 0.1524)
+						(width 0)
 						(type default)
 					)
 					(fill
 						(type none)
 					)
 				)
-				(rectangle
-					(start -1.27 -2.413)
-					(end 0 -2.667)
+				(arc
+					(start 0 0)
+					(mid 0.6323 -0.635)
+					(end 0 -1.27)
 					(stroke
-						(width 0.1524)
+						(width 0)
 						(type default)
 					)
 					(fill
 						(type none)
 					)
 				)
-				(rectangle
-					(start -1.27 -4.953)
-					(end 0 -5.207)
+				(arc
+					(start 0 -1.27)
+					(mid 0.6323 -1.905)
+					(end 0 -2.54)
 					(stroke
-						(width 0.1524)
+						(width 0)
 						(type default)
 					)
 					(fill
 						(type none)
 					)
 				)
+			)
+			(symbol "L_1_1"
 				(pin passive line
-					(at -5.08 2.54 0)
-					(length 3.81)
-					(name "Pin_1"
+					(at 0 3.81 270)
+					(length 1.27)
+					(name "1"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1481,9 +1903,9 @@
 					)
 				)
 				(pin passive line
-					(at -5.08 0 0)
-					(length 3.81)
-					(name "Pin_2"
+					(at 0 -3.81 90)
+					(length 1.27)
+					(name "2"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1491,42 +1913,6 @@
 						)
 					)
 					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -5.08 -2.54 0)
-					(length 3.81)
-					(name "Pin_3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -5.08 -5.08 0)
-					(length 3.81)
-					(name "Pin_4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1546,8 +1932,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "7e479c2c-ec0f-5254-8a96-3bc91a984057")
-		(property "Reference" "R156"
+		(uuid "0526be26-fd27-5667-8075-2586c277620c")
+		(property "Reference" "R140"
 			(at 29.972 55.88 90)
 			(effects
 				(font
@@ -1618,15 +2004,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "82e0b425-dae0-56cb-b19a-273af47307dd")
+			(uuid "426e14e2-dcae-5850-96b8-c182f67a738a")
 		)
 		(pin "2"
-			(uuid "69f21f7b-3d8d-5163-b0d4-d32f8f2c3661")
+			(uuid "81f3b76d-2243-5db6-a5e7-cb4bff4a666f")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "R156")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "R140")
 					(unit 1)
 				)
 			)
@@ -1641,7 +2027,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "e36eb98f-d7b8-5cda-81bf-e81549a13f45")
+		(uuid "5633c3fe-9df2-52ea-8549-110be18e6a07")
 	)
 	(global_label "PK_JTAGEN"
 		(shape bidirectional)
@@ -1653,7 +2039,7 @@
 			)
 			(justify left)
 		)
-		(uuid "6f109c4d-6bef-59ce-a597-1747b53b42b1")
+		(uuid "99172eec-43a7-549d-9733-3fbe39390c30")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 27.94 46.99 90)
 			(effects
@@ -1673,7 +2059,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "cc4cdc9e-6657-531d-a286-d7b655113f96")
+		(uuid "00b3da56-e7d4-58d4-9a17-347049ce1fb1")
 	)
 	(label "PK_J_JTAGEN"
 		(at 27.94 64.77 270)
@@ -1683,7 +2069,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "a3105f54-53c8-5feb-81f1-7812a7d8359f")
+		(uuid "6ad780a0-c2b0-50d3-9145-661a965c7f40")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -1693,8 +2079,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "4bad38d1-7394-5729-8381-3101a8ed0c73")
-		(property "Reference" "R157"
+		(uuid "6f4f7777-7a31-50dd-917b-95550ec14d47")
+		(property "Reference" "R141"
 			(at 47.752 50.8 90)
 			(effects
 				(font
@@ -1765,15 +2151,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "972e6f94-cf14-5d1e-88d9-9394754b8d7e")
+			(uuid "1d0b82ee-0da4-5a11-8445-e21bf99937f3")
 		)
 		(pin "2"
-			(uuid "dcf12a62-b3b2-5aa5-98e9-89b6881c4c94")
+			(uuid "f440ad86-2730-5bef-9dda-f264b1341f66")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "R157")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "R141")
 					(unit 1)
 				)
 			)
@@ -1788,7 +2174,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "29d87838-1150-5274-ad89-359c6fbf7801")
+		(uuid "edf4a143-7469-59d8-a6d5-62a62567f1a2")
 	)
 	(global_label "PK_TMS"
 		(shape bidirectional)
@@ -1800,7 +2186,7 @@
 			)
 			(justify left)
 		)
-		(uuid "624e032d-942b-5faa-842a-9f7cc8d356e2")
+		(uuid "1ba9f218-eca5-5a8c-8d0b-06747ff52ee2")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 45.72 41.91 90)
 			(effects
@@ -1820,7 +2206,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "4ba28914-2837-5151-9c7a-86146d7b7001")
+		(uuid "c4b804e0-f90a-55c3-8643-f72341af1f0a")
 	)
 	(label "PK_J_TMS"
 		(at 45.72 59.69 270)
@@ -1830,7 +2216,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "a1daa442-45be-5f99-8aab-cdae7ceb7a55")
+		(uuid "97b80049-6635-5544-973c-4e1200a94c59")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -1840,8 +2226,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "29ea4e70-b629-5ee8-b2e2-2b82c0d65074")
-		(property "Reference" "R158"
+		(uuid "3426e07a-de11-5934-b1a8-875289e99dcf")
+		(property "Reference" "R142"
 			(at 65.532 50.8 90)
 			(effects
 				(font
@@ -1912,15 +2298,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "60ceb19d-0914-5c8b-9a7c-bbc691de41e5")
+			(uuid "ac75058f-68d7-5f0d-b639-d93338620666")
 		)
 		(pin "2"
-			(uuid "4513ce12-67d2-53c8-80d5-b5c4cdf23b7e")
+			(uuid "d8d556c6-f1ec-51c2-9910-c6c051609afc")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "R158")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "R142")
 					(unit 1)
 				)
 			)
@@ -1935,7 +2321,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "fcec45a6-1377-5dfd-93ad-e6f2a44e41ec")
+		(uuid "27bb088b-26f5-5c41-8367-6149aaf8afd8")
 	)
 	(global_label "PK_TCK"
 		(shape bidirectional)
@@ -1947,7 +2333,7 @@
 			)
 			(justify left)
 		)
-		(uuid "76f0f4dd-94d8-5dc2-949d-bf082c478582")
+		(uuid "377bd489-7698-513d-a8e9-3f8310ad169e")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 63.5 41.91 90)
 			(effects
@@ -1967,7 +2353,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "16b1316f-5236-59c0-9f5b-bb224128764f")
+		(uuid "da3406d4-6947-53e9-8f34-aeafd0c3f1dd")
 	)
 	(label "PK_J_TCK"
 		(at 63.5 59.69 270)
@@ -1977,7 +2363,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "9542001a-8c62-5cc6-bd23-f6736d31980f")
+		(uuid "1227e9e0-8a5c-5c98-bd38-ea9d89afa09a")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -1987,8 +2373,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "e78ee150-09cc-5beb-aed7-882d891505f8")
-		(property "Reference" "R159"
+		(uuid "31e4950f-8215-5592-8d49-4fb3490a533e")
+		(property "Reference" "R143"
 			(at 83.312 50.8 90)
 			(effects
 				(font
@@ -2059,15 +2445,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "bc7d347a-489f-58db-952d-1beb34edb08d")
+			(uuid "e23b42d9-42e1-5ef2-8669-22381d09ad74")
 		)
 		(pin "2"
-			(uuid "1da193d8-68a7-55d4-9113-962fe2f2385e")
+			(uuid "12db7bfe-0baa-5064-9d5d-2fa6f1f52aa1")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "R159")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "R143")
 					(unit 1)
 				)
 			)
@@ -2082,7 +2468,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "84cb2f84-54b8-54b4-935b-5e2d2ab802cd")
+		(uuid "3834db53-e50f-53df-b4a3-5dfc86de488e")
 	)
 	(global_label "PK_TDI"
 		(shape bidirectional)
@@ -2094,7 +2480,7 @@
 			)
 			(justify left)
 		)
-		(uuid "80585823-fe1a-557b-a779-93bbd662d0de")
+		(uuid "b41b5aa8-c410-520d-bbf5-abd8408c20bb")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 81.28 41.91 90)
 			(effects
@@ -2114,7 +2500,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "08837f1f-f280-5cff-b9fa-f8fc0f173b95")
+		(uuid "4f0fad17-1034-5412-a383-77d8154bebf9")
 	)
 	(label "PK_J_TDI"
 		(at 81.28 59.69 270)
@@ -2124,7 +2510,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "1ba385ef-588a-5185-afcd-e1aeac1f3563")
+		(uuid "13166cfb-5b68-5f2f-a187-fedf60f84628")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -2134,8 +2520,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "e20d3dd4-50ac-5cb1-84b6-ca42d01e9706")
-		(property "Reference" "R160"
+		(uuid "a10791e5-5bed-54a9-b0df-ec4dbe9a3d23")
+		(property "Reference" "R144"
 			(at 101.092 50.8 90)
 			(effects
 				(font
@@ -2206,15 +2592,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "2b55b4c4-5696-52d7-81f1-c21996e2101d")
+			(uuid "34b77ed4-5365-59df-96b5-348facd031ac")
 		)
 		(pin "2"
-			(uuid "b8dd3a4e-ed36-5b89-9d59-a02afb4cf79b")
+			(uuid "8b468665-fa7f-516c-9855-556ea5267c7c")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "R160")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "R144")
 					(unit 1)
 				)
 			)
@@ -2229,7 +2615,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "3c31d950-0a57-57bd-b2ef-8c55c63dda27")
+		(uuid "46ca4864-d07c-5629-90eb-668d08f54264")
 	)
 	(global_label "PK_TDO"
 		(shape bidirectional)
@@ -2241,7 +2627,7 @@
 			)
 			(justify left)
 		)
-		(uuid "59bd52e4-5c0b-5bc5-a00c-9f5acf39186b")
+		(uuid "1b74eabb-e407-5ce9-984c-1365f2c2c658")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 99.06 41.91 90)
 			(effects
@@ -2261,7 +2647,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "f41ee015-05e6-5d9c-8b22-3a99bcb74e93")
+		(uuid "25458f01-5457-52dd-a3f1-b0cf97b31b39")
 	)
 	(label "PK_J_TDO"
 		(at 99.06 59.69 270)
@@ -2271,7 +2657,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "fb730cd8-1c35-5395-9a36-78fd8d7ef0d0")
+		(uuid "7eaeddb2-11ef-52af-977c-8237ebc27df7")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -2281,8 +2667,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "677e5d8c-5882-55f5-bad9-5a1bb0be3210")
-		(property "Reference" "R161"
+		(uuid "e4f162bc-ee17-586d-86da-04a563a5b24f")
+		(property "Reference" "R145"
 			(at 118.872 53.34 90)
 			(effects
 				(font
@@ -2353,15 +2739,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "85296abd-e54b-5d97-a8a4-22e9fbf34229")
+			(uuid "005209b5-492c-591a-b9b7-dc83ac7b23a5")
 		)
 		(pin "2"
-			(uuid "66bc00d3-adf0-510c-9f85-e010be775551")
+			(uuid "ad1610f5-f7ea-509e-b23a-d93cd6ef3a75")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "R161")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "R145")
 					(unit 1)
 				)
 			)
@@ -2376,7 +2762,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "67af4ebd-47fa-5a91-9c12-40668416567a")
+		(uuid "eb3ee53b-2f4d-5043-a2e0-8ae34c08a0f0")
 	)
 	(global_label "PK_KIO8"
 		(shape bidirectional)
@@ -2388,7 +2774,7 @@
 			)
 			(justify left)
 		)
-		(uuid "5467d02f-ccb6-583a-947d-4e3370635f3a")
+		(uuid "26364d31-3056-53dd-887f-f34684aa4160")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 116.84 44.45 90)
 			(effects
@@ -2408,7 +2794,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "505d0a2d-22e4-5c1c-9148-9bbebdbc6e46")
+		(uuid "d1d6a458-9e32-5402-b997-99ed25c6fca2")
 	)
 	(label "PK_J_KIO8"
 		(at 116.84 62.23 270)
@@ -2418,7 +2804,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "8487ef44-3053-550e-800d-d2c68d23f73c")
+		(uuid "d5c3552f-56fd-53d2-af53-cdad04c7e6fc")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -2428,8 +2814,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "7c7cd51c-0b33-5e75-8009-5a966910a503")
-		(property "Reference" "R162"
+		(uuid "3b9f9f82-eaed-536a-b68c-3ff9e3a2d833")
+		(property "Reference" "R146"
 			(at 139.192 53.34 90)
 			(effects
 				(font
@@ -2500,15 +2886,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "d91eb88e-dada-5c2d-8e5b-b86cb22366eb")
+			(uuid "35de7518-8ed1-5d1e-8263-ec419ceaf1e3")
 		)
 		(pin "2"
-			(uuid "60dc8bc6-de53-5826-8b18-33302130a1cb")
+			(uuid "26047e97-80fc-5e83-af1e-a92534700958")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "R162")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "R146")
 					(unit 1)
 				)
 			)
@@ -2523,7 +2909,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "6d5b8653-4a0e-5ca3-9efd-3d434d6cf919")
+		(uuid "88978e4e-dae4-5be0-8c56-5d48e5becd4f")
 	)
 	(global_label "PK_KIO9"
 		(shape bidirectional)
@@ -2535,7 +2921,7 @@
 			)
 			(justify left)
 		)
-		(uuid "eedcf419-9047-5ba4-a533-f83ba2192759")
+		(uuid "aeb18baa-05bb-5a1b-9dad-9a0041a53591")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 137.16 44.45 90)
 			(effects
@@ -2555,7 +2941,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "345be24c-cc9f-5349-aa06-2492e1bf54ac")
+		(uuid "5e692f93-3e30-529c-8bfd-abde41be5881")
 	)
 	(label "PK_J_KIO9"
 		(at 137.16 62.23 270)
@@ -2565,7 +2951,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "4e524e07-00c0-55bb-a7ad-90d9ed8dc9ea")
+		(uuid "2e4be2f1-653a-5035-93cd-854ecd501dad")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -2575,8 +2961,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "3f8c034e-bae5-5f58-861b-4ed2da1367c8")
-		(property "Reference" "R163"
+		(uuid "48f2767a-fa92-504b-8ddf-4a0f9069d071")
+		(property "Reference" "R147"
 			(at 156.972 53.34 90)
 			(effects
 				(font
@@ -2647,15 +3033,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "c8fb0295-a251-5956-b003-c4b5a46114a0")
+			(uuid "33e9bdf9-d8e0-5ce0-8441-20f575eaf0d5")
 		)
 		(pin "2"
-			(uuid "eee0b382-fcab-5943-ada4-1e09e69b44db")
+			(uuid "48342bde-d46c-5015-bc56-b15a568e9b5c")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "R163")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "R147")
 					(unit 1)
 				)
 			)
@@ -2670,7 +3056,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "44dcf0ec-e6ca-5f5a-8089-86ac759dc0de")
+		(uuid "49416c62-6020-5410-86fe-4bb979f9f294")
 	)
 	(global_label "PK_KIO10"
 		(shape bidirectional)
@@ -2682,7 +3068,7 @@
 			)
 			(justify left)
 		)
-		(uuid "e0373d3d-a7c9-5410-9551-3e51c3ac07b4")
+		(uuid "555dce30-cd91-5aa3-9db6-90fbb6c53552")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 154.94 44.45 90)
 			(effects
@@ -2702,7 +3088,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "1171bdc1-d283-5c18-b04b-90b173eed25d")
+		(uuid "585d961e-a566-5271-86e2-a200b1c50e39")
 	)
 	(label "PK_J_KIO10"
 		(at 154.94 62.23 270)
@@ -2712,7 +3098,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "30c5dd06-e51f-521b-9720-69793867bde8")
+		(uuid "6b64733a-fdee-5131-806d-87605d38ab37")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -2722,8 +3108,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "243b5c2e-a379-557b-8e38-69a344e8b2c1")
-		(property "Reference" "R164"
+		(uuid "55e04e0d-a3ba-5e10-b5e2-f8afe091ddd7")
+		(property "Reference" "R148"
 			(at 174.752 55.88 90)
 			(effects
 				(font
@@ -2794,15 +3180,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "127f7313-c992-5a59-a5c2-6bc48d6950ac")
+			(uuid "14d3057b-a44e-527c-bf59-2ac0b0bbcdea")
 		)
 		(pin "2"
-			(uuid "a1fb4d27-2a14-5192-8656-e42f44cf2500")
+			(uuid "901cc1ac-6eb3-5663-aa88-b32a31f2b070")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "R164")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "R148")
 					(unit 1)
 				)
 			)
@@ -2817,7 +3203,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "c6edaeb6-4288-5ed3-89f5-d05c9605c198")
+		(uuid "beb38c06-f8fd-5985-8155-cb6b349794f2")
 	)
 	(global_label "PK_JTAGEN"
 		(shape bidirectional)
@@ -2829,7 +3215,7 @@
 			)
 			(justify left)
 		)
-		(uuid "0ae7c052-03c6-5a51-9df3-bd0a994624be")
+		(uuid "5f2dd76f-9980-51e0-bede-d8acd1dab5d3")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 172.72 46.99 90)
 			(effects
@@ -2849,7 +3235,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "7bda9121-b4fd-5e60-a512-d9492f761ed9")
+		(uuid "7fc590f7-124d-5c6e-91fd-7ff48392531b")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -2859,8 +3245,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "3f403bac-9af2-57fe-a897-9fc87dabbbc8")
-		(property "Reference" "#PWR240"
+		(uuid "bbc1927c-2050-5599-9a12-73ba160bdf61")
+		(property "Reference" "#PWR245"
 			(at 172.72 64.77 0)
 			(effects
 				(font
@@ -2896,12 +3282,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "4d4d1c63-d2b4-51f1-909c-ae79bf0fe262")
+			(uuid "8f1f2f7c-3b8b-5068-84a4-3af1e5ce3ea1")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "#PWR240")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "#PWR245")
 					(unit 1)
 				)
 			)
@@ -2915,8 +3301,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "9054fad2-4750-59ce-b71f-06ee2ff956cd")
-		(property "Reference" "J15"
+		(uuid "04f0cb70-002e-5b15-bb7b-817cdea4732e")
+		(property "Reference" "J13"
 			(at 212.09 30.48 0)
 			(effects
 				(font
@@ -2978,39 +3364,39 @@
 			)
 		)
 		(pin "1"
-			(uuid "06cf1be9-5122-5e74-94ed-000bae323975")
+			(uuid "aef3bb35-8807-57ad-8252-6b6645e6c3f9")
 		)
 		(pin "3"
-			(uuid "9e1ba7f2-63b6-5c20-95d1-c2bd44905626")
+			(uuid "bebafc66-3d92-512a-8f18-32f1b1e1b003")
 		)
 		(pin "5"
-			(uuid "5e517fc3-4720-55bd-8bfe-8c6b4e528be3")
+			(uuid "459b74a2-b1a4-5416-8b5d-1dca30e7ce48")
 		)
 		(pin "7"
-			(uuid "e3026af5-4d52-5134-b7ae-4128fcb91977")
+			(uuid "237e287d-84d9-5e90-8c1d-421258f3d08c")
 		)
 		(pin "9"
-			(uuid "88da3902-6bda-53e8-a69e-9ae0380dc145")
+			(uuid "4aa45948-a09c-5285-8620-ccc653bfade7")
 		)
 		(pin "2"
-			(uuid "8705125e-4c2f-582e-950c-ca019ad29aa5")
+			(uuid "11418568-9f4e-5daf-a3b0-5e22f5ccb88c")
 		)
 		(pin "4"
-			(uuid "c452d6c0-4e63-56de-b9c4-2aa87bb2797a")
+			(uuid "926f56b2-d5eb-55e5-acce-5b6b515b5c1a")
 		)
 		(pin "6"
-			(uuid "f0928d94-16e7-56bd-be4c-5f4d2ad7ccf5")
+			(uuid "bcb09851-4e0d-5f04-b1fb-0ab16ac9a274")
 		)
 		(pin "8"
-			(uuid "b3c29faf-0e3f-5cf3-858a-2e09bdf4fa74")
+			(uuid "f68903ed-3db1-53d6-9e57-b96959e7c422")
 		)
 		(pin "10"
-			(uuid "3213bf88-fdea-55ea-bb2b-742df7c5237d")
+			(uuid "c91e0fba-c8eb-5ff0-99a2-b44219e3dab1")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "J15")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "J13")
 					(unit 1)
 				)
 			)
@@ -3025,7 +3411,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "9e0796ac-cfe6-5fbf-a207-6b6c6d2ff609")
+		(uuid "e8ef51c0-5ee9-581d-829e-2026b5dd4394")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -3035,8 +3421,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "b14bdd6c-5248-5cc0-b819-377b83269664")
-		(property "Reference" "#PWR241"
+		(uuid "2fe05cf3-a9c4-58fe-a322-91fb2ad9d7a7")
+		(property "Reference" "#PWR246"
 			(at 200.66 33.02 0)
 			(effects
 				(font
@@ -3072,12 +3458,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "bca77115-3f44-5ca0-8af9-3dddca06a17f")
+			(uuid "d2cf7bbd-78b0-507a-9c8f-1683da846b12")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "#PWR241")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "#PWR246")
 					(unit 1)
 				)
 			)
@@ -3092,7 +3478,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "999f6398-9736-505b-9c0a-f537d1268726")
+		(uuid "08a328e7-b975-5638-ad22-c40efa026a00")
 	)
 	(label "PK_J_JTAGEN"
 		(at 200.66 35.56 180)
@@ -3102,7 +3488,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "2e1092ad-5114-5fab-96c4-77d11aeb7fd3")
+		(uuid "c183f5dd-82af-5d7f-9ab7-133b1d5e6540")
 	)
 	(wire
 		(pts
@@ -3113,7 +3499,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "ea9ca2fa-16b6-5106-895f-46b151f9e0ee")
+		(uuid "381d2fda-7b5c-5360-915e-4b00c3effbd6")
 	)
 	(label "PK_J_TCK"
 		(at 200.66 38.1 180)
@@ -3123,7 +3509,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "8d05a768-9600-52ac-b59d-4368087e1884")
+		(uuid "fc21c6ae-8f39-5af1-989c-06a8a2f5c131")
 	)
 	(wire
 		(pts
@@ -3134,7 +3520,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "f8f9d210-08b4-583c-b42d-aa182fcdcf89")
+		(uuid "baf0e22e-dcc4-5a26-953a-31ae02c1dcdc")
 	)
 	(label "PK_J_TDO"
 		(at 200.66 40.64 180)
@@ -3144,7 +3530,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "97427546-499b-55e4-a5ac-82e9fa389deb")
+		(uuid "d8e858ff-3ad9-5259-8f86-fffdc883fa74")
 	)
 	(wire
 		(pts
@@ -3155,7 +3541,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "557ede5f-01bc-5e57-87b5-1bc8a971b884")
+		(uuid "94c6069d-9115-5d0a-80ca-c79c84d61f5f")
 	)
 	(label "PK_J_KIO9"
 		(at 200.66 43.18 180)
@@ -3165,7 +3551,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "ed9574bf-6346-535f-84a3-25e78ee78114")
+		(uuid "a64092c2-7664-562f-87b3-1dc0bc2cee8b")
 	)
 	(wire
 		(pts
@@ -3176,7 +3562,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "7c660013-90a5-59f3-b9d8-c547a8cc69b6")
+		(uuid "6b8ab347-69ae-5f56-93d1-d85d1b2329e0")
 	)
 	(label "PK_3V3"
 		(at 223.52 33.02 0)
@@ -3186,7 +3572,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "8d88c3ab-fbb7-53d7-a0b7-291115aa8c89")
+		(uuid "f7793746-8f1c-5d55-90f5-6699cf80d947")
 	)
 	(wire
 		(pts
@@ -3197,7 +3583,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "dfc292ed-873a-578d-96db-ed2b35865dcc")
+		(uuid "ea82d886-a0ef-5d50-8378-fc08cae29160")
 	)
 	(label "PK_J_TMS"
 		(at 223.52 35.56 0)
@@ -3207,7 +3593,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "0d321092-4e58-5c09-8967-7c436da55e22")
+		(uuid "f5bd8255-3ae6-5ca0-a31c-f4f7397481ce")
 	)
 	(wire
 		(pts
@@ -3218,7 +3604,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "eb9499f5-c422-5030-9ff5-4a14673c6b37")
+		(uuid "fc48832e-e118-51f2-90d6-2dc434cc7331")
 	)
 	(label "PK_J_TDI"
 		(at 223.52 38.1 0)
@@ -3228,7 +3614,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "96088a63-d416-52ed-b205-ac17e643c14b")
+		(uuid "8d236c40-44aa-5e45-99af-c5f8fc4568a6")
 	)
 	(wire
 		(pts
@@ -3239,7 +3625,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "941301cb-ac18-5ea6-ae45-213fb9ca9c16")
+		(uuid "9d3f83f7-c555-5793-b3bb-b01851e76234")
 	)
 	(label "PK_J_KIO8"
 		(at 223.52 40.64 0)
@@ -3249,7 +3635,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "6c9f0ba1-c5a5-5ee1-9ab5-7643703378fd")
+		(uuid "9353ceea-0c12-5d2e-8147-4c45d06eda55")
 	)
 	(wire
 		(pts
@@ -3260,7 +3646,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "85ba6d65-c020-5b20-84dd-2344e0b1d20e")
+		(uuid "fb48d15d-fb62-5454-b6c3-41e5fd704c3a")
 	)
 	(label "PK_J_KIO10"
 		(at 223.52 43.18 0)
@@ -3270,7 +3656,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "c434e682-95fb-540c-ba4a-02dcb184a7b9")
+		(uuid "c2995784-08b2-5965-b684-a9a82b44788c")
 	)
 	(symbol
 		(lib_id "Device:Polyfuse")
@@ -3350,7 +3736,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
 					(reference "F1")
 					(unit 1)
 				)
@@ -3376,8 +3762,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "174b5e5b-212a-5c99-ba27-c4606fb2bd4d")
-		(property "Reference" "#PWR242"
+		(uuid "7105b337-53c0-5c20-849e-f1966b7f0f69")
+		(property "Reference" "#PWR247"
 			(at 251.46 36.83 0)
 			(effects
 				(font
@@ -3413,12 +3799,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "a0cdb7f0-4125-5541-a087-61e671e27c86")
+			(uuid "eed27f56-bb3f-5f02-a3fb-07b9f2c0a79d")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "#PWR242")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "#PWR247")
 					(unit 1)
 				)
 			)
@@ -3532,7 +3918,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
 					(reference "C17")
 					(unit 1)
 				)
@@ -3579,8 +3965,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "0a2fcf81-2a05-5bde-a541-da18b1280459")
-		(property "Reference" "#PWR243"
+		(uuid "ea95f4d5-62d3-5d8e-bda6-be87385fc8dd")
+		(property "Reference" "#PWR248"
 			(at 269.24 59.69 0)
 			(effects
 				(font
@@ -3616,12 +4002,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "52b8cbfe-6bf4-5676-9646-56541667f518")
+			(uuid "693f9830-53ac-5c60-a994-cf5460ffe084")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "#PWR243")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "#PWR248")
 					(unit 1)
 				)
 			)
@@ -3635,8 +4021,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "b0a6d49a-25fe-52c6-90e7-9a3c207c9ffc")
-		(property "Reference" "R165"
+		(uuid "0ebca446-2cfe-5a17-a567-2c23a3345525")
+		(property "Reference" "R149"
 			(at 289.052 55.88 90)
 			(effects
 				(font
@@ -3707,15 +4093,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "73dda7c3-d485-5c12-8817-5f74d9b0368c")
+			(uuid "e88b085c-99c4-5748-9396-7988003c29f7")
 		)
 		(pin "2"
-			(uuid "e8eff4c8-06a0-5a3d-808a-0beeabf22a14")
+			(uuid "e9fda277-4101-5e20-8233-d05dee08b624")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "R165")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "R149")
 					(unit 1)
 				)
 			)
@@ -3730,7 +4116,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "a6b1c716-ffdf-5f64-8d48-bfae4c105c4f")
+		(uuid "82000cc7-df01-5aca-8fb1-d35e94f250b6")
 	)
 	(global_label "NB_UART_TX"
 		(shape bidirectional)
@@ -3742,7 +4128,7 @@
 			)
 			(justify left)
 		)
-		(uuid "9930c016-a8f9-52c3-a484-7838aa26ac29")
+		(uuid "3c449e26-7d9b-5007-8377-a7b7d40f3e8a")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 287.02 46.99 90)
 			(effects
@@ -3762,9 +4148,9 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "80050773-ed84-5aac-aaa1-c26da2b2dc76")
+		(uuid "3de3f592-86f9-56f1-800c-6c0ba629536d")
 	)
-	(label "LINKA_TX"
+	(label "NB_J_TX"
 		(at 287.02 64.77 270)
 		(effects
 			(font
@@ -3772,7 +4158,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "5b4729aa-bda6-5147-b54b-96fd1e15c9a2")
+		(uuid "7f35f507-945d-5397-9466-ee5eec8bd04f")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -3782,8 +4168,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "bb773769-91a5-56bc-bc0b-d5e8402241f3")
-		(property "Reference" "R166"
+		(uuid "e52a9e6b-015c-5d68-8ca7-0a99f36c2490")
+		(property "Reference" "R150"
 			(at 306.832 55.88 90)
 			(effects
 				(font
@@ -3854,15 +4240,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "bda6dda6-f142-5c62-85dd-5c2132d8fc65")
+			(uuid "abb3b77c-6d6f-5d29-94b8-489738b5759b")
 		)
 		(pin "2"
-			(uuid "c98c28f1-8017-5d2f-ae4f-7f11d1916334")
+			(uuid "024196eb-caf0-50a2-9ec3-4ef54f8574c7")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "R166")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "R150")
 					(unit 1)
 				)
 			)
@@ -3877,7 +4263,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "a5d12b04-7695-5d8d-8dba-f42e99eaecde")
+		(uuid "502ca57c-04b6-5977-a22b-6a8d7a78cfb9")
 	)
 	(global_label "NB_UART_RX"
 		(shape bidirectional)
@@ -3889,7 +4275,7 @@
 			)
 			(justify left)
 		)
-		(uuid "e5f43219-3463-54a6-804b-0cf4764f03d1")
+		(uuid "26f835d2-0b7a-5970-ae5e-6da144c64f1b")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 304.8 46.99 90)
 			(effects
@@ -3909,9 +4295,9 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "ffbde96a-fab6-5ed8-b715-9b7a4fffc0fb")
+		(uuid "8683e32a-923b-573a-a554-962fccf39ae7")
 	)
-	(label "LINKA_RX"
+	(label "NB_J_RX"
 		(at 304.8 64.77 270)
 		(effects
 			(font
@@ -3919,7 +4305,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "dc90f302-4597-5aea-b18f-071238d9fff2")
+		(uuid "4b45b42d-05ce-58c4-807f-9a1127e892d3")
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x03")
@@ -3929,8 +4315,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "e8590c81-31d2-525f-8203-7b63e3f68cf5")
-		(property "Reference" "J16"
+		(uuid "af033dcf-6f2a-570d-b133-28698cab9286")
+		(property "Reference" "J14"
 			(at 340.36 30.48 0)
 			(effects
 				(font
@@ -3938,7 +4324,7 @@
 				)
 			)
 		)
-		(property "Value" "LINK A UART"
+		(property "Value" "NEIGHBOUR UART"
 			(at 340.36 40.64 0)
 			(effects
 				(font
@@ -3992,18 +4378,18 @@
 			)
 		)
 		(pin "1"
-			(uuid "a4125deb-2f80-5423-941c-8cb85be35f56")
+			(uuid "01b24cb5-8ba5-5592-9464-e9facd759018")
 		)
 		(pin "2"
-			(uuid "50f40d2c-0ebd-58a9-88a6-077d820b1d8d")
+			(uuid "7b50cc40-0667-5392-a8f8-27e24ae162d6")
 		)
 		(pin "3"
-			(uuid "47e911ea-7cd9-5917-a8a1-6163ea3662b1")
+			(uuid "3f4b5dc3-0c32-54e1-b6df-cb426a43a038")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "J16")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "J14")
 					(unit 1)
 				)
 			)
@@ -4018,7 +4404,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "c27b1a7a-2b76-5875-9911-c1e6ddf5ee33")
+		(uuid "175092d4-0baa-56ee-9098-200b9ecb1557")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -4028,8 +4414,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "a7ddadac-7017-5885-958e-09269460e10f")
-		(property "Reference" "#PWR244"
+		(uuid "bbcd9f15-f8bc-5059-bc3f-9a1541864c19")
+		(property "Reference" "#PWR249"
 			(at 330.2 33.02 0)
 			(effects
 				(font
@@ -4065,12 +4451,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "dc1fa7b9-5d4c-57c4-b537-e2c938b9eef5")
+			(uuid "d13e8422-7f46-5000-8e03-20f5120ca18c")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "#PWR244")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "#PWR249")
 					(unit 1)
 				)
 			)
@@ -4085,9 +4471,9 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "78f55cb0-abe6-5e05-8b42-0351966a5c31")
+		(uuid "9b2b9863-b952-52bd-8ce8-1977f73e4f62")
 	)
-	(label "LINKA_TX"
+	(label "NB_J_TX"
 		(at 330.2 35.56 180)
 		(effects
 			(font
@@ -4095,7 +4481,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "1ccd1a1a-6489-59e0-a9a0-8ccdf95dacf6")
+		(uuid "ca38db58-727b-57be-9a18-1767bf03b78b")
 	)
 	(wire
 		(pts
@@ -4106,9 +4492,9 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "2202499a-ad10-5975-b3b8-feb3ff56f524")
+		(uuid "71938e6c-848f-5e0c-abc8-faac1310f1be")
 	)
-	(label "LINKA_RX"
+	(label "NB_J_RX"
 		(at 330.2 38.1 180)
 		(effects
 			(font
@@ -4116,44 +4502,35 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "f590d272-ea98-5668-9ac5-248e2e34ebe0")
+		(uuid "b0cf84d8-98cc-5124-a057-367e23d4cbb2")
 	)
 	(symbol
-		(lib_id "Connector_Generic:Conn_01x04")
-		(at 375.92 35.56 0)
+		(lib_id "Regulator_Switching:AP63205WU")
+		(at 43.18 91.44 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "90bad561-225e-5977-a7fb-45269e7157b2")
-		(property "Reference" "J17"
-			(at 375.92 30.48 0)
+		(uuid "5440206d-bc2f-5462-a486-d442acfc9b30")
+		(property "Reference" "U12"
+			(at 35.56 85.09 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "LINK A (12V, UART)"
-			(at 375.92 43.18 0)
+		(property "Value" "AP63205WU"
+			(at 45.72 85.09 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x04_P2.54mm_Horizontal"
-			(at 375.92 35.56 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 375.92 35.56 0)
+		(property "Footprint" "Package_TO_SOT_SMD:TSOT-23-6"
+			(at 43.18 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4161,8 +4538,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "1x4 right angle: 12V, TX/RX, GND"
-			(at 375.92 35.56 0)
+		(property "Datasheet" "https://www.diodes.com/assets/Datasheets/AP63200-AP63201-AP63203-AP63205.pdf"
+			(at 43.18 91.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4170,8 +4547,8 @@
 				(hide yes)
 			)
 		)
-		(property "ki_keywords" "connector"
-			(at 375.92 35.56 0)
+		(property "Description" "2 A sync buck, fixed 5 V, 3.8-32 V in"
+			(at 43.18 91.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4179,8 +4556,8 @@
 				(hide yes)
 			)
 		)
-		(property "ki_fp_filters" "Connector*:*_1x??_*"
-			(at 375.92 35.56 0)
+		(property "ki_keywords" "2A Buck DC/DC"
+			(at 43.18 91.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4188,237 +4565,37 @@
 				(hide yes)
 			)
 		)
-		(pin "1"
-			(uuid "5c55f751-1b4e-5d06-a9a8-57c3c89c3372")
-		)
-		(pin "2"
-			(uuid "32393a4a-5418-56c2-bfa6-15211ab7af71")
+		(property "ki_fp_filters" "TSOT?23*"
+			(at 43.18 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
 		)
 		(pin "3"
-			(uuid "a7c8873e-91a6-5b92-b2f8-201e5b2216ae")
-		)
-		(pin "4"
-			(uuid "ce08ec71-6aca-5e1b-8bc4-69f1132f2f49")
-		)
-		(instances
-			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "J17")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(wire
-		(pts
-			(xy 370.84 33.02)
-			(xy 365.76 33.02)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3d04ca1f-9422-593f-8069-9b572a505419")
-	)
-	(label "LINKA_12V"
-		(at 365.76 33.02 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "4b63d156-712b-5da4-8e63-4aac94076f9f")
-	)
-	(wire
-		(pts
-			(xy 370.84 35.56)
-			(xy 365.76 35.56)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "29804484-af67-5e7c-a948-b49da52fda57")
-	)
-	(label "LINKA_TX"
-		(at 365.76 35.56 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "604d065b-c240-5192-9511-0904b736dd49")
-	)
-	(wire
-		(pts
-			(xy 370.84 38.1)
-			(xy 365.76 38.1)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a63674a8-d73b-587e-a7b3-57daa20604f6")
-	)
-	(label "LINKA_RX"
-		(at 365.76 38.1 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "552144cb-bfaf-597e-b026-1bf2e3e64dd2")
-	)
-	(wire
-		(pts
-			(xy 370.84 40.64)
-			(xy 365.76 40.64)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "75dde27f-6e4b-5e2d-b28a-7b23b0804da7")
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 365.76 40.64 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "bbc1927c-2050-5599-9a12-73ba160bdf61")
-		(property "Reference" "#PWR245"
-			(at 365.76 40.64 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 365.76 43.64 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 365.76 40.64 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 365.76 40.64 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "8f1f2f7c-3b8b-5068-84a4-3af1e5ce3ea1")
-		)
-		(instances
-			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "#PWR245")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:Polyfuse")
-		(at 27.94 101.6 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "ebfe8c70-f853-52de-a9dc-83f75136190c")
-		(property "Reference" "F2"
-			(at 25.4 101.6 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "2A"
-			(at 30.48 101.6 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Fuse:Fuse_1812_4532Metric"
-			(at 29.21 106.68 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 27.94 101.6 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "PTC 2 A hold, 12 V pass-through"
-			(at 27.94 101.6 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "ki_keywords" "resettable fuse PTC PPTC polyfuse polyswitch"
-			(at 27.94 101.6 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "ki_fp_filters" "*polyfuse* *PTC*"
-			(at 27.94 101.6 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "57e560f0-c9f8-5912-a6c7-763f9add94f1")
+			(uuid "81783c29-e8f4-5f1f-a02e-553143226246")
 		)
 		(pin "2"
-			(uuid "9688be0c-92d2-5d03-ade2-3717373fd37a")
+			(uuid "2d6604bf-3edd-5710-bdfb-c29ca49eb7f7")
+		)
+		(pin "4"
+			(uuid "163962f3-82ff-5811-bfbd-bd213082f27f")
+		)
+		(pin "5"
+			(uuid "4dbf51ef-31a2-55f2-a43f-89ec2e8b3c8f")
+		)
+		(pin "6"
+			(uuid "be484ea8-e470-5b84-a1ca-0d7a5f90b4b5")
+		)
+		(pin "1"
+			(uuid "c2fb4c7f-4e84-58db-8d87-d594b718d0e8")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "F2")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "U12")
 					(unit 1)
 				)
 			)
@@ -4426,26 +4603,26 @@
 	)
 	(wire
 		(pts
-			(xy 27.94 97.79)
-			(xy 27.94 92.71)
+			(xy 33.02 88.9)
+			(xy 27.94 88.9)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "46a7f70a-2762-5ffb-8b6a-67efd6b205db")
+		(uuid "1c9d9895-3e11-56f6-8b18-cf44b5c43bb9")
 	)
 	(symbol
 		(lib_id "power:+12V")
-		(at 27.94 92.71 0)
+		(at 27.94 88.9 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "2fe05cf3-a9c4-58fe-a322-91fb2ad9d7a7")
-		(property "Reference" "#PWR246"
-			(at 27.94 92.71 0)
+		(uuid "f3e072d5-081d-5546-9888-0552d7f92b83")
+		(property "Reference" "#PWR250"
+			(at 27.94 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4454,7 +4631,7 @@
 			)
 		)
 		(property "Value" "+12V"
-			(at 27.94 89.71 0)
+			(at 27.94 85.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4462,7 +4639,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 27.94 92.71 0)
+			(at 27.94 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4471,7 +4648,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 27.94 92.71 0)
+			(at 27.94 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4480,12 +4657,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "d2cf7bbd-78b0-507a-9c8f-1683da846b12")
+			(uuid "40a81545-c1f5-5fe9-920f-b7f039e3444a")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "#PWR246")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "#PWR250")
 					(unit 1)
 				)
 			)
@@ -4493,52 +4670,26 @@
 	)
 	(wire
 		(pts
-			(xy 27.94 105.41)
-			(xy 27.94 110.49)
+			(xy 33.02 93.98)
+			(xy 27.94 93.98)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "5e33a8da-c344-5e79-a6ad-368bb8ccbae8")
-	)
-	(label "LINKA_12V"
-		(at 27.94 110.49 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "03180e7e-f521-560c-b918-25b4e08bcdb8")
+		(uuid "7cdc0de7-9986-5730-9118-99706e1b4986")
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 45.72 111.76 0)
+		(lib_id "power:+12V")
+		(at 27.94 93.98 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "635b124b-6b6b-5375-9bd1-343f36a34c96")
-		(property "Reference" "R167"
-			(at 47.752 111.76 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "100"
-			(at 45.72 111.76 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 43.942 111.76 90)
+		(uuid "d802504b-5803-52a9-b24d-5c7a47a38d2d")
+		(property "Reference" "#PWR251"
+			(at 27.94 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4546,8 +4697,16 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "~"
-			(at 45.72 111.76 0)
+		(property "Value" "+12V"
+			(at 27.94 90.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 27.94 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4555,35 +4714,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Resistor"
-			(at 45.72 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "ki_keywords" "R res resistor"
-			(at 45.72 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "ki_fp_filters" "R_*"
-			(at 45.72 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "LCSC" "C25076"
-			(at 45.72 111.76 0)
+		(property "Datasheet" ""
+			(at 27.94 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4592,15 +4724,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "ba213f06-09e3-5263-877d-2f3fe3135661")
-		)
-		(pin "2"
-			(uuid "73781a3c-e0e2-51bd-aad7-265f8c224b85")
+			(uuid "5159089e-4cf6-5440-ad7b-a707aad2e69d")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "R167")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "#PWR251")
 					(unit 1)
 				)
 			)
@@ -4608,314 +4737,26 @@
 	)
 	(wire
 		(pts
-			(xy 45.72 107.95)
-			(xy 45.72 102.87)
+			(xy 43.18 99.06)
+			(xy 43.18 104.14)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "3b4142df-a849-5f74-b5f2-daf463373a8a")
-	)
-	(global_label "NB_UART_TX"
-		(shape bidirectional)
-		(at 45.72 102.87 90)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "b0639d5b-696f-54e5-9597-57cc6142631f")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 45.72 102.87 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-	)
-	(wire
-		(pts
-			(xy 45.72 115.57)
-			(xy 45.72 120.65)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5c2c4c8a-8548-579f-a66c-4f6966b81965")
-	)
-	(label "LINKB_TX"
-		(at 45.72 120.65 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "bda08d78-e0b2-5094-8ccd-136616efdda3")
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 63.5 111.76 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "a7b5e0ab-a3d5-5d97-9788-90bf94b5779b")
-		(property "Reference" "R168"
-			(at 65.532 111.76 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "100"
-			(at 63.5 111.76 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 61.722 111.76 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 63.5 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 63.5 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "ki_keywords" "R res resistor"
-			(at 63.5 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "ki_fp_filters" "R_*"
-			(at 63.5 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "LCSC" "C25076"
-			(at 63.5 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "984fcd53-1989-55bb-80ce-0193c478c064")
-		)
-		(pin "2"
-			(uuid "cbcdf239-0f1c-502a-9278-cd4b44be742e")
-		)
-		(instances
-			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "R168")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(wire
-		(pts
-			(xy 63.5 107.95)
-			(xy 63.5 102.87)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "da507dde-fd9e-561c-a043-a00e7fe165cc")
-	)
-	(global_label "NB_UART_RX"
-		(shape bidirectional)
-		(at 63.5 102.87 90)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "b6de43db-2bd9-5e58-a021-bbff5b0a82ed")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 63.5 102.87 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-	)
-	(wire
-		(pts
-			(xy 63.5 115.57)
-			(xy 63.5 120.65)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "edc184a1-ecb3-5ad6-8dea-b76f788fed62")
-	)
-	(label "LINKB_RX"
-		(at 63.5 120.65 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "8273ddb2-a9fb-5c7f-83c9-59dacd16b4d5")
-	)
-	(symbol
-		(lib_id "Connector_Generic:Conn_01x03")
-		(at 99.06 91.44 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "58b41ad2-3506-59ad-92f5-9ca11574b02a")
-		(property "Reference" "J18"
-			(at 99.06 86.36 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "LINK B UART"
-			(at 99.06 96.52 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
-			(at 99.06 91.44 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 99.06 91.44 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "1x3 header: GND, TX, RX (Dupont)"
-			(at 99.06 91.44 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "ki_keywords" "connector"
-			(at 99.06 91.44 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "ki_fp_filters" "Connector*:*_1x??_*"
-			(at 99.06 91.44 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "4ff5488d-16bf-5d9c-a483-c647be993acc")
-		)
-		(pin "2"
-			(uuid "92e3be82-9268-5a96-b651-6774090b03a3")
-		)
-		(pin "3"
-			(uuid "f5c73a80-7f9c-5451-9ad2-8a9839cdbbb6")
-		)
-		(instances
-			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "J18")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(wire
-		(pts
-			(xy 93.98 88.9)
-			(xy 88.9 88.9)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "85a149f5-68bf-5e39-a734-27cb60277775")
+		(uuid "326f84f3-5aac-5679-9923-c039750f1d9d")
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 88.9 88.9 270)
+		(at 43.18 104.14 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "7105b337-53c0-5c20-849e-f1966b7f0f69")
-		(property "Reference" "#PWR247"
-			(at 88.9 88.9 0)
+		(uuid "2590bb10-f18f-5ee6-8e4c-59a121893332")
+		(property "Reference" "#PWR252"
+			(at 43.18 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4924,7 +4765,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 88.9 91.9 0)
+			(at 43.18 107.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4932,7 +4773,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 88.9 88.9 0)
+			(at 43.18 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4941,7 +4782,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 88.9 88.9 0)
+			(at 43.18 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4950,12 +4791,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "eed27f56-bb3f-5f02-a3fb-07b9f2c0a79d")
+			(uuid "603bb9ed-8fe4-5ba1-988f-bf4e2f2a593b")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "#PWR247")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "#PWR252")
 					(unit 1)
 				)
 			)
@@ -4963,73 +4804,140 @@
 	)
 	(wire
 		(pts
-			(xy 93.98 91.44)
-			(xy 88.9 91.44)
+			(xy 53.34 88.9)
+			(xy 58.42 88.9)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "f66d16db-d1b1-5a82-a056-4b2be402c209")
+		(uuid "2b7de821-0a94-54b9-848b-cda03378d3cf")
 	)
-	(label "LINKB_TX"
-		(at 88.9 91.44 180)
+	(label "BUCK_SW"
+		(at 58.42 88.9 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right bottom)
+			(justify left bottom)
 		)
-		(uuid "3378a7f3-1089-5adb-851a-b6941ab8da9c")
+		(uuid "36851994-07e1-5354-bce8-68672a583240")
 	)
 	(wire
 		(pts
-			(xy 93.98 93.98)
-			(xy 88.9 93.98)
+			(xy 53.34 91.44)
+			(xy 58.42 91.44)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "6746ef4f-62a7-5cfa-929c-c18d6224470f")
+		(uuid "ae847952-8ea8-5f29-b6c7-67d9065a1c6c")
 	)
-	(label "LINKB_RX"
-		(at 88.9 93.98 180)
+	(label "BUCK_BST"
+		(at 58.42 91.44 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right bottom)
+			(justify left bottom)
 		)
-		(uuid "a812ef3e-184f-511c-ab11-d4252540aa2c")
+		(uuid "6beb20b6-f279-55aa-aa65-42e6bdbe62e3")
+	)
+	(wire
+		(pts
+			(xy 53.34 93.98)
+			(xy 58.42 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4de22377-cbe7-5d6b-b9ab-388761317786")
 	)
 	(symbol
-		(lib_id "Connector_Generic:Conn_01x04")
-		(at 137.16 91.44 0)
+		(lib_id "power:+5V")
+		(at 58.42 93.98 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "154e5bea-d541-525a-bd4d-16406b880d71")
-		(property "Reference" "J19"
-			(at 137.16 86.36 0)
+		(uuid "952d3520-a367-537e-8944-ed585c8e3a46")
+		(property "Reference" "#PWR253"
+			(at 58.42 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+5V"
+			(at 58.42 90.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "LINK B (12V, UART)"
-			(at 137.16 99.06 0)
+		(property "Footprint" ""
+			(at 58.42 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 58.42 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "5f671ea1-36e0-593d-8dcd-92e9b72d1e0a")
+		)
+		(instances
+			(project "mega-kvm-shield"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "#PWR253")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 83.82 101.6 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "2fb817ef-66c7-59d8-953b-33f34b7a58f3")
+		(property "Reference" "C18"
+			(at 84.455 99.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Horizontal"
-			(at 137.16 91.44 0)
+		(property "Value" "10u"
+			(at 84.455 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
+			(at 84.7852 105.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5038,7 +4946,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 137.16 91.44 0)
+			(at 83.82 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5046,8 +4954,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "1x4 right angle: 12V, TX/RX, GND"
-			(at 137.16 91.44 0)
+		(property "Description" "Unpolarized capacitor"
+			(at 83.82 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5055,8 +4963,8 @@
 				(hide yes)
 			)
 		)
-		(property "ki_keywords" "connector"
-			(at 137.16 91.44 0)
+		(property "ki_keywords" "cap capacitor"
+			(at 83.82 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5064,8 +4972,8 @@
 				(hide yes)
 			)
 		)
-		(property "ki_fp_filters" "Connector*:*_1x??_*"
-			(at 137.16 91.44 0)
+		(property "ki_fp_filters" "C_*"
+			(at 83.82 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5074,21 +4982,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "a876e75a-5bbf-5b1f-adab-c73afc5c6daf")
+			(uuid "e5d43d45-7ad8-5b39-b86d-18ab1e4e7dc8")
 		)
 		(pin "2"
-			(uuid "2dbd8819-1428-5997-9fd5-13aa50075c28")
-		)
-		(pin "3"
-			(uuid "98c68b1e-378f-59cc-887f-c415626b7ba9")
-		)
-		(pin "4"
-			(uuid "bcd37082-7a98-5266-92c6-8f7f55ae1ecd")
+			(uuid "54438618-3584-5a77-ac6b-34f26223f154")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "J19")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "C18")
 					(unit 1)
 				)
 			)
@@ -5096,89 +4998,26 @@
 	)
 	(wire
 		(pts
-			(xy 132.08 88.9)
-			(xy 127 88.9)
+			(xy 83.82 97.79)
+			(xy 83.82 92.71)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "962ede41-32d8-573b-9829-6d3839dd39ed")
-	)
-	(label "LINKB_12V"
-		(at 127 88.9 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "495cdcf0-6f0c-5613-9416-3e15caaba59f")
-	)
-	(wire
-		(pts
-			(xy 132.08 91.44)
-			(xy 127 91.44)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bb574397-3f23-5076-8074-26b0c3daac98")
-	)
-	(label "LINKB_RX"
-		(at 127 91.44 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "72adeecf-ea85-5232-8d8f-01e451d42f2f")
-	)
-	(wire
-		(pts
-			(xy 132.08 93.98)
-			(xy 127 93.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5bc32b74-a683-507d-8154-e435325d341b")
-	)
-	(label "LINKB_TX"
-		(at 127 93.98 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "47261426-94ee-5636-b60f-41f9831688bf")
-	)
-	(wire
-		(pts
-			(xy 132.08 96.52)
-			(xy 127 96.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d7702a56-18ba-5649-90c7-2d0f954e590d")
+		(uuid "e5542b0e-677e-5cb7-947f-6e21688d8f8a")
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 127 96.52 270)
+		(lib_id "power:+12V")
+		(at 83.82 92.71 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "ea95f4d5-62d3-5d8e-bda6-be87385fc8dd")
-		(property "Reference" "#PWR248"
-			(at 127 96.52 0)
+		(uuid "c24920a7-5588-5af1-ac13-912c46032a10")
+		(property "Reference" "#PWR254"
+			(at 83.82 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5186,8 +5025,8 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "GND"
-			(at 127 99.52 0)
+		(property "Value" "+12V"
+			(at 83.82 89.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5195,7 +5034,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 127 96.52 0)
+			(at 83.82 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5204,7 +5043,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 127 96.52 0)
+			(at 83.82 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5213,44 +5052,648 @@
 			)
 		)
 		(pin "1"
-			(uuid "693f9830-53ac-5c60-a994-cf5460ffe084")
+			(uuid "dd9d8666-8411-58e0-8ece-18b5002810f0")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "#PWR248")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "#PWR254")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 83.82 105.41)
+			(xy 83.82 110.49)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c59a6094-9ff5-5749-bec9-7f8028b25ff4")
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 83.82 110.49 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "41bdea3c-d536-5c15-a536-310ce0c920c5")
+		(property "Reference" "#PWR255"
+			(at 83.82 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 83.82 113.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 83.82 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 83.82 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "f214e41f-f802-53ef-a86a-7971871a35e2")
+		)
+		(instances
+			(project "mega-kvm-shield"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "#PWR255")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "Device:Polyfuse")
+		(lib_id "Device:C")
+		(at 101.6 101.6 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "d9072cf6-f8a6-5f51-9114-3042426e24e0")
+		(property "Reference" "C19"
+			(at 102.235 99.06 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "100n"
+			(at 102.235 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+			(at 102.5652 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 101.6 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 101.6 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_keywords" "cap capacitor"
+			(at 101.6 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_fp_filters" "C_*"
+			(at 101.6 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C1525"
+			(at 101.6 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "67c26c94-5da7-5484-9784-cb4b50281797")
+		)
+		(pin "2"
+			(uuid "71c8d919-b496-5052-9bc3-298e0ecf589d")
+		)
+		(instances
+			(project "mega-kvm-shield"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "C19")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 101.6 97.79)
+			(xy 101.6 92.71)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0709855c-7955-59e3-a22e-6f2ea5f61918")
+	)
+	(symbol
+		(lib_id "power:+12V")
+		(at 101.6 92.71 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "09ecd26f-78dc-5ca4-9e1e-e0e97dc78b1d")
+		(property "Reference" "#PWR256"
+			(at 101.6 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+12V"
+			(at 101.6 89.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 101.6 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 101.6 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "62b44f58-2bdf-5c2a-ae27-0a123a5076b1")
+		)
+		(instances
+			(project "mega-kvm-shield"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "#PWR256")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 101.6 105.41)
+			(xy 101.6 110.49)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e7e08ee3-050f-5695-8478-618c434c6e78")
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 101.6 110.49 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "257c111b-a080-571e-839b-9c51aa2131e4")
+		(property "Reference" "#PWR257"
+			(at 101.6 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 101.6 113.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 101.6 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 101.6 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "043a0806-2481-50a6-89c8-758280d8f59b")
+		)
+		(instances
+			(project "mega-kvm-shield"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "#PWR257")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 119.38 109.22 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "1ae1f1bd-4eed-5f9f-aa02-b7e34f347332")
+		(property "Reference" "C20"
+			(at 120.015 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "100n"
+			(at 120.015 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+			(at 120.3452 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 119.38 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 119.38 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_keywords" "cap capacitor"
+			(at 119.38 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_fp_filters" "C_*"
+			(at 119.38 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C1525"
+			(at 119.38 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "81b163f1-c9cc-58b9-965f-27d0385350de")
+		)
+		(pin "2"
+			(uuid "5c27332d-5976-51bb-be3d-510d48a987c0")
+		)
+		(instances
+			(project "mega-kvm-shield"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "C20")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 119.38 105.41)
+			(xy 119.38 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "56d4db01-5d11-5a4f-a704-c458c7239579")
+	)
+	(label "BUCK_BST"
+		(at 119.38 100.33 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "d7065d2a-f51f-55ef-b90c-efada42c4713")
+	)
+	(wire
+		(pts
+			(xy 119.38 113.03)
+			(xy 119.38 118.11)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b8904882-7710-5bd3-9d29-8943f07b064d")
+	)
+	(label "BUCK_SW"
+		(at 119.38 118.11 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "35aa33a9-2c5f-52db-86e4-ccbca2b450be")
+	)
+	(symbol
+		(lib_id "Device:L")
+		(at 137.16 109.22 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "f497ce1b-7b88-5f08-bbf0-d259226fd368")
+		(property "Reference" "L1"
+			(at 135.89 109.22 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "4.7u"
+			(at 139.065 109.22 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Inductor_SMD:L_Changjiang_FXL0530"
+			(at 137.16 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 137.16 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "4.7 uH >= 1.5 A, 5x5 mm"
+			(at 137.16 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_keywords" "inductor choke coil reactor magnetic"
+			(at 137.16 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_fp_filters" "Choke_* *Coil* Inductor_* L_*"
+			(at 137.16 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "8d2f9cec-2b78-52fa-8274-cf31a0a95686")
+		)
+		(pin "2"
+			(uuid "22b6dffa-f7a0-5fa1-9118-4a2c92d435f7")
+		)
+		(instances
+			(project "mega-kvm-shield"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "L1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 137.16 105.41)
+			(xy 137.16 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e61c889a-d044-541b-8bf8-fbb39863a341")
+	)
+	(label "BUCK_SW"
+		(at 137.16 100.33 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "caa305b8-91d4-5c23-b2ff-1e0468ab513a")
+	)
+	(wire
+		(pts
+			(xy 137.16 113.03)
+			(xy 137.16 118.11)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dbc780c9-93f4-55de-8fd1-083931ceaaf3")
+	)
+	(symbol
+		(lib_id "power:+5V")
+		(at 137.16 118.11 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "3e78d6df-e62f-5420-add2-32fbe646a71a")
+		(property "Reference" "#PWR258"
+			(at 137.16 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+5V"
+			(at 137.16 115.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 137.16 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 137.16 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "1a181bf2-b7c6-5950-be81-2b51141cb395")
+		)
+		(instances
+			(project "mega-kvm-shield"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "#PWR258")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
 		(at 154.94 101.6 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "35c06cdb-af0b-592b-bd87-16874f2b40a3")
-		(property "Reference" "F3"
-			(at 152.4 101.6 90)
+		(uuid "4eabaa2d-6263-55ce-b907-00800b1f49de")
+		(property "Reference" "C21"
+			(at 155.575 99.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "2A"
-			(at 157.48 101.6 90)
+		(property "Value" "22u"
+			(at 155.575 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Footprint" "Fuse:Fuse_1812_4532Metric"
-			(at 156.21 106.68 0)
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+			(at 155.9052 105.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5267,7 +5710,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "PTC 2 A hold, 12 V pass-through"
+		(property "Description" "Unpolarized capacitor"
 			(at 154.94 101.6 0)
 			(effects
 				(font
@@ -5276,7 +5719,7 @@
 				(hide yes)
 			)
 		)
-		(property "ki_keywords" "resettable fuse PTC PPTC polyfuse polyswitch"
+		(property "ki_keywords" "cap capacitor"
 			(at 154.94 101.6 0)
 			(effects
 				(font
@@ -5285,7 +5728,7 @@
 				(hide yes)
 			)
 		)
-		(property "ki_fp_filters" "*polyfuse* *PTC*"
+		(property "ki_fp_filters" "C_*"
 			(at 154.94 101.6 0)
 			(effects
 				(font
@@ -5295,15 +5738,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "8e89e8a5-acb4-5c3b-ad09-987988d2f771")
+			(uuid "0654e68c-3fff-550c-9fb0-f9facb8fc324")
 		)
 		(pin "2"
-			(uuid "d410ea5a-ccd6-5632-9357-3772c5963c0b")
+			(uuid "83795ef1-d81a-5558-9088-c6ee0f4bf1bf")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "F3")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "C21")
 					(unit 1)
 				)
 			)
@@ -5318,18 +5761,18 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "cb61bb15-8759-5b80-9f98-beb4ccbe9c02")
+		(uuid "13930efa-2e96-5834-ad78-13f009b0c130")
 	)
 	(symbol
-		(lib_id "power:+12V")
+		(lib_id "power:+5V")
 		(at 154.94 92.71 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "bbcd9f15-f8bc-5059-bc3f-9a1541864c19")
-		(property "Reference" "#PWR249"
+		(uuid "b3278f0d-7b28-51db-97d2-c390268c7b37")
+		(property "Reference" "#PWR259"
 			(at 154.94 92.71 0)
 			(effects
 				(font
@@ -5338,7 +5781,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "+12V"
+		(property "Value" "+5V"
 			(at 154.94 89.71 0)
 			(effects
 				(font
@@ -5365,12 +5808,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "d13e8422-7f46-5000-8e03-20f5120ca18c")
+			(uuid "be525cde-e2a2-573b-9743-4d31f4b99b4f")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/6dee04e6-03f0-5d87-89fd-10a738b52b01"
-					(reference "#PWR249")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "#PWR259")
 					(unit 1)
 				)
 			)
@@ -5385,19 +5828,425 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "6d42c31b-743a-5feb-bc5d-170674601c5b")
+		(uuid "b71fa05f-cd55-5b63-9e55-6f8b1ef7c132")
 	)
-	(label "LINKB_12V"
-		(at 154.94 110.49 270)
-		(effects
-			(font
-				(size 1.27 1.27)
+	(symbol
+		(lib_id "power:GND")
+		(at 154.94 110.49 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "f60098c2-1c6f-556d-b69f-cc0297782fb6")
+		(property "Reference" "#PWR260"
+			(at 154.94 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
-			(justify right bottom)
 		)
-		(uuid "2ceeccd3-cd7b-57a3-bb49-cd6a288a1751")
+		(property "Value" "GND"
+			(at 154.94 113.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 154.94 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 154.94 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "1f3f86b0-e7d5-59b4-985e-04ab34579170")
+		)
+		(instances
+			(project "mega-kvm-shield"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "#PWR260")
+					(unit 1)
+				)
+			)
+		)
 	)
-	(text "Physical keyboard and neighbour links -- generated by scripts/gen_sch.py from scripts/design.py; edit those, not this file."
+	(symbol
+		(lib_id "Device:C")
+		(at 172.72 101.6 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "82fe0c99-3cd4-55f2-8ec2-60cd7ad69e74")
+		(property "Reference" "C22"
+			(at 173.355 99.06 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "22u"
+			(at 173.355 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+			(at 173.6852 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 172.72 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 172.72 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_keywords" "cap capacitor"
+			(at 172.72 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_fp_filters" "C_*"
+			(at 172.72 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "7727f2a5-2cb0-5ff7-976f-5057cb5ad821")
+		)
+		(pin "2"
+			(uuid "7b9e4bb3-0f58-57e6-9047-b1183942c059")
+		)
+		(instances
+			(project "mega-kvm-shield"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "C22")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 172.72 97.79)
+			(xy 172.72 92.71)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "71f406bb-ce1f-5669-887a-7ad1f6a9559e")
+	)
+	(symbol
+		(lib_id "power:+5V")
+		(at 172.72 92.71 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "f2b95d5d-7213-5963-8e43-a547625f9acc")
+		(property "Reference" "#PWR261"
+			(at 172.72 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+5V"
+			(at 172.72 89.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 172.72 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 172.72 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "ecff575f-1698-5946-9f8a-3125b31e66d7")
+		)
+		(instances
+			(project "mega-kvm-shield"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "#PWR261")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 172.72 105.41)
+			(xy 172.72 110.49)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5864eee4-2871-5dfa-9f37-36ca33393d49")
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 172.72 110.49 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "311cd44b-3ffd-5a02-95a2-37b0f0441a63")
+		(property "Reference" "#PWR262"
+			(at 172.72 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 172.72 113.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 172.72 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 172.72 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "1546f257-e184-5eec-91a9-dc1621d07d9e")
+		)
+		(instances
+			(project "mega-kvm-shield"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "#PWR262")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:PWR_FLAG")
+		(at 190.5 88.9 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(dnp no)
+		(uuid "784f4c19-0a56-5b43-a7dd-50bb074ad7f5")
+		(property "Reference" "#FLG10"
+			(at 190.5 86.995 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "PWR_FLAG"
+			(at 190.5 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 190.5 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 190.5 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Special symbol for telling ERC where power comes from"
+			(at 190.5 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_keywords" "flag power"
+			(at 190.5 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "f69776a7-0f40-5089-bb5f-57a22a72bd4d")
+		)
+		(instances
+			(project "mega-kvm-shield"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "#FLG10")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 190.5 88.9)
+			(xy 190.5 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9fa6bc9d-d4f5-534e-9429-6d001df8ad76")
+	)
+	(symbol
+		(lib_id "power:+5V")
+		(at 190.5 93.98 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "44537291-c5ee-5996-a5d4-700775a9da20")
+		(property "Reference" "#PWR263"
+			(at 190.5 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+5V"
+			(at 190.5 90.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 190.5 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 190.5 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "9c16daea-0e7d-50e5-a138-8bdc3ab17196")
+		)
+		(instances
+			(project "mega-kvm-shield"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/6dee04e6-03f0-5d87-89fd-10a738b52b01"
+					(reference "#PWR263")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(text "Physical keyboard, neighbour UART, 5 V buck -- generated by scripts/gen_sch.py from scripts/design.py; edit those, not this file."
 		(exclude_from_sim no)
 		(at 20 18 0)
 		(effects

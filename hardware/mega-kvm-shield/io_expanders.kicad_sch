@@ -5,7 +5,7 @@
 	(uuid "b6ad6b99-c3ce-5e6c-a327-687c15145116")
 	(paper "A2")
 	(title_block
-		(title "MEGA-KVM link-board shield: I2C expanders, revision/features, power control, I2C header")
+		(title "MEGA-KVM shield: I2C expanders, revision/features, power control, I2C header")
 		(date "2026-11-27")
 		(rev "A (draft)")
 		(company "FPGA-DUT-Manager / MEGA65")
@@ -2090,7 +2090,7 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "Connector_Generic:Conn_01x05"
+		(symbol "Connector_Generic:Conn_01x06"
 			(pin_names
 				(offset 1.016)
 				(hide yes)
@@ -2106,8 +2106,8 @@
 					)
 				)
 			)
-			(property "Value" "Conn_01x05"
-				(at 0 -7.62 0)
+			(property "Value" "Conn_01x06"
+				(at 0 -10.16 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -2132,7 +2132,7 @@
 					(hide yes)
 				)
 			)
-			(property "Description" "Generic connector, single row, 01x05, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(property "Description" "Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)"
 				(at 0 0 0)
 				(effects
 					(font
@@ -2159,10 +2159,10 @@
 					(hide yes)
 				)
 			)
-			(symbol "Conn_01x05_1_1"
+			(symbol "Conn_01x06_1_1"
 				(rectangle
 					(start -1.27 6.35)
-					(end 1.27 -6.35)
+					(end 1.27 -8.89)
 					(stroke
 						(width 0.254)
 						(type default)
@@ -2218,6 +2218,17 @@
 				(rectangle
 					(start -1.27 -4.953)
 					(end 0 -5.207)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 -7.493)
+					(end 0 -7.747)
 					(stroke
 						(width 0.1524)
 						(type default)
@@ -2309,6 +2320,152 @@
 						)
 					)
 					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -7.62 0)
+					(length 3.81)
+					(name "Pin_6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "power:+5V"
+			(power)
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "#PWR"
+				(at 0 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Value" "+5V"
+				(at 0 3.556 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Power symbol creates a global label with name \"+5V\""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "global power"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "+5V_0_1"
+				(polyline
+					(pts
+						(xy -0.762 1.27)
+						(xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 2.54)
+						(xy 0.762 1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 0)
+						(xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "+5V_1_1"
+				(pin power_in line
+					(at 0 0 90)
+					(length 0)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2473,7 +2630,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
 					(reference "U10")
 					(unit 1)
 				)
@@ -2605,8 +2762,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "02bad675-0f2e-5206-bfc9-0e2fec0f4ffb")
-		(property "Reference" "#PWR174"
+		(uuid "1d1c7112-6d5a-5876-ae2f-d46bc9243e30")
+		(property "Reference" "#PWR178"
 			(at 38.1 63.5 0)
 			(effects
 				(font
@@ -2642,12 +2799,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "c8596e17-22ed-57a2-80ab-4df431a1abca")
+			(uuid "a706a46f-5190-5bf9-8792-02262c33eeb7")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR174")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR178")
 					(unit 1)
 				)
 			)
@@ -2672,8 +2829,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "f789cda0-bd52-530d-a439-d444aa8e8c27")
-		(property "Reference" "#PWR175"
+		(uuid "693f9556-6f47-5ae3-ac75-4f05a8a673a1")
+		(property "Reference" "#PWR179"
 			(at 55.88 38.1 0)
 			(effects
 				(font
@@ -2709,12 +2866,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "d1eeff6d-7827-5178-b4a8-b45ca4be7265")
+			(uuid "c95f2166-85af-51a4-9919-5e9e7899f6f9")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR175")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR179")
 					(unit 1)
 				)
 			)
@@ -2739,8 +2896,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "c695bc18-49ea-566f-a139-755a58f8f83f")
-		(property "Reference" "#PWR176"
+		(uuid "a6ad66e4-4ad5-5c21-af37-d6dedac5a48f")
+		(property "Reference" "#PWR180"
 			(at 60.96 38.1 0)
 			(effects
 				(font
@@ -2776,12 +2933,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "7a651045-e303-5d44-9ff4-60da44c9064b")
+			(uuid "609ee0ab-ef33-50e0-8900-6aae96c3f7ab")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR176")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR180")
 					(unit 1)
 				)
 			)
@@ -2806,8 +2963,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "db1a9e03-7a16-5419-90d5-2e3aaa6d8235")
-		(property "Reference" "#PWR177"
+		(uuid "c0a3d77d-1e5c-52ff-aa1d-2ff8bfde8925")
+		(property "Reference" "#PWR181"
 			(at 55.88 134.62 0)
 			(effects
 				(font
@@ -2843,12 +3000,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "d7056f56-2eb4-5d79-a40a-38174a27c7a9")
+			(uuid "5218e5e1-89b4-5b85-8860-11a34f0729ba")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR177")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR181")
 					(unit 1)
 				)
 			)
@@ -2873,8 +3030,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "1d1c7112-6d5a-5876-ae2f-d46bc9243e30")
-		(property "Reference" "#PWR178"
+		(uuid "d99041a1-5574-5ef1-9671-b4645b4d3077")
+		(property "Reference" "#PWR182"
 			(at 60.96 134.62 0)
 			(effects
 				(font
@@ -2910,12 +3067,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "a706a46f-5190-5bf9-8792-02262c33eeb7")
+			(uuid "a9b6970c-cfa5-5827-bd8e-9b27cf4ed8d4")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR178")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR182")
 					(unit 1)
 				)
 			)
@@ -3512,7 +3669,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
 					(reference "C13")
 					(unit 1)
 				)
@@ -3538,8 +3695,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "693f9556-6f47-5ae3-ac75-4f05a8a673a1")
-		(property "Reference" "#PWR179"
+		(uuid "600d96d0-144d-5ef2-88e9-6c93acf7408c")
+		(property "Reference" "#PWR183"
 			(at 106.68 36.83 0)
 			(effects
 				(font
@@ -3575,12 +3732,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "c95f2166-85af-51a4-9919-5e9e7899f6f9")
+			(uuid "a112cde3-9733-5528-8939-5158681c0919")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR179")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR183")
 					(unit 1)
 				)
 			)
@@ -3605,8 +3762,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "a6ad66e4-4ad5-5c21-af37-d6dedac5a48f")
-		(property "Reference" "#PWR180"
+		(uuid "c523791a-a53f-52ae-b9b8-d7ce9ca4637e")
+		(property "Reference" "#PWR184"
 			(at 106.68 54.61 0)
 			(effects
 				(font
@@ -3642,12 +3799,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "609ee0ab-ef33-50e0-8900-6aae96c3f7ab")
+			(uuid "11f68893-df02-5eed-b161-9e0e26451883")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR180")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR184")
 					(unit 1)
 				)
 			)
@@ -3740,7 +3897,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
 					(reference "C14")
 					(unit 1)
 				)
@@ -3766,8 +3923,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "c0a3d77d-1e5c-52ff-aa1d-2ff8bfde8925")
-		(property "Reference" "#PWR181"
+		(uuid "dc196393-fdda-5b66-8908-fe5ba131b0aa")
+		(property "Reference" "#PWR185"
 			(at 124.46 36.83 0)
 			(effects
 				(font
@@ -3803,12 +3960,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "5218e5e1-89b4-5b85-8860-11a34f0729ba")
+			(uuid "04fadf42-b68a-5ca7-9c05-20e96ca2c610")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR181")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR185")
 					(unit 1)
 				)
 			)
@@ -3833,8 +3990,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "d99041a1-5574-5ef1-9671-b4645b4d3077")
-		(property "Reference" "#PWR182"
+		(uuid "14f075c6-ebaf-5c1f-b6df-e22416b6d858")
+		(property "Reference" "#PWR186"
 			(at 124.46 54.61 0)
 			(effects
 				(font
@@ -3870,12 +4027,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "a9b6970c-cfa5-5827-bd8e-9b27cf4ed8d4")
+			(uuid "0d49c03f-5e0d-5bdc-8884-e4824a01b48c")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR182")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR186")
 					(unit 1)
 				)
 			)
@@ -3889,8 +4046,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "a065e98a-3042-5e91-8073-9d567e969c8f")
-		(property "Reference" "R110"
+		(uuid "828e3adf-a037-528a-9f90-63e9d384e774")
+		(property "Reference" "R94"
 			(at 144.272 45.72 90)
 			(effects
 				(font
@@ -3961,15 +4118,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "d4706900-92a3-5ef7-9d83-8f35748bd95e")
+			(uuid "03e92cb9-51ce-562a-9205-e648c2766249")
 		)
 		(pin "2"
-			(uuid "15360c2b-ba4b-57fc-96cd-82932ca94fc1")
+			(uuid "418e2928-3d19-5c4b-a498-5c4650f77a80")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R110")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R94")
 					(unit 1)
 				)
 			)
@@ -3984,7 +4141,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "bb1a3c72-28c8-5c3f-9a8c-27164666f27c")
+		(uuid "55cee46e-c36f-54d4-b154-e5fc2d45dfcc")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -3994,8 +4151,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "600d96d0-144d-5ef2-88e9-6c93acf7408c")
-		(property "Reference" "#PWR183"
+		(uuid "6a701cfd-1153-5e57-92e6-2c3258fd3d3a")
+		(property "Reference" "#PWR187"
 			(at 142.24 36.83 0)
 			(effects
 				(font
@@ -4031,12 +4188,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "a112cde3-9733-5528-8939-5158681c0919")
+			(uuid "b0656c46-7294-5eaf-af0c-3a6eddb8d41f")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR183")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR187")
 					(unit 1)
 				)
 			)
@@ -4051,7 +4208,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "a4333e76-b0ed-592f-9ce7-073231422c5e")
+		(uuid "8289f5e3-4c58-5af2-8f81-fb54a75cee3a")
 	)
 	(label "EXP_RESET_N"
 		(at 142.24 54.61 270)
@@ -4061,7 +4218,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "e06c0b5e-a0ad-573f-af18-b1b10a65ca5c")
+		(uuid "70e6af8b-e3dc-5ca8-86c1-d4ad40ef3c58")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -4071,8 +4228,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "b3e27875-0db2-5a93-bccf-9ea90e2b0e85")
-		(property "Reference" "R111"
+		(uuid "6ee696eb-1200-5acf-a047-f9ef12eb6d75")
+		(property "Reference" "R95"
 			(at 162.052 45.72 90)
 			(effects
 				(font
@@ -4143,15 +4300,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "73ef42e7-2d3f-5158-8200-c9b37e7276fb")
+			(uuid "7a1131db-b5a5-5c99-a207-d8dcdb89ec81")
 		)
 		(pin "2"
-			(uuid "f66cfd7c-f7a2-5f20-a9bc-8a37e429cfc5")
+			(uuid "3d1b852e-bc62-5048-85f7-c1c71903fe6a")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R111")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R95")
 					(unit 1)
 				)
 			)
@@ -4166,7 +4323,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "840b8b4a-f793-58cb-8d74-9c6d36f303f9")
+		(uuid "fba1853a-1204-529c-8d90-8b7737092c44")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -4176,8 +4333,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "c523791a-a53f-52ae-b9b8-d7ce9ca4637e")
-		(property "Reference" "#PWR184"
+		(uuid "532af8be-68cd-58a8-9a02-586a1ecc1760")
+		(property "Reference" "#PWR188"
 			(at 160.02 36.83 0)
 			(effects
 				(font
@@ -4213,12 +4370,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "11f68893-df02-5eed-b161-9e0e26451883")
+			(uuid "110b4a4a-931d-55be-b899-8b0313836841")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR184")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR188")
 					(unit 1)
 				)
 			)
@@ -4233,7 +4390,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "c2a706b5-542f-5068-9132-49f2941b76d9")
+		(uuid "c1c201b8-a7f9-5021-9d6d-91a5f1e246ec")
 	)
 	(label "EXPA_INT_N"
 		(at 160.02 54.61 270)
@@ -4243,7 +4400,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "76fe1482-9a54-5b47-a8b8-52c4953008d6")
+		(uuid "0b3c5562-02b3-52b4-93c3-e1da1b773342")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -4253,8 +4410,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "4c17216e-e192-5131-9fe9-4ac07a60d63a")
-		(property "Reference" "R112"
+		(uuid "7f0c1f65-08b3-5e57-a91a-5bac4def5b4b")
+		(property "Reference" "R96"
 			(at 179.832 45.72 90)
 			(effects
 				(font
@@ -4325,15 +4482,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "5279b784-703a-5561-9cf9-0f14a2f8c09b")
+			(uuid "b56f7ef9-232a-5cef-9024-d4a35ccc2a40")
 		)
 		(pin "2"
-			(uuid "4e0d9819-bd31-5f3a-bb14-499fab8dae65")
+			(uuid "2c1e086f-3714-58c7-b6bc-7902c6ce55d8")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R112")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R96")
 					(unit 1)
 				)
 			)
@@ -4348,7 +4505,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "5892991c-12ff-54ca-9bda-8a9c4fea7081")
+		(uuid "776cf96a-e0a8-5329-81f3-96f803571838")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -4358,8 +4515,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "dc196393-fdda-5b66-8908-fe5ba131b0aa")
-		(property "Reference" "#PWR185"
+		(uuid "bb80d06e-25c3-55d7-a16b-c10c93aa3e65")
+		(property "Reference" "#PWR189"
 			(at 177.8 36.83 0)
 			(effects
 				(font
@@ -4395,12 +4552,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "04fadf42-b68a-5ca7-9c05-20e96ca2c610")
+			(uuid "adb5f9ca-efd8-5706-a26c-b8fd1caccad2")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR185")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR189")
 					(unit 1)
 				)
 			)
@@ -4415,7 +4572,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "d29b33a9-c4ea-591d-adac-f99ac8855150")
+		(uuid "748a93fb-f694-5218-87da-657ded87e6aa")
 	)
 	(label "SHD_REV0"
 		(at 177.8 54.61 270)
@@ -4425,7 +4582,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "3b7654d2-14a0-5aab-a56f-5ccc09fc5f85")
+		(uuid "1b6c34de-d520-5a8e-95bc-3583734e0e52")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -4435,8 +4592,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp yes)
-		(uuid "1391132e-5858-5bcb-8fa8-dbf4cf4a67f3")
-		(property "Reference" "R113"
+		(uuid "099f49fd-7a9c-50ae-b0c1-c60ec8c9133a")
+		(property "Reference" "R97"
 			(at 197.612 53.34 90)
 			(effects
 				(font
@@ -4507,15 +4664,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "c3b6ae61-0ab4-5a4e-9df3-3e75370a2d02")
+			(uuid "768b2d73-d437-5393-854b-b800ef0dba60")
 		)
 		(pin "2"
-			(uuid "29c9b03d-c8cb-5aeb-9abc-bab601961573")
+			(uuid "c7fad4ec-7a8b-51cf-9033-8fdffdb57048")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R113")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R97")
 					(unit 1)
 				)
 			)
@@ -4530,7 +4687,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "509b241d-0065-5182-b3a6-b03ee664e5a8")
+		(uuid "af4e474e-4676-5ab1-a6eb-b25aa981dc23")
 	)
 	(label "SHD_REV0"
 		(at 195.58 44.45 90)
@@ -4540,7 +4697,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "bda4bbb3-ac23-577e-b5de-4b7dcae8e19d")
+		(uuid "ff75b49a-d5ff-560f-9ee0-3c1509ce27f3")
 	)
 	(wire
 		(pts
@@ -4551,7 +4708,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "1b35d3b3-b7c4-5237-a581-ec74cbe8026f")
+		(uuid "61c6af87-6eb3-5522-86eb-83537bfe2a6b")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -4561,8 +4718,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "14f075c6-ebaf-5c1f-b6df-e22416b6d858")
-		(property "Reference" "#PWR186"
+		(uuid "bcfe9e53-6d0a-5d74-90e3-62ec82119873")
+		(property "Reference" "#PWR190"
 			(at 195.58 62.23 0)
 			(effects
 				(font
@@ -4598,12 +4755,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "0d49c03f-5e0d-5bdc-8884-e4824a01b48c")
+			(uuid "312862b6-5a64-525e-9a54-96f08a40e6a2")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR186")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR190")
 					(unit 1)
 				)
 			)
@@ -4617,8 +4774,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp yes)
-		(uuid "fa56caad-ff24-5650-8794-93fcbfec9d4b")
-		(property "Reference" "R114"
+		(uuid "2c1f190e-73fe-5d1a-a2ac-31e2f1df84da")
+		(property "Reference" "R98"
 			(at 215.392 45.72 90)
 			(effects
 				(font
@@ -4689,15 +4846,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "71cf4ad7-ec15-5052-bf04-022ffa06d54b")
+			(uuid "f58c8efd-309e-538d-b9e9-bcb57ee39fa5")
 		)
 		(pin "2"
-			(uuid "bc786fb5-e479-5329-9ded-ea3c92ee3b7a")
+			(uuid "eb712aa9-f047-51d0-b4f1-402767362c88")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R114")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R98")
 					(unit 1)
 				)
 			)
@@ -4712,7 +4869,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "ef95596d-181f-5f60-a279-14dd175c118b")
+		(uuid "03264df3-a787-5966-9767-1080fdb1b26e")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -4722,8 +4879,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "6a701cfd-1153-5e57-92e6-2c3258fd3d3a")
-		(property "Reference" "#PWR187"
+		(uuid "7a444b17-8e8b-56ea-9a2e-7e202a4aa4d4")
+		(property "Reference" "#PWR191"
 			(at 213.36 36.83 0)
 			(effects
 				(font
@@ -4759,12 +4916,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "b0656c46-7294-5eaf-af0c-3a6eddb8d41f")
+			(uuid "969376fd-2b81-5f79-ac2b-07b845e602ac")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR187")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR191")
 					(unit 1)
 				)
 			)
@@ -4779,7 +4936,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "6d400a27-215d-5e36-82e6-a5e418f32f5f")
+		(uuid "7a4ba5aa-59b8-5db7-8683-bb2b344deb7f")
 	)
 	(label "SHD_REV1"
 		(at 213.36 54.61 270)
@@ -4789,7 +4946,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "ad4f43a4-fe3d-5437-94a6-85ccb918307a")
+		(uuid "5808d42b-793e-50a7-8aaf-8d2126b3e52e")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -4799,8 +4956,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "ab0fdc47-84cb-5650-adb9-0d7261bd6a2f")
-		(property "Reference" "R115"
+		(uuid "3c6ad41e-7de5-5beb-8f2c-ff3d35463149")
+		(property "Reference" "R99"
 			(at 233.172 53.34 90)
 			(effects
 				(font
@@ -4871,15 +5028,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "5a835159-7251-53a7-9e60-803c92f6bb5a")
+			(uuid "5d644352-3056-5094-baf3-325e000838b7")
 		)
 		(pin "2"
-			(uuid "ab9cc831-4f90-5109-8b7b-2ad753eb6c5a")
+			(uuid "65f34dfb-262a-5ef0-a683-96278f252cc6")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R115")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R99")
 					(unit 1)
 				)
 			)
@@ -4894,7 +5051,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "b61eea34-e726-58e4-8e03-5c15897ce21f")
+		(uuid "85298b89-2fa3-5b84-836e-4ca4bcd7a20f")
 	)
 	(label "SHD_REV1"
 		(at 231.14 44.45 90)
@@ -4904,7 +5061,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "c6dc9746-6cc2-5ef4-8a49-e879a384bf50")
+		(uuid "46070927-16bd-503d-8140-7a3699cc8a23")
 	)
 	(wire
 		(pts
@@ -4915,7 +5072,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "53fd31e9-832d-5f8e-84bb-8186896849c8")
+		(uuid "3574d724-b35b-545a-bcd3-23978b448cc4")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -4925,8 +5082,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "532af8be-68cd-58a8-9a02-586a1ecc1760")
-		(property "Reference" "#PWR188"
+		(uuid "dcb6b7ca-b89f-52be-800e-8b84f4b9420e")
+		(property "Reference" "#PWR192"
 			(at 231.14 62.23 0)
 			(effects
 				(font
@@ -4962,12 +5119,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "110b4a4a-931d-55be-b899-8b0313836841")
+			(uuid "bfd8bb9e-30ff-5547-80d3-588773104a93")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR188")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR192")
 					(unit 1)
 				)
 			)
@@ -4981,8 +5138,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp yes)
-		(uuid "114dabac-8189-57db-b40e-ba3425e6b9f1")
-		(property "Reference" "R116"
+		(uuid "62fd68af-4941-5bb6-9e82-044562f47235")
+		(property "Reference" "R100"
 			(at 250.952 45.72 90)
 			(effects
 				(font
@@ -5053,15 +5210,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "1bf3577b-df7c-5f4a-b9f5-29d807b7489a")
+			(uuid "6af4bc3c-77c6-523c-a3ff-81b60f9543b7")
 		)
 		(pin "2"
-			(uuid "44db94de-60b0-5ce1-999c-f7a5a2733053")
+			(uuid "f1be8375-58f1-5748-9403-9b70142f9588")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R116")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R100")
 					(unit 1)
 				)
 			)
@@ -5076,7 +5233,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "747253c3-7474-5671-8ab0-bd7fc4e611be")
+		(uuid "baa8f4d4-45ce-5cb0-b695-83311387495d")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -5086,8 +5243,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "bb80d06e-25c3-55d7-a16b-c10c93aa3e65")
-		(property "Reference" "#PWR189"
+		(uuid "e3cadc6e-c926-5602-bbad-01b7c58616c1")
+		(property "Reference" "#PWR193"
 			(at 248.92 36.83 0)
 			(effects
 				(font
@@ -5123,12 +5280,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "adb5f9ca-efd8-5706-a26c-b8fd1caccad2")
+			(uuid "740c3155-cb3e-5201-b088-23f7cb8b5c1d")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR189")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR193")
 					(unit 1)
 				)
 			)
@@ -5143,7 +5300,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "c8a1b6b5-d207-5262-b236-19fa0867f673")
+		(uuid "d706b816-a0c3-572c-af8e-9e187b9b523c")
 	)
 	(label "SHD_REV2"
 		(at 248.92 54.61 270)
@@ -5153,7 +5310,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "2a02f341-6e88-53d1-be56-3b89dedc669a")
+		(uuid "91bbfce1-26de-5067-90f7-d193e72e91b9")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -5163,8 +5320,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "3f65bc66-4e65-5459-8306-2cc5a9c9068e")
-		(property "Reference" "R117"
+		(uuid "1dda8aab-1a26-52d5-97f1-a2f35e3cb39e")
+		(property "Reference" "R101"
 			(at 268.732 53.34 90)
 			(effects
 				(font
@@ -5235,15 +5392,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "ee40d47e-1fe3-5550-89c1-bb10ac9ce7ee")
+			(uuid "aaf8b41c-7ca6-5615-8dcd-23ed0c1a43f9")
 		)
 		(pin "2"
-			(uuid "e4c19d59-f471-58ad-9f33-3b13a7b0001f")
+			(uuid "23086c8f-21e9-5a47-8923-10066b68dfd8")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R117")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R101")
 					(unit 1)
 				)
 			)
@@ -5258,7 +5415,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "a584fb3c-3a91-512c-aa73-4e4c9eca51e6")
+		(uuid "b8ce4afc-6ac5-5bfa-8832-9f393a714a96")
 	)
 	(label "SHD_REV2"
 		(at 266.7 44.45 90)
@@ -5268,7 +5425,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "bc0638ea-9be6-5566-a06a-32d4706629e6")
+		(uuid "59aba4af-ceb7-5bcc-a290-937e80384e9a")
 	)
 	(wire
 		(pts
@@ -5279,7 +5436,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "6702fcfd-ebcc-5ef5-9122-27eb09cb4c9d")
+		(uuid "17dc2453-b41c-5d91-95b4-5ba5d6081c47")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -5289,8 +5446,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "bcfe9e53-6d0a-5d74-90e3-62ec82119873")
-		(property "Reference" "#PWR190"
+		(uuid "0d4c83bf-f2e7-5b00-8b19-086d98082d4d")
+		(property "Reference" "#PWR194"
 			(at 266.7 62.23 0)
 			(effects
 				(font
@@ -5326,12 +5483,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "312862b6-5a64-525e-9a54-96f08a40e6a2")
+			(uuid "ecdc5ea9-e71d-5d53-ad0e-5c7e98e8cb32")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR190")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR194")
 					(unit 1)
 				)
 			)
@@ -5345,8 +5502,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp yes)
-		(uuid "560b4603-9d5b-5207-8941-88f639d3e278")
-		(property "Reference" "R118"
+		(uuid "5b485ba0-7573-5b67-a015-245f5972a4de")
+		(property "Reference" "R102"
 			(at 286.512 45.72 90)
 			(effects
 				(font
@@ -5417,15 +5574,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "0b66c832-e5cc-5918-9711-9af0eaeeec70")
+			(uuid "33310cf0-ce8f-5f2c-b548-0a7eca5a9950")
 		)
 		(pin "2"
-			(uuid "d2cf8c74-0d1d-5c7c-b114-4d1db57c3fc7")
+			(uuid "83505592-b2cb-544a-9b48-ab588f57d604")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R118")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R102")
 					(unit 1)
 				)
 			)
@@ -5440,7 +5597,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "d4325095-e89f-5016-8f0d-ff67fb27f19a")
+		(uuid "c1b82679-0698-5814-8f5a-00de9713c42d")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -5450,8 +5607,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "7a444b17-8e8b-56ea-9a2e-7e202a4aa4d4")
-		(property "Reference" "#PWR191"
+		(uuid "7ad9a587-388c-59fe-995d-2aaa6581ba3e")
+		(property "Reference" "#PWR195"
 			(at 284.48 36.83 0)
 			(effects
 				(font
@@ -5487,12 +5644,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "969376fd-2b81-5f79-ac2b-07b845e602ac")
+			(uuid "fdda6353-4fee-5e21-8fe6-54958f6b2153")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR191")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR195")
 					(unit 1)
 				)
 			)
@@ -5507,7 +5664,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "bfd0bf67-2341-5e09-9909-fd227c7f035d")
+		(uuid "d221aa70-ce7b-5240-a62f-bba71624fc15")
 	)
 	(label "SHD_REV3"
 		(at 284.48 54.61 270)
@@ -5517,7 +5674,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "da7d7dce-9b32-5f56-8117-0f91afa0a67f")
+		(uuid "883f63a1-0e1b-55b5-b37b-0be9245568d5")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -5527,8 +5684,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "0e896689-3304-57e1-9292-4c33acafc7b3")
-		(property "Reference" "R119"
+		(uuid "c5f02db8-e8af-52fa-b005-e9d4a4730b0d")
+		(property "Reference" "R103"
 			(at 306.832 53.34 90)
 			(effects
 				(font
@@ -5599,15 +5756,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "70b7f620-d03e-567f-b2bb-cf1b6c67e5d8")
+			(uuid "e71127c7-148a-5283-ad5d-799aa93707c9")
 		)
 		(pin "2"
-			(uuid "2b276999-d19e-55e5-9323-688fa14c1f92")
+			(uuid "2b739771-3f95-5968-9afd-d5410dd81558")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R119")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R103")
 					(unit 1)
 				)
 			)
@@ -5622,7 +5779,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "e99344a4-51c9-5d8d-9cc9-b747aee22734")
+		(uuid "e16f1abb-68d2-5893-bd55-8ad7136b3b33")
 	)
 	(label "SHD_REV3"
 		(at 304.8 44.45 90)
@@ -5632,7 +5789,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "2fccf7ea-a61e-56ed-be63-93a973f8f22b")
+		(uuid "30cf3a87-bee4-56dd-987b-36a65689430d")
 	)
 	(wire
 		(pts
@@ -5643,7 +5800,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "3cd287d0-16c3-5e04-a789-2f1390dbc5a0")
+		(uuid "bbed7265-0354-5249-b6b7-83e201ac25f4")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -5653,8 +5810,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "dcb6b7ca-b89f-52be-800e-8b84f4b9420e")
-		(property "Reference" "#PWR192"
+		(uuid "54ebe210-6d36-579f-a0c5-889f3afd893f")
+		(property "Reference" "#PWR196"
 			(at 304.8 62.23 0)
 			(effects
 				(font
@@ -5690,12 +5847,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "bfd8bb9e-30ff-5547-80d3-588773104a93")
+			(uuid "d69358e1-20e2-5bb1-b32e-d81f3fe7abc9")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR192")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR196")
 					(unit 1)
 				)
 			)
@@ -5709,8 +5866,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp yes)
-		(uuid "8f39483b-b239-530a-aa24-b17a3e33ea0c")
-		(property "Reference" "R120"
+		(uuid "595c8d1b-a11a-50d6-9b29-851350113e74")
+		(property "Reference" "R104"
 			(at 324.612 45.72 90)
 			(effects
 				(font
@@ -5781,15 +5938,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "6fb42d5d-0a14-560c-9529-f3930581bd10")
+			(uuid "095ebdba-5302-5f1e-a1b9-1e2f7b748c0b")
 		)
 		(pin "2"
-			(uuid "cba4fa7f-d2ae-5264-986e-6d6f2da00e92")
+			(uuid "92b24653-4e9e-5125-8f68-de65d8649dda")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R120")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R104")
 					(unit 1)
 				)
 			)
@@ -5804,7 +5961,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "d1bede17-2a42-5f86-8ec9-e13e059950af")
+		(uuid "31d05903-8c7e-5379-b7cf-36079d1ed5d6")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -5814,8 +5971,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "e3cadc6e-c926-5602-bbad-01b7c58616c1")
-		(property "Reference" "#PWR193"
+		(uuid "7579d001-44ca-5e01-807d-99c6268438f6")
+		(property "Reference" "#PWR197"
 			(at 322.58 36.83 0)
 			(effects
 				(font
@@ -5851,12 +6008,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "740c3155-cb3e-5201-b088-23f7cb8b5c1d")
+			(uuid "e2391562-3e45-5ac9-b4ec-22cade762b6d")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR193")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR197")
 					(unit 1)
 				)
 			)
@@ -5871,7 +6028,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "41b5fd00-fc86-5735-80fd-1d4e1df0bc53")
+		(uuid "b9e61430-7a31-59d9-a2f3-d745b7097468")
 	)
 	(label "SHD_REV4"
 		(at 322.58 54.61 270)
@@ -5881,7 +6038,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "29b14169-f651-52d9-8c75-1a153dad5a3f")
+		(uuid "3e8850d1-35da-5b95-8435-c23323d50c17")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -5891,8 +6048,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "21b5e6f5-106e-5dc2-b377-36c28bb5d492")
-		(property "Reference" "R121"
+		(uuid "d0434022-f24c-5e81-87a4-a137f54d0172")
+		(property "Reference" "R105"
 			(at 342.392 53.34 90)
 			(effects
 				(font
@@ -5963,15 +6120,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "cedab40f-a9a3-50ef-84a1-1593ab278fb6")
+			(uuid "2b703987-2599-5dee-b81b-4bd4a83dd222")
 		)
 		(pin "2"
-			(uuid "8ea1f0e3-1610-567f-a184-87d2044936f7")
+			(uuid "c2781e1a-9432-5c7d-b8d9-a472c83739fe")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R121")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R105")
 					(unit 1)
 				)
 			)
@@ -5986,7 +6143,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "c397f92f-2c98-5b49-8161-dafe2793d5ac")
+		(uuid "bb6d491c-be23-5403-9402-2ad86c8c6916")
 	)
 	(label "SHD_REV4"
 		(at 340.36 44.45 90)
@@ -5996,7 +6153,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "9f692a80-ad24-565d-9acf-be04d9522aa7")
+		(uuid "690fac8b-8bde-55ed-a009-999bb833e9db")
 	)
 	(wire
 		(pts
@@ -6007,7 +6164,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "b2c3ec6c-992f-5f41-a1b2-f4df87ef7695")
+		(uuid "462f2bba-587d-54d2-a2e0-2cdb0ffdfd3a")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -6017,8 +6174,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "0d4c83bf-f2e7-5b00-8b19-086d98082d4d")
-		(property "Reference" "#PWR194"
+		(uuid "cc1abae2-9fbd-59a1-a38d-84587f10f538")
+		(property "Reference" "#PWR198"
 			(at 340.36 62.23 0)
 			(effects
 				(font
@@ -6054,12 +6211,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "ecdc5ea9-e71d-5d53-ad0e-5c7e98e8cb32")
+			(uuid "29df042e-0e00-5c13-869c-144fc70eced1")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR194")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR198")
 					(unit 1)
 				)
 			)
@@ -6073,8 +6230,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp yes)
-		(uuid "d4c3c719-0784-546e-a7f3-247157696783")
-		(property "Reference" "R122"
+		(uuid "4c70d712-7962-557b-b8e2-794b3544596d")
+		(property "Reference" "R106"
 			(at 360.172 45.72 90)
 			(effects
 				(font
@@ -6145,15 +6302,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "e40ae17b-8346-5984-90ed-d9ebe89ad6f0")
+			(uuid "fbf49707-a5e9-5db2-bf47-61e223ac89a5")
 		)
 		(pin "2"
-			(uuid "bc3d02f9-a7c8-5606-9b88-f44ab6e8ce9b")
+			(uuid "209e3e11-a26c-52dc-9721-2bcfdd4f50a7")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R122")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R106")
 					(unit 1)
 				)
 			)
@@ -6168,7 +6325,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "9e8276c1-63aa-516f-b5e5-eeeaa6eb9adb")
+		(uuid "f0fc72e9-6470-5324-b97d-aaefd18d579e")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -6178,8 +6335,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "7ad9a587-388c-59fe-995d-2aaa6581ba3e")
-		(property "Reference" "#PWR195"
+		(uuid "77d18754-fe76-54d3-a192-939981a25793")
+		(property "Reference" "#PWR199"
 			(at 358.14 36.83 0)
 			(effects
 				(font
@@ -6215,12 +6372,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "fdda6353-4fee-5e21-8fe6-54958f6b2153")
+			(uuid "d7af6ad1-0d0f-53fd-bf78-6b0f93744142")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR195")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR199")
 					(unit 1)
 				)
 			)
@@ -6235,7 +6392,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "f9119ca3-1f76-534a-8898-58cf4b5555bf")
+		(uuid "4080cf69-5ad5-5fbc-999a-490690f56251")
 	)
 	(label "SHD_REV5"
 		(at 358.14 54.61 270)
@@ -6245,7 +6402,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "5f9252d1-4d23-5d57-b58e-eb2b0613ec0e")
+		(uuid "158dfff1-19f7-5556-bb88-8dffc3ea7514")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -6255,8 +6412,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "32aa796e-c7c2-5eb5-9a7d-6ed10f3be83e")
-		(property "Reference" "R123"
+		(uuid "b3e01b09-65b5-54a8-a201-5735d2bd2b64")
+		(property "Reference" "R107"
 			(at 377.952 53.34 90)
 			(effects
 				(font
@@ -6327,15 +6484,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "8fbdb401-ece8-5118-b476-780890033885")
+			(uuid "dbaf4f46-c05c-5b07-9f2a-4f62699fa1d4")
 		)
 		(pin "2"
-			(uuid "5d826c64-933d-5770-8eca-8e46fae096ee")
+			(uuid "e7ea71c2-593c-5c14-804a-3ffadc217b0b")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R123")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R107")
 					(unit 1)
 				)
 			)
@@ -6350,7 +6507,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "14d06346-eeda-5aa5-b12a-e64e1b985442")
+		(uuid "45e02aab-6a1b-5551-8bc7-50af4cdb7b02")
 	)
 	(label "SHD_REV5"
 		(at 375.92 44.45 90)
@@ -6360,7 +6517,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "b6946cc8-b7c7-50ff-9f58-0fe90cef802a")
+		(uuid "54c3f3c4-73e4-5d96-ae2a-d6417c96d51a")
 	)
 	(wire
 		(pts
@@ -6371,7 +6528,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "2d0fe3e1-45d1-5831-ae7f-6a47b17c77d2")
+		(uuid "a9f83cbb-7519-522d-91db-8e0322b95b97")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -6381,8 +6538,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "54ebe210-6d36-579f-a0c5-889f3afd893f")
-		(property "Reference" "#PWR196"
+		(uuid "e7a33cdc-4b8d-5cd3-9880-1b5ab008f531")
+		(property "Reference" "#PWR200"
 			(at 375.92 62.23 0)
 			(effects
 				(font
@@ -6418,12 +6575,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "d69358e1-20e2-5bb1-b32e-d81f3fe7abc9")
+			(uuid "99e9f99b-e7f2-5a03-8f3c-fb2e6a255fc9")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR196")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR200")
 					(unit 1)
 				)
 			)
@@ -6437,8 +6594,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp yes)
-		(uuid "914c2575-e25a-50a1-8996-29037632b10b")
-		(property "Reference" "R124"
+		(uuid "85854f01-2e20-5c27-868e-de09d0086d26")
+		(property "Reference" "R108"
 			(at 395.732 45.72 90)
 			(effects
 				(font
@@ -6509,15 +6666,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "48b3389b-4323-5e6a-9fdb-89d308cf2529")
+			(uuid "c92f1791-a1fb-5c3d-a9e0-69a7180c339e")
 		)
 		(pin "2"
-			(uuid "bc2d52d5-5cd5-5da8-9b85-a2c4c315be2b")
+			(uuid "6b7dea21-522b-5e39-b0f0-dc1e93f81da1")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R124")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R108")
 					(unit 1)
 				)
 			)
@@ -6532,7 +6689,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "98b9e8b3-f617-54b0-b0fd-31c40ca4f9c7")
+		(uuid "a26e8b76-a97f-53a9-9aaf-99eb80acb0fe")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -6542,8 +6699,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "7579d001-44ca-5e01-807d-99c6268438f6")
-		(property "Reference" "#PWR197"
+		(uuid "66b72eba-fc7c-5935-b515-4809bd0ecef5")
+		(property "Reference" "#PWR201"
 			(at 393.7 36.83 0)
 			(effects
 				(font
@@ -6579,12 +6736,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "e2391562-3e45-5ac9-b4ec-22cade762b6d")
+			(uuid "357269d0-512f-5d1d-8832-2ead33218333")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR197")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR201")
 					(unit 1)
 				)
 			)
@@ -6599,7 +6756,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "3cba7393-3682-5510-8816-9eb527d5ac2d")
+		(uuid "ea9a7f0e-648e-57ac-83ef-3d7ac9b365d2")
 	)
 	(label "SHD_REV6"
 		(at 393.7 54.61 270)
@@ -6609,7 +6766,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "a1476aa7-b18b-5424-88e4-c0d1ade17cf5")
+		(uuid "efec3035-41e3-5f32-a744-95f6613d52e9")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -6619,8 +6776,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "ff8261d2-304c-50d8-b587-8829df604f8d")
-		(property "Reference" "R125"
+		(uuid "0596dc5a-5ed2-58ab-be0f-88d78288da93")
+		(property "Reference" "R109"
 			(at 413.512 53.34 90)
 			(effects
 				(font
@@ -6691,15 +6848,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "b112494c-3a79-566f-8748-5f3afce0c74e")
+			(uuid "a0c1dc94-aea5-57fa-a986-314a8bd93f97")
 		)
 		(pin "2"
-			(uuid "fdfc955e-0323-5631-a9cb-b403a48dde94")
+			(uuid "c1706ca3-e0db-5d9c-8e53-7054e7ec3cb7")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R125")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R109")
 					(unit 1)
 				)
 			)
@@ -6714,7 +6871,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "8fe242cc-95b8-591f-a3ca-1a5a8bf74477")
+		(uuid "cb4c2903-6b9d-5fe9-8013-8793a0d3f399")
 	)
 	(label "SHD_REV6"
 		(at 411.48 44.45 90)
@@ -6724,7 +6881,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "7ef52204-cbfb-508c-9e28-c661449068ad")
+		(uuid "e93ef246-c678-5ae1-b232-3fcf40b9c8e0")
 	)
 	(wire
 		(pts
@@ -6735,7 +6892,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "177eda12-e8b1-51c1-b9be-9c476d3b4646")
+		(uuid "34c181ea-e2a1-58df-95f1-efe08197e8fa")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -6745,8 +6902,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "cc1abae2-9fbd-59a1-a38d-84587f10f538")
-		(property "Reference" "#PWR198"
+		(uuid "b53d3852-1d30-5f25-b7c3-5853efc92c02")
+		(property "Reference" "#PWR202"
 			(at 411.48 62.23 0)
 			(effects
 				(font
@@ -6782,12 +6939,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "29df042e-0e00-5c13-869c-144fc70eced1")
+			(uuid "e528acab-474d-54cc-8662-03683509f939")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR198")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR202")
 					(unit 1)
 				)
 			)
@@ -6801,8 +6958,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp yes)
-		(uuid "cc562e11-5f32-5722-92f1-2270ef7c4695")
-		(property "Reference" "R126"
+		(uuid "a065e98a-3042-5e91-8073-9d567e969c8f")
+		(property "Reference" "R110"
 			(at 431.292 45.72 90)
 			(effects
 				(font
@@ -6873,15 +7030,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "e3547e52-af9e-5c9b-be83-5cfa2c6f0a97")
+			(uuid "d4706900-92a3-5ef7-9d83-8f35748bd95e")
 		)
 		(pin "2"
-			(uuid "903e6a1d-976e-5406-9c91-34a871b0367d")
+			(uuid "15360c2b-ba4b-57fc-96cd-82932ca94fc1")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R126")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R110")
 					(unit 1)
 				)
 			)
@@ -6896,7 +7053,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "3f2e31c5-7840-561c-87b9-d99ef6a94675")
+		(uuid "bb1a3c72-28c8-5c3f-9a8c-27164666f27c")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -6906,8 +7063,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "77d18754-fe76-54d3-a192-939981a25793")
-		(property "Reference" "#PWR199"
+		(uuid "bc1660a0-3200-55e3-84fb-e4c981a97ebb")
+		(property "Reference" "#PWR203"
 			(at 429.26 36.83 0)
 			(effects
 				(font
@@ -6943,12 +7100,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "d7af6ad1-0d0f-53fd-bf78-6b0f93744142")
+			(uuid "01e0a458-70b1-5fad-8626-79cc746bfbdc")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR199")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR203")
 					(unit 1)
 				)
 			)
@@ -6963,7 +7120,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "fc7b3a5e-8cb3-5fab-86e4-bded5e42bead")
+		(uuid "a4333e76-b0ed-592f-9ce7-073231422c5e")
 	)
 	(label "SHD_REV7"
 		(at 429.26 54.61 270)
@@ -6973,7 +7130,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "d6439219-aa94-5cc8-ac28-742a16532941")
+		(uuid "e06c0b5e-a0ad-573f-af18-b1b10a65ca5c")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -6983,8 +7140,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "a810a62a-b23a-5585-a5eb-e147582cefcf")
-		(property "Reference" "R127"
+		(uuid "b3e27875-0db2-5a93-bccf-9ea90e2b0e85")
+		(property "Reference" "R111"
 			(at 449.072 53.34 90)
 			(effects
 				(font
@@ -7055,15 +7212,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "d6112371-00e7-519c-976d-e002a17149ac")
+			(uuid "73ef42e7-2d3f-5158-8200-c9b37e7276fb")
 		)
 		(pin "2"
-			(uuid "8681cfbf-c30f-5a5e-ad24-405c82436d17")
+			(uuid "f66cfd7c-f7a2-5f20-a9bc-8a37e429cfc5")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R127")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R111")
 					(unit 1)
 				)
 			)
@@ -7078,7 +7235,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "14773398-5f35-59cb-9134-bc0deb2966ab")
+		(uuid "840b8b4a-f793-58cb-8d74-9c6d36f303f9")
 	)
 	(label "SHD_REV7"
 		(at 447.04 44.45 90)
@@ -7088,7 +7245,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "fa5c9555-f7e9-5852-8e65-73055c4bcfe7")
+		(uuid "abe5cb33-b70e-538a-8cc2-50cd52a4b350")
 	)
 	(wire
 		(pts
@@ -7099,7 +7256,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "9b27c73f-783c-56f6-986b-edaf06649282")
+		(uuid "c2a706b5-542f-5068-9132-49f2941b76d9")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -7109,8 +7266,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "e7a33cdc-4b8d-5cd3-9880-1b5ab008f531")
-		(property "Reference" "#PWR200"
+		(uuid "dbd3b7d8-b001-583c-be09-1618d9ad6073")
+		(property "Reference" "#PWR204"
 			(at 447.04 62.23 0)
 			(effects
 				(font
@@ -7146,12 +7303,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "99e9f99b-e7f2-5a03-8f3c-fb2e6a255fc9")
+			(uuid "0d2e1f51-c98b-510b-82c2-9b36ac93b77e")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR200")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR204")
 					(unit 1)
 				)
 			)
@@ -7165,8 +7322,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "38493183-fb7b-5c87-9504-15184871246b")
-		(property "Reference" "R128"
+		(uuid "4c17216e-e192-5131-9fe9-4ac07a60d63a")
+		(property "Reference" "R112"
 			(at 466.852 45.72 90)
 			(effects
 				(font
@@ -7237,15 +7394,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "95e629dc-8a21-5c0d-a6db-cf0ca77dff8e")
+			(uuid "5279b784-703a-5561-9cf9-0f14a2f8c09b")
 		)
 		(pin "2"
-			(uuid "69474f0c-904b-55d2-a2f7-3d24f08a6eb5")
+			(uuid "4e0d9819-bd31-5f3a-bb14-499fab8dae65")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R128")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R112")
 					(unit 1)
 				)
 			)
@@ -7260,7 +7417,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "f5125989-0726-5db7-acf6-a1933ddbb493")
+		(uuid "5892991c-12ff-54ca-9bda-8a9c4fea7081")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -7270,8 +7427,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "66b72eba-fc7c-5935-b515-4809bd0ecef5")
-		(property "Reference" "#PWR201"
+		(uuid "20d7e817-6e0f-5a38-8a05-0d86657d177a")
+		(property "Reference" "#PWR205"
 			(at 464.82 36.83 0)
 			(effects
 				(font
@@ -7307,12 +7464,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "357269d0-512f-5d1d-8832-2ead33218333")
+			(uuid "9585ddc7-16eb-56b1-bbb4-3fe12e3eeea8")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR201")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR205")
 					(unit 1)
 				)
 			)
@@ -7327,7 +7484,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "ab2d0e12-7395-5a54-b3d5-4e333dc2a4f7")
+		(uuid "d29b33a9-c4ea-591d-adac-f99ac8855150")
 	)
 	(label "SHD_FEAT0"
 		(at 464.82 54.61 270)
@@ -7337,7 +7494,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "c5a98cc6-c3f5-587c-ac09-ff50d5f55776")
+		(uuid "3b7654d2-14a0-5aab-a56f-5ccc09fc5f85")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -7347,8 +7504,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp yes)
-		(uuid "f2960db6-86b5-5a44-b317-7854d48f2b6c")
-		(property "Reference" "R129"
+		(uuid "1391132e-5858-5bcb-8fa8-dbf4cf4a67f3")
+		(property "Reference" "R113"
 			(at 484.632 55.88 90)
 			(effects
 				(font
@@ -7419,15 +7576,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "36f52e5a-535c-557c-9ddd-c900460f6910")
+			(uuid "c3b6ae61-0ab4-5a4e-9df3-3e75370a2d02")
 		)
 		(pin "2"
-			(uuid "3672f7f4-1da7-59f1-8711-c49c9c662dcf")
+			(uuid "29c9b03d-c8cb-5aeb-9abc-bab601961573")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R129")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R113")
 					(unit 1)
 				)
 			)
@@ -7442,7 +7599,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "09ba6ca1-4aaa-5c93-81be-4ee60308d7b5")
+		(uuid "509b241d-0065-5182-b3a6-b03ee664e5a8")
 	)
 	(label "SHD_FEAT0"
 		(at 482.6 46.99 90)
@@ -7452,7 +7609,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "2d5f73bb-eff5-5232-aa5a-8849085d23f7")
+		(uuid "bda4bbb3-ac23-577e-b5de-4b7dcae8e19d")
 	)
 	(wire
 		(pts
@@ -7463,7 +7620,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "a4e02980-f4e2-5efe-b345-8103374a574d")
+		(uuid "1b35d3b3-b7c4-5237-a581-ec74cbe8026f")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -7473,8 +7630,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "b53d3852-1d30-5f25-b7c3-5853efc92c02")
-		(property "Reference" "#PWR202"
+		(uuid "c0c5dd25-cc86-50f0-8943-440e7be3206a")
+		(property "Reference" "#PWR206"
 			(at 482.6 64.77 0)
 			(effects
 				(font
@@ -7510,12 +7667,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "e528acab-474d-54cc-8662-03683509f939")
+			(uuid "9977d9b7-c201-57c3-b74b-bcf6eec8dbc1")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR202")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR206")
 					(unit 1)
 				)
 			)
@@ -7529,8 +7686,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "4da7dbdc-e0e4-5fd8-9a28-4e2281398062")
-		(property "Reference" "R130"
+		(uuid "fa56caad-ff24-5650-8794-93fcbfec9d4b")
+		(property "Reference" "R114"
 			(at 504.952 45.72 90)
 			(effects
 				(font
@@ -7601,15 +7758,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "c4e184e8-e034-5302-95d2-5fe8a8e509a1")
+			(uuid "71cf4ad7-ec15-5052-bf04-022ffa06d54b")
 		)
 		(pin "2"
-			(uuid "67526ef5-f16c-5043-a422-ead28c9960dd")
+			(uuid "bc786fb5-e479-5329-9ded-ea3c92ee3b7a")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R130")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R114")
 					(unit 1)
 				)
 			)
@@ -7624,7 +7781,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "ca6ead1d-95d8-5fcf-ba90-77f2cc54309f")
+		(uuid "ef95596d-181f-5f60-a279-14dd175c118b")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -7634,8 +7791,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "bc1660a0-3200-55e3-84fb-e4c981a97ebb")
-		(property "Reference" "#PWR203"
+		(uuid "faa2097e-462c-54f0-a69c-80fa396dc057")
+		(property "Reference" "#PWR207"
 			(at 502.92 36.83 0)
 			(effects
 				(font
@@ -7671,12 +7828,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "01e0a458-70b1-5fad-8626-79cc746bfbdc")
+			(uuid "12eca99a-f039-5e5f-974e-19ea9290dd3d")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR203")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR207")
 					(unit 1)
 				)
 			)
@@ -7691,7 +7848,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "23b0a44d-87bd-5508-a6e7-caf410c63d86")
+		(uuid "6d400a27-215d-5e36-82e6-a5e418f32f5f")
 	)
 	(label "SHD_FEAT1"
 		(at 502.92 54.61 270)
@@ -7701,7 +7858,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "ac483a43-124e-56df-b0bb-43022d015017")
+		(uuid "ad4f43a4-fe3d-5437-94a6-85ccb918307a")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -7711,8 +7868,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp yes)
-		(uuid "f763d1c8-a805-56b0-9b1a-89075bed371c")
-		(property "Reference" "R131"
+		(uuid "ab0fdc47-84cb-5650-adb9-0d7261bd6a2f")
+		(property "Reference" "R115"
 			(at 522.732 55.88 90)
 			(effects
 				(font
@@ -7783,15 +7940,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "77491be1-409d-5547-939c-37223dea5556")
+			(uuid "5a835159-7251-53a7-9e60-803c92f6bb5a")
 		)
 		(pin "2"
-			(uuid "59315c2d-a7a7-55a3-a9ce-8179012c8110")
+			(uuid "ab9cc831-4f90-5109-8b7b-2ad753eb6c5a")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R131")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R115")
 					(unit 1)
 				)
 			)
@@ -7806,7 +7963,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "4833b3d3-5a92-566b-be5c-0e2c6cdbe73d")
+		(uuid "b61eea34-e726-58e4-8e03-5c15897ce21f")
 	)
 	(label "SHD_FEAT1"
 		(at 520.7 46.99 90)
@@ -7816,7 +7973,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "aebb8dd7-e284-53e4-8953-eb39786592f4")
+		(uuid "c6dc9746-6cc2-5ef4-8a49-e879a384bf50")
 	)
 	(wire
 		(pts
@@ -7827,7 +7984,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "a45f35a0-d71b-53b9-832b-1e81054faff2")
+		(uuid "53fd31e9-832d-5f8e-84bb-8186896849c8")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -7837,8 +7994,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "dbd3b7d8-b001-583c-be09-1618d9ad6073")
-		(property "Reference" "#PWR204"
+		(uuid "d393c2ef-fbe3-5f66-bf0c-00d5f4ad828b")
+		(property "Reference" "#PWR208"
 			(at 520.7 64.77 0)
 			(effects
 				(font
@@ -7874,12 +8031,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "0d2e1f51-c98b-510b-82c2-9b36ac93b77e")
+			(uuid "bf8bb231-ddd7-559f-b6ad-7cbd31d0cb6a")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR204")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR208")
 					(unit 1)
 				)
 			)
@@ -7893,8 +8050,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "7fa08626-e84e-5751-bfda-6fb676703fd4")
-		(property "Reference" "R132"
+		(uuid "114dabac-8189-57db-b40e-ba3425e6b9f1")
+		(property "Reference" "R116"
 			(at 540.512 45.72 90)
 			(effects
 				(font
@@ -7965,15 +8122,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "5f113790-cb09-5eba-ac9e-b9dae35c9f57")
+			(uuid "1bf3577b-df7c-5f4a-b9f5-29d807b7489a")
 		)
 		(pin "2"
-			(uuid "38624754-2aaa-549f-b9c7-9275a261d970")
+			(uuid "44db94de-60b0-5ce1-999c-f7a5a2733053")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R132")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R116")
 					(unit 1)
 				)
 			)
@@ -7988,7 +8145,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "587d9165-ff1a-58c0-a4d9-c18c1573c1d4")
+		(uuid "747253c3-7474-5671-8ab0-bd7fc4e611be")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -7998,8 +8155,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "20d7e817-6e0f-5a38-8a05-0d86657d177a")
-		(property "Reference" "#PWR205"
+		(uuid "f113046b-1917-5c8f-b712-c821f9234588")
+		(property "Reference" "#PWR209"
 			(at 538.48 36.83 0)
 			(effects
 				(font
@@ -8035,12 +8192,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "9585ddc7-16eb-56b1-bbb4-3fe12e3eeea8")
+			(uuid "33a3e732-391d-5e51-88af-7c7fe1b6a3e7")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR205")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR209")
 					(unit 1)
 				)
 			)
@@ -8055,7 +8212,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "a80b8888-3507-5c74-92ec-e5de4a18d2af")
+		(uuid "c8a1b6b5-d207-5262-b236-19fa0867f673")
 	)
 	(label "SHD_FEAT2"
 		(at 538.48 54.61 270)
@@ -8065,7 +8222,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "b296b225-d3dc-54c0-b378-9d79a037e0a5")
+		(uuid "2a02f341-6e88-53d1-be56-3b89dedc669a")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -8075,8 +8232,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp yes)
-		(uuid "23719366-8688-5570-9c4a-42081aa70b60")
-		(property "Reference" "R133"
+		(uuid "3f65bc66-4e65-5459-8306-2cc5a9c9068e")
+		(property "Reference" "R117"
 			(at 558.292 55.88 90)
 			(effects
 				(font
@@ -8147,15 +8304,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "3b8aecc5-712d-5996-a954-9ba3b7782333")
+			(uuid "ee40d47e-1fe3-5550-89c1-bb10ac9ce7ee")
 		)
 		(pin "2"
-			(uuid "e7f41d41-5b5d-5145-970b-653818029b90")
+			(uuid "e4c19d59-f471-58ad-9f33-3b13a7b0001f")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R133")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R117")
 					(unit 1)
 				)
 			)
@@ -8170,7 +8327,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "4b8edba1-81c8-5a47-97f8-c551648b579b")
+		(uuid "a584fb3c-3a91-512c-aa73-4e4c9eca51e6")
 	)
 	(label "SHD_FEAT2"
 		(at 556.26 46.99 90)
@@ -8180,7 +8337,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "b7dce1ad-4ace-5d9c-a735-469d7279378b")
+		(uuid "bc0638ea-9be6-5566-a06a-32d4706629e6")
 	)
 	(wire
 		(pts
@@ -8191,7 +8348,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "be1f288d-effc-5948-99a5-4b8c883a1fbf")
+		(uuid "6702fcfd-ebcc-5ef5-9122-27eb09cb4c9d")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -8201,8 +8358,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "c0c5dd25-cc86-50f0-8943-440e7be3206a")
-		(property "Reference" "#PWR206"
+		(uuid "54e22840-83cd-5ca1-ac9d-0355f9d201ee")
+		(property "Reference" "#PWR210"
 			(at 556.26 64.77 0)
 			(effects
 				(font
@@ -8238,12 +8395,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "9977d9b7-c201-57c3-b74b-bcf6eec8dbc1")
+			(uuid "a3cbca54-708f-5e5e-a63e-076580324c5c")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR206")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR210")
 					(unit 1)
 				)
 			)
@@ -8257,8 +8414,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "3aa89dcc-5835-5267-8c4e-b6b8637a8cef")
-		(property "Reference" "R134"
+		(uuid "560b4603-9d5b-5207-8941-88f639d3e278")
+		(property "Reference" "R118"
 			(at 29.972 160.02 90)
 			(effects
 				(font
@@ -8329,15 +8486,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "d24df85f-bef1-53e3-a639-80e811523aa0")
+			(uuid "0b66c832-e5cc-5918-9711-9af0eaeeec70")
 		)
 		(pin "2"
-			(uuid "2d2460a6-9960-53a9-9033-9b8819ce18b9")
+			(uuid "d2cf8c74-0d1d-5c7c-b114-4d1db57c3fc7")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R134")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R118")
 					(unit 1)
 				)
 			)
@@ -8352,7 +8509,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "464bddef-a511-5099-882b-c0986eff6e0b")
+		(uuid "d4325095-e89f-5016-8f0d-ff67fb27f19a")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -8362,8 +8519,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "faa2097e-462c-54f0-a69c-80fa396dc057")
-		(property "Reference" "#PWR207"
+		(uuid "e3193253-506c-59d4-8995-9a0c06fd4288")
+		(property "Reference" "#PWR211"
 			(at 27.94 151.13 0)
 			(effects
 				(font
@@ -8399,12 +8556,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "12eca99a-f039-5e5f-974e-19ea9290dd3d")
+			(uuid "3f1810fb-49c1-5c24-9c24-d6e976617c9f")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR207")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR211")
 					(unit 1)
 				)
 			)
@@ -8419,7 +8576,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "cc1a519f-b0a0-5642-ac36-79aa4f2441cd")
+		(uuid "bfd0bf67-2341-5e09-9909-fd227c7f035d")
 	)
 	(label "SHD_FEAT3"
 		(at 27.94 168.91 270)
@@ -8429,7 +8586,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "8ca90938-b50d-5be7-b480-5ab8c57bef88")
+		(uuid "da7d7dce-9b32-5f56-8117-0f91afa0a67f")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -8439,8 +8596,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp yes)
-		(uuid "49f9521a-1389-5e7c-ad7a-7405b518702b")
-		(property "Reference" "R135"
+		(uuid "0e896689-3304-57e1-9292-4c33acafc7b3")
+		(property "Reference" "R119"
 			(at 47.752 170.18 90)
 			(effects
 				(font
@@ -8511,15 +8668,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "59e4ad73-d67c-5e77-a53a-9701dd7a08b3")
+			(uuid "70b7f620-d03e-567f-b2bb-cf1b6c67e5d8")
 		)
 		(pin "2"
-			(uuid "2b7cf40f-06a2-5361-bb8d-26da001976c2")
+			(uuid "2b276999-d19e-55e5-9323-688fa14c1f92")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R135")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R119")
 					(unit 1)
 				)
 			)
@@ -8534,7 +8691,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "6f5275c0-6bbc-5a38-83c8-7696635faa9c")
+		(uuid "e99344a4-51c9-5d8d-9cc9-b747aee22734")
 	)
 	(label "SHD_FEAT3"
 		(at 45.72 161.29 90)
@@ -8544,7 +8701,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "8504e110-c055-5fe8-b301-0e1dedb46750")
+		(uuid "2fccf7ea-a61e-56ed-be63-93a973f8f22b")
 	)
 	(wire
 		(pts
@@ -8555,7 +8712,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "02bdb928-21b4-52ee-ae1e-64763b8545a6")
+		(uuid "3cd287d0-16c3-5e04-a789-2f1390dbc5a0")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -8565,8 +8722,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "d393c2ef-fbe3-5f66-bf0c-00d5f4ad828b")
-		(property "Reference" "#PWR208"
+		(uuid "6369bad3-5916-5114-b232-2b1982fee3ee")
+		(property "Reference" "#PWR212"
 			(at 45.72 179.07 0)
 			(effects
 				(font
@@ -8602,12 +8759,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "bf8bb231-ddd7-559f-b6ad-7cbd31d0cb6a")
+			(uuid "73a57513-795e-5d71-b33f-c2bb891922f2")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR208")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR212")
 					(unit 1)
 				)
 			)
@@ -8621,8 +8778,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "dd47b7e9-806d-589a-a0ce-3f85aad70012")
-		(property "Reference" "R136"
+		(uuid "8f39483b-b239-530a-aa24-b17a3e33ea0c")
+		(property "Reference" "R120"
 			(at 65.532 160.02 90)
 			(effects
 				(font
@@ -8693,15 +8850,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "5f61ba4c-d06b-5d4e-bc19-d933e440ce80")
+			(uuid "6fb42d5d-0a14-560c-9529-f3930581bd10")
 		)
 		(pin "2"
-			(uuid "ace10d23-0eb5-529e-8661-dccf55dcb251")
+			(uuid "cba4fa7f-d2ae-5264-986e-6d6f2da00e92")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R136")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R120")
 					(unit 1)
 				)
 			)
@@ -8716,7 +8873,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "055ab00a-4811-5a5c-b3ab-f69be403e353")
+		(uuid "d1bede17-2a42-5f86-8ec9-e13e059950af")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -8726,8 +8883,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "f113046b-1917-5c8f-b712-c821f9234588")
-		(property "Reference" "#PWR209"
+		(uuid "52ef3fdb-9c25-54cd-825e-950259dfdbee")
+		(property "Reference" "#PWR213"
 			(at 63.5 151.13 0)
 			(effects
 				(font
@@ -8763,12 +8920,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "33a3e732-391d-5e51-88af-7c7fe1b6a3e7")
+			(uuid "f7205692-7573-5075-ab9b-2956a8d50371")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR209")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR213")
 					(unit 1)
 				)
 			)
@@ -8783,7 +8940,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "e8f15b6d-cf48-50b7-8d89-3cfbdddbe3e4")
+		(uuid "41b5fd00-fc86-5735-80fd-1d4e1df0bc53")
 	)
 	(label "SHD_FEAT4"
 		(at 63.5 168.91 270)
@@ -8793,7 +8950,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "48b7aca5-62a0-5ffe-96e7-fabcfe60e5e1")
+		(uuid "29b14169-f651-52d9-8c75-1a153dad5a3f")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -8803,8 +8960,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp yes)
-		(uuid "1c3590f5-fb91-56ac-addd-59730f331460")
-		(property "Reference" "R137"
+		(uuid "21b5e6f5-106e-5dc2-b377-36c28bb5d492")
+		(property "Reference" "R121"
 			(at 83.312 170.18 90)
 			(effects
 				(font
@@ -8875,15 +9032,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "8d7af4ee-bacb-5bf7-be51-d25bbdb8b490")
+			(uuid "cedab40f-a9a3-50ef-84a1-1593ab278fb6")
 		)
 		(pin "2"
-			(uuid "b701b1ab-3e4e-5433-bff0-30c1c5810d87")
+			(uuid "8ea1f0e3-1610-567f-a184-87d2044936f7")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R137")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R121")
 					(unit 1)
 				)
 			)
@@ -8898,7 +9055,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "2c04d1db-f76e-50fd-a075-160dd44ee456")
+		(uuid "c397f92f-2c98-5b49-8161-dafe2793d5ac")
 	)
 	(label "SHD_FEAT4"
 		(at 81.28 161.29 90)
@@ -8908,7 +9065,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "e99a73ef-d942-5f64-9973-90bd135a322b")
+		(uuid "9f692a80-ad24-565d-9acf-be04d9522aa7")
 	)
 	(wire
 		(pts
@@ -8919,7 +9076,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "996eab33-1304-5596-9997-f229408ac093")
+		(uuid "b2c3ec6c-992f-5f41-a1b2-f4df87ef7695")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -8929,8 +9086,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "54e22840-83cd-5ca1-ac9d-0355f9d201ee")
-		(property "Reference" "#PWR210"
+		(uuid "8e323a43-82df-5a15-ba06-2eca7d3d17fe")
+		(property "Reference" "#PWR214"
 			(at 81.28 179.07 0)
 			(effects
 				(font
@@ -8966,12 +9123,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "a3cbca54-708f-5e5e-a63e-076580324c5c")
+			(uuid "a8b77a4e-0e38-5093-ba83-79883beae227")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR210")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR214")
 					(unit 1)
 				)
 			)
@@ -8985,8 +9142,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "fb1214c0-49c9-58ca-b587-cb71ae8a25c2")
-		(property "Reference" "R138"
+		(uuid "d4c3c719-0784-546e-a7f3-247157696783")
+		(property "Reference" "R122"
 			(at 101.092 160.02 90)
 			(effects
 				(font
@@ -9057,15 +9214,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "2f4a13f4-8f2c-567a-9c52-37da29ae455c")
+			(uuid "e40ae17b-8346-5984-90ed-d9ebe89ad6f0")
 		)
 		(pin "2"
-			(uuid "f6f6d506-eb07-53c9-ba68-fd1e9d936c13")
+			(uuid "bc3d02f9-a7c8-5606-9b88-f44ab6e8ce9b")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R138")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R122")
 					(unit 1)
 				)
 			)
@@ -9080,7 +9237,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "2b4c6cd6-fb10-5c03-9d42-052ff822a4df")
+		(uuid "9e8276c1-63aa-516f-b5e5-eeeaa6eb9adb")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -9090,8 +9247,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "e3193253-506c-59d4-8995-9a0c06fd4288")
-		(property "Reference" "#PWR211"
+		(uuid "6eb7de20-2612-5f7f-a03a-fa9aaaaf2d58")
+		(property "Reference" "#PWR215"
 			(at 99.06 151.13 0)
 			(effects
 				(font
@@ -9127,12 +9284,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "3f1810fb-49c1-5c24-9c24-d6e976617c9f")
+			(uuid "a2f1354d-ff09-5192-8dd8-27b996b2f7d0")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR211")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR215")
 					(unit 1)
 				)
 			)
@@ -9147,7 +9304,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "1d20ba16-01c0-549b-8398-ea22462cc404")
+		(uuid "f9119ca3-1f76-534a-8898-58cf4b5555bf")
 	)
 	(label "SHD_FEAT5"
 		(at 99.06 168.91 270)
@@ -9157,7 +9314,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "a7ef6627-7ffc-5ac1-803c-ae43e473e28e")
+		(uuid "5f9252d1-4d23-5d57-b58e-eb2b0613ec0e")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -9167,8 +9324,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp yes)
-		(uuid "b0061363-ce89-5624-868e-41d6faddb743")
-		(property "Reference" "R139"
+		(uuid "32aa796e-c7c2-5eb5-9a7d-6ed10f3be83e")
+		(property "Reference" "R123"
 			(at 118.872 170.18 90)
 			(effects
 				(font
@@ -9239,15 +9396,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "31e2c177-4dd4-5fef-89ce-ad77392acb3c")
+			(uuid "8fbdb401-ece8-5118-b476-780890033885")
 		)
 		(pin "2"
-			(uuid "09fdf3b5-5341-5c62-b0ed-9acfb707f489")
+			(uuid "5d826c64-933d-5770-8eca-8e46fae096ee")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R139")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R123")
 					(unit 1)
 				)
 			)
@@ -9262,7 +9419,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "3489549b-a679-5263-9108-8e0acc2235ba")
+		(uuid "14d06346-eeda-5aa5-b12a-e64e1b985442")
 	)
 	(label "SHD_FEAT5"
 		(at 116.84 161.29 90)
@@ -9272,7 +9429,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "cab9756a-b5f4-59f0-b316-f2391a102071")
+		(uuid "b6946cc8-b7c7-50ff-9f58-0fe90cef802a")
 	)
 	(wire
 		(pts
@@ -9283,7 +9440,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "e432fb17-1ccb-520d-92d6-7ee0c0ece53b")
+		(uuid "2d0fe3e1-45d1-5831-ae7f-6a47b17c77d2")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -9293,8 +9450,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "6369bad3-5916-5114-b232-2b1982fee3ee")
-		(property "Reference" "#PWR212"
+		(uuid "f8d41a51-eaee-5a8e-a946-66f6cd6f6cf3")
+		(property "Reference" "#PWR216"
 			(at 116.84 179.07 0)
 			(effects
 				(font
@@ -9330,12 +9487,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "73a57513-795e-5d71-b33f-c2bb891922f2")
+			(uuid "6fe5bfc3-3370-5dc8-b925-375ad361e122")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR212")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR216")
 					(unit 1)
 				)
 			)
@@ -9349,8 +9506,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "0526be26-fd27-5667-8075-2586c277620c")
-		(property "Reference" "R140"
+		(uuid "914c2575-e25a-50a1-8996-29037632b10b")
+		(property "Reference" "R124"
 			(at 139.192 160.02 90)
 			(effects
 				(font
@@ -9421,15 +9578,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "426e14e2-dcae-5850-96b8-c182f67a738a")
+			(uuid "48b3389b-4323-5e6a-9fdb-89d308cf2529")
 		)
 		(pin "2"
-			(uuid "81f3b76d-2243-5db6-a5e7-cb4bff4a666f")
+			(uuid "bc2d52d5-5cd5-5da8-9b85-a2c4c315be2b")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R140")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R124")
 					(unit 1)
 				)
 			)
@@ -9444,7 +9601,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "5633c3fe-9df2-52ea-8549-110be18e6a07")
+		(uuid "98b9e8b3-f617-54b0-b0fd-31c40ca4f9c7")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -9454,8 +9611,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "52ef3fdb-9c25-54cd-825e-950259dfdbee")
-		(property "Reference" "#PWR213"
+		(uuid "69eed5fa-47c9-5afe-a688-71b2650862d5")
+		(property "Reference" "#PWR217"
 			(at 137.16 151.13 0)
 			(effects
 				(font
@@ -9491,12 +9648,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "f7205692-7573-5075-ab9b-2956a8d50371")
+			(uuid "62e5a430-0835-5cfe-895f-73139b2d0907")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR213")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR217")
 					(unit 1)
 				)
 			)
@@ -9511,7 +9668,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "00b3da56-e7d4-58d4-9a17-347049ce1fb1")
+		(uuid "3cba7393-3682-5510-8816-9eb527d5ac2d")
 	)
 	(label "SHD_FEAT6"
 		(at 137.16 168.91 270)
@@ -9521,7 +9678,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "6ad780a0-c2b0-50d3-9145-661a965c7f40")
+		(uuid "a1476aa7-b18b-5424-88e4-c0d1ade17cf5")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -9531,8 +9688,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp yes)
-		(uuid "6f4f7777-7a31-50dd-917b-95550ec14d47")
-		(property "Reference" "R141"
+		(uuid "ff8261d2-304c-50d8-b587-8829df604f8d")
+		(property "Reference" "R125"
 			(at 156.972 170.18 90)
 			(effects
 				(font
@@ -9603,15 +9760,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "1d0b82ee-0da4-5a11-8445-e21bf99937f3")
+			(uuid "b112494c-3a79-566f-8748-5f3afce0c74e")
 		)
 		(pin "2"
-			(uuid "f440ad86-2730-5bef-9dda-f264b1341f66")
+			(uuid "fdfc955e-0323-5631-a9cb-b403a48dde94")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R141")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R125")
 					(unit 1)
 				)
 			)
@@ -9626,7 +9783,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "edf4a143-7469-59d8-a6d5-62a62567f1a2")
+		(uuid "8fe242cc-95b8-591f-a3ca-1a5a8bf74477")
 	)
 	(label "SHD_FEAT6"
 		(at 154.94 161.29 90)
@@ -9636,7 +9793,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "90543258-79b2-5ebd-8165-1d1fa334c0d8")
+		(uuid "7ef52204-cbfb-508c-9e28-c661449068ad")
 	)
 	(wire
 		(pts
@@ -9647,7 +9804,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "c4b804e0-f90a-55c3-8643-f72341af1f0a")
+		(uuid "177eda12-e8b1-51c1-b9be-9c476d3b4646")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -9657,8 +9814,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "8e323a43-82df-5a15-ba06-2eca7d3d17fe")
-		(property "Reference" "#PWR214"
+		(uuid "0bebbbd6-e1e5-5874-9930-8c165e04093d")
+		(property "Reference" "#PWR218"
 			(at 154.94 179.07 0)
 			(effects
 				(font
@@ -9694,12 +9851,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "a8b77a4e-0e38-5093-ba83-79883beae227")
+			(uuid "ab8a727c-dab0-5110-9345-2837dfa245cf")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR214")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR218")
 					(unit 1)
 				)
 			)
@@ -9713,8 +9870,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp yes)
-		(uuid "3426e07a-de11-5934-b1a8-875289e99dcf")
-		(property "Reference" "R142"
+		(uuid "cc562e11-5f32-5722-92f1-2270ef7c4695")
+		(property "Reference" "R126"
 			(at 174.752 160.02 90)
 			(effects
 				(font
@@ -9785,15 +9942,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "ac75058f-68d7-5f0d-b639-d93338620666")
+			(uuid "e3547e52-af9e-5c9b-be83-5cfa2c6f0a97")
 		)
 		(pin "2"
-			(uuid "d8d556c6-f1ec-51c2-9910-c6c051609afc")
+			(uuid "903e6a1d-976e-5406-9c91-34a871b0367d")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R142")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R126")
 					(unit 1)
 				)
 			)
@@ -9808,7 +9965,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "27bb088b-26f5-5c41-8367-6149aaf8afd8")
+		(uuid "3f2e31c5-7840-561c-87b9-d99ef6a94675")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -9818,8 +9975,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "6eb7de20-2612-5f7f-a03a-fa9aaaaf2d58")
-		(property "Reference" "#PWR215"
+		(uuid "79195748-549c-5d63-b477-6b9ddcc820f9")
+		(property "Reference" "#PWR219"
 			(at 172.72 151.13 0)
 			(effects
 				(font
@@ -9855,12 +10012,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "a2f1354d-ff09-5192-8dd8-27b996b2f7d0")
+			(uuid "954b9be2-f939-5d30-827d-7c84316165f9")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR215")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR219")
 					(unit 1)
 				)
 			)
@@ -9875,7 +10032,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "da3406d4-6947-53e9-8f34-aeafd0c3f1dd")
+		(uuid "fc7b3a5e-8cb3-5fab-86e4-bded5e42bead")
 	)
 	(label "SHD_FEAT7"
 		(at 172.72 168.91 270)
@@ -9885,7 +10042,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "1227e9e0-8a5c-5c98-bd38-ea9d89afa09a")
+		(uuid "d6439219-aa94-5cc8-ac28-742a16532941")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -9895,8 +10052,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "31e4950f-8215-5592-8d49-4fb3490a533e")
-		(property "Reference" "R143"
+		(uuid "a810a62a-b23a-5585-a5eb-e147582cefcf")
+		(property "Reference" "R127"
 			(at 192.532 170.18 90)
 			(effects
 				(font
@@ -9967,15 +10124,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "e23b42d9-42e1-5ef2-8669-22381d09ad74")
+			(uuid "d6112371-00e7-519c-976d-e002a17149ac")
 		)
 		(pin "2"
-			(uuid "12db7bfe-0baa-5064-9d5d-2fa6f1f52aa1")
+			(uuid "8681cfbf-c30f-5a5e-ad24-405c82436d17")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R143")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R127")
 					(unit 1)
 				)
 			)
@@ -9990,7 +10147,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "3834db53-e50f-53df-b4a3-5dfc86de488e")
+		(uuid "14773398-5f35-59cb-9134-bc0deb2966ab")
 	)
 	(label "SHD_FEAT7"
 		(at 190.5 161.29 90)
@@ -10000,7 +10157,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "efa984a1-b6a2-5608-857d-f26012d7d409")
+		(uuid "fa5c9555-f7e9-5852-8e65-73055c4bcfe7")
 	)
 	(wire
 		(pts
@@ -10011,7 +10168,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "4f0fad17-1034-5412-a383-77d8154bebf9")
+		(uuid "9b27c73f-783c-56f6-986b-edaf06649282")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -10021,8 +10178,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "f8d41a51-eaee-5a8e-a946-66f6cd6f6cf3")
-		(property "Reference" "#PWR216"
+		(uuid "67f8518d-befe-5db2-826c-6628670817d2")
+		(property "Reference" "#PWR220"
 			(at 190.5 179.07 0)
 			(effects
 				(font
@@ -10058,12 +10215,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "6fe5bfc3-3370-5dc8-b925-375ad361e122")
+			(uuid "ddb73836-dd36-5d4b-9089-07c63482b684")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR216")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR220")
 					(unit 1)
 				)
 			)
@@ -10077,8 +10234,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "a10791e5-5bed-54a9-b0df-ec4dbe9a3d23")
-		(property "Reference" "R144"
+		(uuid "38493183-fb7b-5c87-9504-15184871246b")
+		(property "Reference" "R128"
 			(at 210.312 167.64 90)
 			(effects
 				(font
@@ -10149,15 +10306,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "34b77ed4-5365-59df-96b5-348facd031ac")
+			(uuid "95e629dc-8a21-5c0d-a6db-cf0ca77dff8e")
 		)
 		(pin "2"
-			(uuid "8b468665-fa7f-516c-9855-556ea5267c7c")
+			(uuid "69474f0c-904b-55d2-a2f7-3d24f08a6eb5")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R144")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R128")
 					(unit 1)
 				)
 			)
@@ -10172,7 +10329,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "46ca4864-d07c-5629-90eb-668d08f54264")
+		(uuid "f5125989-0726-5db7-acf6-a1933ddbb493")
 	)
 	(label "PWR_CTL0"
 		(at 208.28 158.75 90)
@@ -10182,7 +10339,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "42b9d882-994f-5950-8b38-45da153a0b41")
+		(uuid "cb4460c6-ce5a-59c7-a37d-de1500e3f759")
 	)
 	(wire
 		(pts
@@ -10193,7 +10350,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "25458f01-5457-52dd-a3f1-b0cf97b31b39")
+		(uuid "ab2d0e12-7395-5a54-b3d5-4e333dc2a4f7")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -10203,8 +10360,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "69eed5fa-47c9-5afe-a688-71b2650862d5")
-		(property "Reference" "#PWR217"
+		(uuid "907bc9bb-27b3-54bd-bccd-2fed5a3b44c4")
+		(property "Reference" "#PWR221"
 			(at 208.28 176.53 0)
 			(effects
 				(font
@@ -10240,12 +10397,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "62e5a430-0835-5cfe-895f-73139b2d0907")
+			(uuid "bd3aa329-477c-5f5e-b634-99007d7455db")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR217")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR221")
 					(unit 1)
 				)
 			)
@@ -10259,8 +10416,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "e4f162bc-ee17-586d-86da-04a563a5b24f")
-		(property "Reference" "R145"
+		(uuid "f2960db6-86b5-5a44-b317-7854d48f2b6c")
+		(property "Reference" "R129"
 			(at 228.092 167.64 90)
 			(effects
 				(font
@@ -10331,15 +10488,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "005209b5-492c-591a-b9b7-dc83ac7b23a5")
+			(uuid "36f52e5a-535c-557c-9ddd-c900460f6910")
 		)
 		(pin "2"
-			(uuid "ad1610f5-f7ea-509e-b23a-d93cd6ef3a75")
+			(uuid "3672f7f4-1da7-59f1-8711-c49c9c662dcf")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R145")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R129")
 					(unit 1)
 				)
 			)
@@ -10354,7 +10511,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "eb3ee53b-2f4d-5043-a2e0-8ae34c08a0f0")
+		(uuid "09ba6ca1-4aaa-5c93-81be-4ee60308d7b5")
 	)
 	(label "PWR_CTL1"
 		(at 226.06 158.75 90)
@@ -10364,7 +10521,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "3218d767-72c1-587d-b8ba-b549663f5e1e")
+		(uuid "2d5f73bb-eff5-5232-aa5a-8849085d23f7")
 	)
 	(wire
 		(pts
@@ -10375,7 +10532,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "d1d6a458-9e32-5402-b997-99ed25c6fca2")
+		(uuid "a4e02980-f4e2-5efe-b345-8103374a574d")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -10385,8 +10542,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "0bebbbd6-e1e5-5874-9930-8c165e04093d")
-		(property "Reference" "#PWR218"
+		(uuid "19e3e0e9-489f-5d02-a32b-114e5c6d1f54")
+		(property "Reference" "#PWR222"
 			(at 226.06 176.53 0)
 			(effects
 				(font
@@ -10422,12 +10579,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "ab8a727c-dab0-5110-9345-2837dfa245cf")
+			(uuid "010ff4e9-7f0e-5545-b260-88ced1f5cd4d")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR218")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR222")
 					(unit 1)
 				)
 			)
@@ -10441,8 +10598,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "3b9f9f82-eaed-536a-b68c-3ff9e3a2d833")
-		(property "Reference" "R146"
+		(uuid "4da7dbdc-e0e4-5fd8-9a28-4e2281398062")
+		(property "Reference" "R130"
 			(at 245.872 167.64 90)
 			(effects
 				(font
@@ -10513,15 +10670,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "35de7518-8ed1-5d1e-8263-ec419ceaf1e3")
+			(uuid "c4e184e8-e034-5302-95d2-5fe8a8e509a1")
 		)
 		(pin "2"
-			(uuid "26047e97-80fc-5e83-af1e-a92534700958")
+			(uuid "67526ef5-f16c-5043-a422-ead28c9960dd")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R146")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R130")
 					(unit 1)
 				)
 			)
@@ -10536,7 +10693,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "88978e4e-dae4-5be0-8c56-5d48e5becd4f")
+		(uuid "ca6ead1d-95d8-5fcf-ba90-77f2cc54309f")
 	)
 	(label "PWR_CTL2"
 		(at 243.84 158.75 90)
@@ -10546,7 +10703,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "3f9bf62a-4cc2-58f1-8184-6b0fa95ad058")
+		(uuid "6fec9e7f-a2a6-5f2e-bec0-cd132221c6c0")
 	)
 	(wire
 		(pts
@@ -10557,7 +10714,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "5e692f93-3e30-529c-8bfd-abde41be5881")
+		(uuid "23b0a44d-87bd-5508-a6e7-caf410c63d86")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -10567,8 +10724,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "79195748-549c-5d63-b477-6b9ddcc820f9")
-		(property "Reference" "#PWR219"
+		(uuid "5d374dbc-16ff-578b-953e-bbb0645857d9")
+		(property "Reference" "#PWR223"
 			(at 243.84 176.53 0)
 			(effects
 				(font
@@ -10604,12 +10761,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "954b9be2-f939-5d30-827d-7c84316165f9")
+			(uuid "4c86284b-18a5-5cda-8175-691bfadd9d6b")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR219")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR223")
 					(unit 1)
 				)
 			)
@@ -10623,8 +10780,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "48f2767a-fa92-504b-8ddf-4a0f9069d071")
-		(property "Reference" "R147"
+		(uuid "f763d1c8-a805-56b0-9b1a-89075bed371c")
+		(property "Reference" "R131"
 			(at 263.652 167.64 90)
 			(effects
 				(font
@@ -10695,15 +10852,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "33e9bdf9-d8e0-5ce0-8441-20f575eaf0d5")
+			(uuid "77491be1-409d-5547-939c-37223dea5556")
 		)
 		(pin "2"
-			(uuid "48342bde-d46c-5015-bc56-b15a568e9b5c")
+			(uuid "59315c2d-a7a7-55a3-a9ce-8179012c8110")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R147")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R131")
 					(unit 1)
 				)
 			)
@@ -10718,7 +10875,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "49416c62-6020-5410-86fe-4bb979f9f294")
+		(uuid "4833b3d3-5a92-566b-be5c-0e2c6cdbe73d")
 	)
 	(label "PWR_CTL3"
 		(at 261.62 158.75 90)
@@ -10728,7 +10885,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "9bfabc11-121d-5822-92e5-1ccf159ef90b")
+		(uuid "aebb8dd7-e284-53e4-8953-eb39786592f4")
 	)
 	(wire
 		(pts
@@ -10739,7 +10896,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "585d961e-a566-5271-86e2-a200b1c50e39")
+		(uuid "a45f35a0-d71b-53b9-832b-1e81054faff2")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -10749,8 +10906,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "67f8518d-befe-5db2-826c-6628670817d2")
-		(property "Reference" "#PWR220"
+		(uuid "0f8a169a-c33c-5977-a6bd-5a6a1199fd5e")
+		(property "Reference" "#PWR224"
 			(at 261.62 176.53 0)
 			(effects
 				(font
@@ -10786,12 +10943,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "ddb73836-dd36-5d4b-9089-07c63482b684")
+			(uuid "c0a429f1-7f50-582f-b991-6b8d8bd38d7b")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR220")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR224")
 					(unit 1)
 				)
 			)
@@ -10805,8 +10962,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "55e04e0d-a3ba-5e10-b5e2-f8afe091ddd7")
-		(property "Reference" "R148"
+		(uuid "7fa08626-e84e-5751-bfda-6fb676703fd4")
+		(property "Reference" "R132"
 			(at 281.432 167.64 90)
 			(effects
 				(font
@@ -10877,15 +11034,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "14d3057b-a44e-527c-bf59-2ac0b0bbcdea")
+			(uuid "5f113790-cb09-5eba-ac9e-b9dae35c9f57")
 		)
 		(pin "2"
-			(uuid "901cc1ac-6eb3-5663-aa88-b32a31f2b070")
+			(uuid "38624754-2aaa-549f-b9c7-9275a261d970")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R148")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R132")
 					(unit 1)
 				)
 			)
@@ -10900,7 +11057,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "beb38c06-f8fd-5985-8155-cb6b349794f2")
+		(uuid "587d9165-ff1a-58c0-a4d9-c18c1573c1d4")
 	)
 	(label "PWR_CTL4"
 		(at 279.4 158.75 90)
@@ -10910,7 +11067,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "6c217650-0882-5e0a-8b23-62d78fb8cac9")
+		(uuid "e5a28e15-c80d-5411-89f3-a0604384d512")
 	)
 	(wire
 		(pts
@@ -10921,7 +11078,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "7fc590f7-124d-5c6e-91fd-7ff48392531b")
+		(uuid "a80b8888-3507-5c74-92ec-e5de4a18d2af")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -10931,8 +11088,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "907bc9bb-27b3-54bd-bccd-2fed5a3b44c4")
-		(property "Reference" "#PWR221"
+		(uuid "006ed000-a998-5fa5-9bae-0b0b14980dc0")
+		(property "Reference" "#PWR225"
 			(at 279.4 176.53 0)
 			(effects
 				(font
@@ -10968,12 +11125,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "bd3aa329-477c-5f5e-b634-99007d7455db")
+			(uuid "fc0a6956-521b-520f-903c-bbebd9b66c92")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR221")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR225")
 					(unit 1)
 				)
 			)
@@ -10987,8 +11144,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "0ebca446-2cfe-5a17-a567-2c23a3345525")
-		(property "Reference" "R149"
+		(uuid "23719366-8688-5570-9c4a-42081aa70b60")
+		(property "Reference" "R133"
 			(at 299.212 167.64 90)
 			(effects
 				(font
@@ -11059,15 +11216,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "e88b085c-99c4-5748-9396-7988003c29f7")
+			(uuid "3b8aecc5-712d-5996-a954-9ba3b7782333")
 		)
 		(pin "2"
-			(uuid "e9fda277-4101-5e20-8233-d05dee08b624")
+			(uuid "e7f41d41-5b5d-5145-970b-653818029b90")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R149")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R133")
 					(unit 1)
 				)
 			)
@@ -11082,7 +11239,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "82000cc7-df01-5aca-8fb1-d35e94f250b6")
+		(uuid "4b8edba1-81c8-5a47-97f8-c551648b579b")
 	)
 	(label "PWR_CTL5"
 		(at 297.18 158.75 90)
@@ -11092,7 +11249,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "1e67736c-473e-5bbd-bdda-0c424f06c819")
+		(uuid "b7dce1ad-4ace-5d9c-a735-469d7279378b")
 	)
 	(wire
 		(pts
@@ -11103,7 +11260,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "3de3f592-86f9-56f1-800c-6c0ba629536d")
+		(uuid "be1f288d-effc-5948-99a5-4b8c883a1fbf")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -11113,8 +11270,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "19e3e0e9-489f-5d02-a32b-114e5c6d1f54")
-		(property "Reference" "#PWR222"
+		(uuid "172ba872-cd92-5242-8ed8-d60341c8ff24")
+		(property "Reference" "#PWR226"
 			(at 297.18 176.53 0)
 			(effects
 				(font
@@ -11150,12 +11307,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "010ff4e9-7f0e-5545-b260-88ced1f5cd4d")
+			(uuid "238352ec-db61-5e57-9649-5b9a86b5fffc")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR222")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR226")
 					(unit 1)
 				)
 			)
@@ -11169,8 +11326,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "e52a9e6b-015c-5d68-8ca7-0a99f36c2490")
-		(property "Reference" "R150"
+		(uuid "3aa89dcc-5835-5267-8c4e-b6b8637a8cef")
+		(property "Reference" "R134"
 			(at 316.992 167.64 90)
 			(effects
 				(font
@@ -11241,15 +11398,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "abb3b77c-6d6f-5d29-94b8-489738b5759b")
+			(uuid "d24df85f-bef1-53e3-a639-80e811523aa0")
 		)
 		(pin "2"
-			(uuid "024196eb-caf0-50a2-9ec3-4ef54f8574c7")
+			(uuid "2d2460a6-9960-53a9-9033-9b8819ce18b9")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R150")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R134")
 					(unit 1)
 				)
 			)
@@ -11264,7 +11421,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "502ca57c-04b6-5977-a22b-6a8d7a78cfb9")
+		(uuid "464bddef-a511-5099-882b-c0986eff6e0b")
 	)
 	(label "PWR_CTL6"
 		(at 314.96 158.75 90)
@@ -11274,7 +11431,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "5d5aa519-dac4-534a-a352-f174ef55d8c4")
+		(uuid "2d22132e-879a-5d07-aabf-599cd89de5fc")
 	)
 	(wire
 		(pts
@@ -11285,7 +11442,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "8683e32a-923b-573a-a554-962fccf39ae7")
+		(uuid "cc1a519f-b0a0-5642-ac36-79aa4f2441cd")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -11295,8 +11452,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "5d374dbc-16ff-578b-953e-bbb0645857d9")
-		(property "Reference" "#PWR223"
+		(uuid "6f18efcc-23de-5003-8574-0c7588a055e8")
+		(property "Reference" "#PWR227"
 			(at 314.96 176.53 0)
 			(effects
 				(font
@@ -11332,12 +11489,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "4c86284b-18a5-5cda-8175-691bfadd9d6b")
+			(uuid "d4164515-e5a1-5ca9-a380-886acf006421")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR223")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR227")
 					(unit 1)
 				)
 			)
@@ -11351,8 +11508,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "f5734a7a-72d6-582d-b56f-262dda8fe878")
-		(property "Reference" "R151"
+		(uuid "49f9521a-1389-5e7c-ad7a-7405b518702b")
+		(property "Reference" "R135"
 			(at 334.772 167.64 90)
 			(effects
 				(font
@@ -11423,15 +11580,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "3fe9cb4d-8f34-5e6e-8f20-c1274919dd89")
+			(uuid "59e4ad73-d67c-5e77-a53a-9701dd7a08b3")
 		)
 		(pin "2"
-			(uuid "627c4e3b-a70f-5a99-8af8-f85fe0aeca10")
+			(uuid "2b7cf40f-06a2-5361-bb8d-26da001976c2")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R151")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R135")
 					(unit 1)
 				)
 			)
@@ -11446,7 +11603,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "2c1a09f1-496f-5981-b59c-b1f19d5f6d2a")
+		(uuid "6f5275c0-6bbc-5a38-83c8-7696635faa9c")
 	)
 	(label "PWR_CTL7"
 		(at 332.74 158.75 90)
@@ -11456,7 +11613,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "db7be51d-85b5-5cf8-8c35-c9c1949c15be")
+		(uuid "8504e110-c055-5fe8-b301-0e1dedb46750")
 	)
 	(wire
 		(pts
@@ -11467,7 +11624,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "1b54e5e3-1a31-57fc-ab0e-3a70a55adbde")
+		(uuid "02bdb928-21b4-52ee-ae1e-64763b8545a6")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -11477,8 +11634,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "0f8a169a-c33c-5977-a6bd-5a6a1199fd5e")
-		(property "Reference" "#PWR224"
+		(uuid "9609883e-1d8c-52dc-8a65-e3f1be5cbd10")
+		(property "Reference" "#PWR228"
 			(at 332.74 176.53 0)
 			(effects
 				(font
@@ -11514,12 +11671,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "c0a429f1-7f50-582f-b991-6b8d8bd38d7b")
+			(uuid "978c8d18-2cba-5f4a-80f0-f6f7a6d6de36")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR224")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR228")
 					(unit 1)
 				)
 			)
@@ -11527,15 +11684,15 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x11")
-		(at 375.92 160.02 0)
+		(at 373.38 160.02 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "04f0cb70-002e-5b15-bb7b-817cdea4732e")
-		(property "Reference" "J13"
-			(at 375.92 144.78 0)
+		(uuid "b081cfd8-dd04-502b-9db6-ec42f186b9dc")
+		(property "Reference" "J11"
+			(at 373.38 144.78 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11543,7 +11700,7 @@
 			)
 		)
 		(property "Value" "POWER CTRL (pin 2 = key)"
-			(at 375.92 175.26 0)
+			(at 373.38 175.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11551,7 +11708,7 @@
 			)
 		)
 		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x11_P2.54mm_Vertical"
-			(at 375.92 160.02 0)
+			(at 373.38 160.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11560,7 +11717,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 375.92 160.02 0)
+			(at 373.38 160.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11569,7 +11726,7 @@
 			)
 		)
 		(property "Description" "1x11 pin header, pin 2 pulled for keying"
-			(at 375.92 160.02 0)
+			(at 373.38 160.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11578,7 +11735,7 @@
 			)
 		)
 		(property "ki_keywords" "connector"
-			(at 375.92 160.02 0)
+			(at 373.38 160.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11587,7 +11744,7 @@
 			)
 		)
 		(property "ki_fp_filters" "Connector*:*_1x??_*"
-			(at 375.92 160.02 0)
+			(at 373.38 160.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11596,42 +11753,42 @@
 			)
 		)
 		(pin "1"
-			(uuid "5c2bc6c8-d20a-5d69-862f-d1c7ebb1fa48")
+			(uuid "20e89081-96a6-5ca3-8565-f11428deecbc")
 		)
 		(pin "2"
-			(uuid "a8afd2cf-4d38-5b2c-ace3-28b02e7753e5")
+			(uuid "3d64737e-9d9a-5347-b6c2-0b7ffeb18db4")
 		)
 		(pin "3"
-			(uuid "b1253b05-9905-51ca-9d47-9c7518664f6d")
+			(uuid "b1c62e42-b162-5cbe-b17e-6c7b5284d0e6")
 		)
 		(pin "4"
-			(uuid "84ea51fe-b304-52c9-aad8-243f66a388bb")
+			(uuid "e0f07a45-2e4b-52b0-9855-210f2fadbb16")
 		)
 		(pin "5"
-			(uuid "7effe756-3246-5a1d-a1f5-76d90d4294c9")
+			(uuid "ed0949a2-84e2-5a4f-b8de-3a318b193ef1")
 		)
 		(pin "6"
-			(uuid "98277e1b-be8e-54c6-b123-f75d91142ec3")
+			(uuid "3b452641-a095-5b61-8233-354c37b710bc")
 		)
 		(pin "7"
-			(uuid "237e287d-84d9-5e90-8c1d-421258f3d08c")
+			(uuid "cd0ad915-d823-5d5c-bb5a-d9449ee9771f")
 		)
 		(pin "8"
-			(uuid "97b8fd55-7291-5b6a-8325-bce6d5a6e2cc")
+			(uuid "60be4819-e27a-5d82-bc99-04b78a3d8430")
 		)
 		(pin "9"
-			(uuid "5f0b79c1-36ea-5765-9ec2-55ed01ff1df2")
+			(uuid "d7d05710-4b6d-5e5f-839d-10ba979e85c7")
 		)
 		(pin "10"
-			(uuid "f985b6d6-f23a-524c-bdcc-b783fae70268")
+			(uuid "461e4441-7427-5264-9f1d-9b2c183bab21")
 		)
 		(pin "11"
-			(uuid "71d0bac6-bd37-5780-84a2-65a596082e92")
+			(uuid "560af644-23b2-57ff-9cc3-487daf45014e")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "J13")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "J11")
 					(unit 1)
 				)
 			)
@@ -11639,26 +11796,26 @@
 	)
 	(wire
 		(pts
-			(xy 370.84 147.32)
-			(xy 365.76 147.32)
+			(xy 368.3 147.32)
+			(xy 363.22 147.32)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "e8ef51c0-5ee9-581d-829e-2026b5dd4394")
+		(uuid "d231c72d-3f3a-5d3f-baa8-ebd17ec0d7a8")
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 365.76 147.32 270)
+		(at 363.22 147.32 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "006ed000-a998-5fa5-9bae-0b0b14980dc0")
-		(property "Reference" "#PWR225"
-			(at 365.76 147.32 0)
+		(uuid "7505417d-47bb-584a-8af2-c3caebd0d0ab")
+		(property "Reference" "#PWR229"
+			(at 363.22 147.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11667,7 +11824,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 365.76 150.32 0)
+			(at 363.22 150.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11675,7 +11832,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 365.76 147.32 0)
+			(at 363.22 147.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11684,7 +11841,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 365.76 147.32 0)
+			(at 363.22 147.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11693,229 +11850,229 @@
 			)
 		)
 		(pin "1"
-			(uuid "fc0a6956-521b-520f-903c-bbebd9b66c92")
+			(uuid "53cb4f31-6999-5b11-8157-1ecef024b437")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR225")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR229")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(no_connect
-		(at 370.84 149.86)
-		(uuid "3e913d4b-d968-53f7-86ae-e05d8b10114e")
+		(at 368.3 149.86)
+		(uuid "1a97fea9-ece3-5eb7-92e6-7e700036714d")
 	)
 	(wire
 		(pts
-			(xy 370.84 152.4)
-			(xy 365.76 152.4)
+			(xy 368.3 152.4)
+			(xy 363.22 152.4)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "08a328e7-b975-5638-ad22-c40efa026a00")
+		(uuid "1ca1f579-4338-54e2-9777-86544abacb82")
 	)
 	(label "PWR_CTL0"
-		(at 365.76 152.4 180)
+		(at 363.22 152.4 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right bottom)
 		)
-		(uuid "c183f5dd-82af-5d7f-9ab7-133b1d5e6540")
+		(uuid "e9e1b41a-4676-591e-95c2-faa13b020bb3")
 	)
 	(wire
 		(pts
-			(xy 370.84 154.94)
-			(xy 365.76 154.94)
+			(xy 368.3 154.94)
+			(xy 363.22 154.94)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "ea82d886-a0ef-5d50-8378-fc08cae29160")
+		(uuid "79234383-d772-51ea-9601-3082c6cd6eef")
 	)
 	(label "PWR_CTL1"
-		(at 365.76 154.94 180)
+		(at 363.22 154.94 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right bottom)
 		)
-		(uuid "f5bd8255-3ae6-5ca0-a31c-f4f7397481ce")
+		(uuid "ceb207bd-56d2-5abc-930f-0a43e41ec823")
 	)
 	(wire
 		(pts
-			(xy 370.84 157.48)
-			(xy 365.76 157.48)
+			(xy 368.3 157.48)
+			(xy 363.22 157.48)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "381d2fda-7b5c-5360-915e-4b00c3effbd6")
+		(uuid "f1a591f9-fdeb-5400-9a58-f3f611fa8153")
 	)
 	(label "PWR_CTL2"
-		(at 365.76 157.48 180)
+		(at 363.22 157.48 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right bottom)
 		)
-		(uuid "fc21c6ae-8f39-5af1-989c-06a8a2f5c131")
+		(uuid "c9684011-745e-5bfb-8ddc-5b1188c57da5")
 	)
 	(wire
 		(pts
-			(xy 370.84 160.02)
-			(xy 365.76 160.02)
+			(xy 368.3 160.02)
+			(xy 363.22 160.02)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "fc48832e-e118-51f2-90d6-2dc434cc7331")
+		(uuid "1a90fbf4-551c-58cf-9e4b-4666c7ab6003")
 	)
 	(label "PWR_CTL3"
-		(at 365.76 160.02 180)
+		(at 363.22 160.02 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right bottom)
 		)
-		(uuid "8d236c40-44aa-5e45-99af-c5f8fc4568a6")
+		(uuid "2c4e9a29-ba17-59b7-b642-30a946b931ef")
 	)
 	(wire
 		(pts
-			(xy 370.84 162.56)
-			(xy 365.76 162.56)
+			(xy 368.3 162.56)
+			(xy 363.22 162.56)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "baf0e22e-dcc4-5a26-953a-31ae02c1dcdc")
+		(uuid "41408f61-49f1-52fb-87ad-0a47e75b40fe")
 	)
 	(label "PWR_CTL4"
-		(at 365.76 162.56 180)
+		(at 363.22 162.56 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right bottom)
 		)
-		(uuid "d8e858ff-3ad9-5259-8f86-fffdc883fa74")
+		(uuid "d91e339e-674e-5d45-8ad7-084c77416051")
 	)
 	(wire
 		(pts
-			(xy 370.84 165.1)
-			(xy 365.76 165.1)
+			(xy 368.3 165.1)
+			(xy 363.22 165.1)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "9d3f83f7-c555-5793-b3bb-b01851e76234")
+		(uuid "b0d015ef-192d-5684-81dd-31e93782834e")
 	)
 	(label "PWR_CTL5"
-		(at 365.76 165.1 180)
+		(at 363.22 165.1 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right bottom)
 		)
-		(uuid "9353ceea-0c12-5d2e-8147-4c45d06eda55")
+		(uuid "ba494fed-cb24-5882-8c50-c0cb99b4b9cf")
 	)
 	(wire
 		(pts
-			(xy 370.84 167.64)
-			(xy 365.76 167.64)
+			(xy 368.3 167.64)
+			(xy 363.22 167.64)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "94c6069d-9115-5d0a-80ca-c79c84d61f5f")
+		(uuid "4c1b1aae-fd06-5ffd-abbe-e9711f148f55")
 	)
 	(label "PWR_CTL6"
-		(at 365.76 167.64 180)
+		(at 363.22 167.64 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right bottom)
 		)
-		(uuid "a64092c2-7664-562f-87b3-1dc0bc2cee8b")
+		(uuid "f9e56dc1-9597-56a5-ab38-e86857e9d32c")
 	)
 	(wire
 		(pts
-			(xy 370.84 170.18)
-			(xy 365.76 170.18)
+			(xy 368.3 170.18)
+			(xy 363.22 170.18)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "fb48d15d-fb62-5454-b6c3-41e5fd704c3a")
+		(uuid "fb29042d-f84b-5364-a4ff-0371c3ce0c19")
 	)
 	(label "PWR_CTL7"
-		(at 365.76 170.18 180)
+		(at 363.22 170.18 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right bottom)
 		)
-		(uuid "c2995784-08b2-5965-b684-a9a82b44788c")
+		(uuid "f2fd2ca4-b880-5606-9b45-cb278dd471b7")
 	)
 	(wire
 		(pts
-			(xy 370.84 172.72)
-			(xy 365.76 172.72)
+			(xy 368.3 172.72)
+			(xy 363.22 172.72)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "e4cd817e-663e-528b-8625-54ca99f5e51a")
+		(uuid "8adbe251-bf13-5836-9634-bb94ea6ba08f")
 	)
-	(label "PWRB_PRESENT_N"
-		(at 365.76 172.72 180)
+	(label "PWRB_PRESENT"
+		(at 363.22 172.72 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right bottom)
 		)
-		(uuid "1dc50a6a-7e2d-5e9b-9d21-a31cf13b810c")
+		(uuid "d19f7649-8d86-5166-b697-d1d24046f77e")
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 393.7 160.02 0)
+		(at 391.16 172.72 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "fb14b342-d8b6-50c1-82ab-7353d3c94ec9")
-		(property "Reference" "R152"
-			(at 395.732 160.02 90)
+		(uuid "dd47b7e9-806d-589a-a0ce-3f85aad70012")
+		(property "Reference" "R136"
+			(at 393.192 172.72 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "10k"
-			(at 393.7 160.02 90)
+		(property "Value" "100k"
+			(at 391.16 172.72 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11923,7 +12080,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 391.922 160.02 90)
+			(at 389.382 172.72 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11932,7 +12089,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 393.7 160.02 0)
+			(at 391.16 172.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11941,7 +12098,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 393.7 160.02 0)
+			(at 391.16 172.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11950,7 +12107,7 @@
 			)
 		)
 		(property "ki_keywords" "R res resistor"
-			(at 393.7 160.02 0)
+			(at 391.16 172.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11959,7 +12116,7 @@
 			)
 		)
 		(property "ki_fp_filters" "R_*"
-			(at 393.7 160.02 0)
+			(at 391.16 172.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11967,8 +12124,8 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C25744"
-			(at 393.7 160.02 0)
+		(property "LCSC" "C25741"
+			(at 391.16 172.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11977,15 +12134,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "00edfcd4-3c4a-5edb-a968-f68a45dac72b")
+			(uuid "5f61ba4c-d06b-5d4e-bc19-d933e440ce80")
 		)
 		(pin "2"
-			(uuid "9bf67fab-08dd-53f0-8548-3df5b877dd58")
+			(uuid "ace10d23-0eb5-529e-8661-dccf55dcb251")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R152")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R136")
 					(unit 1)
 				)
 			)
@@ -11993,26 +12150,47 @@
 	)
 	(wire
 		(pts
-			(xy 393.7 156.21)
-			(xy 393.7 151.13)
+			(xy 391.16 168.91)
+			(xy 391.16 163.83)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "e41e85fd-3e1b-57b6-a22f-214140b06986")
+		(uuid "055ab00a-4811-5a5c-b3ab-f69be403e353")
+	)
+	(label "PWRB_PRESENT"
+		(at 391.16 163.83 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "cce8b4ac-b74e-5948-af63-833fcc3aa618")
+	)
+	(wire
+		(pts
+			(xy 391.16 176.53)
+			(xy 391.16 181.61)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e8f15b6d-cf48-50b7-8d89-3cfbdddbe3e4")
 	)
 	(symbol
-		(lib_id "power:+3V3")
-		(at 393.7 151.13 0)
+		(lib_id "power:GND")
+		(at 391.16 181.61 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "172ba872-cd92-5242-8ed8-d60341c8ff24")
-		(property "Reference" "#PWR226"
-			(at 393.7 151.13 0)
+		(uuid "fd4679e3-fd18-5d00-8e5c-329e31388395")
+		(property "Reference" "#PWR230"
+			(at 391.16 181.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12020,8 +12198,8 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "+3V3"
-			(at 393.7 148.13 0)
+		(property "Value" "GND"
+			(at 391.16 184.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12029,7 +12207,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 393.7 151.13 0)
+			(at 391.16 181.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12038,7 +12216,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 393.7 151.13 0)
+			(at 391.16 181.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12047,37 +12225,16 @@
 			)
 		)
 		(pin "1"
-			(uuid "238352ec-db61-5e57-9649-5b9a86b5fffc")
+			(uuid "34d6630f-a873-5f1f-bc02-66af8f55330b")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR226")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR230")
 					(unit 1)
 				)
 			)
 		)
-	)
-	(wire
-		(pts
-			(xy 393.7 163.83)
-			(xy 393.7 168.91)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f325506e-9f22-52f1-9778-865f75f16ccc")
-	)
-	(label "PWRB_PRESENT_N"
-		(at 393.7 168.91 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "9faa4d01-f12d-5852-913b-a4e5a79ba097")
 	)
 	(symbol
 		(lib_id "Interface_Expansion:PCAL6416APW")
@@ -12223,7 +12380,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
 					(reference "U11")
 					(unit 1)
 				)
@@ -12355,8 +12512,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "6f18efcc-23de-5003-8574-0c7588a055e8")
-		(property "Reference" "#PWR227"
+		(uuid "129e2148-493e-5147-9d7e-bd888d41d4ad")
+		(property "Reference" "#PWR231"
 			(at 421.64 177.8 0)
 			(effects
 				(font
@@ -12392,12 +12549,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "d4164515-e5a1-5ca9-a380-886acf006421")
+			(uuid "c2974370-6a86-5d77-b97c-5c186e4cac8f")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR227")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR231")
 					(unit 1)
 				)
 			)
@@ -12422,8 +12579,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "9609883e-1d8c-52dc-8a65-e3f1be5cbd10")
-		(property "Reference" "#PWR228"
+		(uuid "01e9730a-a43a-5a26-8ca6-ae6a9cb95fe7")
+		(property "Reference" "#PWR232"
 			(at 436.88 152.4 0)
 			(effects
 				(font
@@ -12459,12 +12616,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "978c8d18-2cba-5f4a-80f0-f6f7a6d6de36")
+			(uuid "bf5e54f7-e697-5a09-82bb-5d5228dd13ed")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR228")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR232")
 					(unit 1)
 				)
 			)
@@ -12489,8 +12646,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "7505417d-47bb-584a-8af2-c3caebd0d0ab")
-		(property "Reference" "#PWR229"
+		(uuid "8f3775bb-ebb5-5960-9496-dd0bee1de67f")
+		(property "Reference" "#PWR233"
 			(at 439.42 213.36 0)
 			(effects
 				(font
@@ -12526,12 +12683,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "53cb4f31-6999-5b11-8157-1ecef024b437")
+			(uuid "c9dc5b2b-b6c4-5e15-bedc-bd1993308b26")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR229")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR233")
 					(unit 1)
 				)
 			)
@@ -12556,8 +12713,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "fd4679e3-fd18-5d00-8e5c-329e31388395")
-		(property "Reference" "#PWR230"
+		(uuid "e4dd3026-84ec-5ae5-bcb6-f7016387d564")
+		(property "Reference" "#PWR234"
 			(at 441.96 152.4 0)
 			(effects
 				(font
@@ -12593,12 +12750,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "34d6630f-a873-5f1f-bc02-66af8f55330b")
+			(uuid "d097f312-1045-5272-b270-1fd072affcec")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR230")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR234")
 					(unit 1)
 				)
 			)
@@ -12839,7 +12996,7 @@
 		)
 		(uuid "03cf282f-6539-5b5c-9521-e1a8b30a53f9")
 	)
-	(label "PWRB_PRESENT_N"
+	(label "PWRB_PRESENT"
 		(at 457.2 180.34 0)
 		(effects
 			(font
@@ -13107,7 +13264,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 490.22 160.02 0)
+		(at 487.68 160.02 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -13115,7 +13272,7 @@
 		(dnp no)
 		(uuid "98130d0c-fb93-50da-9728-25ddafc2783e")
 		(property "Reference" "C15"
-			(at 490.855 157.48 0)
+			(at 488.315 157.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13123,7 +13280,7 @@
 			)
 		)
 		(property "Value" "100n"
-			(at 490.855 162.56 0)
+			(at 488.315 162.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13131,7 +13288,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
-			(at 491.1852 163.83 0)
+			(at 488.6452 163.83 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13140,7 +13297,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 490.22 160.02 0)
+			(at 487.68 160.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13149,7 +13306,7 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
-			(at 490.22 160.02 0)
+			(at 487.68 160.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13158,7 +13315,7 @@
 			)
 		)
 		(property "ki_keywords" "cap capacitor"
-			(at 490.22 160.02 0)
+			(at 487.68 160.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13167,7 +13324,7 @@
 			)
 		)
 		(property "ki_fp_filters" "C_*"
-			(at 490.22 160.02 0)
+			(at 487.68 160.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13176,7 +13333,7 @@
 			)
 		)
 		(property "LCSC" "C1525"
-			(at 490.22 160.02 0)
+			(at 487.68 160.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13192,7 +13349,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
 					(reference "C15")
 					(unit 1)
 				)
@@ -13201,8 +13358,8 @@
 	)
 	(wire
 		(pts
-			(xy 490.22 156.21)
-			(xy 490.22 151.13)
+			(xy 487.68 156.21)
+			(xy 487.68 151.13)
 		)
 		(stroke
 			(width 0)
@@ -13212,15 +13369,15 @@
 	)
 	(symbol
 		(lib_id "power:+3V3")
-		(at 490.22 151.13 0)
+		(at 487.68 151.13 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "129e2148-493e-5147-9d7e-bd888d41d4ad")
-		(property "Reference" "#PWR231"
-			(at 490.22 151.13 0)
+		(uuid "582a1a5f-246e-57be-bf16-c75b07090614")
+		(property "Reference" "#PWR235"
+			(at 487.68 151.13 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13229,7 +13386,7 @@
 			)
 		)
 		(property "Value" "+3V3"
-			(at 490.22 148.13 0)
+			(at 487.68 148.13 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13237,7 +13394,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 490.22 151.13 0)
+			(at 487.68 151.13 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13246,7 +13403,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 490.22 151.13 0)
+			(at 487.68 151.13 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13255,12 +13412,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "c2974370-6a86-5d77-b97c-5c186e4cac8f")
+			(uuid "d4ecdedd-8313-5242-b03e-5f12ca336301")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR231")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR235")
 					(unit 1)
 				)
 			)
@@ -13268,8 +13425,8 @@
 	)
 	(wire
 		(pts
-			(xy 490.22 163.83)
-			(xy 490.22 168.91)
+			(xy 487.68 163.83)
+			(xy 487.68 168.91)
 		)
 		(stroke
 			(width 0)
@@ -13279,15 +13436,15 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 490.22 168.91 0)
+		(at 487.68 168.91 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "01e9730a-a43a-5a26-8ca6-ae6a9cb95fe7")
-		(property "Reference" "#PWR232"
-			(at 490.22 168.91 0)
+		(uuid "8d0dc1ec-9c26-5a77-9806-a2eccebb0817")
+		(property "Reference" "#PWR236"
+			(at 487.68 168.91 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13296,7 +13453,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 490.22 171.91 0)
+			(at 487.68 171.91 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13304,7 +13461,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 490.22 168.91 0)
+			(at 487.68 168.91 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13313,7 +13470,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 490.22 168.91 0)
+			(at 487.68 168.91 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13322,12 +13479,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "bf5e54f7-e697-5a09-82bb-5d5228dd13ed")
+			(uuid "7c28e8be-d6ea-5e0f-9d63-8d7ca20904dc")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR232")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR236")
 					(unit 1)
 				)
 			)
@@ -13335,7 +13492,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 508 160.02 0)
+		(at 505.46 160.02 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -13343,7 +13500,7 @@
 		(dnp no)
 		(uuid "ec78a8ff-c7ff-5b6f-a918-836dbd6cf49d")
 		(property "Reference" "C16"
-			(at 508.635 157.48 0)
+			(at 506.095 157.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13351,7 +13508,7 @@
 			)
 		)
 		(property "Value" "100n"
-			(at 508.635 162.56 0)
+			(at 506.095 162.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13359,7 +13516,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
-			(at 508.9652 163.83 0)
+			(at 506.4252 163.83 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13368,7 +13525,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 508 160.02 0)
+			(at 505.46 160.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13377,7 +13534,7 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
-			(at 508 160.02 0)
+			(at 505.46 160.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13386,7 +13543,7 @@
 			)
 		)
 		(property "ki_keywords" "cap capacitor"
-			(at 508 160.02 0)
+			(at 505.46 160.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13395,7 +13552,7 @@
 			)
 		)
 		(property "ki_fp_filters" "C_*"
-			(at 508 160.02 0)
+			(at 505.46 160.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13404,7 +13561,7 @@
 			)
 		)
 		(property "LCSC" "C1525"
-			(at 508 160.02 0)
+			(at 505.46 160.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13420,7 +13577,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
 					(reference "C16")
 					(unit 1)
 				)
@@ -13429,8 +13586,8 @@
 	)
 	(wire
 		(pts
-			(xy 508 156.21)
-			(xy 508 151.13)
+			(xy 505.46 156.21)
+			(xy 505.46 151.13)
 		)
 		(stroke
 			(width 0)
@@ -13440,610 +13597,7 @@
 	)
 	(symbol
 		(lib_id "power:+3V3")
-		(at 508 151.13 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "8f3775bb-ebb5-5960-9496-dd0bee1de67f")
-		(property "Reference" "#PWR233"
-			(at 508 151.13 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+3V3"
-			(at 508 148.13 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 508 151.13 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 508 151.13 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "c9dc5b2b-b6c4-5e15-bedc-bd1993308b26")
-		)
-		(instances
-			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR233")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(wire
-		(pts
-			(xy 508 163.83)
-			(xy 508 168.91)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9071dece-9225-533b-8604-436c524af84c")
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 508 168.91 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "e4dd3026-84ec-5ae5-bcb6-f7016387d564")
-		(property "Reference" "#PWR234"
-			(at 508 168.91 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 508 171.91 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 508 168.91 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 508 168.91 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "d097f312-1045-5272-b270-1fd072affcec")
-		)
-		(instances
-			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR234")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 525.78 160.02 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "eb872ddf-73c0-5de3-9d3e-8d9fd09d8050")
-		(property "Reference" "R153"
-			(at 527.812 160.02 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "10k"
-			(at 525.78 160.02 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 524.002 160.02 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 525.78 160.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 525.78 160.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "ki_keywords" "R res resistor"
-			(at 525.78 160.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "ki_fp_filters" "R_*"
-			(at 525.78 160.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "LCSC" "C25744"
-			(at 525.78 160.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "658b76c5-28f7-5e4d-8881-3ee1d487d4d4")
-		)
-		(pin "2"
-			(uuid "06aaadc0-690b-53e2-8d57-8424dff355ee")
-		)
-		(instances
-			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R153")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(wire
-		(pts
-			(xy 525.78 156.21)
-			(xy 525.78 151.13)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "18cdda76-6b9a-5c36-ac64-d417ab9d7ea1")
-	)
-	(symbol
-		(lib_id "power:+3V3")
-		(at 525.78 151.13 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "582a1a5f-246e-57be-bf16-c75b07090614")
-		(property "Reference" "#PWR235"
-			(at 525.78 151.13 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+3V3"
-			(at 525.78 148.13 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 525.78 151.13 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 525.78 151.13 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "d4ecdedd-8313-5242-b03e-5f12ca336301")
-		)
-		(instances
-			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR235")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(wire
-		(pts
-			(xy 525.78 163.83)
-			(xy 525.78 168.91)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c0070c0b-d8c3-5428-8edd-5a7202ec7b6c")
-	)
-	(label "EXPB_INT_N"
-		(at 525.78 168.91 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "43542994-48ce-552d-8319-f86baafabe4a")
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 543.56 160.02 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "8a502c65-2b35-59a2-a70d-6403b57b70b3")
-		(property "Reference" "R154"
-			(at 545.592 160.02 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "2.2k"
-			(at 543.56 160.02 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 541.782 160.02 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 543.56 160.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 543.56 160.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "ki_keywords" "R res resistor"
-			(at 543.56 160.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "ki_fp_filters" "R_*"
-			(at 543.56 160.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "LCSC" "C25879"
-			(at 543.56 160.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "92f4981c-24f8-50e9-8652-5868efd363cb")
-		)
-		(pin "2"
-			(uuid "2ffad3a8-62c5-512e-87ee-c00b06b168ad")
-		)
-		(instances
-			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R154")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(wire
-		(pts
-			(xy 543.56 156.21)
-			(xy 543.56 151.13)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6e75c906-2539-5846-bdb2-a56eeed2da47")
-	)
-	(symbol
-		(lib_id "power:+3V3")
-		(at 543.56 151.13 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "8d0dc1ec-9c26-5a77-9806-a2eccebb0817")
-		(property "Reference" "#PWR236"
-			(at 543.56 151.13 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+3V3"
-			(at 543.56 148.13 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 543.56 151.13 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 543.56 151.13 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "7c28e8be-d6ea-5e0f-9d63-8d7ca20904dc")
-		)
-		(instances
-			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR236")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(wire
-		(pts
-			(xy 543.56 163.83)
-			(xy 543.56 168.91)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0c0d2e26-ae31-5fcd-9648-e08884f9f247")
-	)
-	(global_label "I2C_SCL"
-		(shape bidirectional)
-		(at 543.56 168.91 270)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "3f900075-e197-5fd5-96e4-5896965b0a28")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 543.56 168.91 270)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 561.34 160.02 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "9b57f705-2d97-52ce-a757-c05110c4f66c")
-		(property "Reference" "R155"
-			(at 563.372 160.02 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "2.2k"
-			(at 561.34 160.02 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 559.562 160.02 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 561.34 160.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 561.34 160.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "ki_keywords" "R res resistor"
-			(at 561.34 160.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "ki_fp_filters" "R_*"
-			(at 561.34 160.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "LCSC" "C25879"
-			(at 561.34 160.02 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "60a5d0b5-7f30-58f5-a8c9-fcbeab6bf19d")
-		)
-		(pin "2"
-			(uuid "1f8866b3-fbe7-55b0-a7a2-247cfc849dae")
-		)
-		(instances
-			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "R155")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(wire
-		(pts
-			(xy 561.34 156.21)
-			(xy 561.34 151.13)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "73182275-1ba3-5ca0-83a8-285bfb980294")
-	)
-	(symbol
-		(lib_id "power:+3V3")
-		(at 561.34 151.13 0)
+		(at 505.46 151.13 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -14051,7 +13605,7 @@
 		(dnp no)
 		(uuid "bb3b8096-e17d-5159-bab6-6d075ee56997")
 		(property "Reference" "#PWR237"
-			(at 561.34 151.13 0)
+			(at 505.46 151.13 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14060,7 +13614,7 @@
 			)
 		)
 		(property "Value" "+3V3"
-			(at 561.34 148.13 0)
+			(at 505.46 148.13 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14068,7 +13622,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 561.34 151.13 0)
+			(at 505.46 151.13 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14077,7 +13631,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 561.34 151.13 0)
+			(at 505.46 151.13 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14090,7 +13644,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
 					(reference "#PWR237")
 					(unit 1)
 				)
@@ -14099,18 +13653,428 @@
 	)
 	(wire
 		(pts
-			(xy 561.34 163.83)
-			(xy 561.34 168.91)
+			(xy 505.46 163.83)
+			(xy 505.46 168.91)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "ac6aefe5-d546-5c42-8976-7ab74d3a89ef")
+		(uuid "9071dece-9225-533b-8604-436c524af84c")
 	)
-	(global_label "I2C_SDA"
+	(symbol
+		(lib_id "power:GND")
+		(at 505.46 168.91 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "833533dc-ef28-5701-9bfd-4bbdb84f0c4a")
+		(property "Reference" "#PWR238"
+			(at 505.46 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 505.46 171.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 505.46 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 505.46 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "c5237a1a-3532-5906-b965-147943bfbbeb")
+		)
+		(instances
+			(project "mega-kvm-shield"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR238")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 523.24 160.02 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "1c3590f5-fb91-56ac-addd-59730f331460")
+		(property "Reference" "R137"
+			(at 525.272 160.02 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "10k"
+			(at 523.24 160.02 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 521.462 160.02 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 523.24 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 523.24 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_keywords" "R res resistor"
+			(at 523.24 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_fp_filters" "R_*"
+			(at 523.24 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C25744"
+			(at 523.24 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "8d7af4ee-bacb-5bf7-be51-d25bbdb8b490")
+		)
+		(pin "2"
+			(uuid "b701b1ab-3e4e-5433-bff0-30c1c5810d87")
+		)
+		(instances
+			(project "mega-kvm-shield"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R137")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 523.24 156.21)
+			(xy 523.24 151.13)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2c04d1db-f76e-50fd-a075-160dd44ee456")
+	)
+	(symbol
+		(lib_id "power:+3V3")
+		(at 523.24 151.13 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "03aec3eb-b04e-5521-9cbb-ffb17690a77f")
+		(property "Reference" "#PWR239"
+			(at 523.24 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 523.24 148.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 523.24 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 523.24 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "e9d2f916-f5a5-5998-98c4-c97b3662d3c9")
+		)
+		(instances
+			(project "mega-kvm-shield"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR239")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 523.24 163.83)
+			(xy 523.24 168.91)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "996eab33-1304-5596-9997-f229408ac093")
+	)
+	(label "EXPB_INT_N"
+		(at 523.24 168.91 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "a2763224-d7d9-50f9-b7a9-e4e220c1f04e")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 541.02 160.02 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "fb1214c0-49c9-58ca-b587-cb71ae8a25c2")
+		(property "Reference" "R138"
+			(at 543.052 160.02 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "2.2k"
+			(at 541.02 160.02 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 539.242 160.02 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 541.02 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 541.02 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_keywords" "R res resistor"
+			(at 541.02 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_fp_filters" "R_*"
+			(at 541.02 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C25879"
+			(at 541.02 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "2f4a13f4-8f2c-567a-9c52-37da29ae455c")
+		)
+		(pin "2"
+			(uuid "f6f6d506-eb07-53c9-ba68-fd1e9d936c13")
+		)
+		(instances
+			(project "mega-kvm-shield"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R138")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 541.02 156.21)
+			(xy 541.02 151.13)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2b4c6cd6-fb10-5c03-9d42-052ff822a4df")
+	)
+	(symbol
+		(lib_id "power:+3V3")
+		(at 541.02 151.13 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "3f403bac-9af2-57fe-a897-9fc87dabbbc8")
+		(property "Reference" "#PWR240"
+			(at 541.02 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 541.02 148.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 541.02 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 541.02 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "4d4d1c63-d2b4-51f1-909c-ae79bf0fe262")
+		)
+		(instances
+			(project "mega-kvm-shield"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR240")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 541.02 163.83)
+			(xy 541.02 168.91)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1d20ba16-01c0-549b-8398-ea22462cc404")
+	)
+	(global_label "I2C_SCL"
 		(shape bidirectional)
-		(at 561.34 168.91 270)
+		(at 541.02 168.91 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -14118,9 +14082,9 @@
 			)
 			(justify right)
 		)
-		(uuid "0315949e-0f3f-541d-af3f-a449b3928113")
+		(uuid "1cf1f3ed-b63e-5d9d-bf31-a39fbcdfdc50")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 561.34 168.91 270)
+			(at 541.02 168.91 270)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14130,15 +14094,208 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector_Generic:Conn_01x05")
+		(lib_id "Device:R")
+		(at 558.8 160.02 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "b0061363-ce89-5624-868e-41d6faddb743")
+		(property "Reference" "R139"
+			(at 560.832 160.02 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "2.2k"
+			(at 558.8 160.02 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 557.022 160.02 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 558.8 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 558.8 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_keywords" "R res resistor"
+			(at 558.8 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_fp_filters" "R_*"
+			(at 558.8 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C25879"
+			(at 558.8 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "31e2c177-4dd4-5fef-89ce-ad77392acb3c")
+		)
+		(pin "2"
+			(uuid "09fdf3b5-5341-5c62-b0ed-9acfb707f489")
+		)
+		(instances
+			(project "mega-kvm-shield"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "R139")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 558.8 156.21)
+			(xy 558.8 151.13)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3489549b-a679-5263-9108-8e0acc2235ba")
+	)
+	(symbol
+		(lib_id "power:+3V3")
+		(at 558.8 151.13 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "b14bdd6c-5248-5cc0-b819-377b83269664")
+		(property "Reference" "#PWR241"
+			(at 558.8 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 558.8 148.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 558.8 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 558.8 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "bca77115-3f44-5ca0-8af9-3dddca06a17f")
+		)
+		(instances
+			(project "mega-kvm-shield"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR241")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 558.8 163.83)
+			(xy 558.8 168.91)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e432fb17-1ccb-520d-92d6-7ee0c0ece53b")
+	)
+	(global_label "I2C_SDA"
+		(shape bidirectional)
+		(at 558.8 168.91 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "8d886baf-562c-5865-8aa0-bb289d830446")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 558.8 168.91 270)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector_Generic:Conn_01x06")
 		(at 48.26 231.14 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "af033dcf-6f2a-570d-b133-28698cab9286")
-		(property "Reference" "J14"
+		(uuid "b0173f55-6712-54a3-b281-f071c60611c5")
+		(property "Reference" "J12"
 			(at 48.26 223.52 0)
 			(effects
 				(font
@@ -14147,14 +14304,14 @@
 			)
 		)
 		(property "Value" "I2C (front panel)"
-			(at 48.26 238.76 0)
+			(at 48.26 241.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Horizontal"
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Horizontal"
 			(at 48.26 231.14 0)
 			(effects
 				(font
@@ -14172,7 +14329,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "1x5 right-angle header: GND 3V3 SDA SCL INT"
+		(property "Description" "1x6 right-angle header: GND 5V 3V3 SDA SCL INT"
 			(at 48.26 231.14 0)
 			(effects
 				(font
@@ -14200,24 +14357,27 @@
 			)
 		)
 		(pin "1"
-			(uuid "0238e082-9fd8-52e5-81bf-187c2dd370e6")
+			(uuid "be3d4a86-9c8a-5399-933c-6418bf42a9cb")
 		)
 		(pin "2"
-			(uuid "bb54057f-9ae6-59f7-88fe-31fba076a015")
+			(uuid "101af27a-9702-5fb8-8dda-34d5e58fa072")
 		)
 		(pin "3"
-			(uuid "c85b2413-71c7-558c-9308-23d4bc1fb015")
+			(uuid "5119fea1-72b8-500e-80b1-5f41f942245e")
 		)
 		(pin "4"
-			(uuid "2c16b9c7-4823-5b4e-81d8-01cfaf3fb4c5")
+			(uuid "9f1d88a5-7a2b-5470-8cc6-3c786be692f0")
 		)
 		(pin "5"
-			(uuid "50118f55-5ec8-51a4-9055-45e29d8bd209")
+			(uuid "0052da42-d052-55dd-afa3-4797b8e744cd")
+		)
+		(pin "6"
+			(uuid "685ffdbb-9bf4-57ff-bb25-e31629a92bf5")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "J14")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "J12")
 					(unit 1)
 				)
 			)
@@ -14232,7 +14392,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "175092d4-0baa-56ee-9098-200b9ecb1557")
+		(uuid "d60e548b-6896-59c7-8d37-49ed8f9e9421")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -14242,8 +14402,8 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "833533dc-ef28-5701-9bfd-4bbdb84f0c4a")
-		(property "Reference" "#PWR238"
+		(uuid "174b5e5b-212a-5c99-ba27-c4606fb2bd4d")
+		(property "Reference" "#PWR242"
 			(at 38.1 226.06 0)
 			(effects
 				(font
@@ -14279,12 +14439,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "c5237a1a-3532-5906-b965-147943bfbbeb")
+			(uuid "a0cdb7f0-4125-5541-a087-61e671e27c86")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR238")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR242")
 					(unit 1)
 				)
 			)
@@ -14299,18 +14459,18 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "9b2b9863-b952-52bd-8ce8-1977f73e4f62")
+		(uuid "c83814f4-444d-55d6-b4a5-4f3ba21a74b5")
 	)
 	(symbol
-		(lib_id "power:+3V3")
+		(lib_id "power:+5V")
 		(at 38.1 228.6 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "03aec3eb-b04e-5521-9cbb-ffb17690a77f")
-		(property "Reference" "#PWR239"
+		(uuid "0a2fcf81-2a05-5bde-a541-da18b1280459")
+		(property "Reference" "#PWR243"
 			(at 38.1 228.6 0)
 			(effects
 				(font
@@ -14319,7 +14479,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "+3V3"
+		(property "Value" "+5V"
 			(at 38.1 225.6 0)
 			(effects
 				(font
@@ -14346,12 +14506,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "e9d2f916-f5a5-5998-98c4-c97b3662d3c9")
+			(uuid "52b8cbfe-6bf4-5676-9646-56541667f518")
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
-					(reference "#PWR239")
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR243")
 					(unit 1)
 				)
 			)
@@ -14366,26 +14526,61 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "71938e6c-848f-5e0c-abc8-faac1310f1be")
+		(uuid "57554174-e561-5406-8bc2-1c299995eaab")
 	)
-	(global_label "I2C_SDA"
-		(shape bidirectional)
-		(at 38.1 231.14 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "3f7fe405-8112-5d18-b88d-5741e25afa82")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 38.1 231.14 180)
+	(symbol
+		(lib_id "power:+3V3")
+		(at 38.1 231.14 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "a7ddadac-7017-5885-958e-09269460e10f")
+		(property "Reference" "#PWR244"
+			(at 38.1 231.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 38.1 228.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 38.1 231.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 38.1 231.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "dc1fa7b9-5d4c-57c4-b537-e2c938b9eef5")
+		)
+		(instances
+			(project "mega-kvm-shield"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/a6ca52b0-3c98-50b2-84dd-04a9c133d243"
+					(reference "#PWR244")
+					(unit 1)
+				)
 			)
 		)
 	)
@@ -14398,9 +14593,9 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "d4db8009-2a44-5e85-9ef5-91ac559692c9")
+		(uuid "da147cad-df03-5760-895d-135d76dad5e7")
 	)
-	(global_label "I2C_SCL"
+	(global_label "I2C_SDA"
 		(shape bidirectional)
 		(at 38.1 233.68 180)
 		(fields_autoplaced yes)
@@ -14410,7 +14605,7 @@
 			)
 			(justify right)
 		)
-		(uuid "adc615c3-1b7e-5df3-91d2-4fa06194d3d7")
+		(uuid "a0e78512-8bea-5f45-a328-f6c2a3f4a046")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 38.1 233.68 180)
 			(effects
@@ -14430,17 +14625,49 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "a79450be-7a97-55e2-860a-6a4aa8c4ff1a")
+		(uuid "dcd23b31-2cc8-5dfa-80cb-099e4cea2d0f")
+	)
+	(global_label "I2C_SCL"
+		(shape bidirectional)
+		(at 38.1 236.22 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "c626611e-b072-5b1a-b9bd-89e5da080481")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 38.1 236.22 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 43.18 238.76)
+			(xy 38.1 238.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ecd4104b-0358-5eba-9bcd-e5b50113ed20")
 	)
 	(label "EXPB_INT_N"
-		(at 38.1 236.22 180)
+		(at 38.1 238.76 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right bottom)
 		)
-		(uuid "07727b6e-104d-5c8f-8015-0bcb610a986d")
+		(uuid "88aa59a9-9f4c-5341-8a0f-d9d4b847a461")
 	)
 	(text "I2C expanders, revision/features, power control, I2C header -- generated by scripts/gen_sch.py from scripts/design.py; edit those, not this file."
 		(exclude_from_sim no)

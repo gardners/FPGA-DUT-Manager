@@ -5,7 +5,7 @@
 	(uuid "401d0043-267a-5ea3-8d8c-243a04ea1357")
 	(paper "A3")
 	(title_block
-		(title "MEGA-KVM link-board shield: Mimas headers, 12 V input, mounting")
+		(title "MEGA-KVM shield: Mimas headers, 12 V input, mounting")
 		(date "2026-11-27")
 		(rev "A (draft)")
 		(company "FPGA-DUT-Manager / MEGA65")
@@ -2805,7 +2805,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "P1")
 					(unit 1)
 				)
@@ -2872,7 +2872,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR001")
 					(unit 1)
 				)
@@ -2939,7 +2939,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR002")
 					(unit 1)
 				)
@@ -3006,7 +3006,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR003")
 					(unit 1)
 				)
@@ -3073,7 +3073,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR004")
 					(unit 1)
 				)
@@ -3140,7 +3140,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR005")
 					(unit 1)
 				)
@@ -3207,7 +3207,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR006")
 					(unit 1)
 				)
@@ -3530,7 +3530,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR007")
 					(unit 1)
 				)
@@ -3597,7 +3597,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR008")
 					(unit 1)
 				)
@@ -3664,7 +3664,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR009")
 					(unit 1)
 				)
@@ -3731,7 +3731,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR010")
 					(unit 1)
 				)
@@ -4054,7 +4054,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR011")
 					(unit 1)
 				)
@@ -4121,7 +4121,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR012")
 					(unit 1)
 				)
@@ -4188,7 +4188,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR013")
 					(unit 1)
 				)
@@ -4255,7 +4255,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR014")
 					(unit 1)
 				)
@@ -4578,7 +4578,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR015")
 					(unit 1)
 				)
@@ -4645,7 +4645,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR016")
 					(unit 1)
 				)
@@ -4712,7 +4712,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR017")
 					(unit 1)
 				)
@@ -4779,7 +4779,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR018")
 					(unit 1)
 				)
@@ -4946,7 +4946,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR019")
 					(unit 1)
 				)
@@ -5013,7 +5013,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR020")
 					(unit 1)
 				)
@@ -5208,7 +5208,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR021")
 					(unit 1)
 				)
@@ -5275,7 +5275,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR022")
 					(unit 1)
 				)
@@ -5470,7 +5470,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR023")
 					(unit 1)
 				)
@@ -5537,7 +5537,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR024")
 					(unit 1)
 				)
@@ -5732,7 +5732,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR025")
 					(unit 1)
 				)
@@ -5799,7 +5799,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR026")
 					(unit 1)
 				)
@@ -5914,7 +5914,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR027")
 					(unit 1)
 				)
@@ -5981,7 +5981,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR028")
 					(unit 1)
 				)
@@ -6282,7 +6282,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "P2")
 					(unit 1)
 				)
@@ -6349,7 +6349,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR029")
 					(unit 1)
 				)
@@ -6416,7 +6416,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR030")
 					(unit 1)
 				)
@@ -6483,7 +6483,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR031")
 					(unit 1)
 				)
@@ -6550,7 +6550,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR032")
 					(unit 1)
 				)
@@ -6617,7 +6617,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR033")
 					(unit 1)
 				)
@@ -6684,7 +6684,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR034")
 					(unit 1)
 				)
@@ -6979,7 +6979,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR035")
 					(unit 1)
 				)
@@ -7046,7 +7046,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR036")
 					(unit 1)
 				)
@@ -7113,7 +7113,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR037")
 					(unit 1)
 				)
@@ -7180,7 +7180,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR038")
 					(unit 1)
 				)
@@ -7503,7 +7503,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR039")
 					(unit 1)
 				)
@@ -7570,7 +7570,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR040")
 					(unit 1)
 				)
@@ -7637,7 +7637,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR041")
 					(unit 1)
 				)
@@ -7704,7 +7704,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR042")
 					(unit 1)
 				)
@@ -7999,7 +7999,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR043")
 					(unit 1)
 				)
@@ -8066,7 +8066,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR044")
 					(unit 1)
 				)
@@ -8133,7 +8133,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR045")
 					(unit 1)
 				)
@@ -8200,7 +8200,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR046")
 					(unit 1)
 				)
@@ -8395,7 +8395,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR047")
 					(unit 1)
 				)
@@ -8462,7 +8462,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR048")
 					(unit 1)
 				)
@@ -8657,7 +8657,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR049")
 					(unit 1)
 				)
@@ -8724,7 +8724,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR050")
 					(unit 1)
 				)
@@ -8919,7 +8919,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR051")
 					(unit 1)
 				)
@@ -8986,7 +8986,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR052")
 					(unit 1)
 				)
@@ -9181,7 +9181,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR053")
 					(unit 1)
 				)
@@ -9248,7 +9248,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR054")
 					(unit 1)
 				)
@@ -9363,7 +9363,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR055")
 					(unit 1)
 				)
@@ -9430,7 +9430,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR056")
 					(unit 1)
 				)
@@ -9462,7 +9462,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_JST:JST_VH_B2P-VH_1x02_P3.96mm_Vertical"
+		(property "Footprint" "Connector_Molex:Molex_Mini-Fit_Jr_5566-02A_2x01_P4.20mm_Vertical"
 			(at 193.04 33.02 0)
 			(effects
 				(font
@@ -9480,7 +9480,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "JST VH 2-pin, 12 V in"
+		(property "Description" "Molex Mini-Fit Jr 2-pin vertical, 12 V in"
 			(at 193.04 33.02 0)
 			(effects
 				(font
@@ -9507,7 +9507,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "JST B2P-VH"
+		(property "MPN" "Molex 5566-02A (39-30-1020 class)"
 			(at 193.04 33.02 0)
 			(effects
 				(font
@@ -9524,7 +9524,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "J1")
 					(unit 1)
 				)
@@ -9591,7 +9591,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR057")
 					(unit 1)
 				)
@@ -9658,7 +9658,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR058")
 					(unit 1)
 				)
@@ -9743,7 +9743,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "D1")
 					(unit 1)
 				)
@@ -9810,7 +9810,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR059")
 					(unit 1)
 				)
@@ -9877,7 +9877,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR060")
 					(unit 1)
 				)
@@ -9962,7 +9962,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "C1")
 					(unit 1)
 				)
@@ -10029,7 +10029,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR061")
 					(unit 1)
 				)
@@ -10096,7 +10096,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR062")
 					(unit 1)
 				)
@@ -10181,7 +10181,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "C2")
 					(unit 1)
 				)
@@ -10248,7 +10248,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR063")
 					(unit 1)
 				)
@@ -10315,7 +10315,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR064")
 					(unit 1)
 				)
@@ -10409,7 +10409,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "C3")
 					(unit 1)
 				)
@@ -10476,7 +10476,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR065")
 					(unit 1)
 				)
@@ -10543,7 +10543,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR066")
 					(unit 1)
 				)
@@ -10617,7 +10617,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#FLG01")
 					(unit 1)
 				)
@@ -10684,7 +10684,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR067")
 					(unit 1)
 				)
@@ -10758,7 +10758,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#FLG02")
 					(unit 1)
 				)
@@ -10825,7 +10825,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR068")
 					(unit 1)
 				)
@@ -10899,7 +10899,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#FLG03")
 					(unit 1)
 				)
@@ -10966,7 +10966,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "#PWR069")
 					(unit 1)
 				)
@@ -11045,7 +11045,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "H1")
 					(unit 1)
 				)
@@ -11124,7 +11124,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "H2")
 					(unit 1)
 				)
@@ -11203,7 +11203,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "H3")
 					(unit 1)
 				)
@@ -11282,7 +11282,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "H4")
 					(unit 1)
 				)
@@ -11361,7 +11361,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "H5")
 					(unit 1)
 				)
@@ -11440,7 +11440,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "H6")
 					(unit 1)
 				)
@@ -11519,7 +11519,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "H7")
 					(unit 1)
 				)
@@ -11598,7 +11598,7 @@
 		)
 		(instances
 			(project "mega-kvm-shield"
-				(path "/ab47fb0d-a882-5222-806a-a8cea2123044/d57e08dc-2628-55d4-a581-af90973133e2"
+				(path "/0f0241cd-5f50-5358-a4ff-a85ad63fec7b/d57e08dc-2628-55d4-a581-af90973133e2"
 					(reference "H8")
 					(unit 1)
 				)

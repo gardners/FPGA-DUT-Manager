@@ -32,17 +32,7 @@ HOLE_KEEPOUT = 3.8                    # screw head radius + clearance along the 
 NOTCH = (0.0, 12.4, 18.0, 77.6)       # RJ45, USB-B, S12, P2, DC jack cut-out
 REAR = MIMAS_W                        # rear edge = Mimas HDMI edge
 
-# rear-edge slots, (cluster of the connector, slot length along the edge)
-SLOT = {'HDMI': 21.0, 'JTAG': 24.6, 'KBD': 22.0}
-GAP = 0.6
-# Segments of the rear edge in Mimas y, allocated downwards from 'start'.
-# Between the two rear Mimas holes: DUT0 JTAG + keyboard, DUT1 HDMI.
-# HDMI3/DUT3 sit on P12 (upper) and HDMI2/DUT2 on P13 (lower), as in the pin plan.
-SEGMENTS = [
-    ('up', 90.6, ['HDMI3J', 'JTAG3J', 'KBD3J']),          # clear of P12 socket
-    ('down', 85.0 - HOLE_KEEPOUT, ['JTAG0J', 'KBD0J', 'HDMI1J']),
-    ('down', -0.6, ['JTAG1J', 'KBD1J', 'HDMI2J', 'JTAG2J', 'KBD2J']),  # clear of P13 socket
-]
+from geometry import SLOTS, Y_TOP, Y_BOT, KBD_DY, KBD_B2B  # noqa: E402
 
 
 def K(mx, my):
@@ -207,58 +197,69 @@ for cl, ay in (('P12', P12_A_Y), ('P13', P13_A_Y)):
     fp.SetPosition(K(ROW1_X, ay))
     fp.SetOrientationDegrees(0)
 
-# rear edge connectors
+# rear edge connectors (shield top side)
 placed_slots = {}
-y_extent = [0.0, MIMAS_H]
-for direction, start, clusters in SEGMENTS:
-    y = start
-    for cl in clusters:
-        if cl not in by_cluster:
-            continue
-        kind = cl.rstrip('0123456789J')
-        L = SLOT[kind]
-        y0, y1 = (y, y + L) if direction == 'up' else (y - L, y)
-        fp = only(cl)
-        orient_facing(fp, '+x')
-        over = 1.54 if kind == 'HDMI' else 0.0
-        move_crt(fp, right=X0 + REAR + over, cy=Y0 - (y0 + y1) / 2)
-        placed_slots[cl] = (y0, y1)
-        y = y1 + GAP if direction == 'up' else y0 - GAP
-        y_extent = [min(y_extent[0], y0), max(y_extent[1], y1)]
+for cl, (y0, y1) in SLOTS.items():
+    if cl not in by_cluster:
+        continue
+    kind = cl.rstrip('0123456789J')
+    fp = only(cl)
+    orient_facing(fp, '+x')
+    over = 1.54 if kind == 'HDMI' else 0.0
+    move_crt(fp, right=X0 + REAR + over, cy=Y0 - (y0 + y1) / 2)
+    placed_slots[cl] = (y0, y1)
 
-Y_TOP = round(y_extent[1] + 1.5, 1)    # P12-side board edge (Mimas y)
-Y_BOT = round(y_extent[0] - 1.5, 1)    # P13-side board edge
+# board-to-board sockets for the keyboard sub-boards (shield bottom side):
+# pad n must sit exactly above pad n of the sub-board's 2x6 header
+def kbd_header_pads(dy):
+    h = load_fp('Connector_PinHeader_2.54mm:PinHeader_2x06_P2.54mm_Vertical')
+    h.SetOrientationDegrees(0)
+    h.SetPosition(K(0, 0))
+    c = crt(h)
+    h.Move(pcbnew.VECTOR2I(MM(X0 + KBD_B2B[0] - (c[0] + c[2]) / 2),
+                           MM(Y0 - (KBD_B2B[1] + dy) - (c[1] + c[3]) / 2)))
+    return {p.GetNumber(): p.GetPosition() for p in h.Pads()}
+
+
+def match_pads(fp, target, bottom):
+    if bottom:
+        fp.Flip(fp.GetPosition(), pcbnew.FLIP_DIRECTION_LEFT_RIGHT)
+    for rot in (0, 90, 180, 270):
+        fp.SetOrientationDegrees(rot)
+        pads = {p.GetNumber(): p.GetPosition() for p in fp.Pads()}
+        d = target['1'] - pads['1']
+        fp.Move(d)
+        pads = {p.GetNumber(): p.GetPosition() for p in fp.Pads()}
+        if all(abs(pads[k].x - target[k].x) < 1000 and abs(pads[k].y - target[k].y) < 1000
+               for k in ('2', '3', '12')):
+            return
+    sys.exit('cannot match pads of ' + fp.GetReference())
+
+
+for side, dy in (('P12', 0.0), ('P13', KBD_DY)):
+    match_pads(only('B2B' + side), kbd_header_pads(dy), True)
 
 # Front and side connectors
 fp = only('PKJ')                       # physical keyboard: front edge, P12 overhang
 orient_facing(fp, '-x')
-move_crt(fp, left=X0 + 0.0, cy=Y0 - (MIMAS_H + 16.0))
-fp = only('I2CJ')                      # I2C to the front panel
+move_crt(fp, left=X0 + 0.0, cy=Y0 - (MIMAS_H + 13.0))
+fp = only('I2CJ')                      # I2C (+5 V) to the front panel
 orient_facing(fp, '-x')
-move_crt(fp, left=X0 - 6.0, cy=Y0 - (MIMAS_H + 36.0))
-fp = only('LINKAS')                    # side link A at the P12-side edge
-orient_facing(fp, '-y')
-move_crt(fp, top=Y0 - Y_TOP, cx=X0 + 36.0)
-fp = only('LINKAU')
+move_crt(fp, left=X0 - 6.0, cy=Y0 - (MIMAS_H + 32.5))
+fp = only('LINKU')                     # neighbour UART, 3-pin Dupont
 fp.SetOrientationDegrees(90)
-move_crt(fp, cx=X0 + 50.0, cy=Y0 - (Y_TOP - 4.0))
-fp = only('LINKBS')
-orient_facing(fp, '+y')
-move_crt(fp, bottom=Y0 - Y_BOT + 6.0, cx=X0 + 36.0)   # pins stick out of the edge
-fp = only('LINKBU')
-fp.SetOrientationDegrees(90)
-move_crt(fp, cx=X0 + 50.0, cy=Y0 - (Y_BOT + 4.0))
+move_crt(fp, cx=X0 + 40.0, cy=Y0 - (Y_BOT + 4.0))
 pwrj = [r for r in by_cluster['PWR'] if r.startswith('J')][0]
-fp = fps[pwrj]                         # 12 V in, front of the P13 overhang
+fp = fps[pwrj]                         # 12 V in (Mini-Fit Jr), front of the P13 overhang
 fp.SetOrientationDegrees(90)
-move_crt(fp, left=X0 + 2.0, cy=Y0 - (-14.0))
-fp = only('RELAYJ')                    # power control header, along the front edge
-fp.SetOrientationDegrees(0)
-move_crt(fp, left=X0 + 2.0, top=Y0 - (-26.0))
+move_crt(fp, left=X0 + 2.0, cy=Y0 - (-12.0))
+fp = only('RELAYJ')                    # power control header, along the front of the P13 overhang
+fp.SetOrientationDegrees(90)
+move_crt(fp, left=X0 + 2.0, cy=Y0 - (-33.0))
 
 # holes: Mimas holes + overhang supports (front and rear-ish corners)
 holes = sorted([r for r in nl if r.startswith('H')], key=lambda r: int(r[1:]))
-support = [(5.0, Y_TOP - 5.0), (80.0, Y_TOP - 5.0), (5.0, Y_BOT + 5.0), (80.0, Y_BOT + 5.0)]
+support = [(5.0, Y_TOP - 5.0), (70.0, Y_TOP - 5.0), (5.0, Y_BOT + 5.0), (70.0, Y_BOT + 5.0)]
 for ref, (mx, my) in zip(holes, MIMAS_HOLES + support):
     fps[ref].SetPosition(K(mx, my))
 
@@ -338,10 +339,10 @@ for n in range(4):
         if cl + 'J' in placed_slots:
             pack(cl, slot_region(cl, 36))
 pack('EXP', (22.0, 40.0, 80.0, 82.0))
-pack('PWR', (2.0, Y_BOT + 2, 40.0, 11.0))
-pack('PK', (2.0, MIMAS_H + 1, 40.0, Y_TOP - 8))
-pack('LINKA', (20.0, Y_TOP - 20, 70.0, Y_TOP - 1))
-pack('LINKB', (20.0, Y_BOT + 1, 70.0, Y_BOT + 20))
+pack('PWR', (14.0, -30.0, 40.0, -1.0))
+pack('PK', (16.0, MIMAS_H + 1, 45.0, Y_TOP - 1))
+pack('BUCK', (45.0, MIMAS_H + 1, 80.0, Y_TOP - 1))
+pack('LINK', (30.0, Y_BOT + 1, 60.0, Y_BOT + 20))
 pack('MISC', (22.0, 20.0, 70.0, 40.0))
 
 # ---------------------------------------------------------------- outline
@@ -362,22 +363,23 @@ for (x0, y0, x1, y1, t) in [(-2, 60.81, 13.6, 76.57, 'Mimas RJ45'), (0, 40.77, 1
     rect_m(U, x0, y0, x1, y1, 0.1)
     add_text(t, (x0 + x1) / 2, (y0 + y1) / 2, 1.0, 0, U, False)
 add_text('Mimas A7 V3 outline (User.Drawings)', 60, 45, 1.5, 0, U, False)
+from geometry import KBD_X0, KBD_X1, KBD_Y0, KBD_Y1  # noqa: E402
+for dy in (0.0, KBD_DY):
+    rect_m(U, KBD_X0, KBD_Y0 + dy, KBD_X1, KBD_Y1 + dy, 0.15)
+    add_text('keyboard sub-board (Mimas level)', (KBD_X0 + KBD_X1) / 2, KBD_Y0 + dy + 3, 1.0, 0, U, False)
 
 # ---------------------------------------------------------------- silkscreen
-LBL = {'HDMI': 'DUT%s HDMI IN', 'JTAG': 'DUT%s JTAG/UART', 'KBD': 'DUT%s KEYBOARD'}
+LBL = {'HDMI': 'DUT%s HDMI IN', 'JTAG': 'DUT%s JTAG/UART'}
 for cl, (y0, y1) in placed_slots.items():
     kind = cl.rstrip('0123456789J')
     n = cl[len(kind):-1]
     depth = 12.5 if kind == 'HDMI' else 16.5
-    add_text(LBL[kind] % n, REAR - depth - 1.5, (y0 + y1) / 2, 1.3, 90)
-add_text('PHYSICAL KEYBOARD (J5 + JTAG)', 18.0, MIMAS_H + 16.0, 1.2, 90)
-add_text('I2C: GND 3V3 SDA SCL INT', 13.0, MIMAS_H + 36.0, 1.0, 90)
-add_text('LINK A: 12V TX RX GND', 36.0, Y_TOP - 13.0, 1.0, 0)
-add_text('LINK B: 12V RX TX GND', 36.0, Y_BOT + 13.0, 1.0, 0)
-c = crt(fps[pwrj])
-add_text('12V IN (power board)', (c[0] + c[2]) / 2 - X0, Y0 - c[3] - 2.0, 1.2, 0)
-c = crt(only('RELAYJ'))
-add_text('PWR CTRL: 1 GND, 2 key, 3-10 EN0-7, 11 PRESENT#', c[2] - X0 + 1.8, Y0 - (c[1] + c[3]) / 2, 1.0, 90)
+    add_text(LBL[kind] % n, REAR - depth - 1.5, (y0 + y1) / 2, 1.2, 90)
+add_text('PHYSICAL KEYBOARD (J5 + JTAG)', 18.0, MIMAS_H + 13.0, 1.2, 90)
+add_text('I2C: GND 5V 3V3 SDA SCL INT', 13.0, MIMAS_H + 32.5, 1.0, 90)
+add_text('NEIGHBOUR UART: GND TX RX', 40.0, Y_BOT + 9.0, 1.0, 0)
+for side, dy in (('P12', 0.0), ('P13', KBD_DY)):
+    add_text('KBD SUB-BOARD (under)', KBD_B2B[0] - 5.0, KBD_B2B[1] + dy, 1.0, 90)
 add_text('MEGA-KVM shield rev A (draft) - issue 0045', 45.0, 30.0, 1.5, 0)
 add_text('Mimas RJ45 / USB / S12 / P2 / DC jack cut-out', 9.0, 45.0, 1.0, 90)
 add_text('P12', ROW1_X - 5, P12_A_Y - 4.5, 1.5, 0)
@@ -457,7 +459,7 @@ board.SetFileName(out)
 filler = pcbnew.ZONE_FILLER(board)
 filler.Fill(board.Zones())
 pcbnew.SaveBoard(out, board)
-print('board %.1f x %.1f mm (Mimas y %.1f .. %.1f)' % (REAR, Y_TOP - Y_BOT, Y_BOT, Y_TOP))
+print('shield %.1f x %.1f mm (Mimas y %.1f .. %.1f)' % (REAR, Y_TOP - Y_BOT, Y_BOT, Y_TOP))
 for cl, (y0, y1) in sorted(placed_slots.items(), key=lambda kv: -kv[1][1]):
     print('  rear %-7s Mimas y %7.2f .. %7.2f' % (cl, y0, y1))
 json.dump({'board_mm': [REAR, Y_TOP - Y_BOT], 'y_top': Y_TOP, 'y_bot': Y_BOT,
