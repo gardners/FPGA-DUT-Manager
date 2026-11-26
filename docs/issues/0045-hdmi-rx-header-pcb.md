@@ -86,3 +86,31 @@ so:
 * **+5V sense:** divider (e.g. 10 k / 15 k) from HDMI pin 18 to an FPGA
   input: "source connected".
 * Keep pads for an optional 24C02 footprint unpopulated (fallback only).
+
+## 2026-11-27 owner: scope grows to a full "link board" (shield)
+
+The PCB becomes a shield on the Mimas, covering more than the second
+HDMI input:
+
+* the second HDMI input (FPGA-served EDID);
+* labelled MEGA65 keyboard (J5-style 2x5) and JTAG/UART (JB1-style 2x6)
+  headers for **both** DUTs (P12 = DUT0, P13 = DUT1);
+* the labelled physical keyboard header, coming out on the **opposite** side
+  (the Ethernet side);
+* the link to the neighbouring board (ADR 0007 to be rewritten);
+* a 24-bit I2C IO expander, read by the FPGA:
+  * 8 bits board/link revision;
+  * 8 bits feature presence (b0 second HDMI capture, b1 power relays, ...);
+  * 8 relay control outputs to a header (GND + 8 lines, with pull-downs);
+* an I2C header on the same bus (for the LCD, the power board, ...);
+* 3 mm mounting holes on the Mimas holes; cut-outs so that the RJ45, USB-B,
+  power switch and DC jack stay reachable.
+* All DUT-facing connectors (HDMI, JTAG, keyboard) flush with the Mimas's
+  HDMI side, so a box can have one connector face.
+
+Pin rule (owner): keep the current assignments and route the new
+functions to the unused pins. Repack the pins when the PCB exists, using the
+revision byte to tell the FPGA which layout it is on.
+KiCad project with schematic and connector placement (lead plus agent).
+Open questions: see the lead's message of 2026-11-27 (geometry, link
+content, power through the header).

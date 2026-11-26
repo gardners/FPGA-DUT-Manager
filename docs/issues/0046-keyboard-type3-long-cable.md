@@ -112,3 +112,13 @@ the JTAG port enabled.
   auto-baud from the host's pairs, or both. Decide in the ADR after checking
   the CPLD fit.
 * Remote JTAG to the keyboard CPLD (XVC) as proposed.
+
+## 2026-11-27 owner decision
+
+Raise the CPLD oscillator (OSCH NOM_FREQ) for the 2 Mb/s UART, **without
+breaking the MK-I protocol**. Everything timed in OSCH cycles has to be
+rescaled: the KIO8 frame-start detect (`clock_duration = 31`), the 4-sample
+KIO8 filter, the LED PWM (`cnt`) and the idle/ambulance counter
+(`cnt_idle(20)`). A testbench must show that the MK-I frames are
+bit-identical before and after, using the supervisor's `kbd_mk1_host` as
+the reference host.
