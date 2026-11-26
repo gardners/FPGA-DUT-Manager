@@ -1,5 +1,9 @@
 # Chain cable (supervisor ↔ supervisor)
 
+> **Obsolete (2026-11-27):** the ribbon chain is superseded by ADR 0007 as
+> rewritten (Ethernet between boards, neighbour UART + 12 V on the shield,
+> `docs/hardware/shield.md`).
+
 Two straight 10-way IDC ribbons per link, 2x5 female IDC on both ends,
 **pin 1 to pin 1**, no crossover. Ribbon "A" joins header rows 10–14, ribbon
 "B" joins rows 16–20. The 2x5 connector's pin 1 sits on header pin A10 (resp.

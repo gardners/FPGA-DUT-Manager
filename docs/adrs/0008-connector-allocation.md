@@ -172,12 +172,27 @@ A TMS. DUT keyboard: 17A KIO8, 16B KIO9, 16A KIO10, sense 22A. Physical
 keyboard: 11A KIO8, 10B KIO9, 10A KIO10, supply jumper to 15A. Ball lists in
 boards/mimas_a7/mimas_a7.xdc and docs/cabling/dut-cable.md.
 
-## Amendment 6 2026-11-27 (issue 0046): physical keyboard JTAG pins used
+## Amendment 6 2026-11-27: shield v1 (issues 0045, 0049)
+
+With the shield, one Mimas serves four DUTs. All current pin assignments
+stay (bodge harnesses keep working with the normal bitstream); the shield
+uses the free pins as in `docs/hardware/shield-pinplan.md`: header HDMI
+receivers HDMI1/HDMI2 on P13 (clocks C18/C19, D17/C17 MRCC) and HDMI3 on P12
+(clock L19/L20 SRCC), DUT2 ports on P13, DUT3 ports, shield I2C, the
+neighbour UART and the physical keyboard JTAG on P12, slow lines (HPD, +5V,
+VIO and keyboard sense, PK_JTAGEN) on an I2C expander. Header receivers are
+PLLE2 + BUFG clocked (one CMT per region; two receivers share bank 16), one
+IDELAYCTRL per region. The shield bitstream is built with `SHIELD_RX=3`
+(boards/mimas_a7/shield_v1.xdc); a gate build met timing (issue 0049).
+
+## Amendment 7 2026-11-27 (issue 0046): physical keyboard JTAG pins used
 
 The physical keyboard harness's J5 pins 3-7 (P12 rows 13-11 B: KB_JTAGEN
 L21, KB_TMS M21, KB_TCK L20, KB_TDI L19, KB_TDO K19) are no longer
 "never driven": a third JTAG engine drives them (tri-stated unless the
 keyboard JTAG target is enabled, ADR 0014). The DUT keyboard harnesses'
-pins 3-7 stay unused. Issue 0045 may move these five (L19/L20 is the GPIO_7
-SRCC pair wanted for a third HDMI receiver clock); they are grouped in the
-XDC for that.
+pins 3-7 stay unused. These are the pins of the normal (bodge) build; the
+shield build (amendment 6, `SHIELD_RX` > 0) gives L19/L20/M21/L21 to HDMI3
+and moves the keyboard JTAG to PK_TCK H19, PK_TMS M20, PK_TDI H18, PK_TDO
+K19, with PK_JTAGEN on I2C expander B (`shield_v1.xdc`,
+`docs/hardware/shield-pinplan.md`).

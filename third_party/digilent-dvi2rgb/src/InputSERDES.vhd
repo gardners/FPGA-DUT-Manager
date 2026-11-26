@@ -59,7 +59,10 @@ use UNISIM.VComponents.all;
 entity InputSERDES is
    Generic (
       kIDLY_TapWidth : natural := 5;   -- number of bits for IDELAYE2 tap counter
-      kParallelWidth : natural := 10); -- number of parallel bits
+      kParallelWidth : natural := 10; -- number of parallel bits
+      -- FPGA-DUT-Manager change (issue 0049): IODELAY_GROUP as an attribute
+      -- (was set in dvi2rgb.xdc, the same group for every instance)
+      kIodelayGroup : string := "dvi2rgb_iodelay_grp");
    Port (
       PixelClk : in std_logic;   --Recovered TMDS clock x1 (CLKDIV)
       SerialClk : in std_logic;  --Recovered TMDS clock x5 (CLK)
@@ -86,6 +89,8 @@ architecture Behavioral of InputSERDES is
 
 signal sDataIn, sDataInDly, icascade1, icascade2, SerialClkInv : std_logic;
 signal pDataIn_q : std_logic_vector(13 downto 0); --ISERDESE2 can do 1:14 at most
+attribute IODELAY_GROUP : string;
+attribute IODELAY_GROUP of InputDelay : label is kIodelayGroup;
 begin
 
 -- Differential input buffer for TMDS I/O standard 

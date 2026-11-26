@@ -54,3 +54,25 @@ for the MEGA-KVM box.
   DC jacks.
 * Outputs to DUTs: with 3 DUTs per board, 4 boards = 12 DUTs. See the
   question on control (1x11 parallel header vs I2C).
+
+## 2026-11-27 owner decisions (round 3)
+
+* 2 Mimas per unit, so **8 switched DUT outputs** (matches the 8 control
+  lines on the shield's 1x11 keyed header). **5 A eFuse per DUT** (e.g.
+  TPS25947, 5.5 A max; current limit set by resistor).
+* **Always-on outputs** (no switching): 2 x Mimas (12 V into the shields'
+  power connector -> header VIN), the GS105 switch (12 V barrel), and the
+  fans. Shared eFuse, about 5 A.
+* Input selection: LTC4417 automatic priority, banana > PCIe 8-pin > Molex;
+  fuse and TVS per input.
+* Quiet fans only (e.g. Noctua NF-A4x10 12 V class, 10 mm thick, fits 1RU).
+
+## 2026-11-27 owner decisions (round 4)
+
+* **Master on/off:** a backlit rocker on the front panel. It switches a
+  control signal, not the 20 A (e.g. disables all LTC4417 inputs, or an
+  enable to a main high-side switch), so a small cheap rocker will do. The
+  backlight runs from 12 V when on.
+* **Fabrication:** JLCPCB PCB and assembly. Prefer LCSC/JLC basic parts,
+  then extended parts. Note the LCSC number per BOM line; flag anything
+  JLC can't source (hand-solder or consigned).

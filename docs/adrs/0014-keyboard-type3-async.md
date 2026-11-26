@@ -163,9 +163,13 @@ identifies the exact firmware build.
 * The harness wires J5 pins 3-7 to P12 rows 13-11 B: **KB_JTAGEN L21, KB_TMS
   M21, KB_TCK L20, KB_TDI L19, KB_TDO K19** (row r = GPIO_(r-5), column A =
   _P, B = _N; matches issue 0046's table and ADR 0008 amendments 4/5). All
-  five sit together in `boards/mimas_a7/mimas_a7.xdc` so they can move
-  easily: **issue 0045 may want the GPIO_7 SRCC pair L19/L20** for a third
-  HDMI receiver clock.
+  five are in `boards/mimas_a7/pk_jtag_bodge.xdc`, read only by the normal
+  (bodge) build. The **shield build** (`SHIELD_RX` > 0, issues 0045/0049)
+  gives L19/L20/M21/L21 to HDMI3 and uses PK_TCK H19, PK_TMS M20, PK_TDI
+  H18, PK_TDO K19 (`shield_v1.xdc`); its PK_JTAGEN is on I2C expander B
+  (TCA6416A @0x20, P0.3), so the top level has no `pk_jtagen` port there
+  (null vector) and leaves `pk_jtagen_want` for the shield I2C master
+  (issue 0049 step 2).
 * A **third `jtag_engine`** drives them. It is reached through either
   endpoint with **JTAG_REQ flags b1** (ADR 0005 s7); its response carries
   **byte 17 = 1** (target keyboard). It has its own sequence/session state.

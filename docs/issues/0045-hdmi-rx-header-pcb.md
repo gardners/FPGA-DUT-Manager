@@ -155,3 +155,77 @@ Sources: https://numato.com/wp-content/uploads/2018/06/MimasA7V3.0-pd.png
   between adjacent shields. The Ethernet switch stays.
 * Power the Mimas through header VIN from the power board (see above), so
   the DC jack isn't needed in the box.
+
+## 2026-11-27 owner decisions (round 3)
+
+* **Two Mimas boards per unit**, one non-staggered shield each. Aim for
+  **4 DUTs per board** (8 per unit); 3 is acceptable.
+* The DUT keyboard connectors carry no keyboard JTAG (KIO8/9/10, GND and
+  3.3 V sense only), to save space and pins.
+* Neighbour link: just a UART (TX/RX/GND), on a 3-pin Dupont header. Or, if
+  the shield is wider than 90 mm anyway, a right-angle connector between
+  adjacent shields that also passes 12 V through.
+* The shield may be wider than 90 mm if the rear connectors need it.
+* Lead plan for 4 DUTs (pins are tight): move slow signals to a second
+  I2C expander: HDMI HPD out and +5V sense, DUT VIO sense and keyboard
+  3.3 V sense (the tri-state gating then reacts within about 1 ms, which the
+  series resistors make harmless). Budget: I2C 2 + keyboard JTAG 4-5 + UART
+  2 + DUT1 HDMI/DDC 10 + DUT2 19 + DUT3 19 = 56-57 of 55 + 4 freed sense
+  pins, so about 2-3 spare. Three header receivers need 3 clock-capable
+  pairs (P13 C18/C19 and D17/C17, P12 L19/L20) and all 3 free PLLs, but only
+  one CMT per bank: so the receivers must be BUFG-clocked (not
+  BUFIO/BUFR), or move an MMCM. **The gate build (issue 0049) decides 3 vs
+  4.**
+
+## 2026-11-27 owner decisions (round 4)
+
+* The physical keyboard connector now goes to the **rear** panel too (the
+  front has only the LCD, LEDs, buttons and rocker, issue 0050). The shield's
+  physical keyboard header can stay at the front edge if a short cable takes
+  it to the rear, or move to the rear edge, whichever is cleaner.
+* **Fabrication: JLCPCB PCB and assembly.** Prefer LCSC/JLC basic parts,
+  then extended parts. Note the LCSC number per BOM line; flag anything JLC
+  can't source.
+
+## 2026-11-27 progress: KiCad shield rev A draft (branch feature/shield-pcb)
+
+* `hardware/mega-kvm-shield/`: generated KiCad 10 project (scripts in
+  `scripts/`, `make` regenerates and checks). Schematic complete for
+  4 DUTs on the v1 pin plan (`shield-pinplan.md`): 3 header HDMI inputs
+  (49.9 ohm terminations, TPD4E05U06, PCA9306 DDC, FET HPD, +5V sense),
+  4 JB1 + 4 J5 DUT ports with 47 ohm series and VIO/keyboard sense,
+  physical keyboard with JTAG, TCA6424A + TCA6416A, keyed 1x11 power
+  header, I2C header, neighbour link (UART + 12 V pass-through), 12 V in
+  to both headers' VIN. **ERC: 0 violations.**
+* Board: outline, cut-out (RJ45/USB/S12/P2/DC jack), 8 holes, sockets on
+  the measured Mimas grid, all rear connectors flush, parts clustered,
+  GND/3V3 planes, 12 V tracks. Signals not routed. **DRC: 0 errors**
+  (silk warnings, unrouted nets). Renders, SVG, schematic PDF and a
+  JLCPCB BOM in `out/`. Write-up: `docs/hardware/shield.md`.
+* Physical keyboard: stays at the shield's front edge, short ribbon to the
+  rear panel (rear edge full).
+* **Problem for the owner:** a single row of rear connectors for 4 DUTs
+  needs ~280 mm of edge (board 120 x 280 mm); two shields do not fit a
+  19-inch rack. Proposed: a vertical rear connector board (2-3 rows of
+  connectors, ~110-125 mm per Mimas). See shield.md "Open choices".
+* Before fab: verify Mimas dimensions, TCA6424A pin numbers, LCSC numbers.
+* ADR 0007 rewritten (links between boards: Ethernet + neighbour UART).
+
+## 2026-11-27 pin plan for the shield (issue 0049 step 1)
+
+`docs/hardware/shield-pinplan.md` (branch `feature/shield-pinplan`) is
+the pin plan for the KiCad shield: per-row tables with ball, bank, pair, CC
+type, current use, shield use and net name, plus the two expander bit maps.
+Changes against the plans above:
+
+* The second receiver is **HDMI1** on P13 rows 10-13/18 (clock C18/C19 row
+  11; D0 row 10, D1 row 13, D2 row 18), not rows 8-14 only: row 12
+  (D17/C17, the other free MRCC pair) is HDMI2's clock. HDMI2 = P13 rows
+  12/19/23/25, HDMI3 = P12 rows 12/13/18/19 (clock L19/L20 SRCC).
+* DDC per receiver on FPGA pins (HDMI1 C13/B13, HDMI2 D14/D15, HDMI3
+  H13/G13); HPD and +5V sense go to I2C expander B (TCA6416A, 0x20)
+  instead of FPGA pins; so do VIO and keyboard 3V3 sense of all four DUTs
+  and PK_JTAGEN. Expander A = TCA6424A at 0x22 (revision, features, 8
+  power-control outputs).
+* The rows 28-30 2x3 socket of the 2026-11-26 decision is superseded (those
+  pins now carry DUT2/DUT3 JTAG and the DDC lines).

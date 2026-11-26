@@ -44,6 +44,7 @@ SYNTH_SOURCES := \
 	$(HDL_SRC)/video/font8x16_pkg.vhd \
 	$(HDL_SRC)/video/video_timing.vhd \
 	$(HDL_SRC)/video/video_meas.vhd \
+	$(HDL_SRC)/video/vid_src_sel.vhd \
 	$(HDL_SRC)/video/video_pt_ctrl.vhd \
 	$(HDL_SRC)/video/mosaic_pkg.vhd \
 	$(HDL_SRC)/video/mosaic_display.vhd \

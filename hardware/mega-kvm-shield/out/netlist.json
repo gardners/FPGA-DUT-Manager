@@ -1,0 +1,3611 @@
+{
+ "C1": {
+  "cluster": "PWR",
+  "descr": "",
+  "dnp": false,
+  "fp": "Capacitor_SMD:C_1206_3216Metric",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "+12V",
+   "2": "GND"
+  },
+  "sheet": "mimas_headers",
+  "value": "10u"
+ },
+ "C10": {
+  "cluster": "HDMI3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI3_VREF2",
+   "2": "GND"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "100n"
+ },
+ "C11": {
+  "cluster": "HDMI3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "100n"
+ },
+ "C12": {
+  "cluster": "HDMI3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI3_5V",
+   "2": "GND"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "100n"
+ },
+ "C13": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "100n"
+ },
+ "C14": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "100n"
+ },
+ "C15": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "100n"
+ },
+ "C16": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "100n"
+ },
+ "C17": {
+  "cluster": "PK",
+  "descr": "",
+  "dnp": false,
+  "fp": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "",
+  "pads": {
+   "1": "PK_3V3",
+   "2": "GND"
+  },
+  "sheet": "keyboard_link",
+  "value": "100n"
+ },
+ "C2": {
+  "cluster": "PWR",
+  "descr": "",
+  "dnp": false,
+  "fp": "Capacitor_SMD:C_1206_3216Metric",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "+12V",
+   "2": "GND"
+  },
+  "sheet": "mimas_headers",
+  "value": "10u"
+ },
+ "C3": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Capacitor_SMD:C_0805_2012Metric",
+  "lcsc": "C15850",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "sheet": "mimas_headers",
+  "value": "10u"
+ },
+ "C4": {
+  "cluster": "HDMI1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI1_VREF2",
+   "2": "GND"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "100n"
+ },
+ "C5": {
+  "cluster": "HDMI1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "100n"
+ },
+ "C6": {
+  "cluster": "HDMI1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI1_5V",
+   "2": "GND"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "100n"
+ },
+ "C7": {
+  "cluster": "HDMI2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI2_VREF2",
+   "2": "GND"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "100n"
+ },
+ "C8": {
+  "cluster": "HDMI2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "100n"
+ },
+ "C9": {
+  "cluster": "HDMI2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI2_5V",
+   "2": "GND"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "100n"
+ },
+ "D1": {
+  "cluster": "PWR",
+  "descr": "TVS 15 V standoff",
+  "dnp": false,
+  "fp": "Diode_SMD:D_SMB",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "+12V",
+   "2": "GND"
+  },
+  "sheet": "mimas_headers",
+  "value": "SMBJ15A"
+ },
+ "F1": {
+  "cluster": "PK",
+  "descr": "PTC 0.5 A hold, keyboard supply",
+  "dnp": false,
+  "fp": "Fuse:Fuse_1206_3216Metric",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "PK_3V3"
+  },
+  "sheet": "keyboard_link",
+  "value": "0.5A"
+ },
+ "F2": {
+  "cluster": "LINKA",
+  "descr": "PTC 2 A hold, 12 V pass-through",
+  "dnp": false,
+  "fp": "Fuse:Fuse_1812_4532Metric",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "+12V",
+   "2": "LINKA_12V"
+  },
+  "sheet": "keyboard_link",
+  "value": "2A"
+ },
+ "F3": {
+  "cluster": "LINKB",
+  "descr": "PTC 2 A hold, 12 V pass-through",
+  "dnp": false,
+  "fp": "Fuse:Fuse_1812_4532Metric",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "+12V",
+   "2": "LINKB_12V"
+  },
+  "sheet": "keyboard_link",
+  "value": "2A"
+ },
+ "H1": {
+  "cluster": "HOLE0",
+  "descr": "",
+  "dnp": false,
+  "fp": "MountingHole:MountingHole_3.2mm_M3",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {},
+  "sheet": "mimas_headers",
+  "value": "M3"
+ },
+ "H2": {
+  "cluster": "HOLE1",
+  "descr": "",
+  "dnp": false,
+  "fp": "MountingHole:MountingHole_3.2mm_M3",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {},
+  "sheet": "mimas_headers",
+  "value": "M3"
+ },
+ "H3": {
+  "cluster": "HOLE2",
+  "descr": "",
+  "dnp": false,
+  "fp": "MountingHole:MountingHole_3.2mm_M3",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {},
+  "sheet": "mimas_headers",
+  "value": "M3"
+ },
+ "H4": {
+  "cluster": "HOLE3",
+  "descr": "",
+  "dnp": false,
+  "fp": "MountingHole:MountingHole_3.2mm_M3",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {},
+  "sheet": "mimas_headers",
+  "value": "M3"
+ },
+ "H5": {
+  "cluster": "HOLE4",
+  "descr": "",
+  "dnp": false,
+  "fp": "MountingHole:MountingHole_3.2mm_M3",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {},
+  "sheet": "mimas_headers",
+  "value": "M3"
+ },
+ "H6": {
+  "cluster": "HOLE5",
+  "descr": "",
+  "dnp": false,
+  "fp": "MountingHole:MountingHole_3.2mm_M3",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {},
+  "sheet": "mimas_headers",
+  "value": "M3"
+ },
+ "H7": {
+  "cluster": "HOLE6",
+  "descr": "",
+  "dnp": false,
+  "fp": "MountingHole:MountingHole_3.2mm_M3",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {},
+  "sheet": "mimas_headers",
+  "value": "M3"
+ },
+ "H8": {
+  "cluster": "HOLE7",
+  "descr": "",
+  "dnp": false,
+  "fp": "MountingHole:MountingHole_3.2mm_M3",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {},
+  "sheet": "mimas_headers",
+  "value": "M3"
+ },
+ "J1": {
+  "cluster": "PWR",
+  "descr": "JST VH 2-pin, 12 V in",
+  "dnp": false,
+  "fp": "Connector_JST:JST_VH_B2P-VH_1x02_P3.96mm_Vertical",
+  "lcsc": "",
+  "mpn": "JST B2P-VH",
+  "pads": {
+   "1": "+12V",
+   "2": "GND"
+  },
+  "sheet": "mimas_headers",
+  "value": "12V IN"
+ },
+ "J10": {
+  "cluster": "KBD2J",
+  "descr": "2x5 box header, right angle",
+  "dnp": false,
+  "fp": "Connector_IDC:IDC-Header_2x05_P2.54mm_Horizontal",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "GND",
+   "10": "DUT2_KB_KIO10",
+   "2": "DUT2_KB_3V3",
+   "8": "DUT2_KB_KIO8",
+   "9": "DUT2_KB_KIO9"
+  },
+  "sheet": "dut_ports",
+  "value": "DUT2 KEYBOARD (J5)"
+ },
+ "J11": {
+  "cluster": "JTAG3J",
+  "descr": "2x6 box header, right angle",
+  "dnp": false,
+  "fp": "Connector_IDC:IDC-Header_2x06_P2.54mm_Horizontal",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "GND",
+   "10": "DUT3_JB_TDI",
+   "12": "DUT3_JB_TMS",
+   "2": "GND",
+   "3": "DUT3_JB_UART_FROM",
+   "4": "DUT3_JB_TCK",
+   "6": "DUT3_JB_VIO",
+   "7": "DUT3_JB_UART_TO",
+   "8": "DUT3_JB_TDO"
+  },
+  "sheet": "dut_ports",
+  "value": "DUT3 JTAG+UART (JB1)"
+ },
+ "J12": {
+  "cluster": "KBD3J",
+  "descr": "2x5 box header, right angle",
+  "dnp": false,
+  "fp": "Connector_IDC:IDC-Header_2x05_P2.54mm_Horizontal",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "GND",
+   "10": "DUT3_KB_KIO10",
+   "2": "DUT3_KB_3V3",
+   "8": "DUT3_KB_KIO8",
+   "9": "DUT3_KB_KIO9"
+  },
+  "sheet": "dut_ports",
+  "value": "DUT3 KEYBOARD (J5)"
+ },
+ "J13": {
+  "cluster": "RELAYJ",
+  "descr": "1x11 pin header, pin 2 pulled for keying",
+  "dnp": false,
+  "fp": "Connector_PinHeader_2.54mm:PinHeader_1x11_P2.54mm_Vertical",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "GND",
+   "10": "PWR_CTL7",
+   "11": "PWRB_PRESENT_N",
+   "3": "PWR_CTL0",
+   "4": "PWR_CTL1",
+   "5": "PWR_CTL2",
+   "6": "PWR_CTL3",
+   "7": "PWR_CTL4",
+   "8": "PWR_CTL5",
+   "9": "PWR_CTL6"
+  },
+  "sheet": "io_expanders",
+  "value": "POWER CTRL (pin 2 = key)"
+ },
+ "J14": {
+  "cluster": "I2CJ",
+  "descr": "1x5 right-angle header: GND 3V3 SDA SCL INT",
+  "dnp": false,
+  "fp": "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Horizontal",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "GND",
+   "2": "+3V3",
+   "3": "I2C_SDA",
+   "4": "I2C_SCL",
+   "5": "EXPB_INT_N"
+  },
+  "sheet": "io_expanders",
+  "value": "I2C (front panel)"
+ },
+ "J15": {
+  "cluster": "PKJ",
+  "descr": "2x5 box header, right angle",
+  "dnp": false,
+  "fp": "Connector_IDC:IDC-Header_2x05_P2.54mm_Horizontal",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "GND",
+   "10": "PK_J_KIO10",
+   "2": "PK_3V3",
+   "3": "PK_J_JTAGEN",
+   "4": "PK_J_TMS",
+   "5": "PK_J_TCK",
+   "6": "PK_J_TDI",
+   "7": "PK_J_TDO",
+   "8": "PK_J_KIO8",
+   "9": "PK_J_KIO9"
+  },
+  "sheet": "keyboard_link",
+  "value": "PHYSICAL KEYBOARD (J5, with JTAG)"
+ },
+ "J16": {
+  "cluster": "LINKAU",
+  "descr": "1x3 header: GND, TX, RX (Dupont)",
+  "dnp": false,
+  "fp": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "GND",
+   "2": "LINKA_TX",
+   "3": "LINKA_RX"
+  },
+  "sheet": "keyboard_link",
+  "value": "LINK A UART"
+ },
+ "J17": {
+  "cluster": "LINKAS",
+  "descr": "1x4 right angle: 12V, TX/RX, GND",
+  "dnp": false,
+  "fp": "Connector_PinSocket_2.54mm:PinSocket_1x04_P2.54mm_Horizontal",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "LINKA_12V",
+   "2": "LINKA_TX",
+   "3": "LINKA_RX",
+   "4": "GND"
+  },
+  "sheet": "keyboard_link",
+  "value": "LINK A (12V, UART)"
+ },
+ "J18": {
+  "cluster": "LINKBU",
+  "descr": "1x3 header: GND, TX, RX (Dupont)",
+  "dnp": false,
+  "fp": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "GND",
+   "2": "LINKB_TX",
+   "3": "LINKB_RX"
+  },
+  "sheet": "keyboard_link",
+  "value": "LINK B UART"
+ },
+ "J19": {
+  "cluster": "LINKBS",
+  "descr": "1x4 right angle: 12V, TX/RX, GND",
+  "dnp": false,
+  "fp": "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Horizontal",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "LINKB_12V",
+   "2": "LINKB_RX",
+   "3": "LINKB_TX",
+   "4": "GND"
+  },
+  "sheet": "keyboard_link",
+  "value": "LINK B (12V, UART)"
+ },
+ "J2": {
+  "cluster": "HDMI1J",
+  "descr": "HDMI type A receptacle, right angle",
+  "dnp": false,
+  "fp": "Connector_Video:HDMI_A_Amphenol_10029449-x01xLF_Horizontal",
+  "lcsc": "",
+  "mpn": "Amphenol 10029449-111RLF",
+  "pads": {
+   "1": "HDMI1_D2_P",
+   "10": "HDMI1_CLK_P",
+   "11": "GND",
+   "12": "HDMI1_CLK_N",
+   "15": "HDMI1_DDC_SCL",
+   "16": "HDMI1_DDC_SDA",
+   "17": "GND",
+   "18": "HDMI1_5V",
+   "19": "HDMI1_HPD",
+   "2": "GND",
+   "3": "HDMI1_D2_N",
+   "4": "HDMI1_D1_P",
+   "5": "GND",
+   "6": "HDMI1_D1_N",
+   "7": "HDMI1_D0_P",
+   "8": "GND",
+   "9": "HDMI1_D0_N",
+   "SH": "GND"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "DUT1 HDMI IN"
+ },
+ "J3": {
+  "cluster": "HDMI2J",
+  "descr": "HDMI type A receptacle, right angle",
+  "dnp": false,
+  "fp": "Connector_Video:HDMI_A_Amphenol_10029449-x01xLF_Horizontal",
+  "lcsc": "",
+  "mpn": "Amphenol 10029449-111RLF",
+  "pads": {
+   "1": "HDMI2_D2_P",
+   "10": "HDMI2_CLK_P",
+   "11": "GND",
+   "12": "HDMI2_CLK_N",
+   "15": "HDMI2_DDC_SCL",
+   "16": "HDMI2_DDC_SDA",
+   "17": "GND",
+   "18": "HDMI2_5V",
+   "19": "HDMI2_HPD",
+   "2": "GND",
+   "3": "HDMI2_D2_N",
+   "4": "HDMI2_D1_P",
+   "5": "GND",
+   "6": "HDMI2_D1_N",
+   "7": "HDMI2_D0_P",
+   "8": "GND",
+   "9": "HDMI2_D0_N",
+   "SH": "GND"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "DUT2 HDMI IN"
+ },
+ "J4": {
+  "cluster": "HDMI3J",
+  "descr": "HDMI type A receptacle, right angle",
+  "dnp": false,
+  "fp": "Connector_Video:HDMI_A_Amphenol_10029449-x01xLF_Horizontal",
+  "lcsc": "",
+  "mpn": "Amphenol 10029449-111RLF",
+  "pads": {
+   "1": "HDMI3_D2_P",
+   "10": "HDMI3_CLK_P",
+   "11": "GND",
+   "12": "HDMI3_CLK_N",
+   "15": "HDMI3_DDC_SCL",
+   "16": "HDMI3_DDC_SDA",
+   "17": "GND",
+   "18": "HDMI3_5V",
+   "19": "HDMI3_HPD",
+   "2": "GND",
+   "3": "HDMI3_D2_N",
+   "4": "HDMI3_D1_P",
+   "5": "GND",
+   "6": "HDMI3_D1_N",
+   "7": "HDMI3_D0_P",
+   "8": "GND",
+   "9": "HDMI3_D0_N",
+   "SH": "GND"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "DUT3 HDMI IN"
+ },
+ "J5": {
+  "cluster": "JTAG0J",
+  "descr": "2x6 box header, right angle",
+  "dnp": false,
+  "fp": "Connector_IDC:IDC-Header_2x06_P2.54mm_Horizontal",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "GND",
+   "10": "DUT0_JB_TDI",
+   "12": "DUT0_JB_TMS",
+   "2": "GND",
+   "3": "DUT0_JB_UART_FROM",
+   "4": "DUT0_JB_TCK",
+   "6": "DUT0_JB_VIO",
+   "7": "DUT0_JB_UART_TO",
+   "8": "DUT0_JB_TDO"
+  },
+  "sheet": "dut_ports",
+  "value": "DUT0 JTAG+UART (JB1)"
+ },
+ "J6": {
+  "cluster": "KBD0J",
+  "descr": "2x5 box header, right angle",
+  "dnp": false,
+  "fp": "Connector_IDC:IDC-Header_2x05_P2.54mm_Horizontal",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "GND",
+   "10": "DUT0_KB_KIO10",
+   "2": "DUT0_KB_3V3",
+   "8": "DUT0_KB_KIO8",
+   "9": "DUT0_KB_KIO9"
+  },
+  "sheet": "dut_ports",
+  "value": "DUT0 KEYBOARD (J5)"
+ },
+ "J7": {
+  "cluster": "JTAG1J",
+  "descr": "2x6 box header, right angle",
+  "dnp": false,
+  "fp": "Connector_IDC:IDC-Header_2x06_P2.54mm_Horizontal",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "GND",
+   "10": "DUT1_JB_TDI",
+   "12": "DUT1_JB_TMS",
+   "2": "GND",
+   "3": "DUT1_JB_UART_FROM",
+   "4": "DUT1_JB_TCK",
+   "6": "DUT1_JB_VIO",
+   "7": "DUT1_JB_UART_TO",
+   "8": "DUT1_JB_TDO"
+  },
+  "sheet": "dut_ports",
+  "value": "DUT1 JTAG+UART (JB1)"
+ },
+ "J8": {
+  "cluster": "KBD1J",
+  "descr": "2x5 box header, right angle",
+  "dnp": false,
+  "fp": "Connector_IDC:IDC-Header_2x05_P2.54mm_Horizontal",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "GND",
+   "10": "DUT1_KB_KIO10",
+   "2": "DUT1_KB_3V3",
+   "8": "DUT1_KB_KIO8",
+   "9": "DUT1_KB_KIO9"
+  },
+  "sheet": "dut_ports",
+  "value": "DUT1 KEYBOARD (J5)"
+ },
+ "J9": {
+  "cluster": "JTAG2J",
+  "descr": "2x6 box header, right angle",
+  "dnp": false,
+  "fp": "Connector_IDC:IDC-Header_2x06_P2.54mm_Horizontal",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "GND",
+   "10": "DUT2_JB_TDI",
+   "12": "DUT2_JB_TMS",
+   "2": "GND",
+   "3": "DUT2_JB_UART_FROM",
+   "4": "DUT2_JB_TCK",
+   "6": "DUT2_JB_VIO",
+   "7": "DUT2_JB_UART_TO",
+   "8": "DUT2_JB_TDO"
+  },
+  "sheet": "dut_ports",
+  "value": "DUT2 JTAG+UART (JB1)"
+ },
+ "P1": {
+  "cluster": "P12",
+  "descr": "2x40 female socket 2.54 mm, 8.5 mm, bottom side, mates Mimas P12",
+  "dnp": false,
+  "fp": "shield:Mimas_Header_Socket_2x40",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "A1": "+12V",
+   "A10": "PK_KIO10",
+   "A11": "PK_KIO8",
+   "A12": "HDMI3_CLK_P",
+   "A13": "HDMI3_D0_P",
+   "A14": "GND",
+   "A15": "+3V3",
+   "A16": "DUT0_KIO10",
+   "A17": "DUT0_KIO8",
+   "A18": "HDMI3_D1_P",
+   "A19": "HDMI3_D2_P",
+   "A2": "+12V",
+   "A20": "GND",
+   "A21": "+3V3",
+   "A23": "NB_UART_TX",
+   "A24": "GND",
+   "A25": "I2C_SCL",
+   "A26": "DUT3_KIO10",
+   "A27": "GND",
+   "A28": "DUT3_TCK",
+   "A29": "DUT3_TDI",
+   "A3": "GND",
+   "A30": "GND",
+   "A31": "DUT3_TMS",
+   "A32": "HDMI3_SCL",
+   "A33": "GND",
+   "A4": "DUT0_TCK",
+   "A40": "GND",
+   "A5": "DUT0_TDO",
+   "A6": "DUT0_TDI",
+   "A7": "DUT0_TMS",
+   "A8": "GND",
+   "A9": "+3V3",
+   "B1": "+12V",
+   "B10": "PK_KIO9",
+   "B11": "PK_TDO",
+   "B12": "HDMI3_CLK_N",
+   "B13": "HDMI3_D0_N",
+   "B14": "GND",
+   "B15": "+3V3",
+   "B16": "DUT0_KIO9",
+   "B17": "PK_TMS",
+   "B18": "HDMI3_D1_N",
+   "B19": "HDMI3_D2_N",
+   "B2": "+12V",
+   "B20": "GND",
+   "B21": "+3V3",
+   "B22": "PK_TDI",
+   "B23": "NB_UART_RX",
+   "B24": "GND",
+   "B25": "I2C_SDA",
+   "B26": "DUT3_KIO9",
+   "B27": "GND",
+   "B28": "DUT3_UART_FROM",
+   "B29": "DUT3_UART_TO",
+   "B3": "GND",
+   "B30": "GND",
+   "B31": "DUT3_KIO8",
+   "B32": "HDMI3_SDA",
+   "B33": "GND",
+   "B4": "DUT0_UART_FROM",
+   "B40": "GND",
+   "B5": "DUT0_UART_TO",
+   "B6": "DUT3_TDO",
+   "B7": "PK_TCK",
+   "B8": "GND",
+   "B9": "+3V3"
+  },
+  "sheet": "mimas_headers",
+  "value": "P12 socket (DUT0/DUT3 side)"
+ },
+ "P2": {
+  "cluster": "P13",
+  "descr": "2x40 female socket 2.54 mm, 8.5 mm, bottom side, mates Mimas P13",
+  "dnp": false,
+  "fp": "shield:Mimas_Header_Socket_2x40",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "A1": "+12V",
+   "A10": "HDMI1_D0_P",
+   "A11": "HDMI1_CLK_P",
+   "A12": "HDMI2_CLK_P",
+   "A13": "HDMI1_D1_P",
+   "A14": "GND",
+   "A15": "+3V3",
+   "A16": "DUT1_KIO10",
+   "A17": "DUT1_KIO8",
+   "A18": "HDMI1_D2_P",
+   "A19": "HDMI2_D0_P",
+   "A2": "+12V",
+   "A20": "GND",
+   "A21": "+3V3",
+   "A22": "DUT2_KIO9",
+   "A23": "HDMI2_D1_P",
+   "A24": "GND",
+   "A25": "HDMI2_D2_P",
+   "A26": "HDMI1_SCL",
+   "A27": "GND",
+   "A28": "HDMI2_SCL",
+   "A29": "DUT2_TCK",
+   "A3": "GND",
+   "A30": "GND",
+   "A31": "DUT2_TDI",
+   "A32": "DUT2_TMS",
+   "A33": "GND",
+   "A4": "DUT1_TCK",
+   "A40": "GND",
+   "A5": "DUT1_TDO",
+   "A6": "DUT1_TDI",
+   "A7": "DUT1_TMS",
+   "A8": "GND",
+   "A9": "+3V3",
+   "B1": "+12V",
+   "B10": "HDMI1_D0_N",
+   "B11": "HDMI1_CLK_N",
+   "B12": "HDMI2_CLK_N",
+   "B13": "HDMI1_D1_N",
+   "B14": "GND",
+   "B15": "+3V3",
+   "B16": "DUT1_KIO9",
+   "B18": "HDMI1_D2_N",
+   "B19": "HDMI2_D0_N",
+   "B2": "+12V",
+   "B20": "GND",
+   "B21": "+3V3",
+   "B22": "DUT2_KIO10",
+   "B23": "HDMI2_D1_N",
+   "B24": "GND",
+   "B25": "HDMI2_D2_N",
+   "B26": "HDMI1_SDA",
+   "B27": "GND",
+   "B28": "HDMI2_SDA",
+   "B29": "DUT2_UART_FROM",
+   "B3": "GND",
+   "B30": "GND",
+   "B31": "DUT2_UART_TO",
+   "B32": "DUT2_KIO8",
+   "B33": "GND",
+   "B4": "DUT1_UART_FROM",
+   "B40": "GND",
+   "B5": "DUT1_UART_TO",
+   "B6": "DUT2_TDO",
+   "B8": "GND",
+   "B9": "+3V3"
+  },
+  "sheet": "mimas_headers",
+  "value": "P13 socket (DUT1/DUT2 side)"
+ },
+ "Q1": {
+  "cluster": "HDMI1",
+  "descr": "P-MOSFET (AO3401A pin-compatible with BSS84 symbol: G1 S2 D3)",
+  "dnp": false,
+  "fp": "Package_TO_SOT_SMD:SOT-23",
+  "lcsc": "C15127",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI1_HPD_G",
+   "2": "HDMI1_5V",
+   "3": "HDMI1_HPD_SW"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "AO3401A"
+ },
+ "Q2": {
+  "cluster": "HDMI1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Package_TO_SOT_SMD:SOT-23",
+  "lcsc": "C8545",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI1_HPD_EN",
+   "2": "GND",
+   "3": "HDMI1_HPD_G"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "2N7002"
+ },
+ "Q3": {
+  "cluster": "HDMI2",
+  "descr": "P-MOSFET (AO3401A pin-compatible with BSS84 symbol: G1 S2 D3)",
+  "dnp": false,
+  "fp": "Package_TO_SOT_SMD:SOT-23",
+  "lcsc": "C15127",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI2_HPD_G",
+   "2": "HDMI2_5V",
+   "3": "HDMI2_HPD_SW"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "AO3401A"
+ },
+ "Q4": {
+  "cluster": "HDMI2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Package_TO_SOT_SMD:SOT-23",
+  "lcsc": "C8545",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI2_HPD_EN",
+   "2": "GND",
+   "3": "HDMI2_HPD_G"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "2N7002"
+ },
+ "Q5": {
+  "cluster": "HDMI3",
+  "descr": "P-MOSFET (AO3401A pin-compatible with BSS84 symbol: G1 S2 D3)",
+  "dnp": false,
+  "fp": "Package_TO_SOT_SMD:SOT-23",
+  "lcsc": "C15127",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI3_HPD_G",
+   "2": "HDMI3_5V",
+   "3": "HDMI3_HPD_SW"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "AO3401A"
+ },
+ "Q6": {
+  "cluster": "HDMI3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Package_TO_SOT_SMD:SOT-23",
+  "lcsc": "C8545",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI3_HPD_EN",
+   "2": "GND",
+   "3": "HDMI3_HPD_G"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "2N7002"
+ },
+ "R1": {
+  "cluster": "HDMI1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25120",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI1_D0_P"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "49.9"
+ },
+ "R10": {
+  "cluster": "HDMI1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25900",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI1_SCL"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "4.7k"
+ },
+ "R100": {
+  "cluster": "JTAG3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT3_TDO",
+   "2": "DUT3_JB_TDO"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R101": {
+  "cluster": "JTAG3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT3_TDI",
+   "2": "DUT3_JB_TDI"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R102": {
+  "cluster": "JTAG3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT3_TMS",
+   "2": "DUT3_JB_TMS"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R103": {
+  "cluster": "JTAG3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "DUT3_JB_VIO",
+   "2": "DUT3_VIO_SENSE"
+  },
+  "sheet": "dut_ports",
+  "value": "10k"
+ },
+ "R104": {
+  "cluster": "JTAG3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "",
+  "pads": {
+   "1": "DUT3_VIO_SENSE",
+   "2": "GND"
+  },
+  "sheet": "dut_ports",
+  "value": "100k"
+ },
+ "R105": {
+  "cluster": "KBD3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT3_KIO8",
+   "2": "DUT3_KB_KIO8"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R106": {
+  "cluster": "KBD3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT3_KIO9",
+   "2": "DUT3_KB_KIO9"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R107": {
+  "cluster": "KBD3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT3_KIO10",
+   "2": "DUT3_KB_KIO10"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R108": {
+  "cluster": "KBD3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "DUT3_KB_3V3",
+   "2": "DUT3_KB_SENSE"
+  },
+  "sheet": "dut_ports",
+  "value": "10k"
+ },
+ "R109": {
+  "cluster": "KBD3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "",
+  "pads": {
+   "1": "DUT3_KB_SENSE",
+   "2": "GND"
+  },
+  "sheet": "dut_ports",
+  "value": "100k"
+ },
+ "R11": {
+  "cluster": "HDMI1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25900",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI1_SDA"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "4.7k"
+ },
+ "R110": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "EXP_RESET_N"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R111": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "EXPA_INT_N"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R112": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "SHD_REV0"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R113": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": true,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "SHD_REV0",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R114": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": true,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "SHD_REV1"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R115": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "SHD_REV1",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R116": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": true,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "SHD_REV2"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R117": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "SHD_REV2",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R118": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": true,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "SHD_REV3"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R119": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "SHD_REV3",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R12": {
+  "cluster": "HDMI1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25792",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI1_5V",
+   "2": "HDMI1_DDC_SCL"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "47k"
+ },
+ "R120": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": true,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "SHD_REV4"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R121": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "SHD_REV4",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R122": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": true,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "SHD_REV5"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R123": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "SHD_REV5",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R124": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": true,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "SHD_REV6"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R125": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "SHD_REV6",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R126": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": true,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "SHD_REV7"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R127": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "SHD_REV7",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R128": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "SHD_FEAT0"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R129": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": true,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "SHD_FEAT0",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R13": {
+  "cluster": "HDMI1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25792",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI1_5V",
+   "2": "HDMI1_DDC_SDA"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "47k"
+ },
+ "R130": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "SHD_FEAT1"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R131": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": true,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "SHD_FEAT1",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R132": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "SHD_FEAT2"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R133": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": true,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "SHD_FEAT2",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R134": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "SHD_FEAT3"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R135": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": true,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "SHD_FEAT3",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R136": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "SHD_FEAT4"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R137": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": true,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "SHD_FEAT4",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R138": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "SHD_FEAT5"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R139": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": true,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "SHD_FEAT5",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R14": {
+  "cluster": "HDMI1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI1_5V",
+   "2": "HDMI1_HPD_G"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "100k"
+ },
+ "R140": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "SHD_FEAT6"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R141": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": true,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "SHD_FEAT6",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R142": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": true,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "SHD_FEAT7"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R143": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "SHD_FEAT7",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R144": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25765",
+  "mpn": "",
+  "pads": {
+   "1": "PWR_CTL0",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "20k"
+ },
+ "R145": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25765",
+  "mpn": "",
+  "pads": {
+   "1": "PWR_CTL1",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "20k"
+ },
+ "R146": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25765",
+  "mpn": "",
+  "pads": {
+   "1": "PWR_CTL2",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "20k"
+ },
+ "R147": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25765",
+  "mpn": "",
+  "pads": {
+   "1": "PWR_CTL3",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "20k"
+ },
+ "R148": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25765",
+  "mpn": "",
+  "pads": {
+   "1": "PWR_CTL4",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "20k"
+ },
+ "R149": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25765",
+  "mpn": "",
+  "pads": {
+   "1": "PWR_CTL5",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "20k"
+ },
+ "R15": {
+  "cluster": "HDMI1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI1_HPD_EN",
+   "2": "GND"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "100k"
+ },
+ "R150": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25765",
+  "mpn": "",
+  "pads": {
+   "1": "PWR_CTL6",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "20k"
+ },
+ "R151": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25765",
+  "mpn": "",
+  "pads": {
+   "1": "PWR_CTL7",
+   "2": "GND"
+  },
+  "sheet": "io_expanders",
+  "value": "20k"
+ },
+ "R152": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "PWRB_PRESENT_N"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R153": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "EXPB_INT_N"
+  },
+  "sheet": "io_expanders",
+  "value": "10k"
+ },
+ "R154": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25879",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "I2C_SCL"
+  },
+  "sheet": "io_expanders",
+  "value": "2.2k"
+ },
+ "R155": {
+  "cluster": "EXP",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25879",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "I2C_SDA"
+  },
+  "sheet": "io_expanders",
+  "value": "2.2k"
+ },
+ "R156": {
+  "cluster": "PK",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25105",
+  "mpn": "",
+  "pads": {
+   "1": "PK_JTAGEN",
+   "2": "PK_J_JTAGEN"
+  },
+  "sheet": "keyboard_link",
+  "value": "33"
+ },
+ "R157": {
+  "cluster": "PK",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25105",
+  "mpn": "",
+  "pads": {
+   "1": "PK_TMS",
+   "2": "PK_J_TMS"
+  },
+  "sheet": "keyboard_link",
+  "value": "33"
+ },
+ "R158": {
+  "cluster": "PK",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25105",
+  "mpn": "",
+  "pads": {
+   "1": "PK_TCK",
+   "2": "PK_J_TCK"
+  },
+  "sheet": "keyboard_link",
+  "value": "33"
+ },
+ "R159": {
+  "cluster": "PK",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25105",
+  "mpn": "",
+  "pads": {
+   "1": "PK_TDI",
+   "2": "PK_J_TDI"
+  },
+  "sheet": "keyboard_link",
+  "value": "33"
+ },
+ "R16": {
+  "cluster": "HDMI1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C11702",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI1_HPD_SW",
+   "2": "HDMI1_HPD"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "1k"
+ },
+ "R160": {
+  "cluster": "PK",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25105",
+  "mpn": "",
+  "pads": {
+   "1": "PK_TDO",
+   "2": "PK_J_TDO"
+  },
+  "sheet": "keyboard_link",
+  "value": "33"
+ },
+ "R161": {
+  "cluster": "PK",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25105",
+  "mpn": "",
+  "pads": {
+   "1": "PK_KIO8",
+   "2": "PK_J_KIO8"
+  },
+  "sheet": "keyboard_link",
+  "value": "33"
+ },
+ "R162": {
+  "cluster": "PK",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25105",
+  "mpn": "",
+  "pads": {
+   "1": "PK_KIO9",
+   "2": "PK_J_KIO9"
+  },
+  "sheet": "keyboard_link",
+  "value": "33"
+ },
+ "R163": {
+  "cluster": "PK",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25105",
+  "mpn": "",
+  "pads": {
+   "1": "PK_KIO10",
+   "2": "PK_J_KIO10"
+  },
+  "sheet": "keyboard_link",
+  "value": "33"
+ },
+ "R164": {
+  "cluster": "PK",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "",
+  "pads": {
+   "1": "PK_JTAGEN",
+   "2": "GND"
+  },
+  "sheet": "keyboard_link",
+  "value": "100k"
+ },
+ "R165": {
+  "cluster": "LINKA",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25076",
+  "mpn": "",
+  "pads": {
+   "1": "NB_UART_TX",
+   "2": "LINKA_TX"
+  },
+  "sheet": "keyboard_link",
+  "value": "100"
+ },
+ "R166": {
+  "cluster": "LINKA",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25076",
+  "mpn": "",
+  "pads": {
+   "1": "NB_UART_RX",
+   "2": "LINKA_RX"
+  },
+  "sheet": "keyboard_link",
+  "value": "100"
+ },
+ "R167": {
+  "cluster": "LINKB",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25076",
+  "mpn": "",
+  "pads": {
+   "1": "NB_UART_TX",
+   "2": "LINKB_TX"
+  },
+  "sheet": "keyboard_link",
+  "value": "100"
+ },
+ "R168": {
+  "cluster": "LINKB",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25076",
+  "mpn": "",
+  "pads": {
+   "1": "NB_UART_RX",
+   "2": "LINKB_RX"
+  },
+  "sheet": "keyboard_link",
+  "value": "100"
+ },
+ "R17": {
+  "cluster": "HDMI1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI1_HPD",
+   "2": "GND"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "100k"
+ },
+ "R18": {
+  "cluster": "HDMI1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI1_5V",
+   "2": "HDMI1_5V_SENSE"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "10k"
+ },
+ "R19": {
+  "cluster": "HDMI1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25756",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI1_5V_SENSE",
+   "2": "GND"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "15k"
+ },
+ "R2": {
+  "cluster": "HDMI1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25120",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI1_D0_N"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "49.9"
+ },
+ "R20": {
+  "cluster": "HDMI2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25120",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI2_D0_P"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "49.9"
+ },
+ "R21": {
+  "cluster": "HDMI2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25120",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI2_D0_N"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "49.9"
+ },
+ "R22": {
+  "cluster": "HDMI2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25120",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI2_D1_P"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "49.9"
+ },
+ "R23": {
+  "cluster": "HDMI2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25120",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI2_D1_N"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "49.9"
+ },
+ "R24": {
+  "cluster": "HDMI2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25120",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI2_D2_P"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "49.9"
+ },
+ "R25": {
+  "cluster": "HDMI2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25120",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI2_D2_N"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "49.9"
+ },
+ "R26": {
+  "cluster": "HDMI2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25120",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI2_CLK_P"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "49.9"
+ },
+ "R27": {
+  "cluster": "HDMI2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25120",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI2_CLK_N"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "49.9"
+ },
+ "R28": {
+  "cluster": "HDMI2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25811",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI2_5V",
+   "2": "HDMI2_VREF2"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "200k"
+ },
+ "R29": {
+  "cluster": "HDMI2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25900",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI2_SCL"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "4.7k"
+ },
+ "R3": {
+  "cluster": "HDMI1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25120",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI1_D1_P"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "49.9"
+ },
+ "R30": {
+  "cluster": "HDMI2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25900",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI2_SDA"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "4.7k"
+ },
+ "R31": {
+  "cluster": "HDMI2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25792",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI2_5V",
+   "2": "HDMI2_DDC_SCL"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "47k"
+ },
+ "R32": {
+  "cluster": "HDMI2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25792",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI2_5V",
+   "2": "HDMI2_DDC_SDA"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "47k"
+ },
+ "R33": {
+  "cluster": "HDMI2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI2_5V",
+   "2": "HDMI2_HPD_G"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "100k"
+ },
+ "R34": {
+  "cluster": "HDMI2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI2_HPD_EN",
+   "2": "GND"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "100k"
+ },
+ "R35": {
+  "cluster": "HDMI2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C11702",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI2_HPD_SW",
+   "2": "HDMI2_HPD"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "1k"
+ },
+ "R36": {
+  "cluster": "HDMI2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI2_HPD",
+   "2": "GND"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "100k"
+ },
+ "R37": {
+  "cluster": "HDMI2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI2_5V",
+   "2": "HDMI2_5V_SENSE"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "10k"
+ },
+ "R38": {
+  "cluster": "HDMI2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25756",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI2_5V_SENSE",
+   "2": "GND"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "15k"
+ },
+ "R39": {
+  "cluster": "HDMI3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25120",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI3_D0_P"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "49.9"
+ },
+ "R4": {
+  "cluster": "HDMI1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25120",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI1_D1_N"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "49.9"
+ },
+ "R40": {
+  "cluster": "HDMI3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25120",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI3_D0_N"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "49.9"
+ },
+ "R41": {
+  "cluster": "HDMI3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25120",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI3_D1_P"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "49.9"
+ },
+ "R42": {
+  "cluster": "HDMI3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25120",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI3_D1_N"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "49.9"
+ },
+ "R43": {
+  "cluster": "HDMI3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25120",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI3_D2_P"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "49.9"
+ },
+ "R44": {
+  "cluster": "HDMI3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25120",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI3_D2_N"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "49.9"
+ },
+ "R45": {
+  "cluster": "HDMI3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25120",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI3_CLK_P"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "49.9"
+ },
+ "R46": {
+  "cluster": "HDMI3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25120",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI3_CLK_N"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "49.9"
+ },
+ "R47": {
+  "cluster": "HDMI3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25811",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI3_5V",
+   "2": "HDMI3_VREF2"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "200k"
+ },
+ "R48": {
+  "cluster": "HDMI3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25900",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI3_SCL"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "4.7k"
+ },
+ "R49": {
+  "cluster": "HDMI3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25900",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI3_SDA"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "4.7k"
+ },
+ "R5": {
+  "cluster": "HDMI1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25120",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI1_D2_P"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "49.9"
+ },
+ "R50": {
+  "cluster": "HDMI3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25792",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI3_5V",
+   "2": "HDMI3_DDC_SCL"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "47k"
+ },
+ "R51": {
+  "cluster": "HDMI3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25792",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI3_5V",
+   "2": "HDMI3_DDC_SDA"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "47k"
+ },
+ "R52": {
+  "cluster": "HDMI3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI3_5V",
+   "2": "HDMI3_HPD_G"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "100k"
+ },
+ "R53": {
+  "cluster": "HDMI3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI3_HPD_EN",
+   "2": "GND"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "100k"
+ },
+ "R54": {
+  "cluster": "HDMI3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C11702",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI3_HPD_SW",
+   "2": "HDMI3_HPD"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "1k"
+ },
+ "R55": {
+  "cluster": "HDMI3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI3_HPD",
+   "2": "GND"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "100k"
+ },
+ "R56": {
+  "cluster": "HDMI3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI3_5V",
+   "2": "HDMI3_5V_SENSE"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "10k"
+ },
+ "R57": {
+  "cluster": "HDMI3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25756",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI3_5V_SENSE",
+   "2": "GND"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "15k"
+ },
+ "R58": {
+  "cluster": "JTAG0",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT0_UART_FROM",
+   "2": "DUT0_JB_UART_FROM"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R59": {
+  "cluster": "JTAG0",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT0_TCK",
+   "2": "DUT0_JB_TCK"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R6": {
+  "cluster": "HDMI1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25120",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI1_D2_N"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "49.9"
+ },
+ "R60": {
+  "cluster": "JTAG0",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT0_UART_TO",
+   "2": "DUT0_JB_UART_TO"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R61": {
+  "cluster": "JTAG0",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT0_TDO",
+   "2": "DUT0_JB_TDO"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R62": {
+  "cluster": "JTAG0",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT0_TDI",
+   "2": "DUT0_JB_TDI"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R63": {
+  "cluster": "JTAG0",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT0_TMS",
+   "2": "DUT0_JB_TMS"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R64": {
+  "cluster": "JTAG0",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "DUT0_JB_VIO",
+   "2": "DUT0_VIO_SENSE"
+  },
+  "sheet": "dut_ports",
+  "value": "10k"
+ },
+ "R65": {
+  "cluster": "JTAG0",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "",
+  "pads": {
+   "1": "DUT0_VIO_SENSE",
+   "2": "GND"
+  },
+  "sheet": "dut_ports",
+  "value": "100k"
+ },
+ "R66": {
+  "cluster": "KBD0",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT0_KIO8",
+   "2": "DUT0_KB_KIO8"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R67": {
+  "cluster": "KBD0",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT0_KIO9",
+   "2": "DUT0_KB_KIO9"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R68": {
+  "cluster": "KBD0",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT0_KIO10",
+   "2": "DUT0_KB_KIO10"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R69": {
+  "cluster": "KBD0",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "DUT0_KB_3V3",
+   "2": "DUT0_KB_SENSE"
+  },
+  "sheet": "dut_ports",
+  "value": "10k"
+ },
+ "R7": {
+  "cluster": "HDMI1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25120",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI1_CLK_P"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "49.9"
+ },
+ "R70": {
+  "cluster": "KBD0",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "",
+  "pads": {
+   "1": "DUT0_KB_SENSE",
+   "2": "GND"
+  },
+  "sheet": "dut_ports",
+  "value": "100k"
+ },
+ "R71": {
+  "cluster": "JTAG1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT1_UART_FROM",
+   "2": "DUT1_JB_UART_FROM"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R72": {
+  "cluster": "JTAG1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT1_TCK",
+   "2": "DUT1_JB_TCK"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R73": {
+  "cluster": "JTAG1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT1_UART_TO",
+   "2": "DUT1_JB_UART_TO"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R74": {
+  "cluster": "JTAG1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT1_TDO",
+   "2": "DUT1_JB_TDO"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R75": {
+  "cluster": "JTAG1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT1_TDI",
+   "2": "DUT1_JB_TDI"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R76": {
+  "cluster": "JTAG1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT1_TMS",
+   "2": "DUT1_JB_TMS"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R77": {
+  "cluster": "JTAG1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "DUT1_JB_VIO",
+   "2": "DUT1_VIO_SENSE"
+  },
+  "sheet": "dut_ports",
+  "value": "10k"
+ },
+ "R78": {
+  "cluster": "JTAG1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "",
+  "pads": {
+   "1": "DUT1_VIO_SENSE",
+   "2": "GND"
+  },
+  "sheet": "dut_ports",
+  "value": "100k"
+ },
+ "R79": {
+  "cluster": "KBD1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT1_KIO8",
+   "2": "DUT1_KB_KIO8"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R8": {
+  "cluster": "HDMI1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25120",
+  "mpn": "",
+  "pads": {
+   "1": "+3V3",
+   "2": "HDMI1_CLK_N"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "49.9"
+ },
+ "R80": {
+  "cluster": "KBD1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT1_KIO9",
+   "2": "DUT1_KB_KIO9"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R81": {
+  "cluster": "KBD1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT1_KIO10",
+   "2": "DUT1_KB_KIO10"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R82": {
+  "cluster": "KBD1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "DUT1_KB_3V3",
+   "2": "DUT1_KB_SENSE"
+  },
+  "sheet": "dut_ports",
+  "value": "10k"
+ },
+ "R83": {
+  "cluster": "KBD1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "",
+  "pads": {
+   "1": "DUT1_KB_SENSE",
+   "2": "GND"
+  },
+  "sheet": "dut_ports",
+  "value": "100k"
+ },
+ "R84": {
+  "cluster": "JTAG2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT2_UART_FROM",
+   "2": "DUT2_JB_UART_FROM"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R85": {
+  "cluster": "JTAG2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT2_TCK",
+   "2": "DUT2_JB_TCK"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R86": {
+  "cluster": "JTAG2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT2_UART_TO",
+   "2": "DUT2_JB_UART_TO"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R87": {
+  "cluster": "JTAG2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT2_TDO",
+   "2": "DUT2_JB_TDO"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R88": {
+  "cluster": "JTAG2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT2_TDI",
+   "2": "DUT2_JB_TDI"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R89": {
+  "cluster": "JTAG2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT2_TMS",
+   "2": "DUT2_JB_TMS"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R9": {
+  "cluster": "HDMI1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25811",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI1_5V",
+   "2": "HDMI1_VREF2"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "200k"
+ },
+ "R90": {
+  "cluster": "JTAG2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "DUT2_JB_VIO",
+   "2": "DUT2_VIO_SENSE"
+  },
+  "sheet": "dut_ports",
+  "value": "10k"
+ },
+ "R91": {
+  "cluster": "JTAG2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "",
+  "pads": {
+   "1": "DUT2_VIO_SENSE",
+   "2": "GND"
+  },
+  "sheet": "dut_ports",
+  "value": "100k"
+ },
+ "R92": {
+  "cluster": "KBD2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT2_KIO8",
+   "2": "DUT2_KB_KIO8"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R93": {
+  "cluster": "KBD2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT2_KIO9",
+   "2": "DUT2_KB_KIO9"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R94": {
+  "cluster": "KBD2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT2_KIO10",
+   "2": "DUT2_KB_KIO10"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R95": {
+  "cluster": "KBD2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "",
+  "pads": {
+   "1": "DUT2_KB_3V3",
+   "2": "DUT2_KB_SENSE"
+  },
+  "sheet": "dut_ports",
+  "value": "10k"
+ },
+ "R96": {
+  "cluster": "KBD2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "",
+  "pads": {
+   "1": "DUT2_KB_SENSE",
+   "2": "GND"
+  },
+  "sheet": "dut_ports",
+  "value": "100k"
+ },
+ "R97": {
+  "cluster": "JTAG3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT3_UART_FROM",
+   "2": "DUT3_JB_UART_FROM"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R98": {
+  "cluster": "JTAG3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT3_TCK",
+   "2": "DUT3_JB_TCK"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "R99": {
+  "cluster": "JTAG3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25118",
+  "mpn": "",
+  "pads": {
+   "1": "DUT3_UART_TO",
+   "2": "DUT3_JB_UART_TO"
+  },
+  "sheet": "dut_ports",
+  "value": "47"
+ },
+ "U1": {
+  "cluster": "HDMI1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Package_SON:USON-10_2.5x1.0mm_P0.5mm",
+  "lcsc": "C138714",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI1_D2_P",
+   "2": "HDMI1_D2_N",
+   "3": "GND",
+   "4": "HDMI1_D1_P",
+   "5": "HDMI1_D1_N",
+   "8": "GND"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "TPD4E05U06"
+ },
+ "U10": {
+  "cluster": "EXP",
+  "descr": "24-bit I2C GPIO expander A, addr 0x22",
+  "dnp": false,
+  "fp": "Package_DFN_QFN:QFN-32-1EP_5x5mm_P0.5mm_EP3.45x3.45mm",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "EXPA_INT_N",
+   "10": "SHD_REV6",
+   "11": "SHD_REV7",
+   "12": "SHD_FEAT0",
+   "13": "SHD_FEAT1",
+   "14": "SHD_FEAT2",
+   "15": "SHD_FEAT3",
+   "16": "SHD_FEAT4",
+   "17": "SHD_FEAT5",
+   "18": "SHD_FEAT6",
+   "19": "SHD_FEAT7",
+   "2": "+3V3",
+   "20": "PWR_CTL0",
+   "21": "PWR_CTL1",
+   "22": "PWR_CTL2",
+   "23": "PWR_CTL3",
+   "24": "PWR_CTL4",
+   "25": "PWR_CTL5",
+   "26": "PWR_CTL6",
+   "27": "PWR_CTL7",
+   "28": "GND",
+   "29": "I2C_SCL",
+   "3": "EXP_RESET_N",
+   "30": "I2C_SDA",
+   "31": "+3V3",
+   "32": "GND",
+   "33": "GND",
+   "4": "SHD_REV0",
+   "5": "SHD_REV1",
+   "6": "SHD_REV2",
+   "7": "SHD_REV3",
+   "8": "SHD_REV4",
+   "9": "SHD_REV5"
+  },
+  "sheet": "io_expanders",
+  "value": "TCA6424ARGJR"
+ },
+ "U11": {
+  "cluster": "EXP",
+  "descr": "16-bit I2C GPIO expander B, addr 0x20 (TI TCA6416A)",
+  "dnp": false,
+  "fp": "Package_SO:TSSOP-24_4.4x7.8mm_P0.65mm",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "EXPB_INT_N",
+   "10": "HDMI3_5V_SENSE",
+   "11": "PWRB_PRESENT_N",
+   "12": "GND",
+   "13": "DUT0_VIO_SENSE",
+   "14": "DUT1_VIO_SENSE",
+   "15": "DUT2_VIO_SENSE",
+   "16": "DUT3_VIO_SENSE",
+   "17": "DUT0_KB_SENSE",
+   "18": "DUT1_KB_SENSE",
+   "19": "DUT2_KB_SENSE",
+   "2": "+3V3",
+   "20": "DUT3_KB_SENSE",
+   "21": "GND",
+   "22": "I2C_SCL",
+   "23": "I2C_SDA",
+   "24": "+3V3",
+   "3": "EXP_RESET_N",
+   "4": "HDMI1_HPD_EN",
+   "5": "HDMI2_HPD_EN",
+   "6": "HDMI3_HPD_EN",
+   "7": "PK_JTAGEN",
+   "8": "HDMI1_5V_SENSE",
+   "9": "HDMI2_5V_SENSE"
+  },
+  "sheet": "io_expanders",
+  "value": "TCA6416APWR"
+ },
+ "U2": {
+  "cluster": "HDMI1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Package_SON:USON-10_2.5x1.0mm_P0.5mm",
+  "lcsc": "C138714",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI1_D0_P",
+   "2": "HDMI1_D0_N",
+   "3": "GND",
+   "4": "HDMI1_CLK_P",
+   "5": "HDMI1_CLK_N",
+   "8": "GND"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "TPD4E05U06"
+ },
+ "U3": {
+  "cluster": "HDMI1",
+  "descr": "",
+  "dnp": false,
+  "fp": "Package_SO:VSSOP-8_2.3x2mm_P0.5mm",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "GND",
+   "2": "+3V3",
+   "3": "HDMI1_SCL",
+   "4": "HDMI1_SDA",
+   "5": "HDMI1_DDC_SDA",
+   "6": "HDMI1_DDC_SCL",
+   "7": "HDMI1_VREF2",
+   "8": "HDMI1_VREF2"
+  },
+  "sheet": "hdmi_rx_dut1",
+  "value": "PCA9306DCUR"
+ },
+ "U4": {
+  "cluster": "HDMI2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Package_SON:USON-10_2.5x1.0mm_P0.5mm",
+  "lcsc": "C138714",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI2_D2_P",
+   "2": "HDMI2_D2_N",
+   "3": "GND",
+   "4": "HDMI2_D1_P",
+   "5": "HDMI2_D1_N",
+   "8": "GND"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "TPD4E05U06"
+ },
+ "U5": {
+  "cluster": "HDMI2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Package_SON:USON-10_2.5x1.0mm_P0.5mm",
+  "lcsc": "C138714",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI2_D0_P",
+   "2": "HDMI2_D0_N",
+   "3": "GND",
+   "4": "HDMI2_CLK_P",
+   "5": "HDMI2_CLK_N",
+   "8": "GND"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "TPD4E05U06"
+ },
+ "U6": {
+  "cluster": "HDMI2",
+  "descr": "",
+  "dnp": false,
+  "fp": "Package_SO:VSSOP-8_2.3x2mm_P0.5mm",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "GND",
+   "2": "+3V3",
+   "3": "HDMI2_SCL",
+   "4": "HDMI2_SDA",
+   "5": "HDMI2_DDC_SDA",
+   "6": "HDMI2_DDC_SCL",
+   "7": "HDMI2_VREF2",
+   "8": "HDMI2_VREF2"
+  },
+  "sheet": "hdmi_rx_dut2",
+  "value": "PCA9306DCUR"
+ },
+ "U7": {
+  "cluster": "HDMI3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Package_SON:USON-10_2.5x1.0mm_P0.5mm",
+  "lcsc": "C138714",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI3_D2_P",
+   "2": "HDMI3_D2_N",
+   "3": "GND",
+   "4": "HDMI3_D1_P",
+   "5": "HDMI3_D1_N",
+   "8": "GND"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "TPD4E05U06"
+ },
+ "U8": {
+  "cluster": "HDMI3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Package_SON:USON-10_2.5x1.0mm_P0.5mm",
+  "lcsc": "C138714",
+  "mpn": "",
+  "pads": {
+   "1": "HDMI3_D0_P",
+   "2": "HDMI3_D0_N",
+   "3": "GND",
+   "4": "HDMI3_CLK_P",
+   "5": "HDMI3_CLK_N",
+   "8": "GND"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "TPD4E05U06"
+ },
+ "U9": {
+  "cluster": "HDMI3",
+  "descr": "",
+  "dnp": false,
+  "fp": "Package_SO:VSSOP-8_2.3x2mm_P0.5mm",
+  "lcsc": "",
+  "mpn": "",
+  "pads": {
+   "1": "GND",
+   "2": "+3V3",
+   "3": "HDMI3_SCL",
+   "4": "HDMI3_SDA",
+   "5": "HDMI3_DDC_SDA",
+   "6": "HDMI3_DDC_SCL",
+   "7": "HDMI3_VREF2",
+   "8": "HDMI3_VREF2"
+  },
+  "sheet": "hdmi_rx_dut3",
+  "value": "PCA9306DCUR"
+ }
+}

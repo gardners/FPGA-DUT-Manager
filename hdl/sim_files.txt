@@ -58,6 +58,7 @@ third_party/mega65-core/hdmi_tx_encoder.vhdl
 hdl/src/video/font8x16_pkg.vhd
 hdl/src/video/video_timing.vhd
 hdl/src/video/video_meas.vhd
+hdl/src/video/vid_src_sel.vhd
 hdl/src/video/video_pt_ctrl.vhd
 hdl/src/video/mosaic_pkg.vhd
 hdl/src/video/mosaic_display.vhd
