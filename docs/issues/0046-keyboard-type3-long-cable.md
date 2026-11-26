@@ -238,3 +238,20 @@ net_tx payload register, not the keyboard logic); 18373 LUTs (56.4 %),
 21554 FFs (33.1 %). Bitstream `build/bits/supervisor-053367dc.bit` in the
 agent worktree; not loaded on hardware. The HDL is unchanged after
 053367d (later commits are testbench/docs only).
+
+## 2026-11-27 merged with feature/foundation (shield pin plan, 0049)
+
+* Keyboard CPLD JTAG pins are now per build: `boards/mimas_a7/pk_jtag_bodge.xdc`
+  (normal build: JTAGEN L21, TMS M21, TCK L20, TDI L19, TDO K19), read by
+  `vivado/build.tcl` only when SHIELD_RX = 0; `shield_v1.xdc` has the shield
+  pins (PK_TCK H19, PK_TMS M20, PK_TDI H18, PK_TDO K19; HDMI3 takes
+  L19/L20/M21/L21). In the shield build `pk_jtagen` is a null port (PK_JTAGEN
+  is on I2C expander B, TCA6416A @0x20 P0.3); `pk_jtagen_want` in
+  `mimas_a7_top` is the hook for the shield I2C master (issue 0049 step 2).
+* The merged normal build missed timing by 3 ps (net_rx d -> last_cmd RAM ->
+  MGMT duplicate compare -> cfg_r). Fix: the compare is registered
+  (`mgmt_dup`), S_MGMT takes one more cycle.
+* Normal build e131ab30: TIMING MET, WNS +0.161 ns, WHS +0.012 ns; 18608
+  LUTs (57.1 %), 21569 FFs (33.1 %). `make test`: 31 HDL testbenches, 228 C
+  and 52 relay checks pass.
+* Shield build e131ab30 (`VIVADO_GENERICS="SHIELD_RX=3"`): TIMING MET, WNS +0.175 ns, WHS +0.050 ns, 0 critical warnings (only "null port pk_jtagen ignored", as intended).

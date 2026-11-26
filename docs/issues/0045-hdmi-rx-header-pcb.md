@@ -229,3 +229,32 @@ Changes against the plans above:
   power-control outputs).
 * The rows 28-30 2x3 socket of the 2026-11-26 decision is superseded (those
   pins now carry DUT2/DUT3 JTAG and the DDC lines).
+
+## 2026-11-27 owner answers (round 5) and lead decisions
+
+* **DUT connectors stay native:** per DUT a JB1-style 2x6 and a J5-style 2x5
+  box header with the same layout and pin-1 orientation as on the MEGA65
+  board, so plain straight 12- and 10-way IDC cables can be bought.
+* Width therefore has to be solved in height (lead decision): a **vertical
+  DUT connector board** per Mimas on the panel side, joined to the shield
+  by right-angle board-to-board connectors. Rows: JB1 x4, J5 x4, plus the
+  header HDMI receptacles (on the vertical board, or on the shield edge if
+  the stack-up allows). Target about 90-110 mm per Mimas and <= ~40 mm
+  height (1RU).
+* **Only the master shield drives the power board** (all 8 outputs, one
+  1x11 cable). 1x11 order (shared with 0047): 1 GND, 2 key, 3-10 CTRL0-7
+  active high, 11 PRESENT (power board pulls it to 3.3 V through 10 k when
+  powered; the shield has a weak pull-down; high = present).
+* Shield 12 V input: Molex Mini-Fit Jr 2-pin (matches the power board).
+
+## 2026-11-27 owner (round 6): stacked per-DUT connectors
+
+Each DUT's two connectors sit **one above the other**:
+* **JTAG (JB1 2x6) on the shield**, at the panel edge, on the best signal
+  paths (shortest routes from the FPGA header pins);
+* **keyboard (J5 2x5) on a small sub-board below the shield's overhang**,
+  beside the Mimas (the space next to the Mimas under the overhang is
+  free), directly below its DUT's JB1. It connects to the shield by a
+  vertical board-to-board header (slow signals: KIO8/9/10, GND, 3.3 V sense).
+The header HDMI receptacles stay on the shield level; the Mimas's own HDMI
+IN/OUT are at Mimas level.

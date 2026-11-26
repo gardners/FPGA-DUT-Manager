@@ -97,3 +97,21 @@ for the MEGA-KVM box.
 * Proposed 1x11 order: 1 GND, 2 key (no pin), 3-10 CTRL0-7, 11 PRESENT
   (3.3 V via 10 k when the power board is powered). Details, ratings, BOM and
   open questions in `docs/hardware/power-board.md`.
+
+## 2026-11-27 owner answers (round 5) and lead decisions
+
+* One control cable, from the master shield, for all 8 outputs. 1x11
+  order as proposed, PRESENT high = present.
+* DUT outputs: **screw terminals with a + and a - per output**, for leads
+  ending in barrel plugs.
+* **No hand-fitting the LTC4417.** The chosen LTC4417CGN is the leaded
+  SSOP-24 (GN) package with no exposed pad (check against the datasheet). JLC
+  can fit it if it is bought through their global-sourcing/parts
+  pre-order. Also design a fallback that JLC stocks: three ideal-diode
+  controllers (e.g. TI LM74700-Q1 or LM5050-1 with back-to-back FETs) whose
+  EN pins come from simple priority logic (comparators/logic gates:
+  a valid higher-priority input disables the lower ones), plus the rocker
+  as a global disable.
+* Inrush on master-on: add soft start (gate RC) to the input FETs.
+* Current limit 5 A (owner).
+* Mimas feed connector: Mini-Fit Jr 2-pin (shield side matches).

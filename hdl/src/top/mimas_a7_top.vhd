@@ -76,9 +76,13 @@ entity mimas_a7_top is
     pk_kio8, pk_kio9 : inout std_logic;
     pk_kio10         : in  std_logic;
     -- physical keyboard CPLD JTAG, J5 pins 3-7 (issue 0046, ADR 0014):
-    -- tri-stated unless the keyboard JTAG target is enabled
-    pk_jtagen, pk_tck, pk_tms, pk_tdi : out std_logic;
-    pk_tdo                            : in  std_logic;
+    -- tri-stated unless the keyboard JTAG target is enabled. Pins:
+    -- pk_jtag_bodge.xdc (normal build) or shield_v1.xdc (SHIELD_RX > 0).
+    -- pk_jtagen exists only in the normal build (width 1 when SHIELD_RX =
+    -- 0, else null): on the shield PK_JTAGEN is on I2C expander B.
+    pk_jtagen          : out std_logic_vector((3 - SHIELD_RX) / 3 - 1 downto 0);
+    pk_tck, pk_tms, pk_tdi : out std_logic;
+    pk_tdo                 : in  std_logic;
     -- K block
     dut0_kio8, dut0_kio9, dut0_kb_sense : in  std_logic;
     dut0_kio10                          : out std_logic;
@@ -111,6 +115,7 @@ architecture rtl of mimas_a7_top is
   signal kio8, kio9, kio10, kio10_oe, vio, kbs : std_logic_vector(1 downto 0);
   signal pk8_o, pk9_o, pk8_oe, pk9_oe : std_logic;
   signal pkj_tck, pkj_tms, pkj_tdi, pkj_oe : std_logic;
+  signal pk_jtagen_want : std_logic;   -- for the shield's expander (0049)
   signal core_leds : std_logic_vector(7 downto 0);
   signal rst_cnt : unsigned(21 downto 0) := (others => '0');
   signal phy_rst : std_logic := '0';
@@ -503,7 +508,12 @@ begin
   kio9 <= dut1_kio9 & dut0_kio9;
   pk_kio8 <= pk8_o when pk8_oe = '1' else 'Z';
   pk_kio9 <= pk9_o when pk9_oe = '1' else 'Z';
-  pk_jtagen <= '1'     when pkj_oe = '1' else 'Z';
+  g_pk_jtagen : for i in pk_jtagen'range generate
+    pk_jtagen(i) <= '1' when pkj_oe = '1' else 'Z';
+  end generate;
+  -- shield (SHIELD_RX > 0): hook for issue 0049 step 2, the shield I2C
+  -- master drives expander B P0.3 (PK_JTAGEN) high while pk_jtagen_want
+  pk_jtagen_want <= pkj_oe;
   pk_tck    <= pkj_tck when pkj_oe = '1' else 'Z';
   pk_tms    <= pkj_tms when pkj_oe = '1' else 'Z';
   pk_tdi    <= pkj_tdi when pkj_oe = '1' else 'Z';

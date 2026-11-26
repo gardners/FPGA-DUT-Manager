@@ -122,6 +122,8 @@ architecture rtl of net_rx is
                                    (others => '0'), x"01", x"02", x"00");
   signal last_cmd: u16_arr_t := (others => (others => '0'));
   signal last_cmd_v : std_logic_vector(1 downto 0) := "00";
+  signal mgmt_arm : std_logic := '0';
+  signal mgmt_dup : boolean := false;     -- registered: request id = last applied
 
   signal arp_r, icmp_r, ack_r : reply_t := REPLY_NONE;
   signal jr_r    : jreply_arr_t := (others => REPLY_NONE);
@@ -142,9 +144,6 @@ architecture rtl of net_rx is
   signal f_arp_ip, f_ip_dst, f_dhcp_mac, f_dut_ok : std_logic_vector(1 downto 0) := "00";
   signal f_udp, f_udp_bad, f_identity, f_mgmt, f_kbd, f_uart, f_jtag, f_text : boolean := false;
   signal f_dut_ff : std_logic := '0';
-  -- MGMT cmd_id equals the endpoint's last one (per endpoint; last_cmd only
-  -- changes in S_MGMT, which is entered after S_PRE) -- timing
-  signal f_same_cmd : std_logic_vector(1 downto 0) := "00";
   signal f_jbad   : boolean := false;                    -- JTAG request malformed
   signal j_nb_r   : unsigned(31 downto 0) := (others => '0');
   signal j_bits_r : unsigned(31 downto 0) := (others => '0');
@@ -239,6 +238,7 @@ begin
       kbd_strobe <= "00";
       adm_valid  <= "00";
       uwr_valid  <= "00";
+      mgmt_dup   <= last_cmd_v(d) = '1' and last_cmd(d) = be16(h, 50);
       jreq_valid <= "000";
       jvec_we    <= "000";
       jgo        <= "000";
@@ -341,7 +341,6 @@ begin
             if unsigned(h(48)) = i or h(48) = x"FF" then
               f_dut_ok(i) <= '1';
             end if;
-            if last_cmd(i) = be16(h, 50) then f_same_cmd(i) <= '1'; else f_same_cmd(i) <= '0'; end if;
           end loop;
           f_dut_ff <= h(48)(0);
           f_dhcp  <= h(23) = x"11" and be16(h, 34) = PORT_DHCP_S and be16(h, 36) = PORT_DHCP_C and
@@ -469,11 +468,15 @@ begin
           end if;
 
         when S_MGMT =>
-          if ack_r.pend = '0' then
+          -- first cycle: let mgmt_dup (registered duplicate-id compare)
+          -- see this request (timing: last_cmd read + compare, issue 0046)
+          if mgmt_arm = '0' then
+            mgmt_arm <= '1';
+          elsif ack_r.pend = '0' then
             key  := to_integer(be16(h, 52));
             vlen := be16(h, 54);
             st   := ST_OK;
-            if last_cmd_v(d) = '1' and f_same_cmd(d) = '1' and key /= K_IDENTITY then
+            if mgmt_dup and key /= K_IDENTITY then
               st := ST_DUPLICATE;
             else
               case key is
@@ -566,6 +569,7 @@ begin
             ack_cmd_r <= h(50) & h(51);
             ack_key_r <= h(52) & h(53);
             ack_st_r  <= st;
+            mgmt_arm  <= '0';
             state     <= S_RELEASE;
           end if;
 
