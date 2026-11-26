@@ -60,7 +60,8 @@ enum dp_key {
   DP_K_THUMB_FORCE = 0x0041, /* thumbnail relay to MAC(6) scale(1) div(1); MAC 0 = off */
   DP_K_HB_PERIOD = 0x0050,
   DP_K_OUT_POLICY = 0x0060,
-  DP_K_PK_JTAG = 0x0061, /* physical keyboard CPLD JTAG: 0 auto, 1 force on, 2 force off (ADR 0014) */
+  DP_K_PK_JTAG = 0x0061, /* physical keyboard CPLD JTAG: 0 auto, 1 force on, 2 force off,
+                            3 on with KB_JTAGEN driven low (diagnostic) (ADR 0014) */
 };
 
 /* JTAG_REQ flags (offset 18) and JTAG_RESP target (byte 17), ADR 0005 s7 / ADR 0014 */

@@ -114,7 +114,7 @@ architecture rtl of mimas_a7_top is
   signal jtck, jtms, jtdi, jtdo, joe, utx, uoe, urx : std_logic_vector(1 downto 0);
   signal kio8, kio9, kio10, kio10_oe, vio, kbs : std_logic_vector(1 downto 0);
   signal pk8_o, pk9_o, pk8_oe, pk9_oe : std_logic;
-  signal pkj_tck, pkj_tms, pkj_tdi, pkj_oe : std_logic;
+  signal pkj_tck, pkj_tms, pkj_tdi, pkj_oe, pkj_en : std_logic;
   signal pk_jtagen_want : std_logic;   -- for the shield's expander (0049)
   signal core_leds : std_logic_vector(7 downto 0);
   signal rst_cnt : unsigned(21 downto 0) := (others => '0');
@@ -238,6 +238,7 @@ begin
       pk_kio8 => pk8_o, pk_kio9 => pk9_o, pk_kio8_oe => pk8_oe, pk_kio9_oe => pk9_oe,
       pk_kio8_in => pk_kio8, pk_kio10 => pk_kio10,
       pk_tck => pkj_tck, pk_tms => pkj_tms, pk_tdi => pkj_tdi, pk_jtag_oe => pkj_oe,
+      pk_jtagen_o => pkj_en,
       pk_tdo => pk_tdo,
       buttons => btn, leds => core_leds, text_we => text_we, text_addr => text_addr, text_data => text_data,
       addr_src0 => src0, addr_src1 => src1, ep_enable_o => ep_en,
@@ -509,11 +510,11 @@ begin
   pk_kio8 <= pk8_o when pk8_oe = '1' else 'Z';
   pk_kio9 <= pk9_o when pk9_oe = '1' else 'Z';
   g_pk_jtagen : for i in pk_jtagen'range generate
-    pk_jtagen(i) <= '1' when pkj_oe = '1' else 'Z';
+    pk_jtagen(i) <= pkj_en when pkj_oe = '1' else 'Z';   -- '0' in key 0x0061 mode 3
   end generate;
   -- shield (SHIELD_RX > 0): hook for issue 0049 step 2, the shield I2C
   -- master drives expander B P0.3 (PK_JTAGEN) high while pk_jtagen_want
-  pk_jtagen_want <= pkj_oe;
+  pk_jtagen_want <= pkj_oe and pkj_en;
   pk_tck    <= pkj_tck when pkj_oe = '1' else 'Z';
   pk_tms    <= pkj_tms when pkj_oe = '1' else 'Z';
   pk_tdi    <= pkj_tdi when pkj_oe = '1' else 'Z';

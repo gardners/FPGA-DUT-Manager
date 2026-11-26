@@ -548,7 +548,7 @@ begin
                     bcfg_r.thumb_div   <= h(63);
                   end if;
                 when K_PK_JTAG =>
-                  if vlen = 1 and unsigned(h(56)) <= 2 then bcfg_r.pk_jtag <= h(56);
+                  if vlen = 1 and unsigned(h(56)) <= 3 then bcfg_r.pk_jtag <= h(56);
                   elsif vlen = 1 then st := ST_BAD_VALUE; else st := ST_BAD_LEN; end if;
                 when K_HB_PERIOD =>
                   if vlen = 2 and be16(h, 56) >= 1 then cfg_r(d).hb_period_ms <= be16(h, 56);

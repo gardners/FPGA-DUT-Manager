@@ -40,7 +40,8 @@ package net_pkg is
     thumb_mac  : std_logic_vector(47 downto 0);
     thumb_scale: std_logic_vector(7 downto 0);   -- 1 = 1/2, 2 = 1/4
     thumb_div  : std_logic_vector(7 downto 0);   -- frame divisor 1..15
-    -- physical keyboard CPLD JTAG (key 0x0061, ADR 0014): 0 auto, 1 on, 2 off
+    -- physical keyboard CPLD JTAG (key 0x0061, ADR 0014): 0 auto, 1 on,
+    -- 2 off, 3 on with KB_JTAGEN driven low (diagnostic)
     pk_jtag    : std_logic_vector(7 downto 0);
   end record;
 
