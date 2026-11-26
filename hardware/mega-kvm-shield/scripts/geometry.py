@@ -32,10 +32,20 @@ KBD_J5 = {'A': sum(SLOTS['JTAG0J']) / 2, 'B': sum(SLOTS['JTAG3J']) / 2}   # J5 c
 KBD_B2B = (90.0, (KBD_Y0 + KBD_Y1) / 2)          # 2x6 header centre
 KBD_HOLES = [(89.0, KBD_Y0 + 3.5), (89.0, KBD_Y1 - 3.5), (100.0, (KBD_Y0 + KBD_Y1) / 2)]
 
-# Stack (z above the case floor), for docs and checks
-STANDOFF = 3.0                 # Mimas and sub-board standoffs
+# Stack (z above the case floor), for docs and checks. Round 8: the
+# sub-boards sit 2.5 mm lower than the Mimas so the JB1 pin tails (through
+# the shield underside) clear the J5 bodies without clipping; their link is a
+# standard 2x6 male header (2.54 mm plastic) into an 11 mm female socket.
 PCB = 1.6
-HDR_STACK = 2.54 + 8.5         # male header plastic + 8.5 mm female socket
-Z_MIMAS_TOP = STANDOFF + PCB
-Z_SHIELD_BOT = Z_MIMAS_TOP + HDR_STACK
-Z_SHIELD_TOP = Z_SHIELD_BOT + PCB
+STANDOFF_MIMAS = 5.5
+STANDOFF_KBD = 3.0
+HDR_STACK = 2.54 + 8.5                     # Mimas male header + 8.5 mm socket
+KBD_STACK = 2.54 + 11.0                    # sub-board male header + 11 mm socket
+Z_MIMAS_TOP = STANDOFF_MIMAS + PCB         # 7.1
+Z_SHIELD_BOT = Z_MIMAS_TOP + HDR_STACK     # 18.14
+Z_SHIELD_TOP = Z_SHIELD_BOT + PCB          # 19.74
+Z_KBD_TOP = STANDOFF_KBD + PCB             # 4.6
+assert abs(Z_KBD_TOP + KBD_STACK - Z_SHIELD_BOT) < 0.01
+J5_HEIGHT = 8.9                            # right-angle box header body
+JB1_TAIL = 3.0                             # pin tail below the shield, worst case
+assert Z_KBD_TOP + J5_HEIGHT + 1.0 < Z_SHIELD_BOT - JB1_TAIL

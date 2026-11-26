@@ -439,7 +439,7 @@
  },
  "J10": {
   "cluster": "B2BP13",
-  "descr": "2x6 female socket 8.5 mm, shield bottom side",
+  "descr": "2x6 female socket 2.54 mm, 11 mm tall, shield bottom side",
   "dnp": false,
   "fp": "Connector_PinSocket_2.54mm:PinSocket_2x06_P2.54mm_Vertical",
   "lcsc": "",
@@ -714,7 +714,7 @@
  },
  "J9": {
   "cluster": "B2BP12",
-  "descr": "2x6 female socket 8.5 mm, shield bottom side",
+  "descr": "2x6 female socket 2.54 mm, 11 mm tall, shield bottom side",
   "dnp": false,
   "fp": "Connector_PinSocket_2.54mm:PinSocket_2x06_P2.54mm_Vertical",
   "lcsc": "",

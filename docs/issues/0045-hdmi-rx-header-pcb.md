@@ -302,3 +302,16 @@ Mimas.
 5. LCD 5 V vs 3.3 V I2C: the front-panel board (0050) gets a PCA9306 level
    shifter, so either a 5 V or a 3.3 V LCD backpack works (jumper for the
    LCD supply).
+
+## 2026-11-27 progress: round 8 in the design
+
+* Stack: Mimas on 5.5 mm standoffs, keyboard sub-boards on 3 mm, so the
+  sub-boards sit 2.5 mm lower. The sub-board link is a standard 2x6 male
+  header into an **11 mm** 2x6 socket under the shield (13.54 mm gap). The
+  JB1 tails (<= 3 mm) clear the J5 tops by 1.6 mm, with no clipping
+  (`geometry.py` asserts it). JB1 tops at ~28.7 mm: fits 1RU.
+* The sub-board is one identical design on both sides (translated, not
+  mirrored). The J5 pin 1 orientation is the same on both sides, and both
+  shield sockets match it pad-for-pad (checked: 0.000 mm).
+* GS105 behind the boards; LCD level shifter on the front panel (0050).
+  shield.md stack table updated. ERC 0/0, DRC 0 errors on both boards.

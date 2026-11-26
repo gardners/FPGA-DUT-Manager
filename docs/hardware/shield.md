@@ -62,28 +62,31 @@ Seen from the rear panel (right = towards P12), per Mimas:
 | **Chosen: two levels (JB1 on the shield, J5 on sub-boards), HDMIs above the Mimas** | **189.6 mm** (shield y -49.8 .. 139.8) | **~380 mm** + ~2 mm between the shields + walls (2 x 3 mm) = **~388 mm** |
 
 So the two shields fit a 19-inch case (430-445 mm inside) with 40-55 mm to
-spare. The GS105 (~94 mm) does not fit beside them as well: it goes in front
-of or behind the boards, or on the mezzanine (issue 0048).
+spare. The GS105 sits **behind** the boards (owner round 8).
 
-### Stack (z above the case floor, `geometry.py`)
+### Stack (z above the case floor, `geometry.py`, round 8)
 
 | z (mm) | What |
 |---|---|
 | 0 | case floor |
-| 3.0-4.6 | Mimas PCB and keyboard sub-boards (3 mm standoffs) |
-| 4.6-~11 | Mimas HDMI IN/OUT, mDP; **J5 headers 4.6-13.5** |
-| 15.6-17.2 | shield (8.5 mm sockets on the Mimas male headers, and on the sub-boards' 2x6 headers) |
-| 17.2-~23.7 | header HDMI receptacles |
-| 17.2-~26.2 | JB1 headers |
+| 3.0-4.6 | keyboard sub-boards (3 mm standoffs) |
+| 4.6-13.5 | J5 headers (right-angle box header, 8.9 mm) |
+| 5.5-7.1 | Mimas PCB (5.5 mm standoffs) |
+| 7.1-~13.6 | Mimas HDMI IN/OUT, mDP |
+| ~15.1-18.1 | JB1 pin tails under the shield (<= 3 mm): **1.6 mm clear of the J5 tops, no clipping** |
+| 18.1-19.7 | shield: 8.5 mm sockets on the Mimas male headers; 11 mm 2x6 sockets on the sub-boards' standard 2x6 male headers (2.54 + 11 = 13.54 mm board gap) |
+| 19.7-~26.2 | header HDMI receptacles |
+| 19.7-~28.7 | JB1 headers |
 
-The top of the connectors is at about 26 mm. That leaves about 12 mm inside a
-1RU case (about 38.5 mm inside with 3 mm panels) for plugs, fans and cable
-bends.
+The connectors top out at about 29 mm, so 1RU (about 38.5 mm inside with
+3 mm panels) has about 9 mm left for plugs and cable bends. `geometry.py`
+asserts the sub-board stack height and the tail clearance.
 
-**Conflict to handle:** the JB1 pins come through the shield's underside
-right above the J5 bodies (J5 top at 13.5 mm, shield underside at 15.6 mm).
-Clip the JB1 tails to <= 1.5 mm after soldering. Alternatively, use 2.5 mm
-longer male pins on the sub-board and sit it 2.5 mm lower.
+The keyboard sub-board is **one identical design on both sides**: the
+P13-side board is the P12-side board moved by -139.4 mm in y, with no
+mirroring and no rotation. The J5 pin 1 orientation is therefore the same
+on both sides. The generator checks that the shield's two underside
+sockets line up pad-for-pad with the same board on each side (0.000 mm).
 
 ## Mechanics
 
@@ -119,7 +122,7 @@ drawing). These numbers come from the drawing: **check them with calipers on a r
   are flush.
 * Cut-out x 0-18, y 12.4-77.6 so the RJ45, USB-B, power switch S12, P2
   jumper and DC jack stay reachable.
-* 8 x 3.2 mm holes: the 4 Mimas holes (11 mm standoffs) and 4 in the
+* 8 x 3.2 mm holes: the 4 Mimas holes (11 mm standoffs between Mimas and shield) and 4 in the
   overhang corners (standoffs to the floor).
 * Bottom side: only the two 2x40 Mimas sockets and the two 2x6 sub-board
   sockets.
@@ -127,9 +130,9 @@ drawing). These numbers come from the drawing: **check them with calipers on a r
 **Keyboard sub-board** (34 x 47.8 mm, 2 layers, one design used twice):
 x 86-120, y 90.8-138.6 for the P12-side board (`kbd-sub` coordinates); the
 P13-side board is the same board moved by -139.4 mm in y. It sits on 3 mm
-standoffs (3 holes) beside the Mimas, under the shield overhang. Its two J5
+standoffs (3 holes) beside the Mimas, 2.5 mm lower than the Mimas,, under the shield overhang. Its two J5
 headers are centred under the JB1 above them. A 2x6 male header goes up
-into a 2x6 8.5 mm socket on the shield's underside. The generator checks
+into a 2x6 11 mm socket on the shield's underside. The generator checks
 that the pads line up (0.000 mm error).
 
 | Sub-board | Slot A (lower y) | Slot B |
@@ -227,9 +230,8 @@ Also on this input: an SMBJ15A TVS, 2 x 10 uF, and the 5 V buck.
 
 1 GND, 2 +5 V (AP63205 12 -> 5 V buck, 2 A), 3 +3V3, 4 SDA, 5 SCL, 6 INT
 (expander B INT, open drain, 10 k pull-up). The bus has 2.2 k pull-ups to
-3.3 V on the shield. A 5 V PCF8574 LCD backpack needs SDA/SCL >= 3.5 V high,
-so the front-panel board should level-shift (PCA9306) or use a 3.3 V-tolerant
-expander.
+3.3 V on the shield. The front-panel board (0050) carries its own PCA9306 level
+shifter (owner round 8), so a 5 V or a 3.3 V LCD backpack works.
 
 ### Neighbour UART, 1x3 Dupont header (ADR 0007)
 
@@ -260,7 +262,9 @@ before ordering.** Lines marked `TBD` still need a part chosen:
 * connectors: 2x40 and 2x6 sockets, box headers, HDMI receptacle, Mini-Fit
   Jr, pin headers;
 * PCA9306DCUR, TCA6424ARGJR, TCA6416APWR, AP63205WU;
-* the 4.7 uH inductor, SMBJ15A, polyfuses, 1206 10 uF/25 V, 0805 22 uF.
+* the 4.7 uH inductor, SMBJ15A, polyfuses, 1206 10 uF/25 V, 0805 22 uF;
+* the 11 mm-tall 2x6 female socket for the sub-board link (LCSC lists
+  2.54 mm female headers in 11 mm height; pick one).
 
 The through-hole sockets on the shield's underside can be hand-soldered by
 JLC or fitted by us.
@@ -268,8 +272,8 @@ JLC or fitted by us.
 ## Before fab (checklist)
 
 1. Measure the Mimas on a real board: pin grid, holes, part heights under
-   the shield, HDMI lip position. Check the stack: the J5 top against the
-   JB1 tails (clip them).
+   the shield, HDMI lip position. Check the stack: the JB1 tail length
+   (<= 3 mm) against the J5 tops, and the 11 mm socket height.
 2. **Check the TCA6424A pin numbers** in `lib/shield.kicad_sym` against TI
    SCPS193 (they were entered from memory of the RGJ pinout, including the
    exposed pad).
@@ -282,15 +286,16 @@ JLC or fitted by us.
 4. Settle the open choices below, pick the LCSC parts, rerun `make`, and
    get ERC/DRC clean (silk warnings acceptable).
 
+## Owner decisions taken into the design
+
+Round 8: the GS105 sits behind the boards; one identical keyboard sub-board
+per side; the sub-boards sit lower instead of clipping the JB1 tails; the
+physical keyboard stays at the front edge with a short ribbon; LCD level
+shifting goes on the front-panel board.
+
 ## Open choices for the owner
 
-1. GS105 placement: it does not fit beside two shields (~388 mm + 94 mm).
-   Put it in front of or behind the boards, or on the mezzanine.
-2. Sub-boards: one per side carrying two J5 (used here: one design, fewer
-   standoffs) or one per DUT.
-3. JB1 tails over the J5 bodies: clip them, or use longer sub-board pins and
-   drop the sub-boards 2.5 mm.
-4. The HDMI receptacle part (the Amphenol 10029449 land pattern is used):
+1. The HDMI receptacle part (the Amphenol 10029449 land pattern is used):
    pick an LCSC equivalent.
-5. Physical keyboard: front edge plus a short ribbon to the rear panel
-   (used here), or a fifth column on the rear edge (+22 mm per shield).
+2. The exact 11 mm socket part (or another JLC-sourceable stacking pair
+   with a 13.5 mm board gap).

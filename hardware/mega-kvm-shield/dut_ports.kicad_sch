@@ -8010,7 +8010,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "2x6 female socket 8.5 mm, shield bottom side"
+		(property "Description" "2x6 female socket 2.54 mm, 11 mm tall, shield bottom side"
 			(at 279.4 172.72 0)
 			(effects
 				(font
@@ -8649,7 +8649,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "2x6 female socket 8.5 mm, shield bottom side"
+		(property "Description" "2x6 female socket 2.54 mm, 11 mm tall, shield bottom side"
 			(at 342.9 172.72 0)
 			(effects
 				(font
