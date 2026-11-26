@@ -963,7 +963,7 @@
    "2": "GND"
   },
   "uuid": "346f94cd-b4b5-5970-a344-811a80692560",
-  "value": "PREV"
+  "value": "6x6 H9.5"
  },
  "SW2": {
   "dnp": false,
@@ -980,7 +980,7 @@
    "2": "GND"
   },
   "uuid": "016a7cb2-81be-5bc7-939d-62dc1642380e",
-  "value": "NEXT"
+  "value": "6x6 H9.5"
  },
  "SW3": {
   "dnp": false,
@@ -997,7 +997,7 @@
    "2": "GND"
   },
   "uuid": "e8622800-52d5-56b8-b7bb-7913f17dc95d",
-  "value": "MODE"
+  "value": "6x6 H9.5"
  },
  "SW4": {
   "dnp": false,
@@ -1014,7 +1014,7 @@
    "2": "GND"
   },
   "uuid": "ffa16675-e111-5429-85ce-67494343ba6a",
-  "value": "SPARE1"
+  "value": "6x6 H9.5"
  },
  "SW5": {
   "dnp": false,
@@ -1031,7 +1031,7 @@
    "2": "GND"
   },
   "uuid": "ef32434a-de91-598d-accb-0f7eede0efac",
-  "value": "SPARE2"
+  "value": "6x6 H9.5"
  },
  "U1": {
   "dnp": false,

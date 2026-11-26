@@ -139,7 +139,7 @@ for j in range(4):
     P(RN10K, 'RN%d' % (j + 1), x, by + 20.32, pin_nets,
       fields={'Note': '10k pull-ups: every U2 pin is held high (no floating inputs, no spurious /INT)'})
 for i, (ref, fn) in enumerate(BUTTONS):
-    P(SW_TACT, ref, bx + 81.28 + i * 20.32, by + 50.8, {'1': '~{BTN_%s}' % fn, '2': 'GND'}, value=fn,
+    P(SW_TACT, ref, bx + 81.28 + i * 20.32, by + 50.8, {'1': '~{BTN_%s}' % fn, '2': 'GND'},
       fields={'Panel': fn})
 header(10, 'J3', bx + 200.66, by + 45.72,
        dict([('1', 'GND'), ('2', '+3V3')] + [(str(3 + k), 'EXP%d' % k) for k in range(8)]),

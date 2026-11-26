@@ -28,7 +28,7 @@ sed -e '1s/.*/Designator,Val,Package,Mid X,Mid Y,Rotation,Layer/' out/$P-cpl-raw
 rm -f out/$P-cpl-raw.csv
 $KICAD_CLI pcb render --side top --width 2400 --height 500 --zoom 3.2 -o out/$P-front.png $P.kicad_pcb >/dev/null 2>&1 || true
 $KICAD_CLI pcb render --side bottom --width 2400 --height 500 --zoom 3.2 -o out/$P-back.png $P.kicad_pcb >/dev/null 2>&1 || true
-$KICAD_CLI pcb render --side top --rotate '-45,0,-20' --quality basic --width 2400 --height 900 \
+$KICAD_CLI pcb render --side top --rotate '-45,0,-20' --quality basic --width 2400 --height 900 --zoom 1.8 \
     -o out/$P-3d.png $P.kicad_pcb >/dev/null 2>&1 || true
 $KICAD_CLI pcb export svg --mode-single --fit-page-to-board --exclude-drawing-sheet \
     -l Edge.Cuts,F.SilkS,F.Fab,F.Cu,Dwgs.User -o out/$P-front.svg $P.kicad_pcb >/dev/null

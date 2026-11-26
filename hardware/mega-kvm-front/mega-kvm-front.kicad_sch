@@ -11183,7 +11183,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "PREV"
+		(property "Value" "6x6 H9.5"
 			(at 96.52 250.19 0)
 			(effects
 				(font
@@ -11308,7 +11308,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "NEXT"
+		(property "Value" "6x6 H9.5"
 			(at 116.84 250.19 0)
 			(effects
 				(font
@@ -11433,7 +11433,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "MODE"
+		(property "Value" "6x6 H9.5"
 			(at 137.16 250.19 0)
 			(effects
 				(font
@@ -11558,7 +11558,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "SPARE1"
+		(property "Value" "6x6 H9.5"
 			(at 157.48 250.19 0)
 			(effects
 				(font
@@ -11683,7 +11683,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "SPARE2"
+		(property "Value" "6x6 H9.5"
 			(at 177.8 250.19 0)
 			(effects
 				(font
