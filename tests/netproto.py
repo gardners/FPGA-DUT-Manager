@@ -14,6 +14,16 @@ T_JTAG_REQ, T_JTAG_RESP = 0x40, 0x41
 T_RASTER = 0x60
 K_PK_LED_MODE, K_PK_LED_HOST = 0x0033, 0x0034  # physical keyboard LEDs (ADR 0005 s4)
 K_CON_SCREEN = 0x0035  # console screen: 0 auto, 1 editable, 2 no video, 3 select
+K_PK_JTAG = 0x0061  # physical keyboard CPLD JTAG: 0 auto, 1 force on, 2 force off (ADR 0014)
+# JTAG_REQ flags (offset 18): b0 abort/reset session, b1 target = physical
+# keyboard CPLD (ADR 0014); JTAG_RESP byte 17 = target (0 DUT, 1 keyboard)
+JF_ABORT, JF_KBD = 0x0001, 0x0002
+JT_DUT, JT_KBD = 0, 1
+# heartbeat capabilities (byte 32)
+CAP_UART, CAP_JTAG, CAP_KBD_DEV, CAP_PHYS_KBD, CAP_HDMI, CAP_THUMBS, CAP_KBD_JTAG = \
+    0x01, 0x02, 0x04, 0x08, 0x10, 0x80, 0x100
+# heartbeat byte 76 kbd_phys_type
+PHYS_TYPES = {0: "none", 1: "MK-I", 2: "MK-II", 3: "type3"}
 # heartbeat byte 109, what HDMI OUT shows (issues 0029, 0032)
 CON_SHOWN = {0: "editable", 1: "no-video", 2: "select", 3: "passthrough"}
 CON_PASSTHROUGH = 3
@@ -251,8 +261,8 @@ def decode_snapshot(b):
 
 
 def decode_jtag_resp(b):
-    seq, nxt, status, _, nbytes, bits = struct.unpack(">IIBBHI", b[:16])
-    return {"seq": seq, "next_seq": nxt, "status": status, "tdo_bytes": nbytes,
+    seq, nxt, status, target, nbytes, bits = struct.unpack(">IIBBHI", b[:16])
+    return {"seq": seq, "next_seq": nxt, "status": status, "target": target, "tdo_bytes": nbytes,
             "bit_count": bits, "tdo": b[16:16 + nbytes]}
 
 
@@ -297,8 +307,8 @@ def encode_snapshot(dut, f):
     return custom(T_UART_SNAP, dut, b)
 
 
-def encode_jtag_resp(dut, seq, nxt, status, bits, tdo):
-    return custom(T_JTAG_RESP, dut, struct.pack(">IIBBHI", seq, nxt, status, 0, len(tdo), bits) + tdo)
+def encode_jtag_resp(dut, seq, nxt, status, bits, tdo, target=JT_DUT):
+    return custom(T_JTAG_RESP, dut, struct.pack(">IIBBHI", seq, nxt, status, target, len(tdo), bits) + tdo)
 
 
 def encode_ack(dut, cmd, key, status, gen):

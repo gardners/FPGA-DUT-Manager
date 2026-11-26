@@ -37,7 +37,8 @@ architecture tb of tb_supervisor_core is
   signal kio10, kio10_oe : std_logic_vector(1 downto 0);
   signal leds : std_logic_vector(7 downto 0);
   signal good, bad : unsigned(15 downto 0);
-  signal tap_rises : natural;
+  signal tap_rises, ktap_rises : natural;
+  signal pk_tck, pk_tms, pk_tdi, pk_tdo, pk_joe : std_logic;
   signal captured : natural := 0;
   signal pclk : std_logic := '0';
   signal vx, vy : unsigned(10 downto 0);
@@ -73,6 +74,7 @@ begin
       kio8 => "00", kio9 => "00", kio10 => kio10, kio10_oe => kio10_oe,
       pk_kio8 => open, pk_kio9 => open, pk_kio8_oe => open, pk_kio9_oe => open,
       pk_kio8_in => '1', pk_kio10 => '0', buttons => "0000",
+      pk_tck => pk_tck, pk_tms => pk_tms, pk_tdi => pk_tdi, pk_jtag_oe => pk_joe, pk_tdo => pk_tdo,
       leds => leds, text_we => open, text_addr => open, text_data => open,
       addr_src0 => open, addr_src1 => open, ep_enable_o => open, stat_rx_good => good, stat_rx_bad => bad,
       vid_present => '1', vid_locked => '1',
@@ -92,6 +94,11 @@ begin
   urx(1) <= '1';
   jtdo(1) <= '0';
   tap : entity work.tap_model port map (jtck(0), jtms(0), jtdi(0), jtdo(0), tap_rises);
+  -- the physical keyboard's CPLD (ADR 0014); its pins are only driven while
+  -- the keyboard JTAG target is enabled
+  ktap : entity work.tap_model generic map (IDCODE => x"012BA043")
+    port map (pk_tck, pk_tms, pk_tdi, pk_tdo, ktap_rises);
+  assert pk_joe /= '0' or pk_tck /= '1' report "keyboard TCK moved while disabled" severity failure;
 
   -- RX driver
   drive : process
@@ -181,7 +188,7 @@ begin
     report "captured " & integer'image(captured) & " frames; rx good " &
       integer'image(to_integer(good)) & " bad " & integer'image(to_integer(bad));
     assert bad = 0 report "RX CRC errors/drops" severity failure;
-    assert good = 30 report "expected 30 good RX frames" severity failure;
+    assert good = 34 report "expected 34 good RX frames" severity failure;
     -- thumbnails: local machines 0 (DUT0, video target: captured) and 3
     -- (DUT1) seen; machine 5's picture from a peer stored at 1/4 scale
     assert th_seen(0) = '1' and th_seen(3) = '1' and th_seen(5) = '1'

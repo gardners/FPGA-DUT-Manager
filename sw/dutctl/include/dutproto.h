@@ -60,7 +60,17 @@ enum dp_key {
   DP_K_THUMB_FORCE = 0x0041, /* thumbnail relay to MAC(6) scale(1) div(1); MAC 0 = off */
   DP_K_HB_PERIOD = 0x0050,
   DP_K_OUT_POLICY = 0x0060,
+  DP_K_PK_JTAG = 0x0061, /* physical keyboard CPLD JTAG: 0 auto, 1 force on, 2 force off (ADR 0014) */
 };
+
+/* JTAG_REQ flags (offset 18) and JTAG_RESP target (byte 17), ADR 0005 s7 / ADR 0014 */
+#define DP_JF_ABORT 0x0001 /* abort / reset session: next seq := seq, nothing clocked */
+#define DP_JF_KBD 0x0002   /* target the physical keyboard's CPLD instead of the DUT */
+enum dp_jtag_target { DP_JT_DUT = 0, DP_JT_KBD = 1 };
+/* heartbeat capabilities (byte 32) */
+#define DP_CAP_KBD_JTAG 0x100
+/* heartbeat kbd_phys_type (byte 76) */
+enum dp_phys_type { DP_PHYS_NONE = 0, DP_PHYS_MK1, DP_PHYS_MK2, DP_PHYS_TYPE3 };
 
 enum dp_ack_status { DP_ACK_OK = 0, DP_ACK_BAD_KEY, DP_ACK_BAD_LEN, DP_ACK_BAD_VALUE, DP_ACK_DUPLICATE };
 enum dp_jtag_status { DP_JS_DONE = 0, DP_JS_BUSY, DP_JS_BAD_SEQ, DP_JS_BAD_FMT, DP_JS_UNPOWERED };
@@ -159,6 +169,7 @@ typedef struct {
 typedef struct {
   uint32_t seq, next_seq;
   uint8_t status;
+  uint8_t target; /* dp_jtag_target */
   uint16_t tdo_bytes;
   uint32_t bit_count;
   uint8_t tdo[DP_JTAG_MAX_BITS / 8];

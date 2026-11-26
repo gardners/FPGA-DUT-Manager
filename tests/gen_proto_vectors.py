@@ -21,6 +21,8 @@ def vectors():
     v.append(("kbd_wild", P.kbd_set(0xFF, [10, 63, 79])))
     v.append(("uart_hello_clear", P.uart_tx(1, 0xFFFFFFFE, 9, b"HELLO", clear=True)))
     v.append(("jtag_41", P.jtag_req(0, 0xDEADBEEF, TMS, "0" * len(TMS), half=6)))
+    # keyboard CPLD target (ADR 0014): session reset on the wildcard endpoint
+    v.append(("jtag_kbd_reset", P.jtag_req(0xFF, 7, "1", "0", half=6, flags=P.JF_ABORT | P.JF_KBD)))
     hb = dict(hb_seq=42, boot_id=0x11223344, build_id=0xC0DE0001, dna=0x0123456789ABCDEF,
               topo_index=0, topo_count=2, dip=0x05, link_flags=0x03, caps=7, cfg_gen=9,
               target_flags=0x0F, kbd_owner=1, kbd_policy=0, selected=0x10,
@@ -81,6 +83,10 @@ def vectors():
     v.append(("snapshot", P.encode_snapshot(0, snap)))
     v.append(("jtag_resp", P.encode_jtag_resp(0, 0xDEADBEEF, 0xDEADBEF0, 0, 41,
                                               bytes([0x00, 0x26, 0x81, 0xC5, 0x06, 0x00]))))
+    # LCMXO2-1200HC IDCODE 0x012BA043 after 9 navigation bits
+    v.append(("jtag_resp_kbd", P.encode_jtag_resp(1, 3, 4, 0, 41,
+                                                  (0x012BA043 << 9).to_bytes(6, "little"),
+                                                  target=P.JT_KBD)))
     v.append(("ack", P.encode_ack(1, 0x1234, 0x0010, 0, 9)))
     return v
 

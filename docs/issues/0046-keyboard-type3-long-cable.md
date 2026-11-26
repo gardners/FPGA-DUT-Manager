@@ -122,3 +122,119 @@ KIO8 filter, the LED PWM (`cnt`) and the idle/ambulance counter
 (`cnt_idle(20)`). A testbench must show that the MK-I frames are
 bit-identical before and after, using the supervisor's `kbd_mk1_host` as
 the reference host.
+
+## 2026-11-27 progress (branch `feature/kbd-type3`; CPLD branch `type3`)
+
+**Decisions taken here** (ADR 0014 has the details):
+
+* OSCH **24.18 MHz** (exactly 2 x 12.09): all MK-I logic runs on a clock
+  enable every second cycle, so every OSCH-timed constant keeps its meaning
+  with no constant edited. 38/66.5 MHz are not multiples of 12.09; 133 MHz
+  is, but is a poor fit for the -5 part.
+* **Auto-baud** as well: address 0 is never used, so the only 9-bit low run
+  is a zero data byte (host sync pair 127/0 every fourth pair); the keyboard
+  measures it (window 96..127 cycles) and times RX and TX from it with a
+  fractional timer. Locks in ~0.2 ms at nominal and +/-5.5 % OSCH.
+* Words 1..19 carry the MK-I bit streams in order (host -> keyboard control
+  bit 127 first; keyboard -> host frame bit 0 first), so the CPLD reuses its
+  MK-I shift registers and latch. Word 20 lock state / LED override, 21
+  protocol version (1).
+* Enter type 3 on a valid pair with KIO8 quiet >= 64 us; leave 100 ms after
+  the last pair (existing `cnt_idle`) or at once on KIO8 high.
+* Host probes type 3 first (2 ms), SCL low before SDA so an MK-II sees no
+  START/STOP; re-probes every 2 s with no keyboard or an MK-I, never with
+  an MK-II. Heartbeat `kbd_phys_type` 3.
+* Keyboard CPLD JTAG: third `jtag_engine`, JTAG_REQ flags b1 on either
+  endpoint, response byte 17 = target, capability b8, MGMT key 0x0061
+  (0 auto: while a keyboard is detected + 10 s lease after detection or a
+  transaction; 1 on; 2 off). Pins as in the table above (verified against
+  the vendor XDC: row r = GPIO_(r-5), A = _P, B = _N): JTAGEN L21, TMS M21,
+  TCK L20, TDI L19, TDO K19. They are grouped in `mimas_a7.xdc` so issue
+  0045 can move them (it wants the GPIO_7 SRCC pair L19/L20).
+* MK-II with KIO8 low: harmless (no START/STOP, see above;
+  `tb_kbd_phys_host` checks it with the TCA9555 models on the bus).
+
+**Works in simulation** (`make test`: 30 HDL testbenches, 228 C checks, 52
+relay checks, all pass):
+
+* `tb_megakey_mk1_compat`: upstream 2ed09bd and the type-3 firmware side by
+  side under this repo's `kbd_mk1_host`, aligned 12.09/24.18 MHz OSCH
+  models: KIO10, all 14 LED outputs and SCAN_OUT identical at all 163 117
+  compared edges, identical frames (29), plus key positions (F3, DEL,
+  RETURN, SPACE, CAPS LOCK latch/raw, SHIFT LOCK).
+* `tb_kbd_t3_host`: `kbd_t3_host` + type-3 firmware, 20 ns cable delay each
+  way, OSCH nominal / -5.5 % / +5.5 % (each from the previous run's stale
+  auto-baud value): keys, commit, date, version, CAPS LOCK word, LED vector
+  in the CPLD's control frame, no receive errors after lock, 100 ms
+  timeout (shortened), immediate exit on KIO8 high.
+* `tb_kbd_phys_host`: MK-II at power-up (probe first, no START/STOP), MK-I
+  plus a re-probe without key glitches, the type-3 firmware (MK-I first,
+  type 3 after the next re-probe), unplug, MK-II again.
+* `tb_supervisor_core`: keyboard TAP model (IDCODE 0x012BA043) unpowered
+  without a keyboard, key 0x0061 = 3 rejected, IDCODE after forcing on.
+* Simulation pieces: `hdl/sim/machxo2/osch_model.vhd` (library machxo2,
+  run-time trim, stop flag), `hdl/sim/kbd_matrix_model.vhd`,
+  `third_party/mega65-keyboard-cpld/` (copies made by
+  `scripts/sync-kbd-cpld.sh`; the CPLD repo stays the master copy).
+
+**Vivado** (build 08e9a846, first HDL version): TIMING MET, WNS +0.154 ns,
+WHS +0.008 ns; 18488 LUTs (56.7 %), 21562 FFs (33.1 %), 33 BRAM tiles, 143
+IOBs. (Final build: see the next note.)
+
+**CPLD size (rough, no Diamond here)**: ghdl --synth + yosys `synth_lattice
+-family xo2`, CCU2D counted as two LUT4s: upstream 664-675 LUT4-equivalents
+/ 560 FFs; type-3 firmware 921-1009 / 681 (72-79 % of 1280 LUTs). A first
+version with word multiplexers was over 100 %; reusing the MK-I registers
+fixed that. **Diamond must confirm the fit.**
+
+**CPLD repo**: `~/Projects/mega65/mega65-keyboard-cpld` branch `type3`
+(local only, not pushed): 37080f6, d45d0ab. Only `src/top.vhd` changes.
+Not built: Diamond is not installed.
+
+**Needs the owner**
+
+1. Diamond build of branch `type3` (`./build.sh` as before; it runs
+   `version.sh`, synthesis, map, PAR, bitgen, jedecgen): check the fit and
+   timing reports (24.18 MHz clock; the MK-I logic is a 2-cycle path through
+   the clock enable, but Diamond will time it as 1 cycle, 41 ns, which should
+   still be easy). Report LUT/FF use back.
+2. Confirm on the MK-I keyboard schematic that J5 pin 3 is the CPLD's
+   JTAGENB, and check the strategy setting `PROP_BIT_JTAGEnableBitGen =
+   False` (the `JTAG_PORT` sysCONFIG option should stay ENABLE, the
+   default, so JTAG is always available).
+3. Hardware: load a bitstream from this branch, then with the keyboard on
+   the physical port: `dutctl listen` shows `kbd MK-I` (old firmware); `dutctl
+   jtag-idcode IP --kbd` should print `IDCODE 0x012ba043`.
+
+**Flashing the keyboard over the remote JTAG** (once Diamond made
+`impl1/megakey_impl1.jed`):
+
+```
+dutctl jtag-idcode <board-ip> --kbd        # expect IDCODE 0x012ba043
+dutctl set <board-ip> kbd-jtag 1           # keep JTAG on while the CPLD
+                                           # stops answering during flashing
+dutctl xvc <board-ip> --kbd --port 2542 &  # XVC server -> keyboard CPLD
+openFPGALoader -c xvc-client --ip 127.0.0.1 --port 2542 --freq 1000000 \
+    -f impl1/megakey_impl1.jed             # erase, program, verify, refresh
+kill %1
+dutctl set <board-ip> kbd-jtag 0           # back to auto
+dutctl listen                              # expect kbd type3 within ~2 s
+```
+
+(`<board-ip>` = either endpoint of the master board. Keep only one JTAG
+client at a time: each `dutctl` session resets the keyboard engine's
+sequence. If openFPGALoader's MachXO2 flash support misbehaves over XVC,
+Diamond Deployment Tool can export an SVF for `openFPGALoader ... file.svf`
+instead; not tried.)
+
+**Not done / not verified**: nothing on hardware; no Diamond build; the
+3 m cable (series resistors, slew, supply drop) is still to be tried; the
+"changed words first" schedule was not needed.
+
+## 2026-11-27 Vivado build of the final HDL (053367dc)
+
+TIMING MET: WNS +0.079 ns, WHS +0.014 ns (worst path DHCP client ->
+net_tx payload register, not the keyboard logic); 18373 LUTs (56.4 %),
+21554 FFs (33.1 %). Bitstream `build/bits/supervisor-053367dc.bit` in the
+agent worktree; not loaded on hardware. The HDL is unchanged after
+053367d (later commits are testbench/docs only).

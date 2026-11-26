@@ -25,6 +25,7 @@ SYNTH_SOURCES := \
 	$(HDL_SRC)/kbd/kbd_mk1_device.vhd \
 	$(HDL_SRC)/kbd/kbd_mk1_host.vhd \
 	$(HDL_SRC)/kbd/kbd_mk2_host.vhd \
+	$(HDL_SRC)/kbd/kbd_t3_host.vhd \
 	$(HDL_SRC)/kbd/kbd_phys_host.vhd \
 	$(HDL_SRC)/kbd/kbd_arbiter.vhd \
 	$(HDL_SRC)/kbd/kbd_led_status.vhd \

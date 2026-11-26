@@ -66,15 +66,17 @@ entity net_tx is
     ack_key    : in  std_logic_vector(15 downto 0);
     ack_status : in  std_logic_vector(7 downto 0);
     ack_taken  : out std_logic;
-    jr         : in  reply_arr_t;
-    jr_status  : in  slv8_arr_t;
-    jr_seq     : in  u32_arr_t;
-    jr_taken   : out std_logic_vector(1 downto 0);
+    -- JTAG responses per target (net_pkg JT_*: 0/1 DUTs, 2 keyboard CPLD);
+    -- jr(t).dut is the endpoint that sends it
+    jr         : in  jreply_arr_t;
+    jr_status  : in  jslv8_arr_t;
+    jr_seq     : in  ju32_arr_t;
+    jr_taken   : out std_logic_vector(2 downto 0);
     -- JTAG results
-    j_next_seq : in  u32_arr_t;
-    j_bits     : in  u32_arr_t;
+    j_next_seq : in  ju32_arr_t;
+    j_bits     : in  ju32_arr_t;
     j_tdo_addr : out unsigned(9 downto 0);
-    j_tdo_data0, j_tdo_data1 : in std_logic_vector(7 downto 0);
+    j_tdo_data0, j_tdo_data1, j_tdo_data2 : in std_logic_vector(7 downto 0);
     -- UART snapshots
     snap_req   : in  std_logic_vector(1 downto 0);
     snap_ack   : out std_logic_vector(1 downto 0);
@@ -155,6 +157,7 @@ architecture rtl of net_tx is
   signal hb_seq  : u32_arr_t := (others => (others => '0'));
   signal sent    : unsigned(31 downto 0) := (others => '0');
   signal rr      : std_logic := '0';      -- round robin between DUTs
+  signal jtg     : integer range 0 to 2 := 0;   -- JTAG target of a K_JRESP
   signal jr_nb   : unsigned(31 downto 0) := (others => '0');  -- JRESP TDO bytes (S_LATCH)
 
   -- raster
@@ -273,6 +276,7 @@ begin
   process (clk)
     variable k       : kind_t;
     variable dd      : integer range 0 to 1;
+    variable jj      : integer range 0 to 2;
     variable dmac    : mac_t;
     variable dip     : ip_t;
     variable dport   : std_logic_vector(15 downto 0);
@@ -290,7 +294,7 @@ begin
       arp_taken  <= '0';
       icmp_taken <= '0';
       ack_taken  <= '0';
-      jr_taken   <= "00";
+      jr_taken   <= "000";
       snap_ack   <= "00";
       dhcp_taken <= "00";
       mac_start  <= '0';
@@ -329,10 +333,11 @@ begin
 
       case state is
         when S_IDLE =>
-          k := K_NONE; dd := 0;
+          k := K_NONE; dd := 0; jj := 0;
           if arp.pend = '1' then k := K_ARP; dd := arp.dut;
           elsif jr(0).pend = '1' and (rr = '0' or jr(1).pend = '0') then k := K_JRESP; dd := 0;
-          elsif jr(1).pend = '1' then k := K_JRESP; dd := 1;
+          elsif jr(1).pend = '1' then k := K_JRESP; dd := 1; jj := 1;
+          elsif jr(JT_KBD).pend = '1' then k := K_JRESP; dd := jr(JT_KBD).dut; jj := JT_KBD;
           elsif ack.pend = '1' then k := K_ACK; dd := ack.dut;
           elsif icmp.pend = '1' then k := K_ICMP; dd := icmp.dut;
           elsif dhcp(0).req = '1' and ep_enable(0) = '1' then k := K_DHCP; dd := 0;
@@ -366,12 +371,13 @@ begin
             if k = K_RAST then last_rast <= '1'; else last_rast <= '0'; end if;
             kind  <= k;
             d     <= dd;
+            jtg   <= jj;
             state <= S_LATCH;
             case k is
               when K_ARP  => arp_taken <= '1';
               when K_ICMP => null;            -- taken after data copied
               when K_ACK  => ack_taken <= '1';
-              when K_JRESP=> jr_taken(dd) <= '1';
+              when K_JRESP=> jr_taken(jj) <= '1';
               when K_SNAP => snap_ack(dd) <= '1';
               when K_HB   => hb_due(dd) <= '0';
               when K_DHCP => dhcp_taken(dd) <= '1';
@@ -389,8 +395,8 @@ begin
           -- snap_ack; wait for them before using snap(d). Also precompute
           -- the JTAG response byte count (timing, issue 0019).
           jr_nb <= (others => '0');
-          if jr_status(d) = JS_DONE then
-            jr_nb <= shift_right(j_bits(d) + 7, 3);
+          if jr_status(jtg) = JS_DONE then
+            jr_nb <= shift_right(j_bits(jtg) + 7, 3);
           end if;
           state <= S_PREP;
           if kind = K_RAST then
@@ -449,19 +455,21 @@ begin
               pf(12) <= ack_status; pf(13) <= x"00";
               for i in 0 to 3 loop pf(14 + i) <= bu(bcfg.cfg_gen, i); end loop;
             when K_JRESP =>
-              dmac := jr(d).mac; dip := jr(d).ip; dport := jr(d).port_n; sport := PORT_JTAG;
+              dmac := jr(jtg).mac; dip := jr(jtg).ip; dport := jr(jtg).port_n; sport := PORT_JTAG;
               typ := T_JTAG_RESP;
               nbytes := jr_nb;
               plen := JRESP_FIXED_LEN + to_integer(nbytes(11 downto 0));
               tl   := to_integer(nbytes(11 downto 0));
               for i in 0 to 3 loop
-                pf(8 + i)  <= bu(jr_seq(d), i);
-                pf(12 + i) <= bu(j_next_seq(d), i);
-                pf(20 + i) <= bu(j_bits(d), i);
+                pf(8 + i)  <= bu(jr_seq(jtg), i);
+                pf(12 + i) <= bu(j_next_seq(jtg), i);
+                pf(20 + i) <= bu(j_bits(jtg), i);
               end loop;
-              pf(16) <= jr_status(d); pf(17) <= x"00";
+              -- byte 17: target, 0 = DUT, 1 = physical keyboard CPLD (ADR 0014)
+              pf(16) <= jr_status(jtg);
+              if jtg = JT_KBD then pf(17) <= x"01"; else pf(17) <= x"00"; end if;
               pf(18) <= bu(nbytes(15 downto 0), 0); pf(19) <= bu(nbytes(15 downto 0), 1);
-              if jr_status(d) /= JS_DONE then
+              if jr_status(jtg) /= JS_DONE then
                 for i in 0 to 3 loop pf(20 + i) <= x"00"; end loop;
               end if;
             when K_SNAP =>
@@ -701,7 +709,11 @@ begin
               when K_SNAP =>
                 if d = 0 then wb := hist_data0; else wb := hist_data1; end if;
               when K_JRESP =>
-                if d = 0 then wb := j_tdo_data0; else wb := j_tdo_data1; end if;
+                case jtg is
+                  when 0 => wb := j_tdo_data0;
+                  when 1 => wb := j_tdo_data1;
+                  when others => wb := j_tdo_data2;
+                end case;
               when K_ICMP =>
                 wb := icmp_rdata;       -- type/checksum already patched by net_rx
               when K_RAST =>
