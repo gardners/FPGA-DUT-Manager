@@ -155,3 +155,24 @@ Sources: https://numato.com/wp-content/uploads/2018/06/MimasA7V3.0-pd.png
   between adjacent shields. The Ethernet switch stays.
 * Power the Mimas through header VIN from the power board (see above), so
   the DC jack isn't needed in the box.
+
+## 2026-11-27 owner decisions (round 3)
+
+* **Two Mimas boards per unit**, one non-staggered shield each. Aim for
+  **4 DUTs per board** (8 per unit); 3 is acceptable.
+* The DUT keyboard connectors carry no keyboard JTAG (KIO8/9/10, GND and
+  3.3 V sense only), to save space and pins.
+* Neighbour link: just a UART (TX/RX/GND), on a 3-pin Dupont header. Or, if
+  the shield is wider than 90 mm anyway, a right-angle connector between
+  adjacent shields that also passes 12 V through.
+* The shield may be wider than 90 mm if the rear connectors need it.
+* Lead plan for 4 DUTs (pins are tight): move slow signals to a second
+  I2C expander: HDMI HPD out and +5V sense, DUT VIO sense and keyboard
+  3.3 V sense (the tri-state gating then reacts within about 1 ms, which the
+  series resistors make harmless). Budget: I2C 2 + keyboard JTAG 4-5 + UART
+  2 + DUT1 HDMI/DDC 10 + DUT2 19 + DUT3 19 = 56-57 of 55 + 4 freed sense
+  pins, so about 2-3 spare. Three header receivers need 3 clock-capable
+  pairs (P13 C18/C19 and D17/C17, P12 L19/L20) and all 3 free PLLs, but only
+  one CMT per bank: so the receivers must be BUFG-clocked (not
+  BUFIO/BUFR), or move an MMCM. **The gate build (issue 0049) decides 3 vs
+  4.**

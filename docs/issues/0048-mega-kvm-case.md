@@ -33,3 +33,9 @@ Opened: 2026-11-27 (owner request)
   for vents and probably a 40 mm 12 V fan.
 * Files: Inkscape-compatible SVG, **pure red hairlines = cut, black =
   etch/engrave**. MDF test sheet 600 x 900 mm; acrylic in smaller sections.
+
+## 2026-11-27 owner decisions (round 3)
+
+Two Mimas boards (with shields, possibly wider than 90 mm), the GS105 on
+the same level, the power board, quiet 40 mm fans with space for them. Per
+DUT LEDs for 8 DUTs.
