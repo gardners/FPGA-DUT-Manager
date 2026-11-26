@@ -114,3 +114,44 @@ revision byte to tell the FPGA which layout it is on.
 KiCad project with schematic and connector placement (lead plus agent).
 Open questions: see the lead's message of 2026-11-27 (geometry, link
 content, power through the header).
+
+## 2026-11-27 Mimas A7 V3 facts (Numato drawing + V3.1 schematic)
+
+Sources: https://numato.com/wp-content/uploads/2018/06/MimasA7V3.0-pd.png
+(mechanical), https://numato.com/wp-content/uploads/2018/06/MimasA7_V3.1_Sch.pdf
+(sheet 13 power), https://numato.com/docs/mimas-artix-7-fpga-development-board-with-ddr-sdram-and-gigabit-ethernet/
+
+* Board **120 x 90 mm**, 4 x 3.2 mm holes about 5 mm in from the
+  corners (exact offsets on the drawing: 9.14/5.14 mm on the P12/RJ45
+  corner, 5.00/5.00 on the HDMI corners).
+* **P12 runs along one 120 mm edge and P13 along the other**, row 1 (VIN) at
+  the RJ45 end, row 40 at the HDMI end; 101.6 mm between rows 1 and 40.
+* Short edge 1 (left): RJ45 (J5), USB-B (J3), power switch S12, P2 power-select
+  header, DC jack J1. Short edge 2 (right): HDMI IN (P4), HDMI OUT (P6),
+  mini-DP OUT (P11), mini-DP IN (P9).
+* **Power path:** J1 -> D2 (SS24 Schottky) -> **VIN** = header rows 1-2 ->
+  P2 (EXT) -> S12 switch -> L12 -> F2 polyfuse 1812L260 (2.6 A) -> VCC12V0 ->
+  regulators (TPS53319 3.3 V, TPS54325 1.0 V and VADJ 3.3 V with a 3 A
+  fuse). So feeding 12 V into header VIN is safe: it still passes P2, the
+  power switch and the polyfuse, and D2 stops it back-feeding the DC jack.
+  Numato specifies 5-12 V in. There is no overvoltage protection, so
+  the feed must come from the regulated/eFused 12 V of 0047.
+
+## 2026-11-27 owner answers
+
+* **A third DUT per board:** a third HDMI IN, a TE0790/JB1 JTAG+UART header
+  and a keyboard header on the shield. Pin budget (lead): 55 header
+  signals free; second HDMI 8 + EDID 4, I2C 2, physical keyboard JTAG 5,
+  neighbour UARTs 4, third DUT (HDMI 8 + EDID 4 + JTAG/UART 7 + keyboard 4)
+  = 46, so about 9 spare. The third receiver's clock goes on the P12
+  GPIO_7 SRCC pair (L19/L20), so the keyboard JTAG moves off it. **Gate
+  before fab:** a Vivado build with all three receivers on the planned pins
+  must place (one PLL each; 3 PLLs are free) and meet timing.
+* **Relay header:** 1x11 single row with one pin removed for keying.
+* **Shields:** the owner first proposed staggered shields (one straddling
+  P13 of board n and P12 of board n+1), then preferred **non-staggered**
+  (one shield per board, width stays ~90 mm per board), with bulk data and
+  enumeration over Ethernet and only a **neighbour-to-neighbour UART**
+  between adjacent shields. The Ethernet switch stays.
+* Power the Mimas through header VIN from the power board (see above), so
+  the DC jack isn't needed in the box.

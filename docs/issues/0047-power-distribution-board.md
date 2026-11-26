@@ -41,3 +41,16 @@ for the MEGA-KVM box.
   connectors rated for it, and terminals rated for 3 A per output.
 * Optional: an I2C expander or INA-class current monitor per channel on the
   shield's I2C bus (heartbeat could report DUT current).
+
+## 2026-11-27 owner answers
+
+* **eFuses do the switching** (no relays).
+* **One input at a time,** but not by jumper: either a switch on the input
+  side, or automatic priority. Lead proposal: LTC4417 (3 inputs = banana,
+  PCIe 8-pin, Molex; prioritised PowerPath with external PFETs, up to 36 V),
+  with a fuse per input sized for that input.
+* Extra 12 V barrel output for the **Netgear GS105** switch. The Mimas boards
+  are fed through header VIN on the shields (0045 facts) instead of their
+  DC jacks.
+* Outputs to DUTs: with 3 DUTs per board, 4 boards = 12 DUTs. See the
+  question on control (1x11 parallel header vs I2C).
