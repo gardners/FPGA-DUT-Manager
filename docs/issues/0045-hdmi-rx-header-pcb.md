@@ -246,3 +246,15 @@ Changes against the plans above:
   active high, 11 PRESENT (power board pulls it to 3.3 V through 10 k when
   powered; the shield has a weak pull-down; high = present).
 * Shield 12 V input: Molex Mini-Fit Jr 2-pin (matches the power board).
+
+## 2026-11-27 owner (round 6): stacked per-DUT connectors
+
+Each DUT's two connectors sit **one above the other**:
+* **JTAG (JB1 2x6) on the shield**, at the panel edge, on the best signal
+  paths (shortest routes from the FPGA header pins);
+* **keyboard (J5 2x5) on a small sub-board below the shield's overhang**,
+  beside the Mimas (the space next to the Mimas under the overhang is
+  free), directly below its DUT's JB1. It connects to the shield by a
+  vertical board-to-board header (slow signals: KIO8/9/10, GND, 3.3 V sense).
+The header HDMI receptacles stay on the shield level; the Mimas's own HDMI
+IN/OUT are at Mimas level.
