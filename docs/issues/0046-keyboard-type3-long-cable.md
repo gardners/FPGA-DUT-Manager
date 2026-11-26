@@ -276,3 +276,5 @@ dump (`jtag-sample`) skipped: no LCMXO2-1200HC TQFP100 BSDL found without a
 Lattice login. Merged foundation b9b5e99. Normal build 8fc1e250: TIMING
 MET, WNS +0.179 ns, WHS +0.008 ns, 18461 LUTs, 21572 FFs; `make test`
 green (31 HDL, 228 C, 52 relay checks).
+
+Update: merged foundation f75b3e4 (net_tx/DHCP timing). Normal build c73c7b23: TIMING MET, WNS +0.200 ns, WHS +0.011 ns, 18510 LUTs, 21970 FFs; `make test` green. Bitstream for the pin-3 check: `build/bits/supervisor-c73c7b23.bit` (agent worktree).
