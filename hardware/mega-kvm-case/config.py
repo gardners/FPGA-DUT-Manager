@@ -29,15 +29,18 @@ MEGA65_FOOTPRINT = None # (width, depth) of a MEGA65; NOT FOUND in the local rep
 BAYS = 2                # Mimas boards (bays) per unit
 DUTS_PER_BAY = 4
 
-MIMAS = {               # Numato Mimas A7 V3 (docs/hardware/shield.md, issue 0045 facts)
-    'w': 90.0, 'd': 120.0, 'pcb': 1.6,
+MIMAS = {               # Numato Mimas A7 V3 (docs/hardware/shield.md, issue 0045 facts),
+                        # checked against the vendor STEP (docs/datasheets/MimasA7_3D_1.step, 2026-11-27)
+    'w': 90.0, 'd': 120.0,
+    'pcb': 1.6,         # nominal; the STEP models 1.16 (MEASURE). The shield190 stack reads
+                        # MIMAS_PCB / STANDOFF_MIMAS from the shield's geometry.py
     'standoff': 3.0,    # M3 standoff under the Mimas (bottom-side parts are low; ASSUMED)
     # holes in Mimas coordinates (mx along the 120 mm edge from the RJ45 edge, my across from P13)
-    'holes': [(5.00, 84.86), (115.0, 85.0), (4.83, 5.00), (115.0, 5.00)],
+    'holes': [(5.0, 85.0), (115.0, 85.0), (5.0, 5.0), (115.0, 5.0)],   # STEP: 3.2 mm drills
     'hole_d': 3.4,
     'hdmi_in_my': 71.3, 'hdmi_out_my': 49.9,   # receptacle centres on the HDMI edge (mx = 120)
-    'hdmi_cz': 2.9,     # HDMI opening centre above the Mimas top surface (ASSUMED)
-    'rj45_my': (60.8, 76.6),
+    'hdmi_cz': 3.0,     # HDMI opening centre above the Mimas top surface (STEP: shell 0-6.07)
+    'rj45_my': (60.7, 76.7),   # magjack body (STEP): x 0-21.8, 14.1 mm tall, in the shield cut-out
     'rj45_plug_clear': 35.0,   # RJ45 patch plug + bend in front of the RJ45 edge
 }
 
@@ -67,7 +70,9 @@ SHIELD190 = {           # read from the shield project when present; fallbacks b
     'j5_cz': 4.45,      # J5 centre above the sub-board top (4.6-13.5 with 3 mm standoffs)
     'kbd_drop': 2.5,    # owner 2026-11-27: sub-boards sit lower than in shield.md (longer
                         # stacking pins); J5 and the sub-board move down by this much
-    'mimas_to_panel': 0.2,   # Mimas HDMI edge -> panel inner face (HDMI lips 1.5 proud go into the hole)
+    'mimas_to_panel': 0.2,   # Mimas HDMI edge -> panel inner face. The vendor STEP shows the Mimas
+                             # HDMIs flush with the edge (not 1.5 proud): the plug then reaches through
+                             # the panel thickness (MEASURE a board); the header HDMIs stay 1.5 proud
 }
 
 VBOARD = {

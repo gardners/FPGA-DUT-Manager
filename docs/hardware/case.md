@@ -350,7 +350,12 @@ Option B (before cutting anything for it):
 Both options:
 
 7. Mimas A7 (calipers): hole positions, HDMI receptacle opening height above
-   the PCB (`MIMAS['hdmi_cz']`), parts under the shield.
+   the PCB (`MIMAS['hdmi_cz']`), parts under the shield. The vendor STEP
+   (2026-11-27, issue 0045) gave holes at (5, 5)/(5, 85)/(115, 5)/(115, 85),
+   `hdmi_cz` 3.0, the Mimas HDMIs **flush** with the board edge (so the
+   plugs reach through the rear panel's thickness: check they mate fully),
+   and a **1.16 mm** Mimas PCB (1.6 assumed: measure, then set
+   `MIMAS_PCB` in the shield's `geometry.py`, which the bays read).
 8. Real parts: banana socket hole, rocker cut-out, button hole, RJ45 coupler,
    LCD module (bezel and holes), PCIe/Molex plug outlines.
 9. Pin-1 orientation of J5 and JB1 on a MEGA65, to set `VBOARD['pin1']` (default

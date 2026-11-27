@@ -20,9 +20,9 @@
 <text x="436" y="195" style="font-family:sans-serif;font-size:1.8px;fill:#000;text-anchor:middle;font-weight:normal">standoff</text>
 <rect x="21.25" y="119.3" width="391.2" height="301.2" style="fill:#f4f0d0;fill-opacity:0.5;stroke:#c66;stroke-width:0.3;stroke-dasharray:2,1"/>
 <text x="216.85" y="270.9" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">mounting plate</text>
-<rect x="136.85" y="265.8" width="15.8" height="35" style="fill:#ffe0e0;fill-opacity:0.5;stroke:#c66;stroke-width:0.3;stroke-dasharray:2,1"/>
+<rect x="136.75" y="265.8" width="16" height="35" style="fill:#ffe0e0;fill-opacity:0.5;stroke:#c66;stroke-width:0.3;stroke-dasharray:2,1"/>
 <text x="144.75" y="284.3" style="font-family:sans-serif;font-size:1.8px;fill:#000;text-anchor:middle;font-weight:normal">RJ45 patch 1</text>
-<rect x="328.45" y="265.8" width="15.8" height="35" style="fill:#ffe0e0;fill-opacity:0.5;stroke:#c66;stroke-width:0.3;stroke-dasharray:2,1"/>
+<rect x="328.35" y="265.8" width="16" height="35" style="fill:#ffe0e0;fill-opacity:0.5;stroke:#c66;stroke-width:0.3;stroke-dasharray:2,1"/>
 <text x="336.35" y="284.3" style="font-family:sans-serif;font-size:1.8px;fill:#000;text-anchor:middle;font-weight:normal">RJ45 patch 2</text>
 <rect x="318" y="16" width="126" height="30" style="fill:#d08040;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
 <text x="381" y="32" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">input board / leads</text>
