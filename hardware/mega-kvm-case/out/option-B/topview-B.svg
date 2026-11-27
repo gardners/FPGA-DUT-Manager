@@ -56,6 +56,6 @@
 <text x="15" y="442" style="font-family:sans-serif;font-size:3px;fill:#000;text-anchor:start;font-weight:normal">dashed red = cable/plug allowance (soft)</text>
 <text x="15" y="446.5" style="font-family:sans-serif;font-size:3px;fill:#000;text-anchor:start;font-weight:normal">PROBLEM: front panel: NO ROOM for front panel: LCD, LEDs (red = powered, green = selected), buttons, rocker (162 mm)</text>
 <text x="15" y="451" style="font-family:sans-serif;font-size:3px;fill:#000;text-anchor:start;font-weight:normal">PROBLEM: front panel: NO ROOM for physical keyboard feed-through (2x5) (36 mm)</text>
-<text x="15" y="455.5" style="font-family:sans-serif;font-size:3px;fill:#000;text-anchor:start;font-weight:normal">PROBLEM: front panel: NO ROOM for DUT power leads (8) (34 mm)</text>
+<text x="15" y="455.5" style="font-family:sans-serif;font-size:3px;fill:#000;text-anchor:start;font-weight:normal">PROBLEM: front panel: NO ROOM for DUT power leads (9) (34 mm)</text>
 <text x="15" y="460" style="font-family:sans-serif;font-size:3px;fill:#000;text-anchor:start;font-weight:normal">PROBLEM: IEC cover: the banana pair needs 29.2 mm, the opening is 28.0 mm wide</text>
 </svg>

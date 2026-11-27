@@ -5,7 +5,7 @@ Shield numbers from: geometry.py + placement.json.
 
 ## Summary
 
-* **Option A**: 445.0 x 330.0 x 44.45 mm (W x D x H): 2 problem(s).
+* **Option A**: 445.0 x 330.0 x 44.45 mm (W x D x H): 4 problem(s).
 * **Option B**: 444.5 x 409.0 x 43.90 mm (W x D x H): 4 problem(s).
 
 ## DUT-face variants (2 bays), width and height budgets
@@ -35,7 +35,9 @@ Note: the 279.6 mm single-row shield does not fit twice in a 19-inch case (559 m
 
 **Problems:**
 
+* A-rear: a cut-out at u 8.2-13.2 v -4.0-1.0 is in or near the joint zone
 * A-right: a cut-out at u 178.4-186.6 v -18.1--9.9 is in or near the joint zone
+* bulkhead+dut_power exceeds the interior: lid/top by 6.55
 * input board (side) exceeds the interior: lid/top by 25.55
 
 | Part | nearest neighbour (same height band) | gap mm | headroom to lid mm |
@@ -48,7 +50,7 @@ Note: the 279.6 mm single-row shield does not fit twice in a 19-inch case (559 m
 | shield 2 | shield 1 | 2.0 | 4.7 |
 | kbd sub 2A | Mimas 2 | 0.8 | 25.0 |
 | kbd sub 2B | Mimas 2 | 0.8 | 25.0 |
-| bulkhead+dut_power | input board (side) | 3.0 | 1.0 |
+| bulkhead+dut_power | input board (side) | 3.0 | -6.5 |
 | GS105 | fan 1 | 3.0 | 11.5 |
 | power main board | front panel group | 3.0 | 6.9 |
 | front panel group | power main board | 3.0 | 1.2 |
@@ -76,7 +78,7 @@ Note: the 279.6 mm single-row shield does not fit twice in a 19-inch case (559 m
 
 * front panel: NO ROOM for front panel: LCD, LEDs (red = powered, green = selected), buttons, rocker (162 mm)
 * front panel: NO ROOM for physical keyboard feed-through (2x5) (36 mm)
-* front panel: NO ROOM for DUT power leads (8) (34 mm)
+* front panel: NO ROOM for DUT power leads (9) (34 mm)
 * IEC cover: the banana pair needs 29.2 mm, the opening is 28.0 mm wide
 
 | Part | nearest neighbour (same height band) | gap mm | headroom to lid mm |

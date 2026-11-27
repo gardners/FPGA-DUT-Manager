@@ -279,7 +279,10 @@
   },
   "dut_power": {
    "hole_d": 5.0,
-   "pitch": 7.5
+   "pitch": 7.5,
+   "extra": [
+    "6V"
+   ]
   },
   "recess": {
    "w": 60.0,

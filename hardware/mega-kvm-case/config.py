@@ -156,7 +156,8 @@ FRONT = {               # front panel items (issue 0050)
 ITEMS = {
     'bulkhead': {'hole': (16.0, 13.5), 'screws': 13.0, 'screw_d': 3.4, 'depth': 25.0},  # flanged RJ45 coupler (ASSUMED)
     'keyboard': {'hole': (20.8, 9.4), 'screws': 15.0, 'screw_d': 3.4, 'depth': 15.0},   # 2x5 box header on a small adapter PCB
-    'dut_power': {'hole_d': 5.0, 'pitch': 7.5},      # 8 DC leads (screw terminals inside, barrel plugs outside)
+    'dut_power': {'hole_d': 5.0, 'pitch': 7.5,      # 8 DC leads (screw terminals inside, barrel plugs outside)
+                  'extra': ['6V']},                # + the K325T 6 V outlet lead (issue 0055)
     'recess': {'w': 60.0, 'h': 24.0, 'depth': 45.0},  # tuck-away pocket for unused DC barrel leads
 }
 

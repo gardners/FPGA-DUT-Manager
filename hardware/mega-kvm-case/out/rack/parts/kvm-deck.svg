@@ -53,14 +53,14 @@
 <circle cx="47.4" cy="117.2" r="1.625" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
 <circle cx="227" cy="52.2" r="1.625" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
 <circle cx="47.4" cy="52.2" r="1.625" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
-<circle cx="193.5" cy="249" r="1.625" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
+<circle cx="253.5" cy="306.5" r="1.625" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
 <circle cx="30.5" cy="249" r="1.625" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
 <circle cx="139" cy="306.5" r="1.625" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
-<circle cx="253.5" cy="181.5" r="1.625" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
-<circle cx="253.5" cy="239.5" r="1.625" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
-<circle cx="253.5" cy="306.5" r="1.625" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
-<circle cx="193.5" cy="202.5" r="1.625" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
 <circle cx="30.5" cy="212.5" r="1.625" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
+<circle cx="253.5" cy="239.5" r="1.625" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
+<circle cx="193.5" cy="202.5" r="1.625" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
+<circle cx="253.5" cy="181.5" r="1.625" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
+<circle cx="193.5" cy="249" r="1.625" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
 <path d="M 291.7,312.325 L 294.7,312.325 A 0.925,0.925 0 0 1 295.625,313.25 L 295.625,313.75 A 0.925,0.925 0 0 1 294.7,314.675 L 291.7,314.675 A 0.925,0.925 0 0 1 290.775,313.75 L 290.775,313.25 A 0.925,0.925 0 0 1 291.7,312.325 Z" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
 <path d="M 291.7,207.325 L 294.7,207.325 A 0.925,0.925 0 0 1 295.625,208.25 L 295.625,208.75 A 0.925,0.925 0 0 1 294.7,209.675 L 291.7,209.675 A 0.925,0.925 0 0 1 290.775,208.75 L 290.775,208.25 A 0.925,0.925 0 0 1 291.7,207.325 Z" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
 <path d="M 329.3,312.325 L 332.3,312.325 A 0.925,0.925 0 0 1 333.225,313.25 L 333.225,313.75 A 0.925,0.925 0 0 1 332.3,314.675 L 329.3,314.675 A 0.925,0.925 0 0 1 328.375,313.75 L 328.375,313.25 A 0.925,0.925 0 0 1 329.3,312.325 Z" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>

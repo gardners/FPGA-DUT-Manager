@@ -160,8 +160,13 @@ def keyboard(cfg, zc=18.0):
 
 
 def dut_power(cfg, z_rows=(25.0, 32.5)):
+    """8 DUT 12 V lead holes in two rows of 4, plus the extra leads in
+    ITEMS['dut_power']['extra'] (e.g. the 6 V outlet, issue 0055) in a third
+    row above them (same width, so the column next to the bays does not grow)."""
     d = cfg.ITEMS['dut_power']
+    extra = d.get('extra', [])[:4]
     w = 4 * d['pitch'] + 4.0
+    zs = list(z_rows) + ([z_rows[-1] + (z_rows[1] - z_rows[0])] if extra else [])
 
     def draw(p, u0, V):
         for r, z in enumerate(z_rows):
@@ -169,8 +174,14 @@ def dut_power(cfg, z_rows=(25.0, 32.5)):
                 u = u0 + 2.0 + d['pitch'] * (i + 0.5)
                 p.cut(Circle(u, V(z), d['hole_d'] / 2))
                 label(p, str(r * 4 + i + 1), u, V(z - d['hole_d'] / 2 - 1.1), 1.2)
-        label(p, 'DUT 12V', u0 + w / 2, V(z_rows[1] + d['hole_d'] / 2 + 1.6), 1.6)
-    return Item('dut_power', w, draw, 5.0, (z_rows[0] - 5, z_rows[1] + 5), title='DUT power leads (8)')
+        for i, name in enumerate(extra):
+            u = u0 + 2.0 + d['pitch'] * (i + 0.5)
+            p.cut(Circle(u, V(zs[-1]), d['hole_d'] / 2))
+            label(p, name, u, V(zs[-1] - d['hole_d'] / 2 - 1.1), 1.2)
+        label(p, 'DUT 12V' + (' / ' + ' '.join(extra) if extra else ''), u0 + w / 2,
+              V(zs[-1] + d['hole_d'] / 2 + 1.6), 1.6)
+    return Item('dut_power', w, draw, 5.0, (zs[0] - 5, zs[-1] + 5),
+                title='DUT power leads (%d)' % (8 + len(extra)))
 
 
 def net_and_power(cfg):
