@@ -1274,7 +1274,7 @@
   "fields": {
    "LCSC": "C13585",
    "MPN": "Samsung CL31A106KBHNNNE 10 uF 50 V X5R 1206 (JLC basic)",
-   "Note": "3 x 10 uF: ~2.2 A rms input ripple current at 4.45 A out",
+   "Note": "3 x 10 uF: ~2.3 A rms input ripple current at 4.66 A out",
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
@@ -2035,9 +2035,9 @@
  "D730": {
   "dnp": false,
   "fields": {
-   "LCSC": "C124205",
-   "MPN": "Diodes BAT54WS-7-F 30 V 0.2 A Schottky SOD-323",
-   "Note": "6V_EN low pulls EN6O to ~0.2 V: U72 opens at once, not when +6V has decayed"
+   "LCSC": "C2128",
+   "MPN": "1N4148WS 100 V 150 mA SOD-323 (JLC basic); silicon, not Schottky: its reverse leakage into EN6O stays < 0.5 uA hot",
+   "Note": "6V_EN low pulls EN6O to ~0.5 V (< 1.09 V): U72 opens at once, not when +6V has decayed"
   },
   "footprint": "Diode_SMD:D_SOD-323",
   "in_bom": true,
@@ -2046,7 +2046,7 @@
    "2": "EN6O"
   },
   "uuid": "a59e9ba6-347f-5b1e-837b-37549d24f7df",
-  "value": "BAT54WS"
+  "value": "1N4148WS"
  },
  "D740": {
   "dnp": false,
@@ -5595,8 +5595,8 @@
  "R730": {
   "dnp": false,
   "fields": {
-   "LCSC": "C228047",
-   "Note": "ILIM 4.45 A (3334/R): below the buck valley limit (5.3 A min)",
+   "LCSC": "TBD (1%, JLC basic if stocked)",
+   "Note": "ILIM 4.66 A (3334/R), +-10 %: 4.2-5.1 A; below the buck limit (5.3 A valley min, ~5.9 A average)",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -5606,7 +5606,7 @@
    "2": "GND"
   },
   "uuid": "0651025a-4c6e-5f4d-9131-9207c06f01de",
-  "value": "750"
+  "value": "715"
  },
  "R731": {
   "dnp": false,

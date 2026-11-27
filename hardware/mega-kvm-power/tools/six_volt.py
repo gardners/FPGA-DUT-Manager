@@ -1,12 +1,12 @@
 """Dedicated 6 V DUT outlet of the power board (issue 0055, owner round 15,
 2026-11-27): a 9th output for a K325T FPGA board that prefers 6 V, needs at
-least 5 V and may draw ~3 A (designed for 4 A continuous, 4.45 A limit).
+least 5 V and may draw ~3 A (designed for 4 A continuous, 4.66 A limit).
 
 Chain (all from VBUS, so it works from every input, banana included):
 
   VBUS --U71 TPS259470A (5 A, OVLO 14.8 V shared)--> VIN6
        --U73 TPS565201 buck (5 A, 500 kHz, 4.7 uH)--> +6V (6.0 V)
-       --U72 TPS259470A (4.45 A, OVLO 6.9 V, UVLO 5.4 V)--> OUT6V --> J70 Micro-Fit 2x2
+       --U72 TPS259470A (4.66 A, OVLO 6.9 V, UVLO 5.4 V)--> OUT6V --> J70 Micro-Fit 2x2
 
 * No pad-free, JLC-stocked synchronous buck rated >= 24 V and >= 4 A exists
   (checked 2026-11-27: SY8205 / TPS54540 / LMR33640 / AOZ1284 have exposed
@@ -23,13 +23,16 @@ Chain (all from VBUS, so it works from every input, banana included):
 * Readback: /FLT of U71 and U72 wire-ORed on U11 P1.6 (~FLT6V), OUT6V
   through 20 k / 20 k on U11 P1.7 (6V_PG, high above ~4.6 V).
 """
-from parts import BAT54WS, EFUSE_A, FP_C1206, LED_G, SS34, c, r
+from parts import EFUSE_A, FP_C1206, LED_G, SS34, c, r
 
 FP_RPW = EFUSE_A['fp']
 FP_MICROFIT = 'Connector_Molex:Molex_Micro-Fit_3.0_43045-0400_2x02_P3.00mm_Horizontal'
 FP_L = 'Inductor_SMD:L_Changjiang_FXL1040'
 C10U = dict(c('10u', '50V', FP_C1206), fields={'LCSC': 'C13585', 'Voltage': '50V',
                                                'MPN': 'Samsung CL31A106KBHNNNE 10 uF 50 V X5R 1206 (JLC basic)'})
+SW_DIODE = dict(lib='Device:D', fp='Diode_SMD:D_SOD-323', value='1N4148WS',
+                fields={'LCSC': 'C2128', 'MPN': '1N4148WS 100 V 150 mA SOD-323 (JLC basic); silicon, not '
+                                                 'Schottky: its reverse leakage into EN6O stays < 0.5 uA hot'})
 C22U = dict(c('22u', '25V', FP_C1206), fields={'LCSC': 'C12891', 'Voltage': '25V',
                                                'MPN': 'Samsung CL31A226KAHNNNE 22 uF 25 V X5R 1206 (JLC basic)'})
 
@@ -90,7 +93,7 @@ def build(S, P, ox, oy):
     P(C10U, 'C720', x, y, {'1': 'VIN6', '2': 'GND'})
     P(C10U, 'C721', x + step, y, {'1': 'VIN6', '2': 'GND'})
     P(C10U, 'C722', x + 2 * step, y, {'1': 'VIN6', '2': 'GND'},
-      fields={'Note': '3 x 10 uF: ~2.2 A rms input ripple current at 4.45 A out'})
+      fields={'Note': '3 x 10 uF: ~2.3 A rms input ripple current at 4.66 A out'})
     P(c('100n'), 'C723', x + 3 * step, y, {'1': 'VIN6', '2': 'GND'})
     P(c('100n'), 'C724', bx + 45.72, by + 10.16, {'1': 'BST6', '2': 'SW6'}, fields={'Note': 'VBST - SW'})
     P(r('100k'), 'R720', x + 4 * step, y, {'1': 'VIN6', '2': 'EN_BK'})
@@ -107,14 +110,14 @@ def build(S, P, ox, oy):
 
     # ------------------------------------------------------------ U72: +6V -> OUT6V (outlet eFuse)
     bx, by = ox, oy + 73.66
-    S.box(bx, by, bx + 140, by + 58.42, 'U72: +6V -> J70 "DUT 6V ONLY (K325T)", 4.45 A, OVLO 6.9 V, UVLO 5.4 V')
+    S.box(bx, by, bx + 140, by + 58.42, 'U72: +6V -> J70 "DUT 6V ONLY (K325T)", 4.66 A, OVLO 6.9 V, UVLO 5.4 V')
     P(EFUSE_A, 'U72', bx + 30.48, by + 20.32,
       {'IN': '+6V', 'EN/UVLO': 'EN6O', 'OVLO': 'OVLO6', 'DVDT': 'DVDT6O', 'ITIMER': 'ITMR6O',
        'OUT': 'OUT6V', '~{FLT}': '~{FLT6V}', 'ILM': 'ILM6O', 'GND': 'GND'}, nc=('AUXOFF',),
       fields={'Note': 'opens within 1.2 us above 6.9 V (e.g. a shorted buck high-side FET)'})
     y, x, step = by + 45.72, bx + 7.62, 7.62
-    P(r('750'), 'R730', x, y, {'1': 'ILM6O', '2': 'GND'},
-      fields={'LCSC': 'C228047', 'Note': 'ILIM 4.45 A (3334/R): below the buck valley limit (5.3 A min)'})
+    P(r('715'), 'R730', x, y, {'1': 'ILM6O', '2': 'GND'},
+      fields={'Note': 'ILIM 4.66 A (3334/R), +-10 %: 4.2-5.1 A; below the buck limit (5.3 A valley min, ~5.9 A average)'})
     P(c('2n2', '50V'), 'C730', x + step, y, {'1': 'DVDT6O', '2': 'GND'})
     P(c('4n7', '50V'), 'C731', x + 2 * step, y, {'1': 'ITMR6O', '2': 'GND'})
     P(r('475k'), 'R731', x + 3 * step, y, {'1': '+6V', '2': 'OVLO6'},
@@ -125,8 +128,8 @@ def build(S, P, ox, oy):
       fields={'Note': 'UVLO 1.20 V x 4.48 = 5.38 V rising, 4.88 V falling; high impedance so that '
                       'D730 cannot lift 6V_EN above 0.4 V through the 20 k pull-down'})
     P(r('100k'), 'R734', x + 7 * step, y, {'1': 'EN6O', '2': 'GND'})
-    P(BAT54WS, 'D730', x + 8 * step, y - 15.24, {'A': 'EN6O', 'K': '6V_EN'}, rot=0,
-      fields={'Note': '6V_EN low pulls EN6O to ~0.2 V: U72 opens at once, not when +6V has decayed'})
+    P(SW_DIODE, 'D730', x + 8 * step, y - 15.24, {'A': 'EN6O', 'K': '6V_EN'}, rot=0,
+      fields={'Note': '6V_EN low pulls EN6O to ~0.5 V (< 1.09 V): U72 opens at once, not when +6V has decayed'})
     P(c('1u', '50V', FP_C1206), 'C733', x + 9 * step, y, {'1': '+6V', '2': 'GND'})
     P(c('1u', '50V', FP_C1206), 'C734', x + 10 * step, y, {'1': 'OUT6V', '2': 'GND'})
     # outlet
@@ -146,7 +149,7 @@ def build(S, P, ox, oy):
                            'Mates 43025-0400 (C122417) + 43030-0001 crimps (C259786, 20-24 AWG)',
                     'LCSC': 'C122413', 'Assembly': 'THT',
                     'Note': 'deliberately not VH (5 V), screw terminal (12 V) or Mini-Fit Jr (Mimas 12 V)'})
-    S.text('K325T outlet: 6.0 V, designed for 4 A continuous, limit 4.45 A (auto-retry).\n'
+    S.text('K325T outlet: 6.0 V, designed for 4 A continuous, limit 4.66 A (auto-retry).\n'
            'Off (6V_EN low): U71 open, buck unpowered, U72 open via D730.\n'
            'On: VIN6 ramps (~0.9 V/ms), buck soft-starts at VIN6 ~6-8 V, U72 closes at +6V > 5.4 V\n'
            'and ramps OUT6V at ~0.9 V/ms (0.9 A into 1000 uF).',

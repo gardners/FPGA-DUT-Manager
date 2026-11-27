@@ -7682,6 +7682,199 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Device:D"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 1.016)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "D"
+				(at 0 2.54 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "D"
+				(at 0 -2.54 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Diode"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Sim.Device" "D"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Sim.Pins" "1=K 2=A"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "diode"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "TO-???* *_Diode_* *SingleDiode* D_*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "D_0_1"
+				(polyline
+					(pts
+						(xy -1.27 1.27)
+						(xy -1.27 -1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.27 1.27)
+						(xy 1.27 -1.27)
+						(xy -1.27 0)
+						(xy 1.27 1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.27 0)
+						(xy -1.27 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "D_1_1"
+				(pin passive line
+					(at -3.81 0 0)
+					(length 2.54)
+					(name "K"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 3.81 0 180)
+					(length 2.54)
+					(name "A"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Connector_Generic:Conn_02x02_Odd_Even"
 			(pin_names
 				(offset 1.016)
@@ -54180,7 +54373,7 @@
 				(hide yes)
 			)
 		)
-		(property "Note" "3 x 10 uF: ~2.2 A rms input ripple current at 4.45 A out"
+		(property "Note" "3 x 10 uF: ~2.3 A rms input ripple current at 4.66 A out"
 			(at 528.32 464.82 0)
 			(effects
 				(font
@@ -55242,7 +55435,7 @@
 		)
 		(uuid "c2fff07e-7020-56fd-b921-35892bdb8d31")
 	)
-	(text "U72: +6V -> J70 \"DUT 6V ONLY (K325T)\", 4.45 A, OVLO 6.9 V, UVLO 5.4 V"
+	(text "U72: +6V -> J70 \"DUT 6V ONLY (K325T)\", 4.66 A, OVLO 6.9 V, UVLO 5.4 V"
 		(exclude_from_sim no)
 		(at 318.77 494.03 0)
 		(effects
@@ -55503,7 +55696,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "750"
+		(property "Value" "715"
 			(at 327.66 539.75 0)
 			(effects
 				(font
@@ -55539,7 +55732,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C228047"
+		(property "LCSC" "TBD (1%, JLC basic if stocked)"
 			(at 325.12 538.48 0)
 			(effects
 				(font
@@ -55557,7 +55750,7 @@
 				(hide yes)
 			)
 		)
-		(property "Note" "ILIM 4.45 A (3334/R): below the buck valley limit (5.3 A min)"
+		(property "Note" "ILIM 4.66 A (3334/R), +-10 %: 4.2-5.1 A; below the buck limit (5.3 A valley min, ~5.9 A average)"
 			(at 325.12 538.48 0)
 			(effects
 				(font
@@ -56369,7 +56562,7 @@
 		(uuid "a3877d95-0188-5689-8dbf-2194747d6dda")
 	)
 	(symbol
-		(lib_id "Device:D_Schottky")
+		(lib_id "Device:D")
 		(at 386.08 523.24 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -56386,7 +56579,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "BAT54WS"
+		(property "Value" "1N4148WS"
 			(at 388.62 524.51 0)
 			(effects
 				(font
@@ -56422,7 +56615,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C124205"
+		(property "LCSC" "C2128"
 			(at 386.08 523.24 0)
 			(effects
 				(font
@@ -56431,7 +56624,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "Diodes BAT54WS-7-F 30 V 0.2 A Schottky SOD-323"
+		(property "MPN" "1N4148WS 100 V 150 mA SOD-323 (JLC basic); silicon, not Schottky: its reverse leakage into EN6O stays < 0.5 uA hot"
 			(at 386.08 523.24 0)
 			(effects
 				(font
@@ -56440,7 +56633,7 @@
 				(hide yes)
 			)
 		)
-		(property "Note" "6V_EN low pulls EN6O to ~0.2 V: U72 opens at once, not when +6V has decayed"
+		(property "Note" "6V_EN low pulls EN6O to ~0.5 V (< 1.09 V): U72 opens at once, not when +6V has decayed"
 			(at 386.08 523.24 0)
 			(effects
 				(font
@@ -57389,7 +57582,7 @@
 			)
 		)
 	)
-	(text "K325T outlet: 6.0 V, designed for 4 A continuous, limit 4.45 A (auto-retry).\nOff (6V_EN low): U71 open, buck unpowered, U72 open via D730.\nOn: VIN6 ramps (~0.9 V/ms), buck soft-starts at VIN6 ~6-8 V, U72 closes at +6V > 5.4 V\nand ramps OUT6V at ~0.9 V/ms (0.9 A into 1000 uF)."
+	(text "K325T outlet: 6.0 V, designed for 4 A continuous, limit 4.66 A (auto-retry).\nOff (6V_EN low): U71 open, buck unpowered, U72 open via D730.\nOn: VIN6 ramps (~0.9 V/ms), buck soft-starts at VIN6 ~6-8 V, U72 closes at +6V > 5.4 V\nand ramps OUT6V at ~0.9 V/ms (0.9 A into 1000 uF)."
 		(exclude_from_sim no)
 		(at 320.04 556.26 0)
 		(effects
