@@ -25,6 +25,14 @@
 -- response) go back on the VLAN the request came on (reply_t.vid), so the
 -- ack of a key 0x0046 change still reaches the host that sent it.
 --
+-- VLAN identity (issue 0063). Independent of the host VLAN and of DHCP:
+-- the board answers ARP requests for vip = key 0x0047 base + 16 + DIP[7:4]
+-- and ICMP echo to vip at endpoint 0's MAC, but only when tagged with the
+-- inter-board VLAN (key 0x0043; 0 = identity off). The replies come from
+-- endpoint 0's MAC and vip (reply_t.vsrc) on that VLAN. Untagged or
+-- other-VID requests for vip take the normal path (and so are ignored
+-- unless an endpoint has that address). They count in vlan_hits.
+--
 -- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.
 library ieee;
 use ieee.std_logic_1164.all;
@@ -103,7 +111,10 @@ entity net_rx is
     dhcp_rx    : out dhcp_rx_t;
     -- statistics
     rx_rejects : out u16_arr_t;
-    vlan_drops : out unsigned(15 downto 0)    -- frames dropped for their VLAN (issue 0062)
+    vlan_drops : out unsigned(15 downto 0);   -- frames dropped for their VLAN (issue 0062)
+    -- VLAN identity (issue 0063): address (0 = off), requests answered
+    vlan_ip    : out ip_t;
+    vlan_hits  : out unsigned(15 downto 0)
   );
 end entity;
 
@@ -127,6 +138,11 @@ architecture rtl of net_rx is
   signal v_full  : boolean := false;   -- VLAN class: everything allowed
   signal f_vok   : boolean := false;   -- VLAN class allows this frame (issue 0062)
   signal vdrops  : unsigned(15 downto 0) := (others => '0');
+  -- VLAN identity (issue 0063)
+  signal vip     : ip_t := (others => '0');
+  signal vhits   : unsigned(15 downto 0) := (others => '0');
+  signal vsrc    : std_logic := '0';      -- this request is for vip
+  signal f_vtag, f_varp, f_vdst : boolean := false;
   signal ra, ca  : unsigned(11 downto 0) := (others => '0');
   signal rd_on   : std_logic := '0';
   signal csum    : unsigned(15 downto 0) := (others => '0');
@@ -141,7 +157,7 @@ architecture rtl of net_rx is
   signal cfg_init: std_logic := '0';
   signal bcfg_r  : board_cfg_t := (x"FF", x"FF", '1', "00", (others => '0'), x"00", (others => '0'), x"00",
                                    (others => '0'), x"01", x"02", x"00", x"00", '0', "01", "00",
-                                   DEFAULT_VLAN, "00", '1', (others => '0'));
+                                   DEFAULT_VLAN, "00", '1', (others => '0'), DEFAULT_VLAN_BASE);
   signal last_cmd: u16_arr_t := (others => (others => '0'));
   signal last_cmd_v : std_logic_vector(1 downto 0) := "00";
   signal mgmt_arm : std_logic := '0';
@@ -221,6 +237,8 @@ begin
   jr_seq     <= jrseq_r;
   rx_rejects <= rej;
   vlan_drops <= vdrops;
+  vlan_ip    <= vip;
+  vlan_hits  <= vhits;
   mem_addr   <= ra;
 
   -- registered read port (1-cycle latency like the other tail memories)
@@ -268,6 +286,8 @@ begin
       jgo        <= "000";
 
       dhcp_strobe <= "00";
+      -- VLAN identity: base + 16 + DIP[7:4], off while key 0x0043 is 0
+      vip <= vlan_ident(bcfg_r.vlan_base, dut_id1(3 downto 0), bcfg_r.vlan);
       -- (re)initialise per-endpoint defaults whenever the DIP DUT IDs change
       if cfg_init = '0' or ids_seen /= (dut_id1 & dut_id0) then
         cfg_init   <= '1';
@@ -354,6 +374,10 @@ begin
                                    (h(12) = x"08" and h(13) = x"00" and
                                     (h(23) = x"01" or (h(23) = x"11" and dport = PORT_MGMT)))));
           if ftag(12) = '1' then rvid <= ftag(11 downto 0); else rvid <= (others => '0'); end if;
+          -- VLAN identity (issue 0063): tagged with the inter-board VID
+          f_vtag <= ftag(12) = '1' and ftag(11 downto 0) = bcfg_r.vlan and vip /= x"00000000";
+          f_varp <= slv32(h, 38) = vip;
+          f_vdst <= slv32(h, 30) = vip and slv48(h, 0) = cfg_r(0).mac;
           f_arp <= h(12) = x"08" and h(13) = x"06" and be16(h, 14) = 1 and
                    be16(h, 16) = 16#0800# and h(18) = x"06" and h(19) = x"04" and
                    be16(h, 20) = 1;
@@ -411,7 +435,15 @@ begin
           matched := false;
           bcast   := false;
           dd      := 0;
-          if not f_vok then
+          vsrc    <= '0';
+          if f_vtag and ((f_arp and f_varp) or
+                         (f_ipv4 and f_vdst and h(23) = x"01" and f_icmp_echo and not f_trunc)) then
+            -- VLAN identity (issue 0063): ARP request or ping for vip
+            d     <= 0;
+            vsrc  <= '1';
+            vhits <= vhits + 1;
+            if f_arp then state <= S_ARP; else state <= S_ICMP; end if;
+          elsif not f_vok then
             vdrops <= vdrops + 1;       -- wrong VLAN, or not allowed untagged (issue 0062)
           elsif f_arp then
             -- ARP request (Ethernet/IPv4) for one of our addresses?
@@ -493,13 +525,13 @@ begin
 
         when S_ARP =>
           if arp_r.pend = '0' then
-            arp_r <= ('1', d, slv48(h, 22), slv32(h, 28), (others => '0'), rvid);
+            arp_r <= ('1', d, slv48(h, 22), slv32(h, 28), (others => '0'), rvid, vsrc);
             state <= S_RELEASE;
           end if;
 
         when S_ICMP =>
           if icmp_r.pend = '0' then
-            icmp_r <= ('1', d, slv48(h, 6), slv32(h, 26), (others => '0'), rvid);
+            icmp_r <= ('1', d, slv48(h, 6), slv32(h, 26), (others => '0'), rvid, vsrc);
             icmp_len_r <= resize(be16(h, 16) - 20, 7);
             for i in 0 to 71 loop
               icmp_buf(i) <= h(34 + i);
@@ -597,6 +629,10 @@ begin
                 when K_HOST_VLAN =>
                   if vlen = 2 and be16(h, 56) <= 4094 then bcfg_r.host_vlan <= resize(be16(h, 56), 12);
                   elsif vlen = 2 then st := ST_BAD_VALUE; else st := ST_BAD_LEN; end if;
+                when K_VLAN_BASE =>
+                  -- /24 subnet base of the VLAN identity (issue 0063)
+                  if vlen = 4 and h(59) = x"00" then bcfg_r.vlan_base <= slv32(h, 56);
+                  elsif vlen = 4 then st := ST_BAD_VALUE; else st := ST_BAD_LEN; end if;
                 when K_HDMI_OWNER =>
                   if vlen = 1 and unsigned(h(56)) <= 3 then bcfg_r.hdmi_own <= h(56)(1 downto 0);
                   elsif vlen = 1 then st := ST_BAD_VALUE; else st := ST_BAD_LEN; end if;
@@ -630,7 +666,7 @@ begin
                 bcfg_r.cfg_gen <= bcfg_r.cfg_gen + 1;
               end if;
             end if;
-            ack_r     <= ('1', d, slv48(h, 6), slv32(h, 26), h(34) & h(35), rvid);
+            ack_r     <= ('1', d, slv48(h, 6), slv32(h, 26), h(34) & h(35), rvid, '0');
             ack_cmd_r <= h(50) & h(51);
             ack_key_r <= h(52) & h(53);
             ack_st_r  <= st;
@@ -695,7 +731,7 @@ begin
             null;                       -- wait for previous response to go
           elsif f_jbad then
             -- malformed: answer without involving the engine
-            jr_r(t)    <= ('1', d, slv48(h, 6), slv32(h, 26), h(34) & h(35), rvid);
+            jr_r(t)    <= ('1', d, slv48(h, 6), slv32(h, 26), h(34) & h(35), rvid, '0');
             jrst_r(t)  <= JS_BAD_FMT;
             jrseq_r(t) <= be32(h, 50);
             rej(d)     <= rej(d) + 1;

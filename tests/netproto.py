@@ -33,6 +33,16 @@ HDMI_OWNER_FOLLOW, HDMI_OWNER_DUT0, HDMI_OWNER_DUT1, HDMI_OWNER_NONE = 0, 1, 2, 
 VLAN_DEFAULT = 1650
 K_HOST_VLAN = 0x0046  # host VLAN ID u16 (0..4094, default 0 = untagged), issue 0062
 HOST_VLAN_DEFAULT = 0
+# VLAN subnet base IPv4 (/24, last octet must be 0; default 10.231.50.0), issue 0063.
+# The board's VLAN identity = base + 16 + DIP[7:4] on the key 0x0043 VLAN.
+K_VLAN_BASE = 0x0047
+VLAN_BASE_DEFAULT = bytes([10, 231, 50, 0])
+
+
+def vlan_ident(base, board, vid=VLAN_DEFAULT):
+    """VLAN identity of board B (DIP[7:4]): base + 16 + B; 0.0.0.0 when the
+    inter-board VLAN (key 0x0043) is 0 (issue 0063)."""
+    return bytes(4) if not vid else bytes(base[:3]) + bytes([16 + (board & 15)])
 # JTAG_REQ flags (offset 18): b0 abort/reset session, b1 target = physical
 # keyboard CPLD (ADR 0014); JTAG_RESP byte 17 = target (0 DUT, 1 keyboard)
 JF_ABORT, JF_KBD = 0x0001, 0x0002
@@ -214,6 +224,8 @@ def decode_heartbeat(b):
         f.update(zip(RXLOAD_FIELDS, struct.unpack(">HHHBB", b[180:188])))
     if len(b) >= 192:  # network block (ADR 0005 section 3e), bytes 196..199 of the datagram
         f.update(zip(NET_FIELDS, struct.unpack(">HH", b[188:192])))
+    if len(b) >= 200:  # VLAN identity (ADR 0005 section 3e), bytes 200..207 of the datagram
+        f.update(zip(VIDENT_FIELDS, struct.unpack(">4sHH", b[192:200])))
     return f
 
 
@@ -239,6 +251,9 @@ RXLOAD_FIELDS = ("rl_fifo_hwm", "rl_wr_stall", "rl_mem_wait", "rl_wf_hwm", "rl_f
 # network block (ADR 0005 section 3e, bytes 196..199; issue 0062): host VLAN
 # (key 0x0046, 0 = untagged) and frames dropped for their VLAN (wrapping)
 NET_FIELDS = ("host_vlan", "host_vlan_drops")
+# VLAN identity (bytes 200..207, issue 0063): vlan_ip (4 bytes, 0.0.0.0 = off),
+# vlan = key 0x0043, vlan_hits = ARP/ICMP requests answered for vlan_ip (wrapping)
+VIDENT_FIELDS = ("vlan_ip", "vlan", "vlan_hits")
 
 
 MEM_FIELDS = ("mem_flags", "mem_errors", "mem_dq_fail", "mem_test_kib", "mem_first_err")
@@ -378,6 +393,9 @@ def encode_heartbeat(dut, f):
     if "host_vlan" in f:  # network block (needs the receive load) -> 192-byte payload
         assert len(b) == 188
         b += struct.pack(">HH", *(f[k] for k in NET_FIELDS))
+    if "vlan_ip" in f:  # VLAN identity (needs the host VLAN fields) -> 200-byte payload
+        assert len(b) == 192
+        b += struct.pack(">4sHH", *(f[k] for k in VIDENT_FIELDS))
     return custom(T_HEARTBEAT, dut, b)
 
 
@@ -659,6 +677,16 @@ def selftest():
         errors.append("network block layout %s" % p[196:].hex(" "))
     elif any(decode_heartbeat(p[8:])[k] != v for k, v in nb.items()):
         errors.append("network block round trip")
+    # VLAN identity (issue 0063): offsets 200..207
+    vi = dict(vlan_ip=vlan_ident(VLAN_BASE_DEFAULT, 3), vlan=1650, vlan_hits=0xFFFE)
+    p = encode_heartbeat(0, dict(hb, **rl, **rx, **nb, **vi))
+    if len(p) != 208 or p[200:208] != bytes([10, 231, 50, 19, 0x06, 0x72, 0xFF, 0xFE]):
+        errors.append("VLAN identity layout %s" % p[200:].hex(" "))
+    elif any(decode_heartbeat(p[8:])[k] != v for k, v in vi.items()):
+        errors.append("VLAN identity round trip")
+    if vlan_ident(ip("10.231.50.0"), 0) != ip("10.231.50.16") or vlan_ident(ip("10.231.50.0"), 15) != \
+            ip("10.231.50.31") or vlan_ident(ip("10.231.50.0"), 0, vid=0) != bytes(4):
+        errors.append("vlan_ident")
     # host VLAN tag on a heartbeat (issue 0062): TPID 0x8100, PCP 0, VID
     t = vlan_tag(eth(BCAST_MAC, BCAST_MAC, 0x0800, bytes(46)), 1650)
     if t[12:16] != bytes([0x81, 0x00, 0x06, 0x72]) or vlan_untag(t)[0] != 1650:
