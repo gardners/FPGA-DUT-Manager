@@ -109,7 +109,7 @@ for its options.
 | `set IP NAME VALUE`, `mgmt IP KEY [HEX]` | management keys (named / raw) |
 | `kbd IP [KEY ...]` | hold MEGA65 keys on a DUT |
 | `uart IP` | interactive UART bridge |
-| `jtag-idcode IP [DUT]\|NAME`, `xvc IP [DUT]\|NAME` | JTAG over UDP, XVC server for Vivado; a configured USB-JTAG DUT prints (or `--exec`s) the openFPGALoader command |
+| `jtag-idcode IP [DUT]\|NAME`, `xvc IP [DUT]\|NAME` | JTAG over UDP, XVC server for Vivado / openFPGALoader; a configured USB-JTAG DUT prints (or `--exec`s) the openFPGALoader command. Shifts are split into requests that fit one unfragmented packet: global `--mtu N` / `$DUTCTL_MTU` (default 1500 = 5792 bits per request; >= 2028 = 7904, the supervisor maximum; issue 0059) |
 | `jtag-speed IP [DUT]\|NAME [--kbd] [--save]` | maximum safe octopus TCK (issue 0054) |
 | `duts`, `jtag-discover` | per-DUT configuration, USB JTAG adaptor discovery (issue 0053) |
 | `relay TTY COMMAND...` | Arduino relay controller (DUT power) |
