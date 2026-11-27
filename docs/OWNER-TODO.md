@@ -7,7 +7,7 @@ of each section. Tick or delete an item when it is done (or tell the lead).
 
 | Since | Item | Blocks | Issue |
 |---|---|---|---|
-| 2026-11-27 | **KVM front fans**: 2 x 120 mm do not fit beside the 227 mm display board and the 197 mm input board on a 425 mm deck. Default now **2 x 92 mm**; alternatives 1 x 120 mm, or narrower boards | KVM front panel cut-outs, fan count | 0051 |
+| 2026-11-27 | **KVM front fans**: 2 x 120 mm do not fit beside the 227 mm display board and the 197 mm input board on a 425 mm deck. Default now **2 x 92 mm**; alternatives 1 x 120 mm, or a display PCB at most 172 mm wide (the input board now stacks under it, so it is no longer the limit) | KVM front panel cut-outs, fan count | 0051 |
 | 2026-11-27 | **M.E.G.A. e.V. logo SVG** -> `hardware/mega-kvm-case/logos/mega-ev.svg` (the MEGA65 logo from `assets/mega65.svg` is used already) | fan plate / KVM front etch | 0051 |
 | 2026-11-27 | **MEGA65 details the drawings don't give**: tallest part above the PCB; floppy mounting-hole offset from the bezel and spacer height; official expansion mounting holes; Cart64out stand-off height to line up with the cart port. (Board outline + 6 holes taken from `pcbs/mega65r6/DIM-TE0765-06.PDF`, cross-checked with mega65-rugged-case) | shelf deck holes and heights | 0051 |
 | 2026-11-27 | **Rails and rack**: width each slide takes per side (sets the deck width, now 425 mm); inner-member length; rack depth between posts | shelf width, batten length | 0051 |
@@ -24,7 +24,7 @@ of each section. Tick or delete an item when it is done (or tell the lead).
 | 2026-11-27 | Keep the LTC4417 + FET input selector rather than relays (relays lose more power at every realistic load, arc at 20 A DC, and drop all boards on changeover) | 0047 |
 | 2026-11-27 | Fan protection: **Infineon BSP452** (SOT-223, current-limited high-side switch, ~$1.26 each, ~$10 more per board than PTCs). A shorted fan lead is cut in microseconds instead of dragging the always-on group (and both Mimas) into its 5 A limit. PTC footprints stay available as the fallback | 0052 |
 | 2026-11-27 | Fan control: 4 x EMC2302 (MSOP-10, 2 fans each) behind a TCA9548A I2C switch, one 26 kHz PWM + tach per fan; fans run at 100 % until the host sets them; 2 x TMP75 (main board, input-board FETs) | 0052 |
-| 2026-11-27 | Input board reshaped to **126 x 64 mm** (two tiers) to fit the 3RU front beside the fans; case agent is re-fitting the KVM front around it | 0047, 0051 |
+| 2026-11-27 | Input board reshaped to **126 x 64 mm** (two tiers); the KVM front now stacks it under the display PCB (deck notched below it), 0 fit conflicts | 0047, 0051 |
 | 2026-11-27 | The keyboard CPLD `type3` branch stays local (not pushed) until you say where it should go | 0046 |
 
 ## Bench / hardware checks only the owner can do
