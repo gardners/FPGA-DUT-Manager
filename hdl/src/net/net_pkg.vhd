@@ -55,6 +55,9 @@ package net_pkg is
     -- HDMI IN owner (key 0x0044, issue 0060): 0 the video target's DUT,
     -- 1 DUT0, 2 DUT1, 3 none
     hdmi_own   : std_logic_vector(1 downto 0);
+    -- relayed full view (key 0x0045, issue 0060): 0 complete pictures only
+    -- (triple buffered), 1 live line by line (default)
+    relay_live : std_logic;
   end record;
 
   -- a pending reply addressed to a requester
@@ -111,6 +114,12 @@ package net_pkg is
     last_m     : std_logic_vector(7 downto 0);   -- last relay frame's machine, 0xFF none
     last_scale : std_logic_vector(7 downto 0);
     full_age   : std_logic_vector(7 downto 0);   -- ms / 8 since the last full picture, saturating
+    -- receive path load (issue 0060 relay-rx-speed; ADR 0005 s3d bytes 188..195)
+    fifo_hwm   : unsigned(15 downto 0);   -- tap FIFO peak fill (entries) in the last second
+    wr_stall   : unsigned(15 downto 0);   -- writer waited for its word FIFO, 2.048 us units, wrapping
+    mem_wait   : unsigned(15 downto 0);   -- words offered, memory not ready, 2.048 us units, wrapping
+    wf_hwm     : unsigned(7 downto 0);    -- word FIFO peak fill / 2 in the last second
+    fifo_aw    : unsigned(7 downto 0);    -- log2 of the tap FIFO's entries
   end record;
 
   -- per-DUT live status for heartbeats

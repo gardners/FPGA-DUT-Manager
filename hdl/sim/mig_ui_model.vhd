@@ -6,6 +6,16 @@
 -- allows); reads return after LATENCY cycles, in order. STUCK_BIT >= 0
 -- forces that bit of every 128-bit read word at or above STUCK_BASE to 0
 -- (fault injection).
+-- DRAM timing (issue 0060 relay-rx-speed, all 0 = off): every command whose
+-- DDR3 bank has another row open costs ROW_MISS extra UI cycles (precharge
+-- + activate), every change between read and write TURN cycles, and every
+-- REFRESH_EVERY cycles a refresh closes all rows and blocks REFRESH_CYCLES;
+-- app_rdy stays low meanwhile. Bank = BANK_BITS word-address bits from
+-- BANK_LSB, row = the bits from ROW_LSB up to the bank (BANK_ROW_COLUMN
+-- with 128 words per row as on the Mimas: BANK_LSB 21, ROW_LSB 7).
+-- With TM_PORT the timing uses the address on tm_addr (the unfolded one,
+-- when a testbench folds app_addr into a small store), else app_addr.
+-- RANDOM = false turns the pseudo-random stalls off.
 -- Addresses are in 16-bit columns (8 per 16-byte word); low ADDR_BITS of
 -- the word address are stored. Simulation only.
 -- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.
@@ -20,7 +30,16 @@ entity mig_ui_model is
     CALIB_CYCLES : natural := 200;
     STUCK_BIT    : integer := -1;
     STUCK_BASE   : natural := 0;          -- fault only at word addresses >= this
-    SEED         : positive := 1
+    SEED         : positive := 1;
+    ROW_MISS     : natural := 0;
+    TURN         : natural := 0;
+    REFRESH_EVERY: natural := 0;
+    REFRESH_CYCLES : natural := 0;
+    BANK_LSB     : natural := 21;
+    BANK_BITS    : positive := 3;
+    ROW_LSB      : natural := 7;
+    RANDOM       : boolean := true;
+    TM_PORT      : boolean := false
   );
   port (
     ui_clk       : in  std_logic;
@@ -36,7 +55,8 @@ entity mig_ui_model is
     app_wdf_end  : in  std_logic;
     app_wdf_rdy  : out std_logic;
     app_rd_data  : out std_logic_vector(127 downto 0);
-    app_rd_valid : out std_logic
+    app_rd_valid : out std_logic;
+    tm_addr      : in  std_logic_vector(27 downto 0) := (others => '0')
   );
 end entity;
 
@@ -64,6 +84,11 @@ begin
     variable a     : natural;
     variable d     : std_logic_vector(127 downto 0);
     variable m     : std_logic_vector(15 downto 0);
+    type rows_t is array (0 to 2 ** BANK_BITS - 1) of integer;
+    variable open_row : rows_t := (others => -1);
+    variable last_we  : std_logic := '0';
+    variable busy  : natural := 0;
+    variable bk, rw, pen, at : natural;
     procedure do_write(addr : natural; data : std_logic_vector(127 downto 0);
                        mask : std_logic_vector(15 downto 0)) is
     begin
@@ -95,6 +120,15 @@ begin
       if app_en = '1' and rdy = '1' and cal = '1' then
         a := to_integer(unsigned(app_addr(ADDR_BITS + 2 downto 3)));
         assert app_addr(2 downto 0) = "000" report "mig_ui_model: unaligned address" severity error;
+        -- DRAM timing
+        if TM_PORT then at := to_integer(unsigned(tm_addr(27 downto 3))); else at := a; end if;
+        bk := (at / 2 ** BANK_LSB) mod 2 ** BANK_BITS;
+        rw := (at mod 2 ** BANK_LSB) / 2 ** ROW_LSB;
+        pen := 0;
+        if open_row(bk) /= rw then pen := pen + ROW_MISS; open_row(bk) := rw; end if;
+        if app_cmd(0) = last_we then pen := pen + TURN; end if;   -- cmd 000 write: we = not cmd(0)
+        last_we := not app_cmd(0);
+        if pen > busy then busy := pen; end if;
         if app_cmd = "000" then
           aq(pend_w) := a;
           pend_w := pend_w + 1;
@@ -116,10 +150,16 @@ begin
       end loop;
       assert pend_w = 0 or app_en = '0' or rdy = '0' or app_cmd /= "001"
         report "mig_ui_model: read issued while a write command waits for its data" severity error;
+      -- refresh
+      if REFRESH_EVERY /= 0 and cyc mod REFRESH_EVERY = 0 then
+        open_row := (others => -1);
+        if REFRESH_CYCLES > busy then busy := REFRESH_CYCLES; end if;
+      end if;
       -- pseudo-random stalls
       lfsr := lfsr(14 downto 0) & (lfsr(15) xor lfsr(13) xor lfsr(12) xor lfsr(10));
-      if cal = '1' and lfsr(2 downto 0) /= "000" then rdy <= '1'; else rdy <= '0'; end if;
-      if lfsr(5 downto 3) /= "111" and wq_n < 32 then wrdy <= '1'; else wrdy <= '0'; end if;
+      if cal = '1' and busy = 0 and (not RANDOM or lfsr(2 downto 0) /= "000") then rdy <= '1'; else rdy <= '0'; end if;
+      if busy /= 0 then busy := busy - 1; end if;
+      if (not RANDOM or lfsr(5 downto 3) /= "111") and wq_n < 32 then wrdy <= '1'; else wrdy <= '0'; end if;
     end if;
   end process;
 end architecture;

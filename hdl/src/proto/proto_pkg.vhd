@@ -55,7 +55,7 @@ package proto_pkg is
   -- payload lengths (after the 8-byte common header)
   -- 100 fixed + 24 video block + 8 link block + 12 memory block + 8
   -- shield block + 28 relay block (ADR 0005 sections 3, 3a, 3b, 3c, 3d, 8)
-  constant HB_PAYLOAD_LEN   : natural := 180;
+  constant HB_PAYLOAD_LEN   : natural := 188;
   -- heartbeat byte 184 relay_flags (ADR 0005 section 3d, issue 0061)
   constant RLF_FULL_WANT  : natural := 0;   -- full view wanted (selected target without local video)
   constant RLF_FULL_FRESH : natural := 1;   -- a full picture in the last second (shown)
@@ -97,6 +97,7 @@ package proto_pkg is
   constant K_THUMB_FORCE  : natural := 16#0041#;  -- thumbnail relay to MAC(6) scale(1) div(1); MAC 0 = off
   constant K_VLAN         : natural := 16#0043#;  -- inter-board VLAN ID u16 0..4094 (default 1650, 0 = untagged), issue 0060
   constant K_HDMI_OWNER   : natural := 16#0044#;  -- HDMI IN owner: 0 follows the video target, 1 DUT0, 2 DUT1, 3 none (issue 0060)
+  constant K_RELAY_VIEW   : natural := 16#0045#;  -- relayed full view: 0 complete pictures, 1 live line by line (default), issue 0060
   constant K_HB_PERIOD    : natural := 16#0050#;
   constant K_OUT_POLICY   : natural := 16#0060#;  -- 0 auto (sense), 1 UART/KIO10 on, 2 all off incl. JTAG (issue 0056)
   constant K_PK_JTAG      : natural := 16#0061#;  -- physical kbd CPLD JTAG: 0 auto, 1 on, 2 off, 3 on + JTAGEN low (ADR 0014)

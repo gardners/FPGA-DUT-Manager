@@ -38,6 +38,16 @@
 --   c_long   relay frames for us longer than 2047 bytes (any FCS)
 --   last_*   machine (byte 4) and scale (byte 6) of the last good lines /
 --            no-source frame for us (held; last_t toggles at each update)
+--   hwm      highest FIFO fill (entries) in the window that ended at the
+--            last win pulse (sclk; supervisor: every second). Issue 0060
+--            relay-rx-speed: shows whether the writer falls behind.
+-- FIFO depth (relay-rx-speed): the writer drains at its own pace; with
+-- FIFO_AW = 14 (16384 entries, 16 BRAM36) about 7.5 back-to-back 1/1
+-- RAW888 frames of 3 lines (2160 entries + 4 tags each) fit, i.e. ~400 us
+-- of line rate with the writer stopped. Entries already carry the frame
+-- boundaries and the END good/bad verdict (FCS, header, overflow), so the
+-- writer only counts rows of good frames, as with a byte FIFO that marks
+-- frame ends.
 -- FIFO entries (36 bits): tag(35:34) & data(33:0):
 --   LINE "00": sc(33:32) (00 1/2, 01 1/4, 10 1/1) machine(31:27) row(26:17)
 --              frame(16:10) height(9:0)
@@ -77,7 +87,9 @@ entity thumb_rx_tap is
     last_valid : out std_logic;
     last_nosrc : out std_logic;
     last_m     : out unsigned(4 downto 0);
-    last_scale : out std_logic_vector(7 downto 0)
+    last_scale : out std_logic_vector(7 downto 0);
+    win        : in  std_logic := '0';               -- sclk pulse: end of a hwm window
+    hwm        : out unsigned(15 downto 0)           -- FIFO peak fill in the last window
   );
 end entity;
 
@@ -143,6 +155,13 @@ architecture rtl of thumb_rx_tap is
   signal rq_mac : std_logic_vector(47 downto 0) := (others => '0');
   signal rq_sc, rq_dv, rq_fl, rq_tg : std_logic_vector(7 downto 0) := (others => '0');
   signal rq_t : std_logic := '0';
+  -- FIFO high-water mark (relay-rx-speed): window toggle sclk -> clk_rx,
+  -- peak held in clk_rx, toggle back
+  signal win_t, hw_t : std_logic := '0';
+  signal win_s, hw_s : std_logic_vector(2 downto 0) := "000";
+  attribute ASYNC_REG of win_s, hw_s : signal is "TRUE";
+  signal peak, hw_hold : unsigned(FIFO_AW downto 0) := (others => '0');
+  signal hw_o : unsigned(15 downto 0) := (others => '0');
   signal rq_s : std_logic_vector(3 downto 0) := (others => '0');
   attribute ASYNC_REG of rq_s : signal is "TRUE";
 
@@ -170,6 +189,14 @@ begin
     if rising_edge(clk) then
       m0 <= mac0; m1 <= mac1; vl <= vlan;
       f_we <= '0';
+      win_s <= win_s(1 downto 0) & win_t;
+      if win_s(2) /= win_s(1) then
+        hw_hold <= peak;
+        peak <= f_used;
+        hw_t <= not hw_t;
+      elsif f_used > peak then
+        peak <= f_used;
+      end if;
       room := room_r = '1';                  -- always leave room for END
       if f_used < DEPTH - 5 then room_r <= '1'; else room_r <= '0'; end if;
       pushed := false;
@@ -404,6 +431,16 @@ begin
       if ev_s(7)(2) /= ev_s(7)(1) then
         lo_v <= '1'; lo_ns <= ls_ns; lo_m <= ls_m; lo_sc <= ls_sc;
       end if;
+    end if;
+  end process;
+
+  hwm <= hw_o;
+  process (sclk)
+  begin
+    if rising_edge(sclk) then
+      if win = '1' then win_t <= not win_t; end if;
+      hw_s <= hw_s(1 downto 0) & hw_t;
+      if hw_s(2) /= hw_s(1) then hw_o <= resize(hw_hold, 16); end if;   -- held ~1 s
     end if;
   end process;
 

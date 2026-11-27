@@ -12,7 +12,7 @@
 -- Per frame (latched at the request for line 480, the start of vertical
 -- blank, so a frame never mixes buffers): enable, buf, width, height. The
 -- latched buffer is reported as shown (clk_sys), so the writer never
--- overwrites it. Raster line y shows picture row y + yoff, yoff = (height -
+-- overwrites it (frame pulses then, for the live view's counter). Raster line y shows picture row y + yoff, yoff = (height -
 -- 480) / 2 for taller pictures (576 lines: the centre 480), 0 otherwise;
 -- pixels x < min(width, 720) of rows < height show the picture, the rest is
 -- black. enable = '0': no memory traffic, layer off.
@@ -50,6 +50,7 @@ entity full_display is
     width   : in  unsigned(10 downto 0);
     height  : in  unsigned(9 downto 0);
     shown   : out unsigned(1 downto 0);          -- buffer of the frame being shown
+    frame   : out std_logic;                     -- clk_sys pulse: a frame's picture latched
     -- pixel side
     clk_pix : in  std_logic;
     x, y    : in  unsigned(10 downto 0);
@@ -98,6 +99,7 @@ architecture rtl of full_display is
   signal r_h     : std_logic := '0';
   signal outst   : unsigned(9 downto 0) := (others => '0');
   signal drop    : std_logic := '0';
+  signal frm     : std_logic := '0';
 
   -- pixel side
   signal c_on, c_h : std_logic := '0';
@@ -115,6 +117,7 @@ begin
   mem_req.wdata <= (others => '0');
   mem_req.wmask <= (others => '0');
   shown <= f_buf;
+  frame <= frm;
 
   ---------------------------------------------------------------- clk_sys reader
   process (clk_sys)
@@ -126,6 +129,7 @@ begin
     if rising_edge(clk_sys) then
       s_tog <= s_tog(1 downto 0) & p_tog;
       gv <= pend;
+      frm <= '0';
       if s_tog(2) /= s_tog(1) then
         pend <= '1'; pend_ln <= p_line;     -- p_line is stable for a whole line
         gv <= '0';
@@ -171,6 +175,7 @@ begin
         if g_480 then
           -- start of vertical blank: latch the next frame's picture
           f_en <= enable;
+          frm  <= enable;
           if enable = '1' then
             f_buf <= buf;
             f_w <= width;

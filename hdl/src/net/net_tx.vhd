@@ -130,7 +130,7 @@ architecture rtl of net_tx is
   type state_t is (S_IDLE, S_DISCARD, S_LATCH, S_HIST, S_PREP, S_CSUM, S_START, S_WRITE, S_WAIT_MAC);
   signal state : state_t := S_IDLE;
 
-  constant PF_MAX : natural := 188;   -- heartbeat: 8 + 180
+  constant PF_MAX : natural := 196;   -- heartbeat: 8 + 188
   type pf_t is array (0 to PF_MAX - 1) of byte_t;
   type hdr_t is array (0 to 41) of byte_t;
   signal hdr   : hdr_t := (others => (others => '0'));
@@ -608,6 +608,14 @@ begin
               end loop;
               pf(184) <= bstat.relay.flags;      pf(185) <= bstat.relay.last_m;
               pf(186) <= bstat.relay.last_scale; pf(187) <= bstat.relay.full_age;
+              -- 188..195 relay receive load (relay-rx-speed)
+              for i in 0 to 1 loop
+                pf(188 + i) <= bu(bstat.relay.fifo_hwm, i);
+                pf(190 + i) <= bu(bstat.relay.wr_stall, i);
+                pf(192 + i) <= bu(bstat.relay.mem_wait, i);
+              end loop;
+              pf(194) <= std_logic_vector(bstat.relay.wf_hwm);
+              pf(195) <= std_logic_vector(bstat.relay.fifo_aw);
             when others => null;
           end case;
 

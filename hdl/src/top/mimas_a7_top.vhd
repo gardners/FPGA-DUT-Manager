@@ -179,6 +179,7 @@ architecture rtl of mimas_a7_top is
   signal fv_rsp : mem_rsp_t := MEM_RSP_IDLE;
   signal fv_core_on, fv_en, fv_on : std_logic;
   signal fv_buf, fv_shown : unsigned(1 downto 0);
+  signal fv_frame : std_logic;
   signal fv_w : unsigned(10 downto 0);
   signal fv_h : unsigned(9 downto 0);
   signal fv_r, fv_g, fv_b : std_logic_vector(7 downto 0);
@@ -277,7 +278,7 @@ begin
       thumb_quarter => core_th_q,
       vid_machine => vid_machine, vid_machine_ok => vid_machine_ok,
       full_on => fv_core_on, full_buf => fv_buf, full_width => fv_w, full_height => fv_h,
-      full_shown => fv_shown);
+      full_shown => fv_shown, full_frame => fv_frame);
 
   ---------------------------------------------------------------- DDR3
   -- Nothing waits on DDR3: until calibration the subsystem holds ready='0'
@@ -290,8 +291,10 @@ begin
               ddr3_cas_n => ddr3_cas_n, ddr3_we_n => ddr3_we_n, ddr3_reset_n => ddr3_reset_n,
               ddr3_ck_p => ddr3_ck_p, ddr3_ck_n => ddr3_ck_n, ddr3_cke => ddr3_cke,
               ddr3_cs_n => ddr3_cs_n, ddr3_dm => ddr3_dm, ddr3_odt => ddr3_odt);
+  -- bursts of up to 32 words per port (issue 0060 relay-rx-speed): the
+  -- full-view writer and full_display no longer alternate word by word
   marb : entity work.mem_arbiter
-    generic map (N => MEM_PORTS)
+    generic map (N => MEM_PORTS, BURST => 32)
     port map (clk => clk_sys, reqs => mem_reqs, rsps => mem_rsps, req => mem_req, rsp => mem_rsp);
   mtest : entity work.mem_selftest
     generic map (BASE_WORD => MEM_TEST_BASE, WORD_BITS => MEM_TEST_BITS)
@@ -482,7 +485,7 @@ begin
   fv_en <= fv_core_on and mem_stat.calibrated;
   fullv : entity work.full_display
     port map (clk_sys => clk_sys, mem_req => fv_req, mem_rsp => fv_rsp, enable => fv_en,
-              buf => fv_buf, width => fv_w, height => fv_h, shown => fv_shown,
+              buf => fv_buf, width => fv_w, height => fv_h, shown => fv_shown, frame => fv_frame,
               clk_pix => clk_pix, x => vx, y => vy, de => v_de,
               r => fv_r, g => fv_g, b => fv_b, layer_on => fv_on);
   mosaic : entity work.mosaic_display
