@@ -16,6 +16,14 @@
 -- end of the high phase, just before the falling edge (the target updates
 -- TDO on the falling edge). Exactly bit_count rising edges; TCK idles low.
 --
+-- Parking (issue 0056): after every transaction (done or aborted) TMS and
+-- TDI go low while TCK stays low, without a TCK edge, so the TAP state is
+-- unchanged (an XVC session can continue from Run-Test/Idle, Pause-DR or
+-- Shift-DR) and an idle output never drives a switched-off DUT's input
+-- clamps high. The next transaction drives the TMS/TDI of its first bit at
+-- the start of the low phase, at least 2 clk cycles (half_period) before
+-- the first rising TCK edge.
+--
 -- TDO sampling (MGMT key 0x0064, issue 0054), latched at admission:
 -- vote 0 = the single sample above; 1 = majority of the synchronised TDO on
 -- the last three clk_sys cycles of the high half period (half >= 4, else
@@ -254,6 +262,8 @@ begin
           end if;
         when S_DONE =>
           tck_r       <= '0';
+          tms_r       <= '0';           -- park (issue 0056): no TCK edge
+          tdi_r       <= '0';
           in_flight   <= '0';
           have_result <= not abort_r;
           done_strobe <= '1';

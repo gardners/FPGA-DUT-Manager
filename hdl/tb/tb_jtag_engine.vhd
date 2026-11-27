@@ -52,6 +52,25 @@ begin
 
   tdo <= tdo_r xor glit;
 
+  -- parking (issue 0056): between transactions TMS/TDI low, TCK low, and no
+  -- TCK edge outside a transaction
+  park : process (clk)
+  begin
+    if rising_edge(clk) then
+      if busy = '0' then
+        assert tck = '0' and tms = '0' and tdi = '0'
+          report "idle pins not parked: TCK " & std_logic'image(tck) & " TMS " &
+                 std_logic'image(tms) & " TDI " & std_logic'image(tdi) severity failure;
+      end if;
+    end if;
+  end process;
+  park_edge : process (tck)
+  begin
+    if tck'event and now > 0 ns then
+      assert busy = '1' report "TCK edge while idle" severity failure;
+    end if;
+  end process;
+
   -- the engine samples pin(E(half-2)) (2-FF synchroniser), the votes add
   -- pin(E(half-3)) .. pin(E(half-6))
   -- gk = clk edges seen since TCK rose; the pin value sampled at E(gk + 1)
@@ -96,6 +115,7 @@ begin
     variable tdo_bits : std_logic_vector(63 downto 0);
     variable nb : natural := 0;
     variable start_rises : natural;
+    variable lo16 : std_logic_vector(15 downto 0);
 
     procedure request(seq, bits, half : natural; abort : std_logic := '0') is
     begin
@@ -269,6 +289,40 @@ begin
     wait until rising_edge(clk) and dstb = '1';
     wait for 100 ns;
     assert rises - start_rises = 8 report "no clocks after start_ok" severity failure;
+
+    -- TAP state survives parking (issue 0056) --------------------------------
+    -- end in Run-Test/Idle (TMS last '0'), park, continue from there
+    shift(1014, "11111" & "0", rep('1', 6), 2);
+    assert tap = RTI report "not in Run-Test/Idle after transaction" severity failure;
+    wait for 1 us;
+    assert tap = RTI report "TAP moved while parked in Run-Test/Idle" severity failure;
+    -- RTI -> Select-DR, Capture-DR, Shift-DR (TMS ends '0', TDI '1')
+    shift(1015, "100", rep('1', 3), 3);
+    assert tap = SHDR report "not in Shift-DR" severity failure;
+    -- 16 IDCODE bits, the last exits to Exit1-DR, then Pause-DR
+    nb := 0;
+    shift(1016, rep('0', 15) & "1" & "0", rep('1', 17), 2);
+    assert tap = PADR report "not in Pause-DR after transaction" severity failure;
+    lo16 := tdo_bits(15 downto 0);
+    wait for 1 us;
+    assert tap = PADR report "TAP moved while parked in Pause-DR" severity failure;
+    -- Pause-DR -> Exit2-DR -> Shift-DR, the other 16 bits, Exit1, Update, RTI
+    nb := 0;
+    shift(1017, "10" & rep('0', 15) & "1" & "10", rep('0', 20), 2);
+    assert tap = RTI report "not back in Run-Test/Idle" severity failure;
+    assert tdo_bits(17 downto 2) & lo16 = IDCODE
+      report "IDCODE across a parked Pause-DR: " & to_hstring(tdo_bits(17 downto 2) & lo16)
+      severity failure;
+    -- parked while aborted: power lost mid-transaction
+    request(1018, 64, 50);
+    assert dec_code = "000" severity failure;
+    go <= '1'; wait until rising_edge(clk); go <= '0';
+    wait for 3 us;
+    powered <= '0';
+    wait until rising_edge(clk) and dstb = '1';
+    assert aborted = '1' report "not aborted on power loss" severity failure;
+    wait for 1 us;
+    powered <= '1';
 
     report "tb_jtag_engine PASSED";
     done <= true;
