@@ -203,6 +203,9 @@ def decode_heartbeat(b):
     if len(b) >= 152:  # shield block (ADR 0005 section 3c), bytes 152..159 of the datagram
         (f["shd_flags"], f["shd_revision"], f["shd_features"], f["shd_sense"], f["shd_hdmi"],
          f["shd_pwr"], f["shd_i2c_errors"]) = struct.unpack(">BBBBBBH", b[144:152])
+    if len(b) >= 180:  # relay block (ADR 0005 section 3d), bytes 160..187 of the datagram
+        vals = struct.unpack(">12HBBBB", b[152:180])
+        f.update(zip(RELAY_FIELDS, vals))
     return f
 
 
@@ -210,6 +213,16 @@ SHD_FIELDS = ("shd_flags", "shd_revision", "shd_features", "shd_sense", "shd_hdm
               "shd_i2c_errors")
 # shd_flags bits (ADR 0005 section 3c, issue 0049)
 SF_BUILD, SF_PROBED, SF_PRESENT, SF_SENSE, SF_PWRB, SF_ADOPTED = 0x01, 0x02, 0x04, 0x08, 0x10, 0x20
+
+
+# relay block (ADR 0005 section 3d, issue 0061): 12 wrapping u16 counters,
+# then relay_flags, last machine (0xFF none), last scale, full picture age
+RELAY_FIELDS = ("rl_req_sent", "rl_req_full", "rl_rx_req", "rl_rx_lines", "rl_rx_bad", "rl_rx_ovf",
+                "rl_rx_nosrc", "rl_rx_vlan", "rl_rx_long", "rl_rx_foreign", "rl_full_pics",
+                "rl_full_swaps", "rl_flags", "rl_last_machine", "rl_last_scale", "rl_full_age")
+# relay_flags bits (heartbeat byte 184)
+RLF_FULL_WANT, RLF_FULL_FRESH, RLF_FULL_STALE, RLF_LAST_VALID, RLF_LAST_NOSRC, RLF_STREAMING = \
+    0x01, 0x02, 0x04, 0x08, 0x10, 0x20
 
 
 MEM_FIELDS = ("mem_flags", "mem_errors", "mem_dq_fail", "mem_test_kib", "mem_first_err")
@@ -340,6 +353,9 @@ def encode_heartbeat(dut, f):
         assert len(b) == 144
         b += struct.pack(">BBBBBBH", f["shd_flags"], f["shd_revision"], f["shd_features"],
                          f["shd_sense"], f["shd_hdmi"], f["shd_pwr"], f["shd_i2c_errors"])
+    if "rl_req_sent" in f:  # relay block (needs the shield block) -> 180-byte payload
+        assert len(b) == 152
+        b += struct.pack(">12HBBBB", *(f[k] for k in RELAY_FIELDS))
     return custom(T_HEARTBEAT, dut, b)
 
 
@@ -579,6 +595,22 @@ def selftest():
     if vid != VLAN_DEFAULT or (t["scale"], t["width"], t["height"], t["row"], t["enc"]) != (3, 720, 480, 479, 1) \
             or t["lines"] != [line] or t["payload_bytes"] != 12:
         errors.append("scale 3 lines frame %r" % {k: v for k, v in t.items() if k != "lines"})
+    # heartbeat relay block (issue 0061): offsets 160..187 of the datagram
+    hb = dict(hb_seq=1, boot_id=2, build_id=3, dna=4, topo_index=0, topo_count=1, dip=0, link_flags=0,
+              caps=0, cfg_gen=0, target_flags=0, kbd_owner=0, kbd_policy=0, selected=0, kbd_eff=0,
+              kbd_udp=0, kbd_phys=0, phys_change=0, phys_type=0, jtag_status=0, jtag_next_seq=0,
+              uart_rx_seq=0, uart_tx_acc=0, rx_rejects=0, tx_drops=0, dut_leds=bytes(12),
+              video_flags=0, h_total=0, v_total=0, h_active=0, v_active=0, pixel_clock_hz=0,
+              frames_captured=0, raster_lines_dropped=0, tmds_decode_errors=0, rx_phase_pos=0,
+              rx_eye_width=0, rx_hunts=0, rx_bad_frames=0, rx_link_flags=0, mem_flags=0, mem_errors=0,
+              mem_dq_fail=0, mem_test_kib=0, mem_first_err=0, shd_flags=0, shd_revision=0,
+              shd_features=0, shd_sense=0, shd_hdmi=0, shd_pwr=0, shd_i2c_errors=0)
+    rl = {k: i + 1 for i, k in enumerate(RELAY_FIELDS)}
+    p = encode_heartbeat(0, dict(hb, **rl))
+    if len(p) != 188 or p[160:162] != b"\x00\x01" or p[182:184] != b"\x00\x0c" or p[184:188] != bytes([13, 14, 15, 16]):
+        errors.append("relay block layout %s" % p[160:].hex(" "))
+    elif any(decode_heartbeat(p[8:])[k] != v for k, v in rl.items()):
+        errors.append("relay block round trip")
     for e in errors:
         print("ERROR:", e)
     print("netproto selftest", "FAILED" if errors else "PASSED")

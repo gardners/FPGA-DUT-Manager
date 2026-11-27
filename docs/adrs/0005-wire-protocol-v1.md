@@ -102,7 +102,8 @@ Total 108 bytes (header + 100). Since 2026-11-25 the supervisor always
 appends the video block (section 8; zeros until HDMI capture exists) and
 the link block (section 3a): 140 bytes on the wire (header + 132); with
 the memory block (section 3b, issue 0034) 152 bytes (header + 144); with
-the shield block (section 3c, issue 0049) 160 bytes (header + 152).
+the shield block (section 3c, issue 0049) 160 bytes (header + 152); with
+the relay block (section 3d, issue 0061) 188 bytes (header + 180).
 Decoders must accept >= 100 and use the blocks only when present.
 
 ### 3a. Heartbeat link block (bytes 132..139; payload >= 132)
@@ -154,6 +155,35 @@ In the shield build the DUT0/DUT1 "powered" sense (target_flags, output
 gating) comes from bytes 155 b0/b1 and b4/b5 while b3 is set; with b2 set
 and b3 clear the DUTs count as unpowered; with no shield answering (b1 set,
 b2 clear) the J/K block sense pins are used as in the normal build.
+
+### 3d. Heartbeat relay block (bytes 160..187; payload >= 180)
+
+Thumbnail relay / full-view counters (section 10, issues 0060/0061).
+Appended 2026-11-27. Board-wide (the same in both endpoints' heartbeats);
+every counter is u16 and wraps. "For us" = to one of this board's MACs (or
+broadcast, for requests); "relay frame" = EtherType 0x88B5, version 1 and
+magic right. Relay frames are parsed by `thumb_rx_tap` at line rate beside
+the MAC, so they are received whatever their length; the MAC's 2 KiB slots
+only see their first 2047 bytes (and count them in rx_bad_frames).
+
+| Off | Size | Field |
+|---|---|---|
+| 160 | 2 | rl_req_sent: relay requests sent by this board (select screen or full view, any scale) |
+| 162 | 2 | rl_req_full: of those, targeted scale 3 requests (full view) |
+| 164 | 2 | rl_rx_req: requests heard (good FCS, our VLAN, broadcast or ours) |
+| 166 | 2 | rl_rx_lines: lines frames for us, good (FCS, header sane, every line complete, no FIFO overflow) |
+| 168 | 2 | rl_rx_bad: lines frames for us (our VLAN) that were not good |
+| 170 | 2 | rl_rx_ovf: of those, the receive FIFO was full (the frame-store writer fell behind) |
+| 172 | 2 | rl_rx_nosrc: "present, no source" frames for us (good FCS) |
+| 174 | 2 | rl_rx_vlan: relay frames for us dropped for the VLAN (other VID, untagged while key 0x0043 /= 0, or tagged while it is 0) |
+| 176 | 2 | rl_rx_long: relay frames for us (our VLAN, any FCS) longer than 2047 bytes including tag and FCS (longer than a MAC slot; normal for 1/1 RAW888 and large thumbnail frames) |
+| 178 | 2 | rl_rx_foreign: good lines frames none of whose lines were taken (this board's own machine with local video, or a 1/1 frame for a machine that is not the full view's) |
+| 180 | 2 | rl_full_pics: full pictures completed into the triple buffer |
+| 182 | 2 | rl_full_swaps: pictures shown: changes of the buffer full_display scans out (at vertical blank) |
+| 184 | 1 | relay_flags: b0 full view wanted (video target is a local machine without local video, auto console), b1 full picture in the last second (shown; byte 109 = 4), b2 wanted but no full picture in the last second ("no video"), b3 bytes 185/186 valid, b4 the last relay frame (185/186) was "present, no source", b5 this board's own source is streaming, b6-b7 0 |
+| 185 | 1 | rl_last_machine: machine number (byte 4) of the last good lines or no-source frame for us; 0xFF none yet |
+| 186 | 1 | rl_last_scale: its scale (byte 6; 0 for no source) |
+| 187 | 1 | rl_full_age: time since the last complete full picture in 8 ms units, saturating at 255 (>= 2.04 s, or never) |
 
 ## 4. Management (port 6500)
 

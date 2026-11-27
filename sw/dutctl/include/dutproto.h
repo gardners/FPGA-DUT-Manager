@@ -174,7 +174,36 @@ typedef struct {
   uint8_t shd_hdmi;        /* b0-2 +5V HDMI1..3, b3 PK_JTAGEN driven, b4-6 HPD HDMI1..3 */
   uint8_t shd_pwr;         /* power CTRL0..7 as driven */
   uint16_t shd_i2c_errors; /* failed shield I2C transactions (saturates) */
+  /* relay block (ADR 0005 section 3d, issue 0061); valid only when has_relay
+     (payload >= 180). Board-wide; counters are u16 and wrap. */
+  uint8_t has_relay;
+  uint16_t rl_req_sent;   /* relay requests sent (any scale) */
+  uint16_t rl_req_full;   /* ... of which targeted scale 3 (full view) */
+  uint16_t rl_rx_req;     /* requests heard (good FCS, our VLAN, broadcast or ours) */
+  uint16_t rl_rx_lines;   /* lines frames for us, good */
+  uint16_t rl_rx_bad;     /* lines frames for us, not good (FCS, header, incomplete, FIFO) */
+  uint16_t rl_rx_ovf;     /* ... of which the receive FIFO overflowed */
+  uint16_t rl_rx_nosrc;   /* "present, no source" frames for us */
+  uint16_t rl_rx_vlan;    /* relay frames for us dropped for the VLAN (wrong VID / untagged) */
+  uint16_t rl_rx_long;    /* relay frames for us longer than 2047 bytes (MAC slot) */
+  uint16_t rl_rx_foreign; /* good lines frames for a machine not taken */
+  uint16_t rl_full_pics;  /* full pictures completed into the triple buffer */
+  uint16_t rl_full_swaps; /* full_display buffer changes (new pictures shown) */
+  uint8_t rl_flags;       /* DP_RLF_* */
+  uint8_t rl_last_machine; /* last good relay frame's machine (0xFF none) */
+  uint8_t rl_last_scale;   /* its scale (0 for "no source") */
+  uint8_t rl_full_age;     /* 8 ms units since the last full picture (255 = >= 2 s / never) */
 } dp_heartbeat_t;
+
+/* heartbeat relay_flags (byte 184, ADR 0005 section 3d, issue 0061) */
+enum dp_relay_flag {
+  DP_RLF_FULL_WANT = 0x01,  /* full view wanted (selected target without local video) */
+  DP_RLF_FULL_FRESH = 0x02, /* a full picture in the last second: shown */
+  DP_RLF_FULL_STALE = 0x04, /* wanted, but no full picture in the last second */
+  DP_RLF_LAST_VALID = 0x08, /* rl_last_machine / rl_last_scale valid */
+  DP_RLF_LAST_NOSRC = 0x10, /* the last relay frame was "present, no source" */
+  DP_RLF_STREAMING = 0x20,  /* this board's own source is streaming */
+};
 
 /* heartbeat shd_flags (ADR 0005 section 3c, issue 0049) */
 enum dp_shield_flag {

@@ -54,8 +54,15 @@ package proto_pkg is
 
   -- payload lengths (after the 8-byte common header)
   -- 100 fixed + 24 video block + 8 link block + 12 memory block + 8
-  -- shield block (ADR 0005 sections 3, 3a, 3b, 3c, 8)
-  constant HB_PAYLOAD_LEN   : natural := 152;
+  -- shield block + 28 relay block (ADR 0005 sections 3, 3a, 3b, 3c, 3d, 8)
+  constant HB_PAYLOAD_LEN   : natural := 180;
+  -- heartbeat byte 184 relay_flags (ADR 0005 section 3d, issue 0061)
+  constant RLF_FULL_WANT  : natural := 0;   -- full view wanted (selected target without local video)
+  constant RLF_FULL_FRESH : natural := 1;   -- a full picture in the last second (shown)
+  constant RLF_FULL_STALE : natural := 2;   -- wanted, but no full picture in the last second
+  constant RLF_LAST_VALID : natural := 3;   -- bytes 185/186 valid
+  constant RLF_LAST_NOSRC : natural := 4;   -- the last relay frame was "present, no source"
+  constant RLF_STREAMING  : natural := 5;   -- our own source is streaming
   constant ACK_PAYLOAD_LEN  : natural := 10;
   constant SNAP_PAYLOAD_LEN : natural := 680;
   constant JRESP_FIXED_LEN  : natural := 16;

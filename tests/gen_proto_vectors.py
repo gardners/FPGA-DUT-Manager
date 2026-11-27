@@ -45,6 +45,12 @@ def vectors():
                shd_revision=0x01, shd_features=0x7F, shd_sense=0x31, shd_hdmi=0x5D, shd_pwr=0xA5,
                shd_i2c_errors=0x0102)
     v.append(("heartbeat_shield", P.encode_heartbeat(1, hbs)))
+    hbr = dict(hbs, rl_req_sent=0x0102, rl_req_full=0x0304, rl_rx_req=0x0506, rl_rx_lines=0xFFFE,
+               rl_rx_bad=0x0708, rl_rx_ovf=0x090A, rl_rx_nosrc=0x0B0C, rl_rx_vlan=0x0D0E,
+               rl_rx_long=0x1011, rl_rx_foreign=0x1213, rl_full_pics=0x1415, rl_full_swaps=0x1617,
+               rl_flags=P.RLF_FULL_WANT | P.RLF_FULL_STALE | P.RLF_LAST_VALID, rl_last_machine=1,
+               rl_last_scale=3, rl_full_age=0xFF)
+    v.append(("heartbeat_relay", P.encode_heartbeat(0, hbr)))
     v.append(("mgmt_pwr_ctl", P.mgmt_set(1, 0x0BAD, P.K_PWR_CTL, b"\xa5")))
     # raster: 720-px active line, pixel x = (x & 0xFF, (x >> 8) ^ line, (3 * x) & 0xFF)
     px = b"".join(bytes([x & 0xFF, (x >> 8) ^ 5, (3 * x) & 0xFF]) for x in range(720))

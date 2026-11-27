@@ -391,6 +391,15 @@ static void print_hb_kv(const char *ip, const dp_hdr_t *h, const dp_heartbeat_t 
            "shd_i2c_errors=%u",
            hb->shd_flags, hb->shd_revision, hb->shd_features, hb->shd_sense, hb->shd_hdmi,
            hb->shd_pwr, hb->shd_i2c_errors);
+  printf(" has_relay=%u", hb->has_relay);
+  if (hb->has_relay)
+    printf(" rl_req_sent=%u rl_req_full=%u rl_rx_req=%u rl_rx_lines=%u rl_rx_bad=%u rl_rx_ovf=%u "
+           "rl_rx_nosrc=%u rl_rx_vlan=%u rl_rx_long=%u rl_rx_foreign=%u rl_full_pics=%u "
+           "rl_full_swaps=%u rl_flags=%u rl_last_machine=%u rl_last_scale=%u rl_full_age=%u",
+           hb->rl_req_sent, hb->rl_req_full, hb->rl_rx_req, hb->rl_rx_lines, hb->rl_rx_bad,
+           hb->rl_rx_ovf, hb->rl_rx_nosrc, hb->rl_rx_vlan, hb->rl_rx_long, hb->rl_rx_foreign,
+           hb->rl_full_pics, hb->rl_full_swaps, hb->rl_flags, hb->rl_last_machine,
+           hb->rl_last_scale, hb->rl_full_age);
   printf("\n");
   fflush(stdout);
 }
@@ -471,6 +480,22 @@ static int cmd_listen(int argc, char **argv)
                  hb.mem_first_err);
       } else
         printf("  ddr3 %s", (hb.mem_flags & DP_MEM_ST_RUNNING) ? "testing" : "calibrated");
+    }
+    if (hb.has_relay) {
+      printf("  relay req %u (full %u) heard %u  rx lines %u bad %u (ovf %u) nosrc %u vlan-drop %u "
+             "long %u foreign %u",
+             hb.rl_req_sent, hb.rl_req_full, hb.rl_rx_req, hb.rl_rx_lines, hb.rl_rx_bad, hb.rl_rx_ovf,
+             hb.rl_rx_nosrc, hb.rl_rx_vlan, hb.rl_rx_long, hb.rl_rx_foreign);
+      if (hb.rl_flags & DP_RLF_LAST_VALID)
+        printf("  last m%u %s", hb.rl_last_machine,
+               (hb.rl_flags & DP_RLF_LAST_NOSRC) ? "nosrc" : hb.rl_last_scale == 3 ? "1/1"
+                                                       : hb.rl_last_scale == 2 ? "1/4" : "1/2");
+      printf("  full pics %u shown %u", hb.rl_full_pics, hb.rl_full_swaps);
+      if (hb.rl_flags & DP_RLF_FULL_WANT)
+        printf(" %s age %u ms", (hb.rl_flags & DP_RLF_FULL_FRESH) ? "LIVE" : "NO-PICTURE",
+               hb.rl_full_age * 8u);
+      if (hb.rl_flags & DP_RLF_STREAMING)
+        printf(" streaming");
     }
     if (hb.phys_type) {
       printf("  phys");

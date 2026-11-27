@@ -190,6 +190,24 @@ int dp_decode_heartbeat(const uint8_t *p, size_t len, dp_heartbeat_t *hb)
     hb->shd_hdmi = hb->shd_pwr = 0;
     hb->shd_i2c_errors = 0;
   }
+  hb->has_relay = len >= 180;
+  if (hb->has_relay) {
+    uint16_t *c[12] = {&hb->rl_req_sent,  &hb->rl_req_full,   &hb->rl_rx_req,    &hb->rl_rx_lines,
+                       &hb->rl_rx_bad,    &hb->rl_rx_ovf,     &hb->rl_rx_nosrc,  &hb->rl_rx_vlan,
+                       &hb->rl_rx_long,   &hb->rl_rx_foreign, &hb->rl_full_pics, &hb->rl_full_swaps};
+    for (int i = 0; i < 12; i++)
+      *c[i] = dp_get16(p + 152 + 2 * i);
+    hb->rl_flags = p[176];
+    hb->rl_last_machine = p[177];
+    hb->rl_last_scale = p[178];
+    hb->rl_full_age = p[179];
+  } else {
+    hb->rl_req_sent = hb->rl_req_full = hb->rl_rx_req = hb->rl_rx_lines = 0;
+    hb->rl_rx_bad = hb->rl_rx_ovf = hb->rl_rx_nosrc = hb->rl_rx_vlan = 0;
+    hb->rl_rx_long = hb->rl_rx_foreign = hb->rl_full_pics = hb->rl_full_swaps = 0;
+    hb->rl_flags = hb->rl_last_scale = hb->rl_full_age = 0;
+    hb->rl_last_machine = 0xFF;
+  }
   return 0;
 }
 

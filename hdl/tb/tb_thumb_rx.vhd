@@ -58,6 +58,10 @@ architecture tb of tb_thumb_rx is
   signal nseen : unsigned(5 downto 0);
   signal pics : unsigned(31 downto 0);
   signal tapfr : unsigned(15 downto 0);
+  signal c_req, c_lines, c_bad, c_ovf, c_nosrc, c_vlan, c_long, c_foreign : unsigned(15 downto 0);
+  signal l_v, l_ns : std_logic;
+  signal l_m : unsigned(4 downto 0);
+  signal l_sc : std_logic_vector(7 downto 0);
   constant L0 : unsigned(4 downto 0) := to_unsigned(0, 5);
   constant L1 : unsigned(4 downto 0) := to_unsigned(1, 5);
 begin
@@ -70,7 +74,10 @@ begin
               mac0 => x"024D36350000", mac1 => x"024D36350011", vlan => to_unsigned(1650, 12),
               sclk => clk, f_valid => f_valid, f_dout => f_dout, f_pop => f_pop,
               req_stb => req_stb, req_mac => req_mac, req_scale => req_scale,
-              req_div => req_div, req_flags => req_flags, req_target => req_target, frames => tapfr);
+              req_div => req_div, req_flags => req_flags, req_target => req_target, frames => tapfr,
+              c_req => c_req, c_lines => c_lines, c_bad => c_bad, c_ovf => c_ovf, c_nosrc => c_nosrc,
+              c_vlan => c_vlan, c_long => c_long,
+              last_valid => l_v, last_nosrc => l_ns, last_m => l_m, last_scale => l_sc);
   wr : entity work.thumb_rx_writer
     port map (clk => clk, f_valid => f_valid, f_dout => f_dout, f_pop => f_pop,
               local0 => L0, local1 => L1, relay0 => '0', relay1 => '1',
@@ -78,7 +85,8 @@ begin
               ev => ev, ev_machine => ev_m, ev_buf => ev_buf, ev_quarter => ev_q,
               seen_ev => sev, seen_machine => sm, pictures => pics,
               full_en => '1', full_m => L1, full_shown => "00",
-              full_ev => fev, full_buf => fbuf, full_width => fw, full_height => fh, full_pics => open);
+              full_ev => fev, full_buf => fbuf, full_width => fw, full_height => fh, full_pics => open,
+              foreign => c_foreign);
   st : entity work.thumb_status
     port map (clk => clk, tick_1ms => '0', local0 => L0, local1 => L1,
               ev_a => '0', ev_a_machine => L0, ev_a_buf => '0', ev_a_quarter => '0',
@@ -189,6 +197,19 @@ begin
       end loop;
       writeline(fo, l);
     end loop;
+    -- relay counters (issue 0061): every good relay frame of the tap is a
+    -- request, a good lines frame or a no-source frame; the scenario has
+    -- a bad-FCS lines frame, frames off our VLAN and frames for machine 0
+    -- (local, own video: not taken)
+    report "relay counters: req " & integer'image(to_integer(c_req)) & " lines " &
+      integer'image(to_integer(c_lines)) & " bad " & integer'image(to_integer(c_bad)) & " ovf " &
+      integer'image(to_integer(c_ovf)) & " nosrc " & integer'image(to_integer(c_nosrc)) & " vlan " &
+      integer'image(to_integer(c_vlan)) & " long " & integer'image(to_integer(c_long)) & " foreign " &
+      integer'image(to_integer(c_foreign)) & " last " & std_logic'image(l_v) & " m " &
+      integer'image(to_integer(l_m)) & " sc " & integer'image(to_integer(unsigned(l_sc)));
+    assert c_req + c_lines + c_nosrc = tapfr report "relay counters do not add up to tap frames" severity failure;
+    assert c_bad >= 1 and c_vlan >= 3 and c_foreign >= 1 and c_ovf = 0 and l_v = '1'
+      report "relay counters unexpected" severity failure;
     report "tb_thumb_rx PASSED (frame-level); tap frames " & integer'image(to_integer(tapfr));
     fin <= true;
     wait;

@@ -22,6 +22,22 @@
 --     counts the rows of good frames, so they never complete a picture.
 --   * present, no source (subtype 3, to one of our MACs): a SEEN tag at a
 --     good FCS.
+-- Counters (issue 0061, clk_sys, wrapping; heartbeat relay block, ADR 0005
+-- s3d), each event a toggle across to sclk. "For us" = to one of our MACs,
+-- or broadcast for requests; "relay frame" = EtherType, version and magic
+-- right. Lengths count the whole frame (tag and FCS included) as eth_mac_rx
+-- does: relay frames are taken here at line rate however long they are
+-- (up to 16383 bytes), not from the MAC's 2 KiB slots.
+--   c_req    requests taken (as req_stb)
+--   c_lines  lines frames for us, good (END good)
+--   c_bad    lines frames for us, not good (FCS, header, incomplete, FIFO)
+--   c_ovf    ... of which the FIFO was full (the writer fell behind)
+--   c_nosrc  "present, no source" frames taken
+--   c_vlan   relay frames for us dropped for the VLAN (wrong VID / untagged
+--            / tagged while the key is 0)
+--   c_long   relay frames for us longer than 2047 bytes (any FCS)
+--   last_*   machine (byte 4) and scale (byte 6) of the last good lines /
+--            no-source frame for us (held; last_t toggles at each update)
 -- FIFO entries (36 bits): tag(35:34) & data(33:0):
 --   LINE "00": sc(33:32) (00 1/2, 01 1/4, 10 1/1) machine(31:27) row(26:17)
 --              frame(16:10) height(9:0)
@@ -55,7 +71,13 @@ entity thumb_rx_tap is
     req_div  : out std_logic_vector(7 downto 0);
     req_flags  : out std_logic_vector(7 downto 0);  -- b0 targeted, b1 priority (issue 0060)
     req_target : out std_logic_vector(7 downto 0);
-    frames   : out unsigned(15 downto 0)            -- good relay frames (clk_rx)
+    frames   : out unsigned(15 downto 0);           -- good relay frames (clk_rx)
+    -- counters (clk_sys, issue 0061)
+    c_req, c_lines, c_bad, c_ovf, c_nosrc, c_vlan, c_long : out unsigned(15 downto 0);
+    last_valid : out std_logic;
+    last_nosrc : out std_logic;
+    last_m     : out unsigned(4 downto 0);
+    last_scale : out std_logic_vector(7 downto 0)
   );
 end entity;
 
@@ -70,6 +92,7 @@ architecture rtl of thumb_rx_tap is
   signal st : st_t := S_IDLE;
   signal idx : unsigned(13 downto 0) := (others => '0');
   signal crc : std_logic_vector(31 downto 0) := (others => '1');
+  attribute ASYNC_REG : string;
   signal m0, m1 : std_logic_vector(47 downto 0) := (others => '0');
   signal vl : unsigned(11 downto 0) := (others => '0');
   signal b12 : std_logic_vector(7 downto 0) := (others => '0');
@@ -101,12 +124,26 @@ architecture rtl of thumb_rx_tap is
   signal f_din : std_logic_vector(35 downto 0) := (others => '0');
   signal f_used : unsigned(FIFO_AW downto 0);
   signal nfr : unsigned(15 downto 0) := (others => '0');
+  signal ovf : std_logic := '0';                   -- FIFO full in this frame
+  -- counter events (clk_rx toggles, issue 0061): 0 req, 1 lines, 2 bad,
+  -- 3 ovf, 4 nosrc, 5 vlan, 6 long, 7 last_* updated
+  constant NEV : natural := 8;
+  signal ev_t : std_logic_vector(NEV - 1 downto 0) := (others => '0');
+  type ev_sync_t is array (0 to NEV - 1) of std_logic_vector(2 downto 0);
+  signal ev_s : ev_sync_t := (others => "000");
+  attribute ASYNC_REG of ev_s : signal is "TRUE";
+  signal cnt : std_logic_vector(7 * 16 - 1 downto 0) := (others => '0');
+  signal ls_m : unsigned(4 downto 0) := (others => '0');
+  signal ls_sc : std_logic_vector(7 downto 0) := (others => '0');
+  signal ls_ns : std_logic := '0';
+  signal lo_v, lo_ns : std_logic := '0';
+  signal lo_m : unsigned(4 downto 0) := (others => '0');
+  signal lo_sc : std_logic_vector(7 downto 0) := (others => '0');
   -- request to clk_sys
   signal rq_mac : std_logic_vector(47 downto 0) := (others => '0');
   signal rq_sc, rq_dv, rq_fl, rq_tg : std_logic_vector(7 downto 0) := (others => '0');
   signal rq_t : std_logic := '0';
   signal rq_s : std_logic_vector(3 downto 0) := (others => '0');
-  attribute ASYNC_REG : string;
   attribute ASYNC_REG of rq_s : signal is "TRUE";
 
   function line_tag(m : unsigned(4 downto 0); r : unsigned(15 downto 0); f : std_logic_vector(7 downto 0);
@@ -144,7 +181,7 @@ begin
             crc <= (others => '1');
             okd0 <= '1'; okd1 <= '1'; okb <= '1'; hdr_ok <= '1';
             tagged <= '0'; skip <= "00"; vok <= '0';
-            in_pl <= '0'; bad <= '0'; line_pend <= '0'; mbad <= '0'; chk <= '0';
+            in_pl <= '0'; bad <= '0'; line_pend <= '0'; mbad <= '0'; chk <= '0'; ovf <= '0';
           end if;
 
         when S_PRE =>
@@ -233,7 +270,7 @@ begin
                       f_we  <= '1';
                       f_din <= line_tag(machine, row, frame8, scale, height);
                     else
-                      bad <= '1';
+                      bad <= '1'; ovf <= '1';
                     end if;
                   else
                     bad <= '1';
@@ -263,7 +300,7 @@ begin
                       f_din <= G_RUN & "00" & tup(23 downto 0) & b;
                     end if;
                   else
-                    bad <= '1';
+                    bad <= '1'; ovf <= '1';
                   end if;
                 end if;
               else
@@ -292,7 +329,7 @@ begin
                   f_we  <= '1';
                   f_din <= line_tag(machine, row + ldone, frame8, scale, height);
                 else
-                  bad <= '1';
+                  bad <= '1'; ovf <= '1';
                 end if;
               end if;
             end if;
@@ -308,10 +345,23 @@ begin
                 rq_tg  <= enc;
                 rq_t   <= not rq_t;
                 nfr    <= nfr + 1;
+                ev_t(0) <= not ev_t(0);
               elsif sub = TH_SUB_NOSRC and (okd0 = '1' or okd1 = '1') and mbad = '0' then
                 f_we  <= '1';
                 f_din <= G_SEEN & (33 downto 5 => '0') & std_logic_vector(machine);
                 nfr   <= nfr + 1;
+                ev_t(4) <= not ev_t(4);
+                ls_m <= machine; ls_sc <= x"00"; ls_ns <= '1';
+                ev_t(7) <= not ev_t(7);
+              end if;
+            end if;
+            -- counters (issue 0061): relay frames for us (any subtype) whose
+            -- VLAN did not match / that are longer than a MAC slot
+            if hdr_ok = '1' and idx > 17 and (okb = '1' or okd0 = '1' or okd1 = '1') then
+              if vok = '0' then
+                ev_t(5) <= not ev_t(5);
+              elsif idx(13 downto 11) /= "000" or (tagged = '1' and idx >= 2044) then
+                ev_t(6) <= not ev_t(6);
               end if;
             end if;
             if sub = TH_SUB_LINES and hdr_ok = '1' and vok = '1' and (okd0 = '1' or okd1 = '1') and idx > 35 then
@@ -319,12 +369,41 @@ begin
               if crc = CRC32_RESIDUE and bad = '0' and ldone = nlines and line_pend = '0' then
                 f_din <= G_END & (33 downto 12 => '0') & std_logic_vector(width(10 downto 0)) & '1';
                 nfr   <= nfr + 1;
+                ev_t(1) <= not ev_t(1);
+                ls_m <= machine; ls_sc <= scale; ls_ns <= '0';
+                ev_t(7) <= not ev_t(7);
               else
                 f_din <= G_END & (33 downto 12 => '0') & std_logic_vector(width(10 downto 0)) & '0';
+                ev_t(2) <= not ev_t(2);
+                if ovf = '1' then ev_t(3) <= not ev_t(3); end if;
               end if;
             end if;
           end if;
       end case;
+    end if;
+  end process;
+
+  -- counters (issue 0061): events are >= 64 bytes apart, so a 3-FF toggle
+  -- crossing never merges two; last_* is held for a frame at least
+  c_req   <= unsigned(cnt(15 downto 0));   c_lines <= unsigned(cnt(31 downto 16));
+  c_bad   <= unsigned(cnt(47 downto 32));  c_ovf   <= unsigned(cnt(63 downto 48));
+  c_nosrc <= unsigned(cnt(79 downto 64));  c_vlan  <= unsigned(cnt(95 downto 80));
+  c_long  <= unsigned(cnt(111 downto 96));
+  last_valid <= lo_v; last_nosrc <= lo_ns; last_m <= lo_m; last_scale <= lo_sc;
+  process (sclk)
+  begin
+    if rising_edge(sclk) then
+      for k in 0 to NEV - 1 loop
+        ev_s(k) <= ev_s(k)(1 downto 0) & ev_t(k);
+      end loop;
+      for k in 0 to 6 loop
+        if ev_s(k)(2) /= ev_s(k)(1) then
+          cnt(16 * k + 15 downto 16 * k) <= std_logic_vector(unsigned(cnt(16 * k + 15 downto 16 * k)) + 1);
+        end if;
+      end loop;
+      if ev_s(7)(2) /= ev_s(7)(1) then
+        lo_v <= '1'; lo_ns <= ls_ns; lo_m <= ls_m; lo_sc <= ls_sc;
+      end if;
     end if;
   end process;
 
