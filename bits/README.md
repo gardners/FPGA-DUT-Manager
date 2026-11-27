@@ -10,6 +10,7 @@ Board must run from the DC jack (USB power alone browns out).
 
 | Build id | Commit | Verified on hardware (2026-11-25) | Notes |
 |---|---|---|---|
+| 77ee3d26 | 77ee3d2 | 2026-11-27: hwtest 66/0; relayed full view from the HewnWeb K325T at ~60 pictures/s, 0 frames lost (rx FIFO peak 1926/16384) | relay RX vs DDR3 contention fixed (buffers in separate banks, arbiter bursts, 16K-entry rx FIFO), live line-by-line view (key 0x0045), relay counters and rx-load block in the heartbeat (0060/0061); WNS +0.111 ns. **known-good** |
 | e4f8df7d | e4f8df7 | 2026-11-27: hwtest 65/0 (incl. keys 0x0043/0x0044); relayed full-screen view not yet seen with a live source | VLAN 1650 for the thumbnail relay (key 0x0043), HWVS request extensions (targeted/priority/1:1), relayed video for local slots without HDMI (key 0x0044 hdmi-owner), full-screen relayed view (0060); WNS +0.143 ns. **known-good** |
 | 3c536491 | 3c53649 | 2026-11-27: hwtest 63/0; K325T bitstream loaded over plain `dutctl xvc` (no proxy) at MTU 1500 (5792-bit requests, 1.5 s) and 2028 (7904-bit), DONE=1 | JTAG_REQ max 7904 bits (2 KiB MAC slots), oversize requests answered bad-format, dutctl splits shifts per MTU (0059); WNS +0.276 ns. **known-good** |
 | cf8acc83 | cf8acc8 | 2026-11-27: hwtest 63/0; K325T on DUT1: IDCODE, out-policy 2 -> unpowered, power-off lets the sense drop (no back-feed), 1.6 s XVC bitstream load; kbd JTAG clean to 20.8 MHz | idle JTAG pins parked low, out-policy 2 covers JTAG, shield power-off output hold, dutctl relay hooks (0056); WNS +0.095 ns. **known-good** |

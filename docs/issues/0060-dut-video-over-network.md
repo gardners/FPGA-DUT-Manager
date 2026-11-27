@@ -314,3 +314,12 @@ selftest, 903 dutctl checks, 52 relay checks. Not loaded on hardware.
 Bitstream: build/bits/supervisor-77ee3d26.bit in the feature/relay-rx-speed
 worktree. hwtest restores key 0x0045 to 1 (live); after hwtest set
 hdmi-owner again for the relayed slot.
+
+### 2026-11-27 lead: hardware result of the RX fix (build 77ee3d26)
+
+With the HewnWeb K325T streaming 1/1 and machine 1 selected, over 5 s:
+2102 good lines frames, 0 bad, 0 overflow, 301 complete pictures (~60
+pictures/s, the full 60 Hz; the console compresses to ~7 frames per
+picture). Receive FIFO peak 1926 of 16384 entries: just under the old
+FIFO's whole 2048, which confirms the owner's DDR3-contention diagnosis.
+hwtest 66/0; promoted to known-good.
