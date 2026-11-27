@@ -191,3 +191,14 @@ full view's state and the last frame's machine and scale; `dutctl listen`
 prints them. thumb_rx_tap reads the GMII stream directly (not the MAC's
 2 KiB slots), so 1/1 frames up to ~8 KB are received; the switch path must
 pass jumbo frames. Details and a debugging table in issue 0061.
+
+### 2026-11-27 lead: first end-to-end run (build 86aa5659 + HewnWeb K325T fb7a947)
+
+The relayed full view works end to end: VLAN 1650, board_n 1 and the
+switch are fine (0 VLAN drops, 0 foreign frames). Over 5 s with machine 1
+selected: 10 targeted 1/1 requests sent; ~3286 good lines frames from m1
+and ~919 dropped on our side (receive FIFO overflow), i.e. ~840 frames/s
+(~5 pictures/s, ~5.5 MB/s) arriving, but only ~1.4 complete pictures/s
+shown, because one lost frame kills a picture. Fix in progress
+(feature/relay-rx-speed): RX buffering/DDR3 write rate, plus a live
+line-by-line view mode.
