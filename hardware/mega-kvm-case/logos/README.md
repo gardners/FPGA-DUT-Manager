@@ -13,3 +13,5 @@ at the original size, stroked 1 px and converted to unioned filled outlines
 by Inkscape. Colours (black / maroon `#680040`) follow the original; the case
 generator etches every fill black. Regenerate with
 `python3 -I tools/make_mega_ev_logo.py` (Pillow + Inkscape).
+
+These logos are the property of their respective owners; see `assets/COPYRIGHT.md`.
