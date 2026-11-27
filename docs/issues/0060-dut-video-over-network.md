@@ -305,3 +305,12 @@ tb_thumb_rx / tb_full_display folds updated for the bank layout;
 tb_supervisor_core: key 0x0045 bad value / set, live flag and receive-load
 block in the heartbeat (64 good RX frames). netproto selftest (layout +
 round trip of 188..195), C vectors heartbeat_rxload, mgmt_relay_view.
+
+Build (Vivado, commit 77ee3d2 = all HDL of this branch, build id
+77ee3d26): **TIMING MET, WNS +0.111 ns, WHS +0.008 ns**; 21045 LUTs
+(64.6 %), 53.5 BRAM tiles (71.3 %; +18.5: tap FIFO 16, word FIFO ~2.5),
+MMCMs 5/5, PLLs 2/5. `make test` green: 36 HDL testbenches, netproto
+selftest, 903 dutctl checks, 52 relay checks. Not loaded on hardware.
+Bitstream: build/bits/supervisor-77ee3d26.bit in the feature/relay-rx-speed
+worktree. hwtest restores key 0x0045 to 1 (live); after hwtest set
+hdmi-owner again for the relayed slot.
