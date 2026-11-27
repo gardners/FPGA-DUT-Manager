@@ -15,6 +15,14 @@ package thumb_pkg is
   constant TH_SUB_NOSRC: std_logic_vector(7 downto 0)  := x"03";
   constant TH_REQ_LEN  : natural := 8;    -- request body after the Ethernet header
   constant TH_HDR_LEN  : natural := 22;   -- lines / no-source header after the Ethernet header
+  -- request scale (byte 4) and flags (byte 6), issue 0060
+  constant TH_SCALE_HALF : std_logic_vector(7 downto 0) := x"01";
+  constant TH_SCALE_QUAR : std_logic_vector(7 downto 0) := x"02";
+  constant TH_SCALE_FULL : std_logic_vector(7 downto 0) := x"03";   -- 1/1
+  constant TH_RF_TARGETED: natural := 0;  -- byte 7 = target machine
+  constant TH_RF_PRIORITY: natural := 1;
+  -- 802.1Q tag on inter-board relay frames (issue 0060)
+  constant TH_TPID     : std_logic_vector(15 downto 0) := x"8100";
   constant TH_ENC_RAW  : std_logic_vector(7 downto 0) := x"00";   -- RGB888
   constant TH_ENC_RLE  : std_logic_vector(7 downto 0) := x"01";   -- RLE24
   -- payload budget per relay frame: lines are packed until the next one
@@ -36,10 +44,11 @@ package thumb_pkg is
     height  : unsigned(7 downto 0);            -- rows in the picture
     width   : unsigned(15 downto 0);
     nbytes  : unsigned(12 downto 0);           -- payload bytes (in the packet buffer)
+    tag     : std_logic;                       -- to a requester: 802.1Q tag when the VLAN is set
   end record;
   constant THUMB_PKT_NONE : thumb_pkt_t := (x"00", 0, (others => '0'), (others => '0'),
     x"00", x"00", x"00", (others => '0'), (others => '0'), (others => '0'), (others => '0'),
-    (others => '0'), (others => '0'));
+    (others => '0'), (others => '0'), '0');
 
   -- tile width/height for a scale (quarter = '1' -> 1/4)
   function tile_w(quarter : std_logic) return natural;

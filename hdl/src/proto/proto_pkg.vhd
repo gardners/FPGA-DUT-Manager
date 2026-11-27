@@ -130,6 +130,8 @@ package proto_pkg is
   -- heartbeat byte 109, HDMI OUT shown: 0 editable, 1 no video, 2 select
   -- (console screens, issue 0029), 3 passthrough of HDMI IN (issue 0032)
   constant CON_SHOWN_PASSTHROUGH : std_logic_vector(7 downto 0) := x"03";
+  -- 4: full-resolution relayed picture of the video target (issue 0060)
+  constant CON_SHOWN_RELAYED     : std_logic_vector(7 downto 0) := x"04";
 
   constant DEFAULT_VLAN : unsigned(11 downto 0) := to_unsigned(1650, 12);   -- key 0x0043 (issue 0060)
 

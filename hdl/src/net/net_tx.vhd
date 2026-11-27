@@ -104,6 +104,8 @@ entity net_tx is
     treq_valid : in  std_logic := '0';
     treq_scale : in  std_logic_vector(7 downto 0) := x"01";
     treq_div   : in  std_logic_vector(7 downto 0) := x"02";
+    treq_flags : in  std_logic_vector(7 downto 0) := x"00";   -- issue 0060: b0 targeted, b1 priority
+    treq_target: in  std_logic_vector(7 downto 0) := x"00";
     treq_taken : out std_logic;
     -- MAC
     mac_start  : out std_logic;
@@ -296,6 +298,7 @@ begin
     variable nbytes  : unsigned(31 downto 0);
     variable wb      : byte_t;
     variable st      : dut_status_t;
+    variable tgo     : natural range 0 to 4;   -- 802.1Q tag bytes (relay frames)
   begin
     if rising_edge(clk) then
       arp_taken  <= '0';
@@ -622,31 +625,41 @@ begin
             total    <= to_unsigned(42, 13);
             state    <= S_START;
           elsif kind = K_THUMB or kind = K_TREQ then
-            -- raw Ethernet: EtherType 0x88B5, version, subtype, magic, ...
-            hdr(12) <= TH_ETYPE(15 downto 8); hdr(13) <= TH_ETYPE(7 downto 0);
-            hdr(14) <= TH_VERSION;
-            hdr(16) <= TH_MAGIC(15 downto 8); hdr(17) <= TH_MAGIC(7 downto 0);
-            for i in 18 to 41 loop hdr(i) <= x"00"; end loop;
+            -- raw Ethernet: [802.1Q tag,] EtherType 0x88B5, version, subtype,
+            -- magic, ... Inter-board frames (requests, frames to a requester)
+            -- carry the VLAN tag when key 0x0043 is set (issue 0060); frames
+            -- to the forced host MAC (key 0x0041) never do.
+            if bcfg.vlan /= 0 and (kind = K_TREQ or th_pkt.tag = '1') then tgo := 4; else tgo := 0; end if;
+            for i in 12 to 41 loop hdr(i) <= x"00"; end loop;
+            if tgo = 4 then
+              hdr(12) <= TH_TPID(15 downto 8); hdr(13) <= TH_TPID(7 downto 0);
+              hdr(14) <= "0000" & std_logic_vector(bcfg.vlan(11 downto 8));     -- PCP 0, DEI 0
+              hdr(15) <= std_logic_vector(bcfg.vlan(7 downto 0));
+            end if;
+            hdr(12 + tgo) <= TH_ETYPE(15 downto 8); hdr(13 + tgo) <= TH_ETYPE(7 downto 0);
+            hdr(14 + tgo) <= TH_VERSION;
+            hdr(16 + tgo) <= TH_MAGIC(15 downto 8); hdr(17 + tgo) <= TH_MAGIC(7 downto 0);
             c_len <= (others => '0');
             if kind = K_TREQ then
-              hdr(15) <= TH_SUB_REQ;
-              hdr(18) <= treq_scale; hdr(19) <= treq_div;
-              a_len <= to_unsigned(14 + TH_REQ_LEN, 13);
+              hdr(15 + tgo) <= TH_SUB_REQ;
+              hdr(18 + tgo) <= treq_scale; hdr(19 + tgo) <= treq_div;
+              hdr(20 + tgo) <= treq_flags; hdr(21 + tgo) <= treq_target;
+              a_len <= to_unsigned(14 + tgo + TH_REQ_LEN, 13);
               b_len <= (others => '0');
-              total <= to_unsigned(14 + TH_REQ_LEN, 13);
+              total <= to_unsigned(14 + tgo + TH_REQ_LEN, 13);
             else
-              hdr(15) <= th_pkt.sub;
-              hdr(18) <= "000" & std_logic_vector(th_pkt.machine);
-              hdr(19) <= th_pkt.flags; hdr(20) <= th_pkt.scale; hdr(21) <= th_pkt.enc;
-              for i in 0 to 3 loop hdr(22 + i) <= bu(th_pkt.frame, i); end loop;
-              hdr(26) <= x"00"; hdr(27) <= std_logic_vector(th_pkt.row);
-              hdr(28) <= x"00"; hdr(29) <= std_logic_vector(th_pkt.nlines);
-              hdr(30) <= bu(th_pkt.width, 0); hdr(31) <= bu(th_pkt.width, 1);
-              hdr(32) <= x"00"; hdr(33) <= std_logic_vector(th_pkt.height);
-              hdr(34) <= bu(resize(th_pkt.nbytes, 16), 0); hdr(35) <= bu(resize(th_pkt.nbytes, 16), 1);
-              a_len <= to_unsigned(14 + TH_HDR_LEN, 13);
+              hdr(15 + tgo) <= th_pkt.sub;
+              hdr(18 + tgo) <= "000" & std_logic_vector(th_pkt.machine);
+              hdr(19 + tgo) <= th_pkt.flags; hdr(20 + tgo) <= th_pkt.scale; hdr(21 + tgo) <= th_pkt.enc;
+              for i in 0 to 3 loop hdr(22 + tgo + i) <= bu(th_pkt.frame, i); end loop;
+              hdr(26 + tgo) <= x"00"; hdr(27 + tgo) <= std_logic_vector(th_pkt.row);
+              hdr(28 + tgo) <= x"00"; hdr(29 + tgo) <= std_logic_vector(th_pkt.nlines);
+              hdr(30 + tgo) <= bu(th_pkt.width, 0); hdr(31 + tgo) <= bu(th_pkt.width, 1);
+              hdr(32 + tgo) <= x"00"; hdr(33 + tgo) <= std_logic_vector(th_pkt.height);
+              hdr(34 + tgo) <= bu(resize(th_pkt.nbytes, 16), 0); hdr(35 + tgo) <= bu(resize(th_pkt.nbytes, 16), 1);
+              a_len <= to_unsigned(14 + tgo + TH_HDR_LEN, 13);
               b_len <= th_pkt.nbytes;
-              total <= to_unsigned(14 + TH_HDR_LEN, 13) + th_pkt.nbytes;
+              total <= to_unsigned(14 + tgo + TH_HDR_LEN, 13) + th_pkt.nbytes;
             end if;
             state <= S_START;
           else

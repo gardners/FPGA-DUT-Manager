@@ -1,10 +1,16 @@
 -- thumb_tx: thumbnail relay sender and scale/rate policy (issue 0038, ADR
 -- 0005 s10), clk_sys.
 --
--- Policy (owner, 2026-11-25):
+-- Policy (owner, 2026-11-25; issue 0060 2026-11-27):
 --   * While this board's console shows the select screen it is a requester:
---     every 250 ms it asks net_tx to broadcast a request carrying the scale
---     it wants (1/2 with <= 4 machines seen, else 1/4) and divisor 2.
+--     every 500 ms (2 Hz) it asks net_tx to broadcast a request carrying the
+--     scale it wants (1/2 with <= 4 machines seen, else 1/4) and divisor 2.
+--   * While full_want (the video target is a local machine without local
+--     video, issue 0060) it requests that machine instead: targeted (byte 7
+--     = full_machine), priority, scale 3 (1/1), divisor 1, every 500 ms.
+--   * Requests targeted at a machine that is not one of ours are ignored; a
+--     targeted request streams only the target machine. A scale 3 request
+--     is answered at 1/2 (the local capture stores 1/2 and 1/4 only).
 --   * Streaming destination: the forced MAC (management key 0x0041) when
 --     set, else the source MAC of the latest request heard in the last
 --     second (latest wins). Never a group (multicast/broadcast) MAC.
@@ -19,7 +25,10 @@
 -- stays within TH_PKT_BUDGET; net_tx copies each closed frame from the packet
 -- buffer (pkt_valid ... pkt_taken). A picture arriving while one is being
 -- sent replaces the pending one (latest wins). Local machines without a
--- picture in the last second send "present, no source" once a second.
+-- picture (local, or relayed for a local machine without local video: rx_ev)
+-- in the last second send "present, no source" once a second. Frames to a
+-- requester are marked for the 802.1Q tag (pkt.tag), frames to the forced
+-- MAC are not.
 --
 -- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.
 library ieee;
@@ -43,6 +52,15 @@ entity thumb_tx is
     req_mac    : in  std_logic_vector(47 downto 0);
     req_scale  : in  std_logic_vector(7 downto 0);
     req_div    : in  std_logic_vector(7 downto 0);
+    req_flags  : in  std_logic_vector(7 downto 0) := x"00";   -- b0 targeted (issue 0060)
+    req_target : in  std_logic_vector(7 downto 0) := x"00";
+    -- full-resolution view of a local machine without local video (0060)
+    full_want  : in  std_logic := '0';
+    full_machine : in unsigned(4 downto 0) := (others => '0');
+    -- relayed picture complete (thumb_rx_writer ev): a local machine whose
+    -- video comes over the network is not "no source"
+    rx_ev      : in  std_logic := '0';
+    rx_machine : in  unsigned(4 downto 0) := (others => '0');
     -- local capture
     cap_done   : in  std_logic;
     cap_machine: in  unsigned(4 downto 0);
@@ -66,6 +84,8 @@ entity thumb_tx is
     treq_valid : out std_logic;            -- broadcast a request (endpoint 0)
     treq_scale : out std_logic_vector(7 downto 0);
     treq_div   : out std_logic_vector(7 downto 0);
+    treq_flags : out std_logic_vector(7 downto 0);
+    treq_target: out std_logic_vector(7 downto 0);
     treq_taken : in  std_logic;
     streaming  : out std_logic;
     pictures   : out unsigned(31 downto 0)  -- pictures sent
@@ -78,6 +98,11 @@ architecture rtl of thumb_tx is
   signal rq_q : std_logic := '0';
   signal rq_div : unsigned(3 downto 0) := to_unsigned(2, 4);
   signal rq_age : unsigned(11 downto 0) := (others => '1');
+  signal rq_tgt_on : std_logic := '0';
+  signal rq_tgt : unsigned(4 downto 0) := (others => '0');
+  signal tgt_f : std_logic := '0';           -- streaming to a targeted requester
+  signal to_req : std_logic := '0';          -- streaming to a requester (tagged)
+  signal tq_sc, tq_dv, tq_fl, tq_tg : std_logic_vector(7 downto 0) := x"00";
   signal dst : std_logic_vector(47 downto 0) := (others => '0');
   signal strm : std_logic := '0';
   signal q_eff : std_logic := '0';
@@ -164,8 +189,10 @@ begin
   pkt_valid   <= pv;
   pkt         <= pk_r;
   treq_valid  <= treq_r;
-  treq_scale  <= x"02" when own_q = '1' else x"01";
-  treq_div    <= x"02";
+  treq_scale  <= tq_sc;
+  treq_div    <= tq_dv;
+  treq_flags  <= tq_fl;
+  treq_target <= tq_tg;
   streaming   <= strm;
   pictures    <= npic;
   mem_req     <= mreq;
@@ -177,8 +204,12 @@ begin
     if rising_edge(clk) then
       if n_seen > 4 then own_q <= '1'; else own_q <= '0'; end if;
       fm := force_mac /= x"000000000000" and force_mac(40) = '0';
-      if req_stb = '1' then
+      if req_stb = '1' and (req_flags(0) = '0' or
+                            unsigned(req_target) = resize(local0, 8) or
+                            unsigned(req_target) = resize(local1, 8)) then
         rq_mac <= req_mac;
+        rq_tgt_on <= req_flags(0);
+        rq_tgt <= unsigned(req_target(4 downto 0));
         if req_scale = x"02" then rq_q <= '1'; else rq_q <= '0'; end if;
         if unsigned(req_div) = 0 or unsigned(req_div) > 15 then
           rq_div <= to_unsigned(1, 4);
@@ -191,10 +222,12 @@ begin
       end if;
       -- destination (unicast only)
       strm <= '0';
+      to_req <= '0';
+      tgt_f <= '0';
       if fm then
         dst <= force_mac; strm <= '1';
       elsif rq_age < MS_PER_S and rq_mac(40) = '0' and rq_mac /= x"000000000000" then
-        dst <= rq_mac; strm <= '1';
+        dst <= rq_mac; strm <= '1'; to_req <= '1'; tgt_f <= rq_tgt_on;
       end if;
       -- scale and divisor in effect
       if selecting = '1' then
@@ -211,12 +244,20 @@ begin
       else
         q_eff <= '0'; div_eff <= to_unsigned(2, 4);
       end if;
-      -- requests every 250 ms while selecting
+      -- requests every 500 ms (2 Hz) while selecting, or for the full view
       if treq_taken = '1' then treq_r <= '0'; end if;
       if tick_1ms = '1' then
-        if t250 + 1 >= MS_PER_S / 4 then
+        if t250 + 1 >= MS_PER_S / 2 then
           t250 <= (others => '0');
-          if selecting = '1' then treq_r <= '1'; end if;
+          if selecting = '1' then
+            treq_r <= '1';
+            if own_q = '1' then tq_sc <= x"02"; else tq_sc <= x"01"; end if;
+            tq_dv <= x"02"; tq_fl <= x"00"; tq_tg <= x"00";
+          elsif full_want = '1' then
+            treq_r <= '1';
+            tq_sc <= x"03"; tq_dv <= x"01"; tq_fl <= x"03";     -- targeted, priority
+            tq_tg <= "000" & std_logic_vector(full_machine);
+          end if;
         else
           t250 <= t250 + 1;
         end if;
@@ -240,10 +281,14 @@ begin
       for i in 0 to 1 loop
         if tick_1ms = '1' and lf_age(i) /= x"FFF" then lf_age(i) <= lf_age(i) + 1; end if;
       end loop;
+      if rx_ev = '1' then
+        if rx_machine = local0 then lf_age(0) <= (others => '0'); end if;
+        if rx_machine = local1 then lf_age(1) <= (others => '0'); end if;
+      end if;
       if cap_done = '1' then
         if cap_machine = local0 then lf_age(0) <= (others => '0'); end if;
         if cap_machine = local1 then lf_age(1) <= (others => '0'); end if;
-        if strm = '1' then
+        if strm = '1' and (tgt_f = '0' or cap_machine = rq_tgt) then
           pend <= '1'; pm <= cap_machine; pbf <= cap_buf; pq <= cap_quarter; prows <= cap_rows;
         end if;
       end if;
@@ -251,7 +296,10 @@ begin
         if t1s + 1 >= MS_PER_S then
           t1s <= (others => '0');
           for i in 0 to 1 loop
-            if strm = '1' and lf_age(i) >= MS_PER_S then nos_due(i) <= '1'; end if;
+            if strm = '1' and lf_age(i) >= MS_PER_S and
+               (tgt_f = '0' or (i = 0 and rq_tgt = local0) or (i = 1 and rq_tgt = local1)) then
+              nos_due(i) <= '1';
+            end if;
           end loop;
         else
           t1s <= t1s + 1;
@@ -285,6 +333,7 @@ begin
               pk_r <= THUMB_PKT_NONE;
               pk_r.sub <= TH_SUB_NOSRC;
               pk_r.dst <= dst;
+              pk_r.tag <= to_req;
               if nos_due(0) = '1' then
                 pk_r.d <= 0; pk_r.machine <= local0;
               else
@@ -437,6 +486,7 @@ begin
             pk_r.sub     <= TH_SUB_LINES;
             pk_r.d       <= sd;
             pk_r.dst     <= dst;
+            pk_r.tag     <= to_req;
             pk_r.machine <= sm;
             pk_r.flags   <= "000000" & last_pkt & '1';
             if sq = '1' then pk_r.scale <= x"02"; else pk_r.scale <= x"01"; end if;

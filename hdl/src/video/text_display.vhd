@@ -61,7 +61,11 @@ entity text_display is
     -- thumbnail layer (issue 0036), clk_pix
     mos_on   : in  std_logic := '0';
     mos_quad : in  std_logic := '0';
-    mos_r, mos_g, mos_b : in std_logic_vector(7 downto 0) := (others => '0')
+    mos_r, mos_g, mos_b : in std_logic_vector(7 downto 0) := (others => '0');
+    -- full-resolution relayed picture (full_display, issue 0060): replaces
+    -- the whole screen while full_on (aligned as the mosaic layer)
+    full_on  : in  std_logic := '0';
+    full_r, full_g, full_b : in std_logic_vector(7 downto 0) := (others => '0')
   );
 end entity;
 
@@ -350,6 +354,9 @@ begin
       -- issue 0036: key green and the area outside the text show the mosaic
       if mm_d = '1' and (in_d = '0' or c = MOS_KEY) then
         c := mos_r & mos_g & mos_b;
+      end if;
+      if full_on = '1' then
+        c := full_r & full_g & full_b;
       end if;
       r <= c(23 downto 16); g <= c(15 downto 8); b <= c(7 downto 0);
 
