@@ -24,6 +24,10 @@ for b in main inputs; do
         --fields 'Reference,Value,Footprint,LCSC,MPN,${QUANTITY},${DNP}' \
         --labels 'Refs,Value,Footprint,LCSC,MPN,Qty,DNP' \
         --group-by 'Value,Footprint,LCSC,${DNP}' --ref-range-delimiter '' $p/$p.kicad_sch >/dev/null
+    # CPL (pick and place) for JLC: board coordinates in mm, DNP excluded.
+    # Placement only: the boards are unrouted, so this is for review/costing.
+    $KICAD_CLI pcb export pos --format csv --units mm --side both --exclude-dnp \
+        -o out/$p-cpl.csv $p/$p.kicad_pcb >/dev/null
     $KICAD_CLI pcb render --side top --width 1600 --height 900 -o out/$p-top.png $p/$p.kicad_pcb >/dev/null 2>&1 || true
     $KICAD_CLI pcb render --side bottom --width 1600 --height 900 -o out/$p-bottom.png $p/$p.kicad_pcb >/dev/null 2>&1 || true
     echo "$b: $(grep 'ERC messages' out/$b-erc.rpt)"
