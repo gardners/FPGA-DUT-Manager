@@ -30,8 +30,7 @@ for k, ref in enumerate(['R180', 'R181', 'R182', 'C180', 'C181', 'R183']):
 MAIN.update({
     'J20': (121, 4.5, 90), 'J21': (134, 4.5, 90),
     'J22': (151, 14.5, 180),
-    # VBUS entry
-    'J1': (12, 69), 'J2': (27, 69),
+    # VBUS bulk, 3.3 V
     'C1': (43, 70), 'C2': (58, 70), 'C3': (68, 64, 90),
     'U10': (75, 70), 'C4': (70, 74), 'C5': (80, 74),
     'R1': (84, 64), 'D1': (88, 64),
@@ -66,8 +65,6 @@ for k in range(8):
 # controllers, mux and sensor in the space the old 3-pin fan headers used
 MAIN.update({
     'U12': (143, 41, 0), 'C400': (143, 47.5, 0), 'R400': (143, 50.5, 0), 'R12': (146, 53, 0),
-    'U13': (100, 45, 0), 'C405': (100, 50, 0),
-    'J6': (204, 76, 0),
 })
 for m in range(4):
     MAIN['U%d' % (14 + m)] = (156, 37 + 4.5 * m, 0)
@@ -76,26 +73,78 @@ for m in range(4):
 for i in range(8):
     MAIN['R%d' % (401 + i)] = (148.6 + 2.4 * (i % 2), 37.5 + 3.5 * (i // 2), 90)
 
+# Input stage (0047 owner round 12): a 58.5 mm strip added at the front
+# (y 80-138.5). Rows, back to front: output FETs (drain up into the VBUS pour) |
+# VSn pours | input FETs (drain down onto the Vn pours) | TVS, input cap,
+# OR diode, UV/OV divider per input | ATO fuse holders | LEDs | connectors on the
+# front edge, plugged vertically from the open top. FET columns 11-14 mm apart:
+# banana x 6/17/28 (28 = third pair, DNP), PCIe x 42, Molex x 56. The LTC4417,
+# soft start, rocker connector and LED logic sit to the right of them.
+FET_OUT_ROT, FET_IN_ROT = 90, 270
+for x, qi, qo in ((6, 'Q501', 'Q503'), (17, 'Q502', 'Q504'), (28, 'Q512', 'Q513'),
+                  (42, 'Q505', 'Q506'), (56, 'Q507', 'Q508')):
+    MAIN[qo] = (x, 85, FET_OUT_ROT)
+    MAIN[qi] = (x, 99, FET_IN_ROT)
+for n, xb in ((1, 1), (2, 26), (3, 51)):          # per-input chain over its fuse
+    MAIN['D%d' % (500 + n)] = (xb + 6, 109, 0)        # TVS
+    MAIN['C%d' % (500 + n)] = (xb + 13.5, 109, 90)    # 1u input cap
+    MAIN['D%d' % (503 + n)] = (xb + 16.5, 109, 90)    # OR diode
+    for k in range(3):
+        MAIN['R%d' % (500 + 10 * n + k)] = (xb + 19.5 + 2 * k, 109, 90)
+    MAIN['F%d' % n] = (xb + 5, 117.5, 0)
+MAIN.update({
+    # front edge: banana pair (19.05 mm), PCIe 2x4, Molex 4-pin, rocker cable
+    'J50': (8, 131), 'J51': (27.05, 131), 'J52': (38.5, 127.5), 'J53': (61, 131),
+    'J54': (86, 132),
+    'D507': (17.5, 123.6), 'D508': (50, 123.6), 'D509': (67, 123.6),
+    # LTC4417, decoupling, HYS, soft start
+    'U50': (70, 92, 0), 'R501': (64.2, 92, 90),
+    'C504': (68, 83.5, 0), 'C505': (74, 83.5, 0),
+    # master switch passives and bypass jumper by the rocker connector
+    'R502': (84, 125, 0), 'R503': (89, 125, 0), 'R504': (92.5, 125, 0), 'C506': (96, 125, 0),
+    'R505': (99.5, 125, 0), 'R506': (103, 125, 0), 'C507': (106.5, 125, 0), 'JP2': (90, 120.5, 0),
+    # input-selected LED logic
+    'R507': (84, 110, 90), 'R508': (86.5, 110, 90), 'R509': (89, 110, 90),
+    'R540': (91.5, 110, 90), 'R541': (94, 110, 90), 'R542': (96.5, 110, 90),
+    'Q509': (85, 115.5, 0), 'Q510': (90, 115.5, 0), 'Q511': (95, 115.5, 0),
+    # the one temperature sensor: between the banana FETs and the PCIe pair, on the VS copper
+    'U13': (35, 92, 90), 'C405': (35, 98.5, 90),
+    'H7': (112, 134), 'H8': (226.5, 134),
+})
+for n in (1, 2, 3):
+    MAIN['C%d' % (510 + n)] = (78 + 5 * (n - 1), 92, 90)
+    MAIN['R%d' % (500 + 10 * n + 3)] = (80.5 + 5 * (n - 1), 92, 90)
+
 BOARDS = {
     'main': {
         'name': 'mega-kvm-power-main',
         'origin': (100, 100),
-        'size': (230, 80),
+        'size': (230, 138.5),
         'place': MAIN,
         'zones': [
-            ('GND', 'B', [(0.5, 0.5), (229.5, 0.5), (229.5, 79.5), (0.5, 79.5)]),
-            ('VBUS', 'F', [(1, 24.1), (143, 24.1), (143, 60), (64, 60), (64, 79), (1, 79)]),
+            ('GND', 'B', [(0.5, 0.5), (229.5, 0.5), (229.5, 138), (0.5, 138)]),
+            ('VBUS', 'F', [(1, 24.1), (143, 24.1), (143, 60), (80, 60), (80, 85.6), (1, 85.6)]),
+            # input stage pours (F): VSn between the FET rows, Vn from the input FETs
+            # down over each input's TVS/cap/OR/divider chain to its fuse
+            ('VS1', 'F', [(1, 86), (34, 86), (34, 97.6), (1, 97.6)]),
+            ('VS2', 'F', [(34.5, 86), (49, 86), (49, 97.6), (34.5, 97.6)]),
+            ('VS3', 'F', [(49.5, 86), (62, 86), (62, 97.6), (49.5, 97.6)]),
+            ('V1', 'F', [(1, 98), (34, 98), (34, 104.8), (25.5, 104.8), (25.5, 113.5), (1, 113.5)]),
+            ('V2', 'F', [(34.5, 98), (49, 98), (49, 104.8), (50.5, 104.8), (50.5, 113.5), (26, 113.5),
+                         (26, 105.2), (34.5, 105.2)]),
+            ('V3', 'F', [(49.5, 98), (62, 98), (62, 104.8), (76, 104.8), (76, 113.5), (51, 113.5),
+                         (51, 105.2), (49.5, 105.2)]),
             ('AON12', 'F', [(118.5, 1), (229, 1), (229, 72), (170, 72), (170, 61), (146, 61),
                             (146, 23.9), (118.5, 23.9)]),
         ] + [('OUT%d' % n, 'F', [(8.6 + n * 13.5, 1), (21.4 + n * 13.5, 1),
                                  (21.4 + n * 13.5, 23.9), (8.6 + n * 13.5, 23.9)]) for n in range(8)],
-        'texts': [('MEGA-KVM power main v0.3  2 oz Cu  VBUS 12 V 25 A', 50, 50, 'F', 1.5),
+        'texts': [('MEGA-KVM power v0.4 (one board)  2 oz Cu  VBUS 12 V 25 A', 50, 50, 'F', 1.5),
+                  ('IN1 BANANA 25A', 17.5, 137.3, 'F', 0.8), ('IN2 PCIe 15A', 46, 137.3, 'F', 0.8),
+                  ('IN3 MOLEX 10A', 70, 137.3, 'F', 0.8), ('ROCKER', 88.5, 137.3, 'F', 0.8),
                   ('DUT0', 10.5, 21, 'F', 1.0), ('DUT7', 105, 21, 'F', 1.0),
                   ('MIMAS / GS105 (always on)', 140, 32, 'F', 1.0),
                   ('CTRL: 1 GND 2 KEY 3-10 CH0-7 11 PRESENT', 92, 66.5, 'F', 0.8),
-                  ('VBUS', 12, 61.5, 'F', 1.2), ('GND', 27, 61.5, 'F', 1.2),
-                  ('FANS 1 GND 2 +12V 3 TACH 4 PWM', 186, 77.5, 'F', 0.8),
-                  ('J6 TEMP I2C to input board', 188, 75.8, 'F', 0.8)]
+                  ('FANS 1 GND 2 +12V 3 TACH 4 PWM', 186, 77.5, 'F', 0.8)]
                  + [('FAN%d %s' % (k, ['KVM', 'KVM', 'A', 'A', 'A', 'B', 'B', 'B'][k]),
                      FAN_CELLS[k][0] + 7.6, FAN_CELLS[k][1] + 9.4, 'F', 0.8) for k in range(8)],
     },

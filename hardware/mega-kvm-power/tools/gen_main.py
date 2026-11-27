@@ -1,6 +1,8 @@
 """MEGA-KVM power board, main (horizontal) PCB: 8 switched DUT outputs and
 one always-on output group, all eFuse protected, fed from VBUS (12 V) that
 comes from the input board over two M4 lugs.  Issue 0047.
+Input stage (round 12, one board): banana / PCIe / Molex inputs, fuses, TVS,
+LTC4417 priority select with back-to-back P-FETs, master rocker (tools/input_stage.py).
 Fans: 8 x 4-pin PWM headers with per-header BSP452 protection, 4 x EMC2302
 behind a TCA9548A on the J5 I2C bus, TMP75 sensors.  Issue 0052.
 """
@@ -9,13 +11,14 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from kigen import Schematic, write_project  # noqa: E402
+import input_stage  # noqa: E402
 from parts import (B5819W, EFUSE_A, EFUSE_L, FAN_CTRL, FAN_HDR, FAN_SW, FP_C1206, FP_R1206,  # noqa: E402,F401
-                   HOLE_M3, I2C_MUX, LDO, LED_G, LUG_M4, NFET, SS34, TSENS, XH5, c, r)
+                   HOLE_M3, I2C_MUX, LDO, LED_G, NFET, SS34, TSENS, c, r)
 
 NAME = 'mega-kvm-power-main'
 OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', NAME)
 
-S = Schematic(NAME, 'MEGA-KVM power board - main (eFuse outputs, fans)', paper='A2', rev='0.3')
+S = Schematic(NAME, 'MEGA-KVM power board - main (eFuse outputs, fans)', paper='A1', rev='0.4')
 
 
 def P(part, ref, x, y, nets, value=None, dnp=False, nc=(), fp=None, fields=None, rot=0):
@@ -161,14 +164,11 @@ for m in range(4):
 P(TSENS, 'U13', bx + 30.48, by + 160.02,
   {'SDA': 'SDA', 'SCL': 'SCL', 'O.S.': '~{I2C_INT}', 'A0': 'GND', 'A1': 'GND', 'A2': 'GND',
    '+Vs': '+3V3', 'GND': 'GND'},
-  fields={'Note': '0x48: main board (eFuse row) temperature; ALERT on /INT (default 80 C / 75 C)'})
+  fields={'Note': '0x48: placed between the input FETs and the eFuse row (the FETs are the '
+                  'hottest parts); ALERT on /INT (default 80 C / 75 C)'})
 P(c('100n'), 'C405', bx + 12.7, by + 147.32, {'1': '+3V3', '2': 'GND'})
 P(r('10k'), 'R12', bx + 55.88, by + 147.32, {'1': '+3V3', '2': '~{I2C_INT}'},
-  fields={'Note': '/INT pull-up: EMC2302 ALERT, TMP75 ALERTs (both boards), optional TCA9535'})
-P(XH5, 'J6', bx + 30.48, by + 205.74,
-  {'1': 'GND', '2': '+3V3', '3': 'SDA', '4': 'SCL', '5': '~{I2C_INT}'}, value='TEMP I2C to input board',
-  fields={'Note': 'to J8 of the input board: TMP75 at 0x49 next to the input FETs; '
-                  '1 GND, 2 3V3, 3 SDA, 4 SCL, 5 /ALERT'})
+  fields={'Note': '/INT pull-up: EMC2302 ALERT, TMP75 ALERT, optional TCA9535'})
 S.text('Bring-up (host or FPGA), per controller m = 0..3:\n'
        '  write 0x70 <- (1 << m)            select mux channel m\n'
        '  0x2E reg 2Bh <- 03h               PWM1/2 push-pull\n'
@@ -181,9 +181,7 @@ S.text('Bring-up (host or FPGA), per controller m = 0..3:\n'
 
 # ---------------------------------------------------------------- power entry
 bx, by = 205.74, 147.32
-S.box(bx, by, bx + 92, by + 58, 'VBUS entry (from input board), 3.3 V, bulk')
-P(LUG_M4, 'J1', bx + 10.16, by + 15.24, {'1': 'VBUS'}, value='VBUS lug')
-P(LUG_M4, 'J2', bx + 10.16, by + 25.4, {'1': 'GND'}, value='GND lug')
+S.box(bx, by, bx + 92, by + 58, 'VBUS (from the input stage), 3.3 V, bulk')
 S.pwr_flag('VBUS', bx + 22.86, by + 12.7)
 S.pwr_flag('GND', bx + 22.86, by + 27.94)
 for k in range(2):
@@ -255,7 +253,7 @@ S.place('Jumper:SolderJumper_2_Open', 'JP1', '3V3 to I2C hdr', bx + 139.7, by + 
 S.pwr_flag('3V3_I2C', bx + 152.4, by + 58.42)
 
 # mounting holes
-for k in range(6):
+for k in range(8):
     S.place(HOLE_M3['lib'], 'H%d' % (1 + k), 'M3', 213.36 + 7.62 + k * 12.7, 271.78, {},
             footprint=HOLE_M3['fp'])
 
@@ -267,6 +265,9 @@ S.text('Notes\n'
        '* No quick-output-discharge in TPS25947: the LED + 4k7 (2.5 mA) bleeds an unloaded output.\n'
        '* Copper: 2 oz both layers. VBUS and OUTn are polygons; see docs/hardware/power-board.md.',
        213.36, 215.9, 1.5)
+
+# ---------------------------------------------------------------- input stage (0047 round 12)
+input_stage.build(S, P, 609.6, 15.24)
 
 if __name__ == '__main__':
     os.makedirs(OUTDIR, exist_ok=True)
