@@ -202,3 +202,106 @@ and ~919 dropped on our side (receive FIFO overflow), i.e. ~840 frames/s
 shown, because one lost frame kills a picture. Fix in progress
 (feature/relay-rx-speed): RX buffering/DDR3 write rate, plus a live
 line-by-line view mode.
+
+### 2026-11-27 relay-rx-speed (sub-agent, feature/relay-rx-speed)
+
+Requests: lead (hardware data of build 86aa5659: ~22 % of 1/1 frames lost
+to receive FIFO overflow, ~1.4 complete pictures/s), owner (via hardweb
+session) "the KVM display can just ignore lost rasters, but getting it to
+not lose so many packets would be good", and owner suggestion: a receive
+FIFO of 4-8 whole frames, plus counters showing its high-water mark and
+how often the writer stalls, to confirm DDR3 contention on hardware.
+
+**Analysis.** New `tb_relay_burst` streams 720x480 RAW888 pictures as
+back-to-back 3-line 1/1 frames (6530 bytes + preamble/gap: 125 MB/s, 41.4
+Mpx/s, one 16-byte word per 96 ns) through tap -> writer -> mem_arbiter ->
+mem_app_bridge -> mig_ui_model, with full_display scanning 720x480p60 the
+whole time and a thumbnail-capture-like writer in bank 0. mig_ui_model got
+DDR3 timing (generics, default off): a command to a bank with another row
+open costs 5 UI cycles (tRP + tRCD, + tWR after writes), a read/write
+change 3, refresh 12 every 7.8 us. Old design (git 098d177), 2 pictures:
+
+| model | frames lost | tap FIFO peak |
+|---|---|---|
+| no DRAM timing, no random stalls / with random stalls | 0 / 0 | 6 / 8 of 2048 |
+| no display reads, full DRAM timing | 0 | 7 |
+| display + turnaround only (row miss 0) | 0 | 24 |
+| display + row miss only (turnaround 0) | 0 | 264 |
+| display + row miss 5 + turnaround 3 (no random stalls) | 170 / 320 | full |
+| display + full timing + random stalls | 187 / 320 (58 %) | full |
+
+So it is **DDR3 contention, not average bandwidth** (the owner's
+suspicion): all three full buffers were in DDR3 bank 1 (0x200000 +
+buf * 0x40000; MIG BANK_ROW_COLUMN puts the bank in word bits 23..21), and
+mem_arbiter alternated the writer and full_display **word by word**. While
+the display fetches a line (180 words, ~1/3 of every line time), each
+writer word is sandwiched between reads from another row of the same bank:
+two turnarounds + a precharge/activate, ~160 ns per written word against
+the 96 ns the link delivers one in. The writer itself (2.25 clk/pixel =
+55 Mpx/s) and the 2048-entry FIFO (< 1 frame: 2164 entries per frame) left
+no slack to ride that out. The real MIG (4 bank machines, normal ordering)
+reorders a little, hence 22 % on hardware instead of 58 %.
+
+**Fix.**
+* `mem_pkg.full_addr`: buffer b in its own bank, word address (1 + b) *
+  0x200000 (+ row * 256 + col / 4). In complete-picture mode the writer and
+  the display never share a bank; this alone removes the losses in the
+  model.
+* `mem_arbiter` generic BURST (32 in the top): a port that keeps requesting
+  keeps the grant for up to 32 words, so a change between clients (and
+  its turnaround / row miss) is paid per 32 words, not per word. Needed for
+  the live view (writer and display in the same bank): memory-wait time in
+  the model drops from 1456 to 343 x 2.048 us over both phases.
+* `thumb_rx_writer`: a RUN entry is expanded in the cycle it is taken (1
+  pixel/clk = 125 Mpx/s, 3x the link), finished words with their address go
+  into a 512-word FIFO which is offered to the arbiter in batches (16 words
+  or 64 cycles), so its bursts stay together.
+* `thumb_rx_tap` FIFO 2048 -> **16384 entries (16 BRAM36, ~7.5 whole
+  frames, ~400 us of line rate with the writer stopped)**. This is the
+  owner's frame FIFO in equivalent form: the tap keeps parsing at line rate
+  and its 36-bit entries already carry the frame boundaries and the END
+  good/bad verdict (FCS, header, overflow), so a bad frame is discarded at
+  the read side (its rows never count) exactly as with a 9-bit byte FIFO
+  with an end-of-frame bit, without moving the parser to clk_sys. (A byte
+  FIFO is 9 bits/byte = 27 bits per RAW pixel against 36 here: 16 tiles
+  would hold ~9.8 frames instead of 7.5.) Overflow already loses only the
+  frame that hit it; the next frame starts clean.
+* Result in the model: 320 back-to-back frames (2.1 MB, 16.7 ms, 2
+  pictures) with display reads, full DRAM timing and random stalls: 0 lost,
+  **tap FIFO peak 3 entries, word FIFO peak 14 of 512, writer stalls 0**;
+  still 0 lost with doubled (10/6) and quadrupled (20/10) DRAM penalties.
+
+**Live view, key 0x0045 relay-view** (ADR 0005): 0 complete pictures only
+(triple buffered, never torn, as before); **1 live line by line
+(default)**: a new picture is written into the buffer the display shows
+(full_buf is kept), every good 1/1 frame pulses full_ev (fresh/age follow
+frames, width/height the last frame), lost rows keep the previous picture.
+Pixels are written as they arrive, so a frame that turns out bad (FCS) can
+leave wrong pixels in its rows until they arrive again; in mode 0 they only
+reach a hidden buffer. Switching modes mid-picture can show one torn /
+mixed picture. Counters: rl_full_pics still counts complete pictures (all
+rows of one frame number) in both modes; rl_full_swaps = buffer changes in
+mode 0, and in live mode the displayed frames that had new lines since the
+frame before (full_display now pulses `frame` at its vertical-blank latch).
+relay_flags b6 = live. `dutctl set IP relay-view 0|1`; hwtest keytest
+(restored to 1).
+
+**Receive load counters** (heartbeat bytes 188..195, payload 180 -> 188):
+rl_fifo_hwm (tap FIFO peak in the last second, entries), rl_wr_stall
+(writer waiting for its word FIFO = DDR3 back-pressure, 2.048 us units),
+rl_mem_wait (words offered, DDR3 port busy), rl_wf_hwm (word FIFO peak /
+2), rl_fifo_aw (14). `dutctl listen`: `rx fifo peak N/16384 wf peak N stall
+N wait N`; hwtest INFO "relay rx load". On hardware with the K325T
+streaming: expect rl_rx_ovf flat, rl_fifo_hwm small (hundreds at most);
+if rl_rx_ovf still rises, rl_fifo_hwm = 16384 and a rising rl_wr_stall
+prove DDR3 is the limit.
+
+Tests: tb_relay_burst (phase A: complete mode, 2 pictures back to back, 0
+bad / 0 overflow, 2 pictures complete, buffer contents = picture 2 word by
+word; phase B: live mode, picture 3 with every 7th frame left out: no
+picture completes, full_ev per frame, the live buffer becomes the shown
+one, its rows = picture 3 except the missing frames' rows = picture 2).
+tb_thumb_rx / tb_full_display folds updated for the bank layout;
+tb_supervisor_core: key 0x0045 bad value / set, live flag and receive-load
+block in the heartbeat (64 good RX frames). netproto selftest (layout +
+round trip of 188..195), C vectors heartbeat_rxload, mgmt_relay_view.

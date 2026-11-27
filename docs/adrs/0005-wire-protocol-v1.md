@@ -103,7 +103,9 @@ appends the video block (section 8; zeros until HDMI capture exists) and
 the link block (section 3a): 140 bytes on the wire (header + 132); with
 the memory block (section 3b, issue 0034) 152 bytes (header + 144); with
 the shield block (section 3c, issue 0049) 160 bytes (header + 152); with
-the relay block (section 3d, issue 0061) 188 bytes (header + 180).
+the relay block (section 3d, issue 0061) 188 bytes (header + 180); with
+the relay receive load (section 3d, bytes 188..195, issue 0060) 196 bytes
+(header + 188).
 Decoders must accept >= 100 and use the blocks only when present.
 
 ### 3a. Heartbeat link block (bytes 132..139; payload >= 132)
@@ -156,7 +158,7 @@ gating) comes from bytes 155 b0/b1 and b4/b5 while b3 is set; with b2 set
 and b3 clear the DUTs count as unpowered; with no shield answering (b1 set,
 b2 clear) the J/K block sense pins are used as in the normal build.
 
-### 3d. Heartbeat relay block (bytes 160..187; payload >= 180)
+### 3d. Heartbeat relay block (bytes 160..187; payload >= 180; receive load 188..195, payload >= 188)
 
 Thumbnail relay / full-view counters (section 10, issues 0060/0061).
 Appended 2026-11-27. Board-wide (the same in both endpoints' heartbeats);
@@ -178,12 +180,22 @@ only see their first 2047 bytes (and count them in rx_bad_frames).
 | 174 | 2 | rl_rx_vlan: relay frames for us dropped for the VLAN (other VID, untagged while key 0x0043 /= 0, or tagged while it is 0) |
 | 176 | 2 | rl_rx_long: relay frames for us (our VLAN, any FCS) longer than 2047 bytes including tag and FCS (longer than a MAC slot; normal for 1/1 RAW888 and large thumbnail frames) |
 | 178 | 2 | rl_rx_foreign: good lines frames none of whose lines were taken (this board's own machine with local video, or a 1/1 frame for a machine that is not the full view's) |
-| 180 | 2 | rl_full_pics: full pictures completed into the triple buffer |
-| 182 | 2 | rl_full_swaps: pictures shown: changes of the buffer full_display scans out (at vertical blank) |
-| 184 | 1 | relay_flags: b0 full view wanted (video target is a local machine without local video, auto console), b1 full picture in the last second (shown; byte 109 = 4), b2 wanted but no full picture in the last second ("no video"), b3 bytes 185/186 valid, b4 the last relay frame (185/186) was "present, no source", b5 this board's own source is streaming, b6-b7 0 |
+| 180 | 2 | rl_full_pics: full pictures completed (every row of one frame number received in good frames), in either view mode |
+| 182 | 2 | rl_full_swaps: frames shown with new content. Key 0x0045 = 0: changes of the buffer full_display scans out (at vertical blank) = new complete pictures shown; key 0x0045 = 1 (live): displayed 60 Hz frames for which at least one new 1/1 frame arrived since the frame before (at most 60/s) |
+| 184 | 1 | relay_flags: b0 full view wanted (video target is a local machine without local video, auto console), b1 full picture in the last second (shown; byte 109 = 4), b2 wanted but no full picture in the last second ("no video"), b3 bytes 185/186 valid, b4 the last relay frame (185/186) was "present, no source", b5 this board's own source is streaming, b6 key 0x0045 = 1 (live full view; b1/b2 and byte 187 then refer to the last good 1/1 frame, not the last complete picture), b7 0 |
 | 185 | 1 | rl_last_machine: machine number (byte 4) of the last good lines or no-source frame for us; 0xFF none yet |
 | 186 | 1 | rl_last_scale: its scale (byte 6; 0 for no source) |
-| 187 | 1 | rl_full_age: time since the last complete full picture in 8 ms units, saturating at 255 (>= 2.04 s, or never) |
+| 187 | 1 | rl_full_age: time since the last complete full picture (live view: the last good 1/1 frame) in 8 ms units, saturating at 255 (>= 2.04 s, or never) |
+| 188 | 2 | rl_fifo_hwm: receive FIFO (thumb_rx_tap, line rate -> frame-store writer) peak fill in the last whole second, in entries (one per RAW888 pixel / RLE24 tuple / line tag; a 3-line 720-pixel 1/1 frame is 2164) |
+| 190 | 2 | rl_wr_stall: time the frame-store writer had pixels to store but its word FIFO was full (DDR3 back-pressure), 2.048 us units (256 clk_sys cycles), wrapping |
+| 192 | 2 | rl_mem_wait: time the writer offered a word and the DDR3 port was busy (other clients, refresh, controller), 2.048 us units, wrapping |
+| 194 | 1 | rl_wf_hwm: the writer's word FIFO (512 words) peak fill / 2 in the last whole second |
+| 195 | 1 | rl_fifo_aw: log2 of the receive FIFO's entries (14 = 16384, ~7.5 whole 1/1 RAW888 frames) |
+
+Reading the receive load (issue 0060): rl_rx_ovf rising with rl_fifo_hwm
+at 2**rl_fifo_aw and rl_wr_stall rising = DDR3 cannot keep up; rl_rx_ovf
+rising with a low rl_fifo_hwm cannot happen (an overflow needs a full
+FIFO); rl_mem_wait rising alone is harmless contention.
 
 ## 4. Management (port 6500)
 
@@ -226,6 +238,7 @@ Keys (whole values, never toggles):
 | 0x0041 | 8 | thumbnail relay forced destination (section 10): MAC(6), scale(1: 1 = 1/2, 2 = 1/4), frame divisor(1: 1..15). MAC 00:00:00:00:00:00 = off (default). A group (multicast/broadcast) MAC, another scale or divisor -> bad value. Board-wide |
 | 0x0043 | 2 | inter-board VLAN ID (section 10, issue 0060): u16, 0 = untagged (the behaviour before 2026-11-27), 1..4094 = thumbnail relay requests, lines and no-source frames between boards carry an 802.1Q tag (TPID 0x8100, PCP 0, DEI 0, this VID) and relay frames are accepted only with that VID. Default **1650**. Host-facing traffic (UDP to the host, and relay frames to the key 0x0041 forced MAC) is never tagged. Values > 4094 -> bad value. Board-wide |
 | 0x0044 | 1 | HDMI IN owner (section 10, issue 0060): which of this board's DUTs is cabled to the on-board HDMI IN. 0 (default) the video target's DUT (the behaviour before 2026-11-27: both DUTs share the input); 1 DUT0; 2 DUT1; 3 none. A local machine that does not own the HDMI IN (only with 1..3) shows relayed video for its machine number (thumbnails in the mosaic) and, as the video target, a full-resolution relayed picture (section 10, "selected target without local video"). Values > 3 -> bad value. Board-wide |
+| 0x0045 | 1 | relayed full view (section 10, issue 0060): 0 complete pictures only (triple buffered, never torn; a picture with any frame lost is never shown); 1 **live** line by line (default): every good 1/1 frame is written into the buffer being shown, so lines show up as they arrive and rows that are lost keep the previous picture's content (may tear). Values > 1 -> bad value. Board-wide |
 | 0x0050 | 2 | heartbeat period ms |
 | 0x0060 | 1 | target output enable policy (issue 0056): 0 auto: UART TXD, KIO10 and JTAG driven while the DUT is sensed powered (default); 1 force UART TXD and KIO10 on (JTAG still follows the sense); 2 force all of them off, JTAG included (JTAG_REQ then answers status 4, a running transaction is aborted): the host sets 2 before it cuts the DUT's power (`dutctl relay ... power N off`). The shield power-off hold (key 0x0062) overrides 0 and 1 |
 | 0x0061 | 1 | physical keyboard CPLD JTAG (section 7, ADR 0014): 0 auto (pins driven while a keyboard is detected and for 10 s after the last detection or keyboard JTAG transaction; default), 1 force on, 2 force off, 3 force on with KB_JTAGEN driven low (diagnostic: does J5 pin 3 gate the CPLD's JTAG port?). Board-wide |
@@ -521,9 +534,13 @@ console screen is on auto and no selection is pending, the board sends
 full-screen at full resolution on HDMI OUT (in the 720x480p60 console
 timing: a 576-line picture shows its centre 480 lines; the picture is
 placed at the top left; up to 720 pixels per line). Pictures go into a
-triple-buffered DDR3 frame buffer (word address 0x200000 + buffer *
-0x40000, row stride 256 words, xRGB32 as the thumbnail store); the output
-switches to the last complete picture at its vertical blank, so a picture
-is never shown torn. Without a complete picture in the last second the
-console shows its "no video" screen. Passthrough is used only for a video
+triple-buffered DDR3 frame buffer (word address (1 + buffer) * 0x200000,
+i.e. one DDR3 bank per buffer, row stride 256 words, xRGB32 as the
+thumbnail store). Key 0x0045 picks the view: 1 (live, default) writes every
+good frame's lines into the buffer being shown, so lines appear as they
+arrive and lost lines keep the previous picture; 0 (complete pictures)
+writes into a buffer that is neither shown nor the last complete one, and
+the output switches to the last complete picture at its vertical blank, so
+a picture is never shown torn. Without a complete picture (live: a good
+1/1 frame) in the last second the console shows its "no video" screen. Passthrough is used only for a video
 target that owns the HDMI IN.

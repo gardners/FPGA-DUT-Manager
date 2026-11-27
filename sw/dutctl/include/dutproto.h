@@ -61,6 +61,8 @@ enum dp_key {
   DP_K_VLAN = 0x0043,        /* inter-board VLAN ID u16 0..4094 (default 1650, 0 = untagged), issue 0060 */
   DP_K_HDMI_OWNER = 0x0044,  /* HDMI IN owner: 0 follows the video target (default), 1 DUT0,
                                 2 DUT1, 3 none (issue 0060) */
+  DP_K_RELAY_VIEW = 0x0045,  /* relayed full view: 0 complete pictures (triple buffered),
+                                1 live line by line (default), issue 0060 */
   DP_K_HB_PERIOD = 0x0050,
   DP_K_OUT_POLICY = 0x0060, /* 0 auto (sense), 1 UART/KIO10 forced on (JTAG follows the
                                sense), 2 all outputs off, JTAG included (issue 0056) */
@@ -193,6 +195,14 @@ typedef struct {
   uint8_t rl_last_machine; /* last good relay frame's machine (0xFF none) */
   uint8_t rl_last_scale;   /* its scale (0 for "no source") */
   uint8_t rl_full_age;     /* 8 ms units since the last full picture (255 = >= 2 s / never) */
+  /* relay receive load (bytes 188..195, issue 0060 relay-rx-speed); valid only
+     when has_rxload (payload >= 188) */
+  uint8_t has_rxload;
+  uint16_t rl_fifo_hwm;    /* receive FIFO peak fill in the last second (entries) */
+  uint16_t rl_wr_stall;    /* writer waited for DDR3 (word FIFO full), 2.048 us units, wraps */
+  uint16_t rl_mem_wait;    /* words offered, memory port busy, 2.048 us units, wraps */
+  uint8_t rl_wf_hwm;       /* word FIFO peak fill / 2 in the last second (of 256) */
+  uint8_t rl_fifo_aw;      /* log2 of the receive FIFO's entries */
 } dp_heartbeat_t;
 
 /* heartbeat relay_flags (byte 184, ADR 0005 section 3d, issue 0061) */
@@ -203,6 +213,7 @@ enum dp_relay_flag {
   DP_RLF_LAST_VALID = 0x08, /* rl_last_machine / rl_last_scale valid */
   DP_RLF_LAST_NOSRC = 0x10, /* the last relay frame was "present, no source" */
   DP_RLF_STREAMING = 0x20,  /* this board's own source is streaming */
+  DP_RLF_LIVE = 0x40,       /* key 0x0045 = 1: live line-by-line full view */
 };
 
 /* heartbeat shd_flags (ADR 0005 section 3c, issue 0049) */

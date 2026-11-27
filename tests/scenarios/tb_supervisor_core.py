@@ -164,6 +164,9 @@ def scenario():
     f.append((100, P.with_fcs(P.thumb_frame(DUT_MAC[1], PEER_MAC, 5, 2, 0, PEER_TILE, P.TH_SCALE_QUARTER, 4))))
     f.append((100, P.with_fcs(P.thumb_frame(DUT_MAC[0], PEER_MAC, 9, 1, 0, [LONG_LINE], P.TH_SCALE_FULL, 480,
                                           enc=P.TH_ENC_RAW, vlan=VLAN))))
+    # relay-rx-speed: key 0x0045 relay view, bad value 2, then 1 (live, the default)
+    f.append((20, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 32, P.K_RELAY_VIEW, b"\x02"))))
+    f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 33, P.K_RELAY_VIEW, b"\x01"))))
     return f
 
 
@@ -249,14 +252,14 @@ def check(path):
             (23, P.K_TDO_VOTE, 0), (24, P.K_KJ_QUIET, 0),
             (25, P.K_OUT_POLICY, 0), (26, P.K_OUT_POLICY, 0),
             (27, P.K_HDMI_OWNER, 0), (28, P.K_HDMI_OWNER, 3), (29, P.K_VLAN, 3),
-            (30, P.K_CON_SCREEN, 0), (31, 0x0031, 0)]
+            (30, P.K_CON_SCREEN, 0), (31, 0x0031, 0), (32, P.K_RELAY_VIEW, 3), (33, P.K_RELAY_VIEW, 0)]
     got = [(a["cmd_id"], a["key"], a["status"]) for a in acks]
     if got != want:
         err("MGMT acks %r != %r" % (got, want))
-    elif acks[-1]["cfg_gen"] != 21:  # baud, hb period, LED mode, LED vector, dest x2, capture,
+    elif acks[-1]["cfg_gen"] != 22:  # baud, hb period, LED mode, LED vector, dest x2, capture,
         # thumb force, DUT1 hb period, console screen, kbd JTAG x2, power, quiet x2, vote,
-        # out-policy x2, HDMI owner, console screen, video target
-        err("cfg_gen %d != 21" % acks[-1]["cfg_gen"])
+        # out-policy x2, HDMI owner, console screen, video target, relay view
+        err("cfg_gen %d != 22" % acks[-1]["cfg_gen"])
 
     jrall = [(d["dut"], P.decode_jtag_resp(d["body"])) for d in parsed
              if d.get("kind") == "udp" and d.get("ptype") == P.T_JTAG_RESP]
@@ -349,8 +352,8 @@ def check(path):
         err("DUT0 heartbeat addr_src/dut_id %r" % ((hb0[-1]["addr_src"], hb0[-1]["dut_id"]),))
     for d, h in hbs:
         if "rx_hunts" not in h or "video_flags" not in h or "mem_flags" not in h or "shd_flags" not in h \
-                or "rl_req_sent" not in h:
-            err("heartbeat without video/link/memory/shield/relay block (expected 180-byte payload)")
+                or "rl_req_sent" not in h or "rl_fifo_hwm" not in h:
+            err("heartbeat without video/link/memory/shield/relay/receive-load block (expected 188-byte payload)")
             break
         # testbench: no shield (status inputs at defaults): all-zero block
         if any(h[k] for k in P.SHD_FIELDS):
@@ -509,6 +512,11 @@ def check(path):
                 not r["rl_flags"] & P.RLF_LAST_VALID or not r["rl_flags"] & P.RLF_FULL_WANT or \
                 r["rl_flags"] & P.RLF_LAST_NOSRC:
             err("relay counters %r (want %r, requests >= %d)" % (r, want, len(full)))
+        # relay-rx-speed: live view by default, receive load block
+        x = {k: hb0[-1][k] for k in P.RXLOAD_FIELDS}
+        if not r["rl_flags"] & P.RLF_LIVE or x["rl_fifo_aw"] != 14 or x["rl_wf_hwm"] > 255:
+            err("relay view / receive load %r flags %#x" % (x, r["rl_flags"]))
+        print("receive load: %s" % " ".join("%s=%d" % (k[3:], v) for k, v in x.items()))
         print("relay counters: %s" % " ".join("%s=%d" % (k[3:], v) for k, v in r.items()))
     print("full view: %d tagged requests (%s), console shown %r"
           % (len(full), full[0][14:22].hex() if full else "-", shown))
