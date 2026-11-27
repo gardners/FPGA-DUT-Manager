@@ -184,26 +184,43 @@ def report(cfg, fp, res, boards, files, OUT):
     w('## KVM unit (%dRU = %.2f mm, on slides)' % (cfg.KVM['ru'], kv['H']))
     w('')
     K = cfg.KVM
-    w('* Deck %.0f x %.0f mm; front zone %.0f mm deep (fans, display PCB + LCD, input board).' % (g.W, kv['D'], kv['zone_d']))
-    w('* Front panel width budget behind the face: fans %d x %d mm (x %.1f-%.1f), display/input column %.1f mm '
+    px0, py0, pmw, pmd, pzt = kv['pm']
+    w('* Deck %.0f x %.0f mm (open top; the next unit sits %.2f mm up). Front zone %.0f mm deep (fans, display '
+      'PCB + LCD, rocker).' % (g.W, kv['D'], kv['H'], kv['zone_d']))
+    w('* Depth budget: power board front edge at y %.0f (behind the front panel) + board %.1f + cable gap %.0f '
+      '(DUT leads cross here) + RJ45 patch clearance %.0f + Mimas %.0f = %.0f mm. All units together: shelves '
+      '%.0f mm, KVM %.0f mm, rack %.0f mm between the posts (MEASURE).' % (
+          py0, pmd, K['cable_gap'], cfg.MIMAS['rj45_plug_clear'], cfg.MIMAS['d'], kv['D'], g.D, kv['D'],
+          cfg.RACK['depth_posts']))
+    w('* Power board (owner round 12, %.0f x %.1f mm) at x %.0f-%.0f, y %.1f-%.1f, top %.1f mm above the slot '
+      'bottom. The input connectors along its front edge are plugged from the open top: %.0f mm of free height '
+      'above the board over its front %.0f mm (checked as the "input plugs" box), and %.1f mm to the next unit\'s '
+      'battens above that.' % (pmw, pmd, px0, px0 + pmw, py0, py0 + pmd, pzt, K['plug_clear'], K['plug_strip'],
+                                kv['H'] - (pzt + K['plug_clear'])))
+    w('* GS105 at x %.0f-%.0f beside the board. Cable routes (dashed in the top view): DUT leads from the '
+      'terminals on the board\'s rear edge (y %.1f) across the cable gap to the bulkhead/DUT-power column at the '
+      'rear left (x %.0f-%.0f, the bays start at x %.1f); Mimas Mini-Fit leads back to the bays; the GS105 jack '
+      'lead sideways to the switch. Tie-slot pairs hold the DUT bundle in the cable gap.' % (
+          kv['gs'][0], kv['gs'][0] + cfg.GS105['w'], kv['yr'], kv['col'][0], kv['col'][1], kv['bay_x0']))
+    w('* Front panel width budget behind the face: fans %d x %d mm (x %.1f-%.1f), display column %.1f mm '
       '(x %.1f-%.1f): needs %.1f of %.1f mm.' % (K['fan_count'], K['fan'], K['side_margin'], kv['fans_end'],
                                                  kv['right_w'], g.W - K['side_margin'] - kv['right_w'],
                                                  g.W - K['side_margin'], kv['width_need'], g.W))
     pcbw = kv['pcb'][2]
-    w('* **2 x 120 mm fans still do not fit.** The input board (%.0f x %.0f) now stacks under the display PCB, so the '
-      'limit is the %.0f mm display PCB: 2 x 120 mm fans need %.0f mm (%.0f + 2 x 120 + 1 + 2 + %.0f + %.0f) '
-      'behind a %.0f mm deck. They would fit with a display PCB of at most %.0f mm (the input board, %.0f mm, '
-      'already does). Options: 2 x 92 mm (default), 1 x 120 mm, or a narrower display board.' % (
-          kv['ib'][2], kv['ib'][3], pcbw, 2 * K['side_margin'] + 243 + pcbw, K['side_margin'], pcbw, K['side_margin'],
-          g.W, g.W - 2 * K['side_margin'] - 243, kv['ib'][2]))
-    w('* Right-hand column: display PCB z %.1f-%.1f (x %.1f-%.1f); input board z %.1f-%.1f (x %.1f-%.1f).' % (
-        kv['pcb'][1], kv['pcb'][1] + kv['pcb'][3], kv['pcb'][0], kv['pcb'][0] + kv['pcb'][2],
-        kv['ib'][1], kv['ib'][1] + kv['ib'][3], kv['ib'][0], kv['ib'][0] + kv['ib'][2]))
+    w('* **2 x 120 mm fans still do not fit.** With no power connectors on the front, only the %.0f mm display PCB '
+      'shares the face with the fans, and 2 x 120 mm fans need %.0f mm (%.0f + 2 x 120 + 1 + 2 + %.0f + %.0f) '
+      'behind a %.0f mm deck. They would fit with a display board of at most %.0f mm. Options: 2 x 92 mm '
+      '(default), 1 x 120 mm, or a narrower display board.' % (
+          pcbw, 2 * K['side_margin'] + 243 + pcbw, K['side_margin'], pcbw, K['side_margin'],
+          g.W, g.W - 2 * K['side_margin'] - 243))
+    w('* Display column: PCB z %.1f-%.1f (x %.1f-%.1f); the rocker and the MEGA-KVM etch below it.' % (
+        kv['pcb'][1], kv['pcb'][1] + kv['pcb'][3], kv['pcb'][0], kv['pcb'][0] + kv['pcb'][2]))
     w('* Fans %s the deck%s.' % ('cross' if kv['fan_cross_deck'] else 'clear',
                                  ' (the KVM deck is notched for them)' if kv['fan_cross_deck'] else ' (top-aligned, no notch)'))
     w('* Rocker: %s (deck x %.1f, z %.1f).' % (K['rocker_pos'], kv['rock'][0], kv['rock'][1]))
-    w('* Rear plate %.0f x %.1f mm: bays %.1f mm + bulkhead/DUT power column; %.1f mm spare between them. '
-      'The keyboard feed-through sits above the bulkhead; vent slots fill the upper part.' % (
+    w('* Rear plate %.0f x %.1f mm (seen from the rear): bays %.1f mm at the left, the bulkhead/DUT power column at '
+      'the right (= deck left, behind the DUT terminals); %.1f mm spare. The keyboard feed-through sits above the '
+      'column; vent slots fill the upper part.' % (
           g.W, kv['Hr'], kv['bays_w'], kv['rear_free']))
     for n in res['notes']:
         w('* ' + n)

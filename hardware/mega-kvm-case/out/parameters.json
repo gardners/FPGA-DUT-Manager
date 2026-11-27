@@ -292,9 +292,14 @@
   "grille_pitch": 6.5,
   "side_margin": 5.0,
   "pcb_top": 3.0,
-  "stack_gap": 4.0,
-  "input_above_deck": 4.0,
-  "rocker_pos": "input_row",
+  "rocker_pos": "below_pcb",
+  "rocker_dx": 20.0,
+  "power_front": 40.0,
+  "power_x": 25.0,
+  "power_gap": 8.0,
+  "plug_strip": 25.0,
+  "plug_clear": 40.0,
+  "cable_gap": 15.0,
   "front_holes": "../mega-kvm-front/out/panel-holes.json",
   "front_zone_extra": 4.0,
   "gusset": {
@@ -303,8 +308,6 @@
    "chamfer": 6.0
   },
   "rear_clear": 1.35,
-  "gs105_x": 5.0,
-  "power_gap": 8.0,
   "logos": [
    [
     "mega65",
@@ -440,10 +443,10 @@
  },
  "POWER_MAIN": {
   "pcb": "../mega-kvm-power/mega-kvm-power-main/mega-kvm-power-main.kicad_pcb",
-  "w": 170.0,
-  "d": 80.0,
+  "w": 230.0,
+  "d": 138.5,
   "standoff": 5.0,
-  "tallest": 16.0,
+  "tallest": 25.0,
   "rear_clear": 10.0
  },
  "RACK": {

@@ -5,7 +5,7 @@ Shield numbers from: geometry.py + placement.json.
 
 ## Summary
 
-* **Option A**: 445.0 x 272.0 x 44.45 mm (W x D x H): 2 problem(s).
+* **Option A**: 445.0 x 330.0 x 44.45 mm (W x D x H): 2 problem(s).
 * **Option B**: 444.5 x 409.0 x 43.90 mm (W x D x H): 4 problem(s).
 
 ## DUT-face variants (2 bays), width and height budgets
@@ -28,15 +28,14 @@ Note: the 279.6 mm single-row shield does not fit twice in a 19-inch case (559 m
 * rear panel: no room for rear power inputs (input board 0047) (126 mm) -> right side wall
 * rear panel: no room for physical keyboard feed-through (2x5) (36 mm) -> right side wall
 * rear panel: no room for DC lead tuck-away pocket (66 mm) -> right side wall
-* depth 272 mm: front zone 110 (GS105 100 deep, power board 80 behind the 27 mm front group) + RJ45 patch 35 + Mimas 120; side-wall items need 232
-* no room for the DC-lead recess on the right wall either (needs 66 mm, 40 left): not placed
+* depth 330 mm: front zone 168 (GS105 100 deep, power board 138 behind the 27 mm front group) + RJ45 patch 35 + Mimas 120; side-wall items need 232
 * fans: 40 mm > 38.45 mm interior, so they sit in slots in the base and the lid (0.77 mm into each)
 * top of the Mimas/shield stack: 36.7 mm above the outer bottom; interior top 41.45 mm
 * sheets: mdf 900x600: 1 sheet(s); acrylic 600x400: 2 sheet(s)
 
 **Problems:**
 
-* A-right: a cut-out at u 120.4-128.6 v -18.1--9.9 is in or near the joint zone
+* A-right: a cut-out at u 178.4-186.6 v -18.1--9.9 is in or near the joint zone
 * input board (side) exceeds the interior: lid/top by 25.55
 
 | Part | nearest neighbour (same height band) | gap mm | headroom to lid mm |
@@ -51,10 +50,11 @@ Note: the 279.6 mm single-row shield does not fit twice in a 19-inch case (559 m
 | kbd sub 2B | Mimas 2 | 0.8 | 25.0 |
 | bulkhead+dut_power | input board (side) | 3.0 | 1.0 |
 | GS105 | fan 1 | 3.0 | 11.5 |
-| power main board | front panel group | 3.0 | 15.9 |
+| power main board | front panel group | 3.0 | 6.9 |
 | front panel group | power main board | 3.0 | 1.2 |
 | input board (side) | bulkhead+dut_power | 3.0 | -25.5 |
 | keyboard (side) | input board (side) | 3.0 | 10.5 |
+| recess (side) | keyboard (side) | 3.0 | 13.5 |
 | fan 1 | GS105 | 3.0 | -0.8 |
 | fan 2 | GS105 | 3.0 | -0.8 |
 
@@ -91,9 +91,9 @@ Note: the 279.6 mm single-row shield does not fit twice in a 19-inch case (559 m
 | kbd sub 2B | Mimas 2 | 0.8 | 20.8 |
 | bulkhead | kbd sub 2A | 4.2 | 24.4 |
 | GS105 | power main board | 10.0 | 7.3 |
-| power main board | GS105 | 10.0 | 11.7 |
-| input board / leads | power main board | 136.8 | 1.9 |
-| fans (rear plate) | GS105 | 134.8 | 1.9 |
+| power main board | GS105 | 10.0 | 2.7 |
+| input board / leads | power main board | 78.3 | 1.9 |
+| fans (rear plate) | power main board | 98.8 | 1.9 |
 
 ## Generated files
 

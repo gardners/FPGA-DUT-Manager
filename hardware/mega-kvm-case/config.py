@@ -114,7 +114,7 @@ GS105 = {'w': 94.0, 'd': 100.0, 'h': 27.0}  # Netgear GS105 datasheet: 94 x 100 
 
 POWER_MAIN = {          # parsed from the KiCad board when present (hardware/mega-kvm-power)
     'pcb': '../mega-kvm-power/mega-kvm-power-main/mega-kvm-power-main.kicad_pcb',
-    'w': 170.0, 'd': 80.0, 'standoff': 5.0, 'tallest': 16.0,  # Mini-Fit / MSTB terminals (ASSUMED)
+    'w': 230.0, 'd': 138.5, 'standoff': 5.0, 'tallest': 25.0,  # fallback size; tallest = PCB banana sockets (ASSUMED)
     'rear_clear': 10.0, # leads on the terminal edge
 }
 POWER_IN = {
@@ -264,24 +264,26 @@ FAN_PLATE = {
 KVM = {
     'ru': 3,
     # Owner round 10 asked for 2 x 120 mm fans. Beside the 227 mm display PCB
-    # they need ~480 mm behind a 425 mm deck (the 126 x 64 input board stacks
-    # under the display and is not the limit), so the default is 2 x 92 mm.
-    # fan 120 / fan_count 1 also fits.
+    # they need ~480 mm behind a 425 mm deck, so the default is 2 x 92 mm.
+    # fan 120 / fan_count 1 also fits. (Round 12: no power connectors on the
+    # front any more; the display PCB is the only thing beside the fans.)
     'fan': 92, 'fan_count': 2, 'fan_gap': 1.0, 'fan_edge': 3.0,
     'guard': 'grille', 'grille_hole': 5.0, 'grille_pitch': 6.5,
     'side_margin': 5.0,         # behind-panel parts -> deck edge
     'pcb_top': 3.0,             # front-panel PCB top edge below the panel top
-    # The input board (v0.3: 126 x 64) stacks under the display PCB in the right-hand
-    # column, 'stack_gap' below it. Its bottom edge goes 'input_above_deck' above the
-    # deck top if there is room, otherwise lower, into a notch in the KVM deck.
-    'stack_gap': 4.0,
-    'input_above_deck': 4.0,
-    'rocker_pos': 'input_row',  # 'input_row' (right of the input board) or 'json' (panel-holes.json x/y)
+    'rocker_pos': 'below_pcb',  # 'below_pcb' (under the display PCB, 'rocker_dx' from its left) or 'json'
+    'rocker_dx': 20.0,
+    # Power board (owner round 12, 230 x 138.5 mm, inputs on its front edge,
+    # plugged from the open top): front edge 'power_front' behind the front
+    # panel's back face (at least the front zone), left edge at 'power_x'.
+    'power_front': 40.0, 'power_x': 25.0, 'power_gap': 8.0,  # power_x: its corner holes clear the left batten; power_gap: board -> GS105
+    'plug_strip': 25.0,         # depth of the input-connector strip along the board's front edge
+    'plug_clear': 40.0,         # free height above the board for the plugs and their cable bends
+    'cable_gap': 15.0,          # board rear edge -> RJ45 patch zone: DUT leads run across here
     'front_holes': '../mega-kvm-front/out/panel-holes.json',
     'front_zone_extra': 4.0,
     'gusset': {'h': 24.0, 'l': 90.0, 'chamfer': 6.0},   # under the deck, against the battens' inner faces
     'rear_clear': 1.35,         # rear plate top below the unit's top
-    'gs105_x': 5.0, 'power_gap': 8.0,
     'logos': [('mega65', 'left'), ('mega_ev', 'right')],   # in the band in front of the deck/battens
     'text': 'MEGA-KVM', 'text_size': 10.0,
 }
