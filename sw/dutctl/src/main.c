@@ -1893,14 +1893,16 @@ static int cmd_thumbs(int argc, char **argv)
 {
   if (argc < 1)
     return fprintf(stderr, "usage: dutctl thumbs IFACE [--out PREFIX] [--pictures N] [--timeout S]\n"
-                           "         [--request] [--force IP] [--scale 1|2] [--div N]\n"
+                           "         [--request] [--force IP] [--scale 1|2] [--div N] [--vlan VID]\n"
                            "  writes PREFIX-mNN.ppm (default prefix 'thumb') for each machine's latest\n"
                            "  complete thumbnail; --request broadcasts requests every 250 ms, --force IP\n"
-                           "  points that board's relay at this interface (key 0x0041). Needs CAP_NET_RAW.\n"),
+                           "  points that board's relay at this interface (key 0x0041). Needs CAP_NET_RAW.\n"
+                           "  Boards answer requests only on their relay VLAN (key 0x0043, default 1650):\n"
+                           "  --vlan VID tags the requests (0 = untagged); --force needs no VLAN.\n"),
            2;
   const char *ifname = argv[0], *prefix = "thumb", *force_ip = NULL;
   long want = 0, timeout_s = 10;
-  int request = 0, scale = DP_TH_SCALE_HALF, div = 2;
+  int request = 0, scale = DP_TH_SCALE_HALF, div = 2, vlan = 0;
   for (int i = 1; i < argc; i++) {
     if (!strcmp(argv[i], "--out") && i + 1 < argc) prefix = argv[++i];
     else if (!strcmp(argv[i], "--pictures") && i + 1 < argc) want = strtol(argv[++i], NULL, 0);
@@ -1909,10 +1911,11 @@ static int cmd_thumbs(int argc, char **argv)
     else if (!strcmp(argv[i], "--force") && i + 1 < argc) force_ip = argv[++i];
     else if (!strcmp(argv[i], "--scale") && i + 1 < argc) scale = (int)strtol(argv[++i], NULL, 0);
     else if (!strcmp(argv[i], "--div") && i + 1 < argc) div = (int)strtol(argv[++i], NULL, 0);
+    else if (!strcmp(argv[i], "--vlan") && i + 1 < argc) vlan = (int)strtol(argv[++i], NULL, 0);
     else return fprintf(stderr, "dutctl thumbs: unknown option %s\n", argv[i]), 2;
   }
-  if ((scale != 1 && scale != 2) || div < 1 || div > 15)
-    return fprintf(stderr, "dutctl thumbs: --scale 1 or 2, --div 1..15\n"), 2;
+  if ((scale != 1 && scale != 2) || div < 1 || div > 15 || vlan < 0 || vlan > 4094)
+    return fprintf(stderr, "dutctl thumbs: --scale 1 or 2, --div 1..15, --vlan 0..4094\n"), 2;
   int fd = socket(AF_PACKET, SOCK_RAW, htons(DP_ETH_THUMB));
   if (fd < 0)
     return perror("dutctl thumbs: AF_PACKET socket (needs CAP_NET_RAW)"), 1;
@@ -1950,8 +1953,14 @@ static int cmd_thumbs(int argc, char **argv)
       uint8_t f[64] = {0};
       memset(f, 0xFF, 6);
       memcpy(f + 6, mymac, 6);
-      dp_put16(f + 12, DP_ETH_THUMB);
-      dp_encode_thumb_request(f + 14, (uint8_t)scale, (uint8_t)div);
+      size_t o = 12;
+      if (vlan) { /* 802.1Q tag, PCP 0 (issue 0060) */
+        dp_put16(f + 12, 0x8100);
+        dp_put16(f + 14, (uint16_t)vlan);
+        o = 16;
+      }
+      dp_put16(f + o, DP_ETH_THUMB);
+      dp_encode_thumb_request(f + o + 2, (uint8_t)scale, (uint8_t)div);
       struct sockaddr_ll to = sll;
       to.sll_halen = 6;
       memset(to.sll_addr, 0xFF, 6);
@@ -1963,6 +1972,10 @@ static int cmd_thumbs(int argc, char **argv)
     if (poll(&p, 1, 50) <= 0)
       continue;
     ssize_t n = recv(fd, buf, sizeof buf, 0);
+    if (n >= 18 && dp_get16(buf + 12) == 0x8100) { /* tag left in place: drop it */
+      memmove(buf + 12, buf + 16, (size_t)n - 16);
+      n -= 4;
+    }
     if (n < 14 + DP_TH_REQ_LEN || dp_get16(buf + 12) != DP_ETH_THUMB)
       continue;
     dp_thumb_t t;
