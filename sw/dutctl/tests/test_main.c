@@ -20,6 +20,7 @@
 #include "dutconf.h"
 #include "jtagdisc.h"
 #include "jtagspeed.h"
+#include "relayhook.h"
 
 static int failures, checks;
 #define CHECK(c)                                                                   \
@@ -1036,6 +1037,65 @@ static void test_dirs(void)
   nftw(g_tmp, rm_cb, 16, FTW_DEPTH | FTW_PHYS);
 }
 
+/* ------------------------------------------------------------ relay hooks (0056) */
+static void test_relayhook(void)
+{
+  static const char *text =
+      "[a]\nip = 10.0.0.1\nrelay = /dev/ttyACM0 3\n"
+      "[b]\nip = 10.0.0.2\nrelay = /dev/ttyACM0 1\n"
+      "[c]\nip = 10.0.0.3\nrelay = /dev/ttyACM1 3\n"
+      "[d]\njtag = usb\nrelay = /dev/ttyACM0 3\n"
+      "[e]\nip = 10.0.0.5\n";
+  static dc_conf_t c;
+  CHECK(dc_parse(text, &c, NULL, 0) == 0 && c.n == 5);
+  rh_plan_t p;
+  char *off3[] = {"power", "3", "off"};
+  CHECK(rh_plan(&c, "/dev/ttyACM0", 3, off3, &p) == 2);
+  CHECK(p.npre == 2 && p.pre[0] == 0 && p.pre[1] == 3 && p.npost == 0);   /* a, d (no ip) */
+  char *on13[] = {"POWER", "1", "3", "ON"};
+  CHECK(rh_plan(&c, "/dev/ttyACM0", 4, on13, &p) == 3);
+  CHECK(p.npre == 0 && p.npost == 3 && p.post[0] == 1 && p.post[1] == 0 && p.post[2] == 3);
+  CHECK(p.post_delay_ms == RH_SETTLE_MS);
+  char *dup[] = {"POWER", "3", "3", "OFF"};
+  CHECK(rh_plan(&c, "/dev/ttyACM0", 4, dup, &p) == 2);                   /* no duplicates */
+  CHECK(rh_plan(&c, "/dev/ttyACM1", 3, off3, &p) == 1 && p.pre[0] == 2); /* other controller */
+  CHECK(rh_plan(&c, "/dev/ttyACM2", 3, off3, &p) == 0);
+  char *off5[] = {"POWER", "5", "OFF"};
+  CHECK(rh_plan(&c, "/dev/ttyACM0", 3, off5, &p) == 0);                  /* unmapped channel */
+  char *bad[] = {"POWER", "3", "x", "OFF"};
+  CHECK(rh_plan(&c, "/dev/ttyACM0", 4, bad, &p) == 0);                   /* refused command */
+  char *noword[] = {"POWER", "3", "TOGGLE"};
+  CHECK(rh_plan(&c, "/dev/ttyACM0", 3, noword, &p) == 0);
+  char *alloff[] = {"all", "OFF"};
+  CHECK(rh_plan(&c, "/dev/ttyACM0", 2, alloff, &p) == 3 && p.npre == 3 && p.npost == 0);
+  char *cyc[] = {"CYCLE", "1", "3000"};
+  CHECK(rh_plan(&c, "/dev/ttyACM0", 3, cyc, &p) == 2 && p.npre == 1 && p.pre[0] == 1 &&
+        p.npost == 1 && p.post[0] == 1 && p.post_delay_ms == 3000 + RH_SETTLE_MS);
+  char *st[] = {"STATUS", "3"};
+  CHECK(rh_plan(&c, "/dev/ttyACM0", 2, st, &p) == 0 && p.npre == 0 && p.npost == 0);
+  /* the same port under another name (e.g. /dev/serial/by-id/...) */
+  char dir[] = "/tmp/dutctl-rh-XXXXXX";
+  if (mkdtemp(dir)) {
+    char dev[128], link[128];
+    snprintf(dev, sizeof dev, "%s/ttyACM9", dir);
+    snprintf(link, sizeof link, "%s/by-id", dir);
+    FILE *f = fopen(dev, "w");
+    if (f)
+      fclose(f);
+    CHECK(symlink(dev, link) == 0);
+    CHECK(rh_same_tty(dev, link) && rh_same_tty(link, link) && !rh_same_tty(dev, "/dev/null"));
+    static dc_conf_t c2;
+    char t2[512];
+    snprintf(t2, sizeof t2, "[x]\nip = 10.0.0.9\nrelay = %s 0\n", link);
+    CHECK(dc_parse(t2, &c2, NULL, 0) == 0);
+    char *off0[] = {"POWER", "0", "OFF"};
+    CHECK(rh_plan(&c2, dev, 3, off0, &p) == 1 && p.pre[0] == 0);
+    unlink(link);
+    unlink(dev);
+    rmdir(dir);
+  }
+}
+
 int main(int argc, char **argv)
 {
   load_vectors(argc > 1 ? argv[1] : "vectors.txt");
@@ -1048,6 +1108,7 @@ int main(int argc, char **argv)
   test_png(argc > 2 ? argv[2] : NULL);
   test_screenshot_targets();
   test_dutconf();
+  test_relayhook();
   test_jtagspeed();
   test_dirs();
   printf("dutctl tests: %d checks, %d failures\n", checks, failures);
