@@ -306,3 +306,18 @@ The main board goes at the front of the KVM deck.
   381 mm of bays are wider than the 375 mm between the battens, so three outer
   bay holes land on the right batten: drill through, M3 x 40 (noted in the
   report). Fit report: 0 conflicts.
+
+## 2026-11-27 owner: 120 mm fans
+
+Owner: "92mm fans? I thought we were using cheap and easily available 120mm
+ones? Whatever the common standard PC ones are." The KVM front gets **2 x
+standard 120 mm PC fans** (120 x 120 x 25, 105 mm pitch).
+
+Plan (agent, branch `feature/front-2row`): the display PCB (0050) is
+re-laid out in two rows, about 140 mm wide, so that it fits beside the two
+fans. `KVM` in config.py: `'fan': 120, 'fan_count': 2`; the display board
+size comes from panel-holes.json as before. 120 mm fans are taller than the
+space above the KVM deck, so they reach down through notches in the deck
+front, between the battens and clear of the front gussets; the logos and
+the MEGA-KVM etch move into the right-hand column with the display and the
+rocker. Fit report must stay at "Conflicts / problems: none".
