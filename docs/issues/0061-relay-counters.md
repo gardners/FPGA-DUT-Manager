@@ -105,3 +105,10 @@ Observation while extending tb_supervisor_core: inserting two frames
 (both RX slots full). The frames were then moved to the end. Likely the
 testbench's thumbnail streaming to the forced host MAC keeps net_tx busy so
 net_rx waits on pending replies; not investigated further.
+
+Build (Vivado, commit 86aa565 = all HDL of this branch, build id
+86aa5659): **TIMING MET, WNS +0.229 ns, WHS +0.010 ns**; 19201 LUTs
+(58.9 %), 35 BRAM tiles. `make test` green: 35 HDL testbenches, netproto
+selftest, 895 dutctl checks, 52 relay checks. Not loaded on hardware.
+Bitstream: build/bits/supervisor-86aa5659.bit in the feature/relay-counters
+worktree.
