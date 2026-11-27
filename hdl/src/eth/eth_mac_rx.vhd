@@ -9,6 +9,14 @@
 -- Lengths are stable while a slot is full, so the consumer may read them
 -- after seeing the synchronised toggle change.
 --
+-- Oversize frames (more than SLOT_MAX = 2047 bytes incl. FCS, i.e. more than
+-- 2043 bytes without FCS, UDP payload > 2001) still count as a drop
+-- (stat_drop), but the first 2047 bytes are kept and, if the FCS over the
+-- whole frame is good, published with length 2047. The IPv4 total length
+-- then exceeds the slot length, so net_rx sees a truncated frame and can
+-- answer an oversize JTAG_REQ with "bad format" instead of silence
+-- (issue 0059).
+--
 -- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.
 library ieee;
 use ieee.std_logic_1164.all;
@@ -43,6 +51,7 @@ architecture rtl of eth_mac_rx is
   signal idx     : unsigned(11 downto 0) := (others => '0');
   signal crc     : std_logic_vector(31 downto 0) := (others => '1');
   signal err     : std_logic := '0';
+  signal ovf     : std_logic := '0';      -- frame longer than a slot
   signal l0, l1  : unsigned(11 downto 0) := (others => '0');
   attribute ASYNC_REG : string;
   attribute ASYNC_REG of rel_s1, rel_s2 : signal is "TRUE";
@@ -78,6 +87,7 @@ begin
             idx <= (others => '0');
             crc <= (others => '1');
             err <= rx_er;
+            ovf <= '0';
           end if;
 
         when S_PRE =>
@@ -93,8 +103,13 @@ begin
           if rx_dv = '1' then
             if rx_er = '1' then err <= '1'; end if;
             if idx = 2047 then
-              state <= S_DISCARD;       -- too long for a slot
-              stat_drop <= '1';
+              -- too long for a slot: keep the head, stop storing, keep
+              -- checking the FCS (issue 0059)
+              if ovf = '0' then
+                stat_drop <= '1';
+              end if;
+              ovf <= '1';
+              crc <= crc32_byte(crc, rxd);
             else
               mem_we   <= '1';
               mem_addr <= slot & idx(10 downto 0);
@@ -107,10 +122,17 @@ begin
             if err = '0' and crc = CRC32_RESIDUE and idx >= 64 then
               s := 0;
               if slot = '1' then s := 1; end if;
-              if s = 0 then l0 <= idx - 4; else l1 <= idx - 4; end if;
+              if ovf = '1' then
+                -- truncated head: all 2047 stored bytes are frame data
+                if s = 0 then l0 <= idx; else l1 <= idx; end if;
+              else
+                if s = 0 then l0 <= idx - 4; else l1 <= idx - 4; end if;
+                stat_good <= '1';
+              end if;
               rxt(s) <= not rxt(s);
               slot <= not slot;
-              stat_good <= '1';
+            elsif ovf = '1' then
+              null;                     -- already counted as a drop
             else
               stat_crc_err <= '1';
             end if;

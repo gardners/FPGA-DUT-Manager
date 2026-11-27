@@ -132,6 +132,12 @@ def scenario():
     f.append((5, udp_to(0, P.PORT_JTAG, P.jtag_req(0, 2, JTAG_TMS, JTAG_TDI, half=2))))
     f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 26, P.K_OUT_POLICY, bytes([P.OUTPOL_AUTO])))))
     f.append((5, udp_to(0, P.PORT_JTAG, P.jtag_req(0, 2, JTAG_TMS, JTAG_TDI, half=2))))
+    # issue 0059: the largest JTAG_REQ an RX slot holds (7904 bits, frame
+    # 2046 bytes incl. FCS) is clocked; 8 bits more overflow the slot and
+    # are answered "bad format" (nothing clocked, seq not consumed)
+    big = P.JTAG_MAX_BITS
+    f.append((5, udp_to(0, P.PORT_JTAG, P.jtag_req(0, 3, "1" * big, "0" * big, half=2))))
+    f.append((300, udp_to(0, P.PORT_JTAG, P.jtag_req(0, 4, "1" * (big + 8), "0" * (big + 8), half=2))))
     return f
 
 
@@ -245,9 +251,16 @@ def check(path):
             err("keyboard JTAG forced on: %r" % (jk[1],))
         elif (int.from_bytes(r1["tdo"], "little") >> 9) & 0xFFFFFFFF != KBD_IDCODE:
             err("keyboard IDCODE %08x" % ((int.from_bytes(r1["tdo"], "little") >> 9) & 0xFFFFFFFF))
-    if len(jr) != 6:
-        err("expected 6 JTAG responses, got %d" % len(jr))
+    if len(jr) != 8:
+        err("expected 8 JTAG responses, got %d" % len(jr))
     else:
+        r = jr[6]
+        if r["status"] != 0 or r["seq"] != 3 or r["next_seq"] != 4 or r["bit_count"] != P.JTAG_MAX_BITS \
+           or r["tdo_bytes"] != P.JTAG_MAX_BITS // 8:
+            err("DUT0 JTAG of the maximum size (%d bits): %r" % (P.JTAG_MAX_BITS, r))
+        r = jr[7]
+        if r["status"] != 3 or r["seq"] != 4 or r["next_seq"] != 4 or r["tdo_bytes"]:
+            err("oversize JTAG_REQ not answered bad format: %r" % r)
         r = jr[4]
         if r["status"] != 4 or r["seq"] != 2 or r["next_seq"] != 2 or r["tdo_bytes"]:
             err("DUT0 JTAG with out-policy 2 not refused as unpowered: %r" % r)
@@ -291,10 +304,10 @@ def check(path):
         h = hb0[-1]
         if h["dna"] != DNA or h["kbd_udp"] != (1 << 10) | (1 << 63) or h["kbd_eff"] != h["kbd_udp"]:
             err("heartbeat DUT0 fields wrong: %r" % h)
-        if h["uart_rx_seq"] != 5 or h["uart_tx_acc"] != 5 or h["jtag_next_seq"] != 3:
+        if h["uart_rx_seq"] != 5 or h["uart_tx_acc"] != 5 or h["jtag_next_seq"] != 4:
             err("heartbeat DUT0 counters wrong: %r" % h)
-        if h["rx_rejects"] != 1:
-            err("DUT0 rx_rejects %d != 1" % h["rx_rejects"])
+        if h["rx_rejects"] != 2:   # unknown type + oversize JTAG_REQ
+            err("DUT0 rx_rejects %d != 2" % h["rx_rejects"])
         if h["target_flags"] & (P.TF_OUT_EN | P.TF_PWR_HOLD) != P.TF_OUT_EN:
             err("DUT0 target_flags %02x: outputs not back on after out-policy 0" % h["target_flags"])
         if not h["caps"] & P.CAP_KBD_JTAG or h["phys_type"] != 0:

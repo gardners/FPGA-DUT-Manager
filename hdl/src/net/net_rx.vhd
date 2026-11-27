@@ -366,8 +366,11 @@ begin
           nb   := shift_right(bits + 7, 3);
           j_bits_r <= bits;
           j_nb_r   <= nb;
+          -- a truncated frame (longer than an RX slot, issue 0059) is
+          -- answered as malformed too
           f_jbad   <= bits = 0 or bits > JTAG_MAX_BITS or
-                      resize(be16(h, 46), 32) /= JTAG_REQ_FIXED + 2 * nb;
+                      resize(be16(h, 46), 32) /= JTAG_REQ_FIXED + 2 * nb or
+                      ip_total + 14 > flen;
 
         when S_PARSE =>
           state <= S_RELEASE;
@@ -406,7 +409,12 @@ begin
             end if;
             d <= dd;
             if f_trunc then
-              null;                     -- truncated
+              -- truncated (frame longer than an RX slot): dropped, except a
+              -- JTAG_REQ to us, which gets JS_BAD_FMT (f_jbad) instead of
+              -- silence (issue 0059)
+              if matched and f_udp and not f_udp_bad and f_dut_ok(dd) = '1' and f_jtag then
+                state <= S_JTAG_ADM;
+              end if;
             elsif dhcp_hit then
               dhcp_r.xid    <= slv32(h, 46);
               dhcp_r.yiaddr <= slv32(h, 58);
