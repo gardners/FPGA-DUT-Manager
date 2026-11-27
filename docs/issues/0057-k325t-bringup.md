@@ -54,3 +54,8 @@ on the 3-digit 7-segment LED display.
 * **Load**: `targets/qmtech-k325t/k325t.sh load` (dutctl xvc -> xvc-split ->
   openFPGALoader xvc-client, SRAM): 1.44 s for the 1.26 MB compressed
   bitstream, STAT afterwards 0x401079fc, DONE = 1.
+* **Power-off** (19:1x): `k325t.sh off` parked TMS=TDI=0 (one TCK, TAP to
+  Run-Test/Idle), relay 5 off; heartbeat then shows DUT1 `vio=0 out=0`, so
+  no back-powering. The bring-up image is SRAM-only: after power-on the
+  board runs its flash image again until `k325t.sh load`.
+* Waiting for the owner: what the 7-seg/LEDs/VGA show, and the J11 UART wires.
