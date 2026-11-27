@@ -68,3 +68,24 @@ in batch mode, SES import into `tracks.json`, board rebuild and a DRC
 summary. Delete `hardware/mega-kvm-front/tracks.json` to get back to the
 unrouted board. With the 3RU KVM unit (0051), the panel strip has room to
 spare; the board itself is unchanged.
+
+## 2026-11-27 routed: `make pcb-routing`
+
+`make pcb-routing` downloads a pinned Freerouting (2.5.0, sha256-checked,
+into tools/dl) and reroutes the front panel when its generator scripts are
+newer than `tracks.json` (`make -B pcb-routing` forces it). Result: 772
+tracks, 64 vias, **DRC 0 violations, 0 unconnected, schematic parity**.
+Round-trip fixes in `tools/route.py`, all needed to get there:
+
+* 1.9.0 needs a display; 2.1.0 writes broken sessions (wires lost on some
+  nets). 2.5.0 runs headless (`--gui.enabled=false`, analytics and API
+  server off) and its sessions are complete.
+* GND pours are removed before export, so GND is routed as a net (a pour cut
+  up by tracks on both layers left GND islands); pcb_build adds and fills
+  the pours again.
+* The routing boundary is shrunk by 0.4 mm (0.5 mm copper-to-edge rule).
+* Quoted net names (`~{RED1}` etc.) are mapped to plain names for the round
+  trip.
+* Freerouting necks tracks down at the TSSOP pins (0.125-0.187 mm). They are
+  widened back to 0.2 mm on import, and routing uses 0.175 mm clearance so
+  the widened tracks still keep 0.15 mm.

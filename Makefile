@@ -11,6 +11,7 @@
 #   make flash       # write bitstream to the Mimas SPI flash
 #   make dutctl      # build the Linux control CLI
 #   make vivado      # same as make bitstream FLOW=vivado (needs Vivado)
+#   make pcb-routing # autoroute generated PCBs whose generator changed (Freerouting)
 #
 # JOBS controls toolchain compile parallelism (default: min(nproc/2, free GB/3)).
 
@@ -57,7 +58,7 @@ endif
 .DELETE_ON_ERROR:
 FORCE:
 .PHONY: vivado all help deps toolchain test test-hdl test-sw bitstream jtagload jtagload-good flash relay-fw relay-flash \
-        detect dutctl list-boards check-board clean distclean
+        detect dutctl list-boards check-board clean distclean pcb-routing
 
 all: test bitstream dutctl
 
@@ -211,6 +212,27 @@ relay-fw: $(ARDUINO_CLI)
 relay-flash: relay-fw
 	$(ARDUINO_ENV) $(ARDUINO_CLI) upload -b $(RELAY_FQBN) -p $(PORT) \
 	  --input-dir $(RELAY_OUT) $(REPO)/firmware/relay-controller
+
+# ---------------------------------------------------------------- PCB autorouting (issue 0050)
+# Downloads a pinned Freerouting jar into tools/dl (git-ignored) and reroutes
+# a generated board only when its generator scripts are newer than its
+# tracks.json. Force a reroute with `make -B pcb-routing`. Needs java (21+) and the
+# KiCad 10 flatpak (see hardware/*/tools/build_all.sh).
+FREEROUTING_VERSION ?= 2.5.0
+FREEROUTING_SHA256  ?= f6f51bb02245e8e717f9359bd260cc9c5c0b1bc0acc8b7cb2cd5b8ffeb5de3c7
+FREEROUTING_JAR     ?= $(TOOLS)/dl/freerouting/freerouting-$(FREEROUTING_VERSION).jar
+FRONT_PCB           := $(REPO)/hardware/mega-kvm-front
+pcb-routing: $(FRONT_PCB)/tracks.json
+$(FREEROUTING_JAR):
+	mkdir -p $(dir $@)
+	curl -fsSL -o $@.part \
+	  https://github.com/freerouting/freerouting/releases/download/v$(FREEROUTING_VERSION)/freerouting-$(FREEROUTING_VERSION).jar
+	echo "$(FREEROUTING_SHA256)  $@.part" | sha256sum -c --quiet
+	mv $@.part $@
+$(FRONT_PCB)/tracks.json: $(wildcard $(FRONT_PCB)/tools/*.py) $(FRONT_PCB)/tools/build_all.sh \
+                          $(REPO)/scripts/route-front-panel.sh | $(FREEROUTING_JAR)
+	$(REPO)/scripts/route-front-panel.sh $(FREEROUTING_JAR)
+	touch $@
 
 # ---------------------------------------------------------------- housekeeping
 clean:
