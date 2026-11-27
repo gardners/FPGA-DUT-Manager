@@ -185,3 +185,17 @@ spread it:
 Front panel: the 197 x 34 mm input board mounts on the 3RU front beside the
 display group (0051). Fans: 8 x 4-pin PWM headers replace J23/J24, with an
 I2C fan controller and a temperature sensor on J5 (0052).
+
+## 2026-11-27 progress: round 9 applied, input board for the 3RU front (agent, feature/power-fans)
+
+* Banana path: pads for a **third parallel FET pair (Q12/Q13, DNP)**. Each
+  back-to-back pair is now its own column, 14 mm apart, with Vn / VSn / VBUS
+  pours sketched (input drain on Vn, sources on VSn, output drain on VBUS).
+* The input board moves behind the **3RU front panel** (0051). Height is no
+  longer short there, but panel width is (2 x 120 mm fans take ~250 of the
+  ~425 mm opening), so the 197 x 34 mm 1RU strip became a **126 x 64 mm
+  two-tier board** (connectors/fuses/TVS on top, lugs/LTC4417/FETs below);
+  connectors still face out on the F side. Note for the case work: the
+  227 mm front-panel PCB does not fit beside two 120 mm fans either.
+* TMP75 (0x49) on the VS1 copper, cabled to the main board (0052).
+* Fans, fan control and per-header protection: see 0052. ERC/DRC clean.

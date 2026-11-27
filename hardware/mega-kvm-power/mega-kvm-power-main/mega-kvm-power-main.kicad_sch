@@ -31375,7 +31375,7 @@
 			)
 		)
 	)
-	(text "Bring-up (host or FPGA), per controller m = 0..3:\n  write 0x70 <- (1 << m)            select mux channel m\n  0x2E reg 2Bh <- 03h               PWM1/2 push-pull\n  0x2E reg 2Ah <- 03h               PWM1/2 inverted (2N7002 inverts again)\n  0x2E reg 30h / 40h <- duty        fan 2m / 2m+1, 00h-FFh = 0-100 %\n  0x2E reg 3Eh,3Fh / 4Eh,4Fh        TACH count -> RPM = 3932160 / count\nPower-on / no traffic / no 3V3: fans at 100 %. Watchdog: after 4 s with no\naccess each EMC2302 drives 100 % (set CONFIG 20h bit 5 to keep it armed).\nSee docs/hardware/power-board.md \"Fan control\"."
+	(text "Bring-up (host or FPGA), per controller m = 0..3:\n  write 0x70 <- (1 << m)            select mux channel m\n  0x2E reg 2Bh <- 03h               PWM1/2 push-pull\n  0x2E reg 2Ah <- 03h               PWM1/2 inverted (2N7002 inverts again)\n  0x2E reg 30h / 40h <- duty        fan 2m / 2m+1, 00h-FFh = 0-100 %\n  0x2E reg 20h <- 60h               keep the 4 s watchdog armed (WD_EN)\n  0x2E reg 3Eh,3Fh / 4Eh,4Fh        count = hi<<5 | lo>>3; RPM = 7864320 / count\nPower-on / no traffic / no 3V3 / watchdog expired: fans at 100 %.\nSee docs/hardware/power-board.md \"Fan control\"."
 		(exclude_from_sim no)
 		(at 485.14 220.98 0)
 		(effects
