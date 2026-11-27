@@ -332,3 +332,15 @@ CTRL line with the 12 V outputs through a per-channel 1x3 header + shunt
 5V_PRESENT and EN5V5-7 go to the optional TCA9535 (P1.1-P1.4). The fan block
 moved 39 mm forward; outline and holes unchanged. ERC 0, DRC 0, parity clean.
 See power-board.md "5 V DUT outputs (issue 0055)" and issue 0055.
+
+## 2026-11-27 Dedicated 6 V outlet (issue 0055 round 15; agent, feature/power-6v)
+
+A 9th DUT outlet at 6 V for a K325T board: VBUS -> TPS259470A (U71, buck
+input guard, shared 14.8 V OVLO) -> TPS565201 buck (U73, 5 A, TSOT-23-6)
+-> TPS259470A (U72, 4.66 A, OVLO 6.9 V, UVLO 5.4 V) -> Molex Micro-Fit 2x2
+right-angle J70 "DUT 6V ONLY (K325T)" on the rear edge between J63 and H5.
+Switched by the TCA9535 U11 P1.5 (0x24), which is now fitted by default;
+/FLT on P1.6, power-good on P1.7. Adds ~2.2 A at 12 V to VBUS at 4 A out.
+Fan block moved another 20 mm forward (y 60-131); outline and holes
+unchanged. pcb_build now fills the zones deterministically. ERC 0, DRC 0,
+parity clean. See power-board.md "6 V outlet" and issue 0055.

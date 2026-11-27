@@ -113,3 +113,50 @@ full load.
   outputs stay as they are. Host control needs a supervisor change (the
   shield I2C master must write U11; today it only runs the shield
   expanders): follow-up together with the fan control.
+
+### 2026-11-27 Progress: 6 V outlet designed (agent, feature/power-6v)
+
+Generator `hardware/mega-kvm-power/tools/six_volt.py` (+ `gen_main.py`,
+`placement.py`, `pcb_build.py`); details, sizing, thermal and the host
+register sequence in `docs/hardware/power-board.md`, section "6 V outlet".
+
+* **Chain:** VBUS -> **U71 TPS259470A** (5 A, shared 14.8 V OVLO) -> VIN6 ->
+  **U73 TPS565201DDCR** (C327676, 9.96k stock, $0.78; 5 A, 500 kHz,
+  TSOT-23-6 without pad) -> L70 4.7 uH FXL1040 (C167230, 20 mOhm, Isat
+  15 A) -> +6V (27.0 k / 3.92 k 0.1 %: 5.995 V, +-1.1 %) -> **U72
+  TPS259470A** (ILIM 4.66 A = 715 R, OVLO 6.90 V, UVLO 5.38 V) -> J70.
+* **Why a 17 V buck:** no leaded (pad-free) synchronous buck >= 24 V and
+  >= 4 A is stocked (SY8205, TPS54540/531/560, LMR33640, AOZ1284 have
+  exposed pads; LMR51440/50, JW5068, TPS56637 are QFN/WSON; the SOT-23
+  parts >= 24 V stop at 3 A). U71 keeps VBUS spikes (TVS clamp up to
+  24.4 V) off it, like every other VBUS load, isolates a failed buck from
+  VBUS, and leaves the buck unpowered while the outlet is off.
+* **Control:** U11 TCA9535 (0x24) **fitted by default** now (with R5-R7,
+  C7). **P1.5** -> 1 k -> 6V_EN (20 k pull-down: off while P1.5 is an input,
+  i.e. after every expander reset) -> U71 EN, and through a 1N4148WS holds
+  U72 off; **P1.6** = /FLT of U71 and U72; **P1.7** = 6V_PG (OUT6V > ~4.6 V).
+  Host: write 03h <- DFh before 07h <- DFh (the output latch defaults to 1),
+  then 03h bit 5 = on/off. U11 runs from the board's own 3V3; JP1 not needed.
+* **Connector:** **Molex Micro-Fit 3.0 2x2 right-angle 43045-0400**
+  (C122413, 44.5k, $0.34; 8.5 A per contact, latching), pins 1-2 GND, 3-4
+  +6 V, on the rear edge between J63 and H5 (x 211-222). Silk "DUT 6V ONLY
+  (K325T)", green "6V" LED D741 beside it. Cannot mate with the 5 V VH, the
+  Mimas Mini-Fit Jr or the 12 V screw terminals.
+* **Budget / heat (4 A out):** ~2 W lost in the chain (~92 %), VBUS +2.2 A
+  at 12 V (2.5 A at 10.5 V). U73 ~0.75 W, ~+40-45 K on the 2 oz pours; L70
+  ~0.45 W; U72 0.45-0.72 W.
+* **Board:** fan block moved another 20 mm forward (y 60-131) for the buck
+  (x 171-229, y 40-58); U71 on the VBUS pour by the always-on cell, VIN6 on a
+  B.Cu strip. Outline, holes, J10-J17, J50-J54 unchanged; case rebuilt:
+  "Conflicts / problems: none".
+* `pcb_build.py` now builds connectivity before filling zones: island
+  removal had been nondeterministic and left the VBUS, AON12 and OUTn pours
+  (and sometimes VS1-3, V2/V3) unfilled in earlier outputs.
+* **Results:** ERC 0, DRC 0 (unrouted only), schematic parity clean; BOM,
+  CPL, PDF and renders regenerated.
+
+Open (power-board.md "6 V outlet: open questions"): a 9th rear lead hole
+in the case; 6.0 V at the buck vs ~6.1 V to offset the eFuse/lead drop at
+4 A; cable gauge/plug for the K325T; LCSC numbers for the 0.1 % feedback
+resistors. Host control (supervisor I2C writes to 0x24) is a follow-up with
+the fan control.
