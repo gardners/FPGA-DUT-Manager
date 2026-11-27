@@ -238,3 +238,22 @@ in the tree as legacy and are no longer developed.
 * The input-board projects stay as legacy: `build_all.sh` builds only the one
   board (`LEGACY=1` rebuilds the old ones); their stale outputs were removed.
 * ERC 0, DRC 0 with schematic parity (unrouted only); BOM/CPL regenerated.
+
+## 2026-11-27 owner round 13 (logged before implementation)
+
+**Owner:**
+
+1. Check U50's LTC4417 symbol/footprint pin map (pin numbers, names, GN-24
+   SSOP) and the application circuit (gate drive, VALID, OV/UV dividers,
+   CAS, hysteresis) against the datasheet (`docs/datasheets/ltc4417.pdf`,
+   git-ignored). Fix anything wrong and list each discrepancy.
+2. **Fuse: 25 A** with the 24 A PCB-mount banana sockets is accepted (not a
+   commercial product; 1 A over is within tolerance). Default F1 = 25 A.
+3. If useful, check the Mimas A7 dimensions used in the repo against the
+   vendor STEP (`docs/datasheets/MimasA7_3D_1.step`).
+4. Current sensing on the 8 switched DUT rails: investigate and estimate
+   only, **do not add it to the board yet**. Does the TPS259470 ILM pin work
+   as an analog current monitor, with what gain/accuracy, and what are the
+   rules for loading/filtering it? Compare one 8-channel I2C ADC on the
+   ILM pins against a shunt + INA226/INA219-class monitor per rail (LCSC
+   numbers, stock, price, area, accuracy at 0.3-1 A and at load).
