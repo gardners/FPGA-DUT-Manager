@@ -177,3 +177,28 @@ protocol (KIO8 clock at 312.5 kHz / KIO9 LED data) onto TDI/TDO; if D/E
 remove it, the corruption is a short glitch on TDO near the sample point;
 if neither, it is on TDI (the TAP shifts a wrong bit in) or longer than
 5 cycles (40 ns). Check that the keyboard still works after B and C.
+
+### 2026-11-27 lead: hardware A/B on build 921fed47
+
+MK-I keyboard, ~0.75 m cable, `jtag-speed --kbd --reps 1000` (3608 bits per
+probe), failing probes per 1000:
+
+| run | keys | half 50 ... 4 | half 3 |
+|---|---|---|---|
+| A | quiet 0, vote 0 (old behaviour) | 8-23 at every step | 4 |
+| B | quiet 1 (scan paused during JTAG) | 0 at every step | 0 |
+| C | quiet 2 (scan stopped) | 0 at every step | 0 |
+| D | vote 1 (majority of 3) | 11-23 | - |
+| E | vote 2 (majority of 5) | 7-29 | - |
+| F | quiet 2 + vote 2 | 0 | - |
+
+Half 2 (31.25 MHz) fails completely in every mode (the timing limit).
+10000 probes with quiet 1 at half 32, 8 and 3: 0 errors each (3.6e7 bits).
+The keyboard is still detected (MK-I) after the runs.
+
+Conclusion: the error floor is **cross-talk from the keyboard scan** onto
+the JTAG lines; voting does not help, so the corruption reaches the CPLD
+(TDI or TCK), not our TDO sampling. Key 0x0063 now defaults to 1 (pause).
+The keyboard is frozen for the length of each keyboard JTAG request (plus
+up to ~0.45 ms on MK-I to reach the sync phase), which is harmless. TDO
+voting stays available, default off.
