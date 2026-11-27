@@ -6,7 +6,8 @@ CFLAGS ?= -O2 -g
 CFLAGS += -std=c11 -Wall -Wextra -Werror -Iinclude
 LDLIBS += -lm
 
-LIB_SRC := src/dutproto.c src/uartstream.c src/xvc.c src/rasterframe.c src/pngwrite.c src/screenshot.c
+LIB_SRC := src/dutproto.c src/uartstream.c src/xvc.c src/rasterframe.c src/pngwrite.c src/screenshot.c \
+           src/dutconf.c src/jtagdisc.c src/jtagspeed.c
 LIB_OBJ := $(LIB_SRC:src/%.c=$(BUILD)/%.o)
 
 .PHONY: all test clean install
@@ -14,6 +15,10 @@ all: $(BUILD)/dutctl
 
 $(BUILD)/%.o: src/%.c include/*.h | $(BUILD)
 	$(CC) $(CFLAGS) -D_GNU_SOURCE -c -o $@ $<
+
+# openFPGALoader fallback when it is not on $PATH: this repo's tools/
+$(BUILD)/main.o: src/main.c include/*.h | $(BUILD)
+	$(CC) $(CFLAGS) -D_GNU_SOURCE -DDUTCTL_REPO_OFL='"$(REPO)/tools/prefix/bin/openFPGALoader"' -c -o $@ $<
 
 $(BUILD)/dutctl: $(BUILD)/main.o $(LIB_OBJ)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDLIBS)
