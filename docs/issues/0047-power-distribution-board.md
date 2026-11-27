@@ -144,3 +144,44 @@ for the MEGA-KVM box.
 * Narrow variant (48 x 34 mm, connectors only, with the selection electronics on the
   main board), for a rear position beside the DUT bays: written up as a concept in
   power-board.md. Not drawn unless the owner wants it.
+
+## 2026-11-27 owner round 9: relays instead of FETs? front inputs, fans
+
+**Owner:** the priority selector and its 20 A MOSFETs will dissipate several
+watts at peak just by being on. Would 25 A relays be lower power and avoid a
+hot spot in one corner? Power inputs must be on the front or rear panel
+(leaning front, 0051). Fan headers with small protection, up to 8 fans
+(0052).
+
+**Lead's analysis: relays are worse at every realistic load.**
+
+| Load | Banana path, 4 FETs (2 per side, ~5.6 mOhm hot) | 25-30 A automotive relay |
+|---|---|---|
+| ~12 A (8 MEGA65 at ~1 A + Mimas, GS105, fans; to be measured) | 6 A per FET: **~0.2 W each, ~0.8 W total**, spread over 4 parts | coil **1.4-1.8 W** continuously (85-100 Ohm at 12 V) + contacts and tabs ~4-6 mOhm: ~0.7 W: **~2.2 W** in one part |
+| 20 A (design point) | ~0.56 W each, ~2.2 W total | coil 1.6 W + ~2 W contacts: **~3.5 W** |
+
+A relay also brings:
+
+* a DC arc on every break at 20 A, which wears the contacts and makes them
+  hot;
+* a dead gap at every input changeover, which resets all the boards (the FETs
+  switch over in microseconds);
+* a coil driver and a flyback diode per relay;
+* no reverse-current blocking.
+
+Latching relays remove the coil power but keep the arc and the gap, and need
+a pulse driver.
+
+**Decision (lead, pending owner veto): keep the LTC4417 + FETs.** The "hot
+spot" is about +10 K at a realistic 12 A and +35-60 K at a full 20 A. To
+spread it:
+
+* place the FET pairs apart on 2 oz pours;
+* add the optional third parallel pair on the banana path (pads only, fitted
+  if the bench shows it is needed);
+* keep the input board on stand-offs with an air gap, in the fan's airflow
+  (0051).
+
+Front panel: the 197 x 34 mm input board mounts on the 3RU front beside the
+display group (0051). Fans: 8 x 4-pin PWM headers replace J23/J24, with an
+I2C fan controller and a temperature sensor on J5 (0052).

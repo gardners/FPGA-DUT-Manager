@@ -105,3 +105,11 @@ DUT LEDs for 8 DUTs.
   keyboard and DUT power (238 mm short)**. IEC/RPS cover plates, fan plate
   and mounting plate are generated; all carcass numbers are placeholders
   (checklist in case.md).
+
+## 2026-11-27 owner round 9: rack shelves replace options A and B
+
+The owner is dropping the Cisco carcass for now and the single 1RU box.
+New layout: a ~3RU KVM unit with 120 mm quiet fans, plus one sliding
+plywood shelf per MEGA65 on old server rails, up to ~11RU in all.
+Tracked in **0051**. Options A and B stay in the generator but are no longer
+developed. The generator is retargeted to the KVM unit and the shelves.

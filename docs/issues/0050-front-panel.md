@@ -59,3 +59,12 @@ panel features for the case generator: `hardware/mega-kvm-front/out/panel-holes.
 * Open: route the board; measure the LCD module (bezel height for the
   spacer, viewing-area position); confirm the 3 mm panel gap and button
   height against the case design (0048).
+
+## 2026-11-27 owner round 9: owner runs Freerouting
+
+The owner will run the autorouter. `scripts/route-front-panel.sh
+path/to/freerouting.jar` does the whole round trip: DSN export, Freerouting
+in batch mode, SES import into `tracks.json`, board rebuild and a DRC
+summary. Delete `hardware/mega-kvm-front/tracks.json` to get back to the
+unrouted board. With the 3RU KVM unit (0051), the panel strip has room to
+spare; the board itself is unchanged.
