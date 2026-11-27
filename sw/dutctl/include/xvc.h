@@ -8,6 +8,9 @@
 #include <stdint.h>
 
 #define XVC_MAX_BYTES 65536 /* per shift: up to 524288 bits */
+/* getinfo answer: TMS + TDI bytes, i.e. 8192 bytes = 65536 bits per
+ * vector (openFPGALoader uint16_t limits, see main.c) */
+#define XVC_ADVERTISED_BYTES 16384
 
 typedef enum { XVC_NONE = 0, XVC_GETINFO, XVC_SETTCK, XVC_SHIFT, XVC_ERROR } xvc_cmd_t;
 

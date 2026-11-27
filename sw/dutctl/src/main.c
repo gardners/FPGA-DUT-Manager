@@ -993,8 +993,14 @@ static int cmd_xvc(int argc, char **argv)
           /* XVC 1.0: the maximum shift vector in BYTES, TMS + TDI together
            * (Xilinx reference server; openFPGALoader halves it per vector).
            * Advertising bits here (as before 2026-11-27) let clients send
-           * 4x larger shifts than we accept, and they were dropped. */
-          int l = snprintf(info, sizeof info, "xvcServer_v1.0:%d\n", 2 * XVC_MAX_BYTES);
+           * 4x larger shifts than we accept, and they were dropped.
+           * XVC_ADVERTISED_BYTES (16384 = 8192 per vector = 65536 bits) is
+           * smaller than what we accept on purpose: openFPGALoader's
+           * XVC_client::writeTDI keeps the burst byte count and the index of
+           * the final TMS=1 bit in uint16_t, so bursts over 65536 bits wrap:
+           * the data pointer stops advancing and TMS rises early, which
+           * silently loses the end of a bitstream (DONE=0, no CRC error). */
+          int l = snprintf(info, sizeof info, "xvcServer_v1.0:%d\n", XVC_ADVERTISED_BYTES);
           send(c, info, (size_t)l, 0);
         } else if (cmd == XVC_SETTCK) {
           uint32_t half = (xp.settck_period_ns + 8) / 16; /* ns -> half periods of 8 ns */
