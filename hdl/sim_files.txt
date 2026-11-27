@@ -16,6 +16,8 @@ hdl/src/kbd/kbd_mk2_host.vhd
 hdl/src/kbd/kbd_t3_host.vhd
 hdl/src/kbd/kbd_phys_host.vhd
 hdl/sim/i2c_expander_model.vhd
+hdl/sim/tca6424a_model.vhd
+hdl/src/common/i2c_master.vhd
 hdl/src/kbd/kbd_arbiter.vhd
 hdl/src/kbd/kbd_led_status.vhd
 hdl/src/kbd/kvm_hotkey.vhd
