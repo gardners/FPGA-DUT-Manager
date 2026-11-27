@@ -39,8 +39,9 @@ CAP_UART, CAP_JTAG, CAP_KBD_DEV, CAP_PHYS_KBD, CAP_HDMI, CAP_THUMBS, CAP_KBD_JTA
 # heartbeat byte 76 kbd_phys_type
 PHYS_TYPES = {0: "none", 1: "MK-I", 2: "MK-II", 3: "type3"}
 # heartbeat byte 109, what HDMI OUT shows (issues 0029, 0032)
-CON_SHOWN = {0: "editable", 1: "no-video", 2: "select", 3: "passthrough"}
+CON_SHOWN = {0: "editable", 1: "no-video", 2: "select", 3: "passthrough", 4: "relayed"}
 CON_PASSTHROUGH = 3
+CON_RELAYED = 4   # full-resolution relayed picture of the video target (issue 0060)
 # heartbeat byte 108 video_flags (ADR 0005 s8; b3/b4 issue 0040)
 VF_CLOCK, VF_LOCKED, VF_CAPTURE, VF_HDMI, VF_ISLANDS = 0x01, 0x02, 0x04, 0x08, 0x10
 PORT_MGMT, PORT_HB, PORT_KBD, PORT_UART, PORT_JTAG = 6500, 6501, 6502, 6503, 6507

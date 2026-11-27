@@ -324,8 +324,8 @@ int dp_key_by_name(const char *name)
 
 const char *dp_con_shown_name(int v)
 {
-  static const char *const names[] = {"editable", "no-video", "select", "passthrough"};
-  return (v >= 0 && v < 4) ? names[v] : "?";
+  static const char *const names[] = {"editable", "no-video", "select", "passthrough", "relayed"};
+  return (v >= 0 && v < 5) ? names[v] : "?";
 }
 
 const char *dp_key_name(int key)

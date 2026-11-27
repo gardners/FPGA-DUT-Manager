@@ -277,8 +277,9 @@ enum {
   DP_CON_NO_VIDEO = 1,
   DP_CON_SELECT = 2,
   DP_CON_PASSTHROUGH = 3, /* HDMI IN passed through (issue 0032) */
+  DP_CON_RELAYED = 4,     /* full-resolution relayed picture of the video target (issue 0060) */
 };
-const char *dp_con_shown_name(int v); /* "editable" .. "passthrough", "?" */
+const char *dp_con_shown_name(int v); /* "editable" .. "relayed", "?" */
 /* heartbeat byte 108 (video_flags), ADR 0005 section 8 */
 enum {
   DP_VF_CLOCK = 0x01,   /* TMDS clock present */

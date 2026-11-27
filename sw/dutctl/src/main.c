@@ -209,6 +209,9 @@ static int cmd_set(int argc, char **argv)
             "         kbd-jtag-quiet (0 off, 1 (default) pause the keyboard scan during keyboard JTAG,\n"
             "                         2 keyboard scan stopped; needs kbd-jtag 1)\n"
             "         jtag-tdo-vote (TDO sampling: 0 single, 1 majority of 3, 2 majority of 5)\n"
+            "         vlan (inter-board relay VLAN ID, default 1650, 0 = untagged)\n"
+            "         hdmi-owner (DUT on the HDMI IN: 0 the video target's (default), 1 DUT0, 2 DUT1,\n"
+            "                     3 none; the others show relayed video, full-screen when selected)\n"
             "         kbd-led-rgb RRGGBB,RRGGBB,RRGGBB,RRGGBB (LED0..3 for kbd-leds 2;\n"
             "                     LED0/1 = drive LED, LED2/3 = power LED)\n");
     return 2;
@@ -231,6 +234,7 @@ static int cmd_set(int argc, char **argv)
     {"kbd-leds", DP_K_PK_LED_MODE, 1}, {"console-screen", DP_K_CON_SCREEN, 1},
     {"kbd-jtag", DP_K_PK_JTAG, 1}, {"power-ctl", DP_K_PWR_CTL, 1},
     {"kbd-jtag-quiet", DP_K_KJ_QUIET, 1}, {"jtag-tdo-vote", DP_K_TDO_VOTE, 1},
+    {"vlan", DP_K_VLAN, 2}, {"hdmi-owner", DP_K_HDMI_OWNER, 1},
   };
   if (!strcmp(name, "kbd-led-rgb")) {
     unsigned c[4];

@@ -143,7 +143,7 @@ begin
             idx <= (others => '0');
             crc <= (others => '1');
             okd0 <= '1'; okd1 <= '1'; okb <= '1'; hdr_ok <= '1';
-            tagged <= '0'; skip <= "00";
+            tagged <= '0'; skip <= "00"; vok <= '0';
             in_pl <= '0'; bad <= '0'; line_pend <= '0'; mbad <= '0'; chk <= '0';
           end if;
 
