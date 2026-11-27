@@ -304,38 +304,54 @@ def build_kvm(g, boards, problems, notes):
     boxes = []
     # ---------------- front-panel layout (deck x)
     # Owner round 12: no power connectors on the front any more. Fans on the
-    # left; right-hand column: display PCB at the top, the rocker under it,
-    # the MEGA-KVM etch to the rocker's right.
-    fans = []
+    # left; right-hand column: display PCB at the top. 2026-11-27 (owner: 2 x
+    # 120 mm fans): fans taller than the space above the deck reach down
+    # through deck notches, between the front gussets; the rocker then sits
+    # left of the fans and the MEGA-KVM etch and the logos under the display.
+    fan_zc = H - K['fan_edge'] - K['fan'] / 2
+    fan_cross_deck = fan_zc - K['fan'] / 2 < top + 1.0
+    rocker_left = K['rocker_pos'] == 'left'
     x = m
+    if fan_cross_deck:      # between the front gussets (against the battens' inner faces)
+        x = max(x, BT + g.T + K['fan_gusset_clear'])
+    if rocker_left:
+        x = max(x, m + rw + 2 * K['rocker_clear'])
+    fans = []
     for i in range(K['fan_count']):
-        zc = H - K['fan_edge'] - K['fan'] / 2
-        fans.append((x + K['fan'] / 2, zc))
+        fans.append((x + K['fan'] / 2, fan_zc))
         x += K['fan'] + K['fan_gap']
     fans_end = x - K['fan_gap']
+    fans_x0 = fans[0][0] - K['fan'] / 2 if fans else m
     pcb_x0 = W - m - pcb_w
     pcb_z1 = H - K['pcb_top']
     pcb_z0 = pcb_z1 - pcb_h
     right_w = pcb_w
     col_x0 = pcb_x0
-    if K['rocker_pos'] == 'json' and js:
+    if K['rocker_pos'] == 'json' and js and js['rocker'].get('x') is not None:
         rock_x = pcb_x0 + js['rocker']['x']
         rock_z = H - K['pcb_top'] - js['rocker']['y']
+    elif rocker_left:                           # in the strip left of the fans, at the fans' height
+        rock_x = (m + fans_x0) / 2
+        rock_z = fan_zc if fans else H / 2
     else:                                       # 'below_pcb'
         rock_x = pcb_x0 + K['rocker_dx'] + rw / 2
         rock_z = (top + 2.0 + pcb_z0 - 2.0) / 2
-    width_need = m + (fans_end - m) + 2.0 + right_w + m
+    width_need = fans_x0 + (fans_end - fans_x0) + 2.0 + right_w + m
     if fans_end + 2.0 > pcb_x0 + 1e-6:
-        problems.append('KVM front: %d x %d mm fans (%.0f mm) and the display column (%.0f mm) need %.0f mm, '
-                        'the deck is %.0f mm' % (K['fan_count'], K['fan'], fans_end - m, right_w, width_need, W))
-    if rock_x + rw / 2 > W - 1 or rock_z - rh / 2 < top + 1:
+        problems.append('KVM front: %d x %d mm fans (x %.0f-%.0f) and the display column (%.0f mm) need %.0f mm, '
+                        'the deck is %.0f mm' % (K['fan_count'], K['fan'], fans_x0, fans_end, right_w, width_need, W))
+    if rock_x - rw / 2 < 1 or rock_x + rw / 2 > W - 1 or rock_z - rh / 2 < top + 1:
         problems.append('KVM front: the rocker (deck x %.0f, z %.0f) does not fit' % (rock_x, rock_z))
-    fan_bottom = fans[0][1] - K['fan'] / 2 if fans else H
-    fan_cross_deck = fan_bottom < top + 1.0
-    kvm_notches = []                           # (x0, x1, depth)
+    if rocker_left and fans and rock_x + rw / 2 + 1.0 > fans_x0:
+        problems.append('KVM front: the rocker (deck x %.0f) runs into fan 1 (from x %.0f)' % (rock_x, fans_x0))
+    kvm_notches = []                           # (x0, x1, depth); overlapping notches merged
     if fan_cross_deck:
         for xc, zc in fans:
-            kvm_notches.append((xc - K['fan'] / 2 - 1, xc + K['fan'] / 2 + 1, fs['thick'] + 3))
+            a, b_, nd = xc - K['fan'] / 2 - 1, xc + K['fan'] / 2 + 1, fs['thick'] + 3
+            if kvm_notches and a <= kvm_notches[-1][1]:
+                kvm_notches[-1] = (kvm_notches[-1][0], b_, max(nd, kvm_notches[-1][2]))
+            else:
+                kvm_notches.append((a, b_, nd))
             if xc - K['fan'] / 2 < BT + 1 or xc + K['fan'] / 2 > W - BT - 1:
                 problems.append('KVM front: a %d mm fan reaches below the deck and over a batten' % K['fan'])
     # ---------------- front zone boxes
@@ -455,6 +471,17 @@ def build_kvm(g, boards, problems, notes):
                     'front' if front else 'rear', abs(xg - x_start)))
             kgus.append((xg, ya, yb, front))
             boxes.append(Box('KVM gusset', xg - g.T / 2, xg + g.T / 2, ya, yb, BT - gk['h'], BT, 'item', True, inside=False))
+    # fan bodies against the parts under the deck (not in the inside-box check): gussets and battens
+    under = [b for b in boxes if b.name == 'KVM gusset'] + [
+        Box('left batten', 0, BT, 0, D, 0, BT), Box('right batten', W - BT, W, 0, D, 0, BT)]
+    fan_under_gap = None
+    for fb in [b for b in boxes if b.kind == 'fan']:
+        for ub in under:
+            if fb.overlaps(ub):
+                problems.append('KVM front: %s collides with the %s' % (fb.name, ub.name))
+            elif fb.z0 < ub.z1:
+                gx = max(ub.x0 - fb.x1, fb.x0 - ub.x1)
+                fan_under_gap = gx if fan_under_gap is None else min(fan_under_gap, gx)
     # ---------------- KVM deck panel
     deck = Panel('kvm-deck', W, D)
     deck.title = 'KVM deck, 6 mm ply (seen from above, front at the bottom)'
@@ -519,14 +546,42 @@ def build_kvm(g, boards, problems, notes):
     label(fp_, 'I', du + rock_x, Vf(rock_z + rh / 2 + 2.2), 2.0)
     label(fp_, 'O', du + rock_x, Vf(rock_z - rh / 2 - 2.2), 2.0)
     label(fp_, 'POWER', du + rock_x, Vf(rock_z - rh / 2 - 5.4), 1.8)
-    # MEGA-KVM etch: beside the rocker under the display PCB, else in the band in front of the deck
+    # Face items in deck x / z (front view) that etching must keep off: fan frames, the
+    # display PCB, the rocker with its labels, batten and gusset screws.
+    keep_off = [('fan %d' % (i + 1), xc - K['fan'] / 2, zc - K['fan'] / 2, xc + K['fan'] / 2, zc + K['fan'] / 2)
+                for i, (xc, zc) in enumerate(fans)]
+    keep_off.append(('display PCB', pcb_x0, pcb_z0, pcb_x0 + pcb_w, pcb_z1))
+    keep_off.append(('rocker', rock_x - max(rw / 2, 6.0), rock_z - rh / 2 - 7.0,
+                     rock_x + max(rw / 2, 6.0), rock_z + rh / 2 + 3.5))
+    for xs in (BT / 2, W - BT / 2):
+        for z in cfg.FAN_PLATE['batten_screws']:
+            keep_off.append(('batten screw', xs - 3, z - 3, xs + 3, z + 3))
+    for xg, ya, yb, front in kgus:
+        if front:
+            keep_off.append(('gusset screws', xg - 3, BT - gk['h'] * 0.7 - 3, xg + 3, BT - gk['h'] * 0.3 + 3))
+    etched = []                                 # (what, x0, z0, x1, z1)
+    # MEGA-KVM etch and logos: 'column' = stacked under the display PCB (with the
+    # rocker left of the fans); otherwise beside the rocker / in the band in front of the deck
+    column = K.get('etch_pos') == 'column'
+    cx0, cx1 = max(fans_end + 2.0, pcb_x0 - 4.0), W - m
     size = K['text_size']
-    ex0 = rock_x + rw / 2 + 6.0
-    ex1 = W - m
-    ez0, ez1 = top + 1.0, pcb_z0 - 2.0
+    if column:
+        ex0, ex1 = cx0, cx1
+        ez1 = pcb_z0 - 3.0
+        ez0 = ez1 - size - 2
+    else:
+        ex0 = rock_x + rw / 2 + 6.0
+        ex1 = W - m
+        ez0, ez1 = top + 1.0, pcb_z0 - 2.0
     while size > 5.0 and font.text_width(K['text'], size) > ex1 - ex0 - 2:
         size -= 0.5
-    if font.text_width(K['text'], size) <= ex1 - ex0 - 2 and ez1 - ez0 > size + 4:
+    if column:
+        tz = (ez0 + ez1) / 2
+        label(fp_, K['text'], du + (ex0 + ex1) / 2, Vf(tz), size)
+        tw = font.text_width(K['text'], size)
+        etched.append((K['text'], (ex0 + ex1 - tw) / 2, tz - size / 2, (ex0 + ex1 + tw) / 2, tz + size / 2))
+        etch_where = 'under the display PCB (deck x %.0f-%.0f), %.1f mm letters' % (ex0, ex1, size)
+    elif font.text_width(K['text'], size) <= ex1 - ex0 - 2 and ez1 - ez0 > size + 4:
         label(fp_, K['text'], du + (ex0 + ex1) / 2, Vf((ez0 + ez1) / 2), size)
         etch_where = 'beside the rocker (deck x %.0f-%.0f), %.1f mm letters' % (ex0, ex1, size)
     else:
@@ -542,7 +597,30 @@ def build_kvm(g, boards, problems, notes):
             if front:
                 fp_.cut(Circle(du + xg, Vf(z), 1.75))
     logo_notes = []
+    col_logos = [nm for nm, wh in K['logos'] if wh == 'column']
+    if col_logos:
+        # stacked under the etch, between the panel's bottom edge band and the etch; the
+        # slots stay left of the right-hand gusset/batten screws
+        lx0, lx1 = cx0, min(cx1, W - BT - g.T - 4.0)
+        lz1 = (etched[-1][2] if etched else pcb_z0) - 3.0
+        lz0 = 2.0
+        gap_l = 3.0
+        hh_all = (lz1 - lz0 - gap_l * (len(col_logos) - 1)) / len(col_logos)
+        z = lz1
+        for name in col_logos:
+            spec = cfg.LOGOS[name]
+            hh = min(spec['h'], hh_all)
+            lw = min(spec['w'], lx1 - lx0)
+            zc = z - hh / 2
+            if hh < 10 or lw < 40:
+                notes.append('KVM front: no room for the %s logo slot under the display' % name)
+            else:
+                logo_notes.append(logos.slot(cfg, fp_, name, du + (lx0 + lx1) / 2, Vf(zc), lw, hh))
+                etched.append(('%s logo' % name, (lx0 + lx1) / 2 - lw / 2, zc - hh / 2, (lx0 + lx1) / 2 + lw / 2, zc + hh / 2))
+            z -= hh + gap_l
     for name, where in K['logos']:
+        if where == 'column':
+            continue
         spec = cfg.LOGOS[name]
         hh = min(spec['h'], top - 5.0)
         lw = spec['w']
@@ -555,6 +633,15 @@ def build_kvm(g, boards, problems, notes):
             notes.append('KVM front: no room for the %s logo slot in the band' % name)
             continue
         logo_notes.append(logos.slot(cfg, fp_, name, du + x0 + lw / 2, Vf(top / 2), lw, hh))
+        etched.append(('%s logo' % name, x0, top / 2 - hh / 2, x0 + lw, top / 2 + hh / 2))
+    for what, a0, b0, a1, b1 in etched:
+        if a0 < 0 or a1 > W or b0 < 0 or b1 > H:
+            problems.append('KVM front: the %s etch runs off the face over the deck (x %.0f-%.0f, z %.0f-%.0f)' % (
+                what, a0, a1, b0, b1))
+        for kn, k0, kz0, k1, kz1 in keep_off:
+            if a0 < k1 and k0 < a1 and b0 < kz1 and kz0 < b1:
+                problems.append('KVM front: the %s etch (x %.0f-%.0f, z %.0f-%.0f) overlaps the %s' % (
+                    what, a0, a1, b0, b1, kn))
     # ---------------- KVM rear plate (seen from the rear)
     rp = Panel('kvm-rear', W, Hr)
     rp.title = 'KVM rear plate (seen from the rear)'
@@ -583,7 +670,8 @@ def build_kvm(g, boards, problems, notes):
     frags.append(('kvm-rear-bulkhead-dut_power', fr.standalone(npw, Hr, Vr)))
     probs_fit = []
     return {'H': H, 'D': D, 'Hr': Hr, 'deck': deck, 'front': fp_, 'rear': rp, 'gusset': kg, 'boxes': boxes,
-            'fans': fans, 'fan_cross_deck': fan_cross_deck, 'zone_d': zone_d, 'pcb_x0': pcb_x0, 'col_x0': col_x0,
+            'fans': fans, 'fan_cross_deck': fan_cross_deck, 'fans_x0': fans_x0, 'notches': kvm_notches,
+            'fan_under_gap': fan_under_gap, 'etched': etched, 'etch_where': etch_where, 'zone_d': zone_d, 'pcb_x0': pcb_x0, 'col_x0': col_x0,
             'fans_end': fans_end, 'right_w': right_w, 'width_need': width_need, 'bays': bays, 'bays_w': bays_w,
             'rear_free': rear_free, 'frags': frags, 'logo_notes': logo_notes, 'rock': (rock_x, rock_z),
             'pcb': (pcb_x0, pcb_z0, pcb_w, pcb_h), 'pm': (px0, y0, pm_w, pm_d, pzt), 'gs': (gx0, y0),

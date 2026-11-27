@@ -263,15 +263,19 @@ FAN_PLATE = {
 
 KVM = {
     'ru': 3,
-    # Owner round 10 asked for 2 x 120 mm fans. Beside the 227 mm display PCB
-    # they need ~480 mm behind a 425 mm deck, so the default is 2 x 92 mm.
-    # fan 120 / fan_count 1 also fits. (Round 12: no power connectors on the
-    # front any more; the display PCB is the only thing beside the fans.)
-    'fan': 92, 'fan_count': 2, 'fan_gap': 1.0, 'fan_edge': 3.0,
+    # Fans: 2 x standard 120 mm PC fans (120 x 120 x 25, owner 2026-11-27). They
+    # fit beside the display PCB since that became a two-row 140 x 66 mm board
+    # (issue 0050; size read from panel-holes.json). 120 mm is taller than the
+    # space above the deck, so the fans reach down through notches in the deck
+    # front, between the front gussets ('fan_gusset_clear' from the gusset
+    # faces). 'fan': 92 (the old default) still builds, top-aligned, no notch.
+    'fan': 120, 'fan_count': 2, 'fan_gap': 1.0, 'fan_edge': 3.0, 'fan_gusset_clear': 2.0,
     'guard': 'grille', 'grille_hole': 5.0, 'grille_pitch': 6.5,
     'side_margin': 5.0,         # behind-panel parts -> deck edge
     'pcb_top': 3.0,             # front-panel PCB top edge below the panel top
-    'rocker_pos': 'below_pcb',  # 'below_pcb' (under the display PCB, 'rocker_dx' from its left) or 'json'
+    # rocker: 'left' (in the strip left of the fans, at the fans' centre height),
+    # 'below_pcb' (under the display PCB, 'rocker_dx' from its left) or 'json'
+    'rocker_pos': 'left', 'rocker_clear': 4.0,
     'rocker_dx': 20.0,
     # Power board (owner round 12, 230 x 138.5 mm, inputs on its front edge,
     # plugged from the open top): front edge 'power_front' behind the front
@@ -284,7 +288,11 @@ KVM = {
     'front_zone_extra': 4.0,
     'gusset': {'h': 24.0, 'l': 90.0, 'chamfer': 6.0},   # under the deck, against the battens' inner faces
     'rear_clear': 1.35,         # rear plate top below the unit's top
-    'logos': [('mega65', 'left'), ('mega_ev', 'right')],   # in the band in front of the deck/battens
+    # etch_pos 'column': MEGA-KVM etched under the display PCB, the logos stacked
+    # under it ('column'); otherwise beside the rocker, logos 'left'/'right' in
+    # the band in front of the deck (only with fans that clear the deck)
+    'etch_pos': 'column',
+    'logos': [('mega65', 'column'), ('mega_ev', 'column')],
     'text': 'MEGA-KVM', 'text_size': 10.0,
 }
 

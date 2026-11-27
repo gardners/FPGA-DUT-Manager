@@ -283,16 +283,18 @@
  "KERF": 0.15,
  "KVM": {
   "ru": 3,
-  "fan": 92,
+  "fan": 120,
   "fan_count": 2,
   "fan_gap": 1.0,
   "fan_edge": 3.0,
+  "fan_gusset_clear": 2.0,
   "guard": "grille",
   "grille_hole": 5.0,
   "grille_pitch": 6.5,
   "side_margin": 5.0,
   "pcb_top": 3.0,
-  "rocker_pos": "below_pcb",
+  "rocker_pos": "left",
+  "rocker_clear": 4.0,
   "rocker_dx": 20.0,
   "power_front": 40.0,
   "power_x": 25.0,
@@ -308,14 +310,15 @@
    "chamfer": 6.0
   },
   "rear_clear": 1.35,
+  "etch_pos": "column",
   "logos": [
    [
     "mega65",
-    "left"
+    "column"
    ],
    [
     "mega_ev",
-    "right"
+    "column"
    ]
   ],
   "text": "MEGA-KVM",
