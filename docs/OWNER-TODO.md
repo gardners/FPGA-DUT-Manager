@@ -19,6 +19,7 @@ of each section. Tick or delete an item when it is done (or tell the lead).
 ## Decisions with a default (veto if you disagree)
 
 | Since | Default taken | Issue |
+| 2026-11-27 | KVM front panel with 2 x 120 mm fans: master rocker at the far left, then the two fans; the right-hand column holds the 140 x 66 mm display board, the MEGA-KVM etch, the MEGA65 logo and the M.E.G.A. e.V. logo (logos about 21 mm tall). The fans reach about 21 mm below the deck top through a notch in the deck front | 0050/0051 |
 |---|---|---|
 | 2026-11-27 | Keep the LTC4417 + FET input selector rather than relays (relays lose more power at every realistic load, arc at 20 A DC, and drop all boards on changeover) | 0047 |
 | 2026-11-27 | Fan protection: **Infineon BSP452** (SOT-223, current-limited high-side switch, ~$1.26 each, ~$10 more per board than PTCs). A shorted fan lead is cut in microseconds instead of dragging the always-on group (and both Mimas) into its 5 A limit. PTC footprints stay available as the fallback | 0052 |
