@@ -148,6 +148,10 @@ def build():
             net = p['pads'].get(pad.GetNumber())
             if net:
                 pad.SetNet(nets[net])
+                if net == 'GND' and ref.startswith('U'):
+                    # fine-pitch IC ground pins: solid to the pour (a thermal
+                    # relief between neighbouring tracks can starve to one spoke)
+                    pad.SetLocalZoneConnection(pcbnew.ZONE_CONNECTION_FULL)
         x, y, rot, side = (list(L.PLACE[ref]) + [0, 'F'])[:4]
         fp.SetPosition(vec(x, y))
         if side == 'B':
