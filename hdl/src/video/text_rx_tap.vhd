@@ -8,6 +8,9 @@
 -- (UDP length - 20) bytes, so Ethernet padding/FCS are never written.
 -- No buffering and no FCS check: a corrupt frame may leave wrong characters
 -- until the next refresh.
+-- Host VLAN (issue 0062): with vlan = 0 only untagged frames, else only
+-- frames with an 802.1Q tag carrying that VID; the 4 tag bytes are skipped
+-- (parse index rewound), so the offsets above are the untagged ones.
 --
 -- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.
 library ieee;
@@ -23,7 +26,8 @@ entity text_rx_tap is
     wr_en   : out std_logic;
     wr_addr : out unsigned(14 downto 0);   -- screen(14:13) & offset (issue 0029)
     wr_data : out std_logic_vector(7 downto 0);
-    frames  : out unsigned(15 downto 0)            -- accepted TEXT_WRITE frames
+    frames  : out unsigned(15 downto 0);           -- accepted TEXT_WRITE frames
+    vlan    : in  unsigned(11 downto 0) := (others => '0')   -- host VLAN (quasi-static); 0 = untagged
   );
 end entity;
 
@@ -38,11 +42,15 @@ architecture rtl of text_rx_tap is
   signal left    : unsigned(15 downto 0) := (others => '0');
   signal cnt     : unsigned(15 downto 0) := (others => '0');
   signal m0, m1  : std_logic_vector(47 downto 0) := (others => '0');
+  signal vl      : unsigned(11 downto 0) := (others => '0');
+  signal b12     : std_logic_vector(7 downto 0) := (others => '0');
+  signal tagged  : std_logic := '0';
+  signal skip    : unsigned(1 downto 0) := "00";
+  signal vid     : unsigned(11 downto 0) := (others => '0');
 
   function want(i : natural) return std_logic_vector is
   begin
     case i is
-      when 12 => return x"08";
       when 13 => return x"00";
       when 14 => return x"45";
       when 23 => return x"11";
@@ -57,7 +65,7 @@ architecture rtl of text_rx_tap is
   end function;
   function checked(i : natural) return boolean is
   begin
-    return i = 12 or i = 13 or i = 14 or i = 23 or i = 36 or i = 37 or
+    return i = 14 or i = 23 or i = 36 or i = 37 or
            (i >= 42 and i <= 45);
   end function;
 begin
@@ -67,7 +75,7 @@ begin
     variable i : natural;
   begin
     if rising_edge(clk) then
-      m0 <= mac0; m1 <= mac1;            -- (quasi-static; one register stage)
+      m0 <= mac0; m1 <= mac1; vl <= vlan;   -- (quasi-static; one register stage)
       wr_en <= '0';
       case st is
         when S_IDLE =>
@@ -75,6 +83,7 @@ begin
             if rxd = x"D5" then st <= S_DATA; else st <= S_PRE; end if;
             idx <= (others => '0');
             ok0 <= '1'; ok1 <= '1'; ok <= '1';
+            tagged <= '0'; skip <= "00";
           end if;
         when S_PRE =>
           if rx_dv = '0' then
@@ -85,6 +94,15 @@ begin
         when S_DATA =>
           if rx_dv = '0' then
             st <= S_IDLE;
+          elsif skip /= 0 then
+            -- 802.1Q TCI
+            skip <= skip - 1;
+            if skip = 2 then vid(11 downto 8) <= unsigned(rxd(3 downto 0));
+            else vid(7 downto 0) <= unsigned(rxd); end if;
+          elsif idx = 13 and tagged = '0' and b12 = x"81" and rxd = x"00" then
+            tagged <= '1';
+            skip   <= "10";
+            idx    <= to_unsigned(12, 13);
           else
             i := to_integer(idx);
             idx <= idx + 1;
@@ -95,6 +113,11 @@ begin
               if ok0 = '0' and ok1 = '0' then ok <= '0'; end if;
             end if;
             if checked(i) and rxd /= want(i) then
+              ok <= '0';
+            end if;
+            if i = 12 then b12 <= rxd; end if;
+            if i = 13 and (b12 /= x"08" or rxd /= x"00") then ok <= '0'; end if;
+            if i = 14 and not ((vl = 0 and tagged = '0') or (vl /= 0 and tagged = '1' and vid = vl)) then
               ok <= '0';
             end if;
             if i = 38 then ulen(15 downto 8) <= unsigned(rxd); end if;

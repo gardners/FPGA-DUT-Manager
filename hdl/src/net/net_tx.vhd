@@ -30,6 +30,14 @@
 -- while capture is off for the video target (or it has no address) are
 -- discarded. Up to 42 + 52 + 3072 = 3166 bytes per frame (jumbo).
 --
+-- VLAN tags (issues 0060, 0062): the slot always holds the untagged frame;
+-- each frame's VID goes to eth_mac_tx with mac_start (mac_vid, 0 =
+-- untagged), which inserts the 802.1Q tag. Replies (ARP, ICMP, MGMT ack,
+-- JTAG response) use the VLAN their request came on; heartbeats, UART
+-- snapshots, raster, DHCP and relay frames to the forced host MAC (key
+-- 0x0041) the host VLAN (key 0x0046); relay requests and frames to a
+-- requester the inter-board VLAN (key 0x0043).
+--
 -- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.
 library ieee;
 use ieee.std_logic_1164.all;
@@ -111,6 +119,7 @@ entity net_tx is
     mac_start  : out std_logic;
     mac_base   : out unsigned(13 downto 0);
     mac_len    : out unsigned(12 downto 0);
+    mac_vid    : out unsigned(11 downto 0);   -- 802.1Q VID of this frame, 0 = untagged
     mac_busy   : in  std_logic;
     mem_we     : out std_logic;
     mem_addr   : out unsigned(13 downto 0);
@@ -130,7 +139,7 @@ architecture rtl of net_tx is
   type state_t is (S_IDLE, S_DISCARD, S_LATCH, S_HIST, S_PREP, S_CSUM, S_START, S_WRITE, S_WAIT_MAC);
   signal state : state_t := S_IDLE;
 
-  constant PF_MAX : natural := 196;   -- heartbeat: 8 + 188
+  constant PF_MAX : natural := 200;   -- heartbeat: 8 + 192
   type pf_t is array (0 to PF_MAX - 1) of byte_t;
   type hdr_t is array (0 to 41) of byte_t;
   signal hdr   : hdr_t := (others => (others => '0'));
@@ -152,6 +161,8 @@ architecture rtl of net_tx is
   signal pend_slot : std_logic := '0';
   signal pend_len  : unsigned(12 downto 0) := (others => '0');
   signal pend_valid: std_logic := '0';
+  signal fvid      : unsigned(11 downto 0) := (others => '0');   -- frame being built
+  signal pend_vid  : unsigned(11 downto 0) := (others => '0');
   signal tail_addr : unsigned(12 downto 0) := (others => '0');
 
   signal hb_cnt  : u16_arr_t := (others => (others => '0'));
@@ -298,7 +309,6 @@ begin
     variable nbytes  : unsigned(31 downto 0);
     variable wb      : byte_t;
     variable st      : dut_status_t;
-    variable tgo     : natural range 0 to 4;   -- 802.1Q tag bytes (relay frames)
   begin
     if rising_edge(clk) then
       arp_taken  <= '0';
@@ -342,6 +352,7 @@ begin
         mac_start  <= '1';
         mac_base   <= pend_slot & "0000000000000";
         mac_len    <= pend_len;
+        mac_vid    <= pend_vid;
         pend_valid <= '0';
         sent       <= sent + 1;
       end if;
@@ -616,7 +627,23 @@ begin
               end loop;
               pf(194) <= std_logic_vector(bstat.relay.wf_hwm);
               pf(195) <= std_logic_vector(bstat.relay.fifo_aw);
+              -- 196..199 network block (ADR 0005 s3e, issue 0062)
+              pf(196) <= "0000" & std_logic_vector(bcfg.host_vlan(11 downto 8));
+              pf(197) <= std_logic_vector(bcfg.host_vlan(7 downto 0));
+              pf(198) <= bu(bstat.host_vdrops, 0); pf(199) <= bu(bstat.host_vdrops, 1);
             when others => null;
+          end case;
+
+          -- VLAN of this frame (issues 0060, 0062)
+          case kind is
+            when K_ARP   => fvid <= arp.vid;
+            when K_ICMP  => fvid <= icmp.vid;
+            when K_ACK   => fvid <= ack.vid;
+            when K_JRESP => fvid <= jr(jtg).vid;
+            when K_TREQ  => fvid <= bcfg.vlan;
+            when K_THUMB =>
+              if th_pkt.tag = '1' then fvid <= bcfg.vlan; else fvid <= bcfg.host_vlan; end if;
+            when others  => fvid <= bcfg.host_vlan;
           end case;
 
           -- common custom header
@@ -650,41 +677,33 @@ begin
             total    <= to_unsigned(42, 13);
             state    <= S_START;
           elsif kind = K_THUMB or kind = K_TREQ then
-            -- raw Ethernet: [802.1Q tag,] EtherType 0x88B5, version, subtype,
-            -- magic, ... Inter-board frames (requests, frames to a requester)
-            -- carry the VLAN tag when key 0x0043 is set (issue 0060); frames
-            -- to the forced host MAC (key 0x0041) never do.
-            if bcfg.vlan /= 0 and (kind = K_TREQ or th_pkt.tag = '1') then tgo := 4; else tgo := 0; end if;
+            -- raw Ethernet: EtherType 0x88B5, version, subtype, magic, ...
+            -- (the MAC adds the VLAN tag, see fvid)
             for i in 12 to 41 loop hdr(i) <= x"00"; end loop;
-            if tgo = 4 then
-              hdr(12) <= TH_TPID(15 downto 8); hdr(13) <= TH_TPID(7 downto 0);
-              hdr(14) <= "0000" & std_logic_vector(bcfg.vlan(11 downto 8));     -- PCP 0, DEI 0
-              hdr(15) <= std_logic_vector(bcfg.vlan(7 downto 0));
-            end if;
-            hdr(12 + tgo) <= TH_ETYPE(15 downto 8); hdr(13 + tgo) <= TH_ETYPE(7 downto 0);
-            hdr(14 + tgo) <= TH_VERSION;
-            hdr(16 + tgo) <= TH_MAGIC(15 downto 8); hdr(17 + tgo) <= TH_MAGIC(7 downto 0);
+            hdr(12) <= TH_ETYPE(15 downto 8); hdr(13) <= TH_ETYPE(7 downto 0);
+            hdr(14) <= TH_VERSION;
+            hdr(16) <= TH_MAGIC(15 downto 8); hdr(17) <= TH_MAGIC(7 downto 0);
             c_len <= (others => '0');
             if kind = K_TREQ then
-              hdr(15 + tgo) <= TH_SUB_REQ;
-              hdr(18 + tgo) <= treq_scale; hdr(19 + tgo) <= treq_div;
-              hdr(20 + tgo) <= treq_flags; hdr(21 + tgo) <= treq_target;
-              a_len <= to_unsigned(14 + tgo + TH_REQ_LEN, 13);
+              hdr(15) <= TH_SUB_REQ;
+              hdr(18) <= treq_scale; hdr(19) <= treq_div;
+              hdr(20) <= treq_flags; hdr(21) <= treq_target;
+              a_len <= to_unsigned(14 + TH_REQ_LEN, 13);
               b_len <= (others => '0');
-              total <= to_unsigned(14 + tgo + TH_REQ_LEN, 13);
+              total <= to_unsigned(14 + TH_REQ_LEN, 13);
             else
-              hdr(15 + tgo) <= th_pkt.sub;
-              hdr(18 + tgo) <= "000" & std_logic_vector(th_pkt.machine);
-              hdr(19 + tgo) <= th_pkt.flags; hdr(20 + tgo) <= th_pkt.scale; hdr(21 + tgo) <= th_pkt.enc;
-              for i in 0 to 3 loop hdr(22 + tgo + i) <= bu(th_pkt.frame, i); end loop;
-              hdr(26 + tgo) <= x"00"; hdr(27 + tgo) <= std_logic_vector(th_pkt.row);
-              hdr(28 + tgo) <= x"00"; hdr(29 + tgo) <= std_logic_vector(th_pkt.nlines);
-              hdr(30 + tgo) <= bu(th_pkt.width, 0); hdr(31 + tgo) <= bu(th_pkt.width, 1);
-              hdr(32 + tgo) <= x"00"; hdr(33 + tgo) <= std_logic_vector(th_pkt.height);
-              hdr(34 + tgo) <= bu(resize(th_pkt.nbytes, 16), 0); hdr(35 + tgo) <= bu(resize(th_pkt.nbytes, 16), 1);
-              a_len <= to_unsigned(14 + tgo + TH_HDR_LEN, 13);
+              hdr(15) <= th_pkt.sub;
+              hdr(18) <= "000" & std_logic_vector(th_pkt.machine);
+              hdr(19) <= th_pkt.flags; hdr(20) <= th_pkt.scale; hdr(21) <= th_pkt.enc;
+              for i in 0 to 3 loop hdr(22 + i) <= bu(th_pkt.frame, i); end loop;
+              hdr(26) <= x"00"; hdr(27) <= std_logic_vector(th_pkt.row);
+              hdr(28) <= x"00"; hdr(29) <= std_logic_vector(th_pkt.nlines);
+              hdr(30) <= bu(th_pkt.width, 0); hdr(31) <= bu(th_pkt.width, 1);
+              hdr(32) <= x"00"; hdr(33) <= std_logic_vector(th_pkt.height);
+              hdr(34) <= bu(resize(th_pkt.nbytes, 16), 0); hdr(35) <= bu(resize(th_pkt.nbytes, 16), 1);
+              a_len <= to_unsigned(14 + TH_HDR_LEN, 13);
               b_len <= th_pkt.nbytes;
-              total <= to_unsigned(14 + tgo + TH_HDR_LEN, 13) + th_pkt.nbytes;
+              total <= to_unsigned(14 + TH_HDR_LEN, 13) + th_pkt.nbytes;
             end if;
             state <= S_START;
           else
@@ -839,6 +858,7 @@ begin
             pend_valid <= '1';
             pend_slot  <= bslot;
             pend_len   <= total;
+            pend_vid   <= fvid;
             bslot      <= not bslot;
             state      <= S_IDLE;
           end if;

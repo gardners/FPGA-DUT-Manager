@@ -148,6 +148,8 @@ architecture rtl of supervisor_core is
   signal rxm_wd, rxm_rd : std_logic_vector(7 downto 0);
   signal rx_tog, rel_tog : std_logic_vector(1 downto 0);
   signal len0, len1 : unsigned(11 downto 0);
+  signal tag0, tag1 : unsigned(12 downto 0);
+  signal mac_vid    : unsigned(11 downto 0);
   signal s_good, s_crc, s_drop : std_logic;
   signal good_t, bad_t : std_logic := '0';
   signal ob_good_t, ob_bad_t : std_logic;
@@ -327,6 +329,11 @@ architecture rtl of supervisor_core is
   signal dhcp_tx : dhcp_tx_arr_t;
   signal ids_prev : unsigned(9 downto 0) := (others => '1');
   signal id_restart : std_logic := '0';
+  -- host VLAN change (issue 0062): DHCP starts over on the new VLAN a few
+  -- ms after the change, once the MGMT ack has gone out with the old address
+  signal hv_prev    : unsigned(11 downto 0) := (others => '0');
+  signal hv_wait    : unsigned(2 downto 0) := (others => '0');
+  signal dhcp_restart : std_logic := '0';
 begin
   ---------------------------------------------------------------- timers
   process (clk_sys)
@@ -387,7 +394,7 @@ begin
   ---------------------------------------------------------------- MAC RX
   mrx : entity work.eth_mac_rx
     port map (clk_rx, rx_dv, rx_er, rxd, rxm_we, rxm_wa, rxm_wd,
-              rx_tog, rel_tog, len0, len1, s_good, s_crc, s_drop);
+              rx_tog, rel_tog, len0, len1, tag0, tag1, s_good, s_crc, s_drop);
   rxmem : entity work.dpram generic map (12, 8)
     port map (clk_rx, rxm_we, rxm_wa, rxm_wd, clk_sys, rxm_ra, rxm_rd);
 
@@ -417,6 +424,7 @@ begin
       clk => clk_sys, dut_id0 => id0, dut_id1 => id1, ep_enable => ep_enable,
       ip_eff => ip_eff, dna => dna,
       rx_toggle => rx_tog, rel_toggle => rel_tog, len0 => len0, len1 => len1,
+      tag0 => tag0, tag1 => tag1,
       mem_addr => rxm_ra, mem_data => rxm_rd,
       cfg => cfg, bcfg => bcfg, kbd_udp => kbd_udp, kbd_strobe => kbd_strobe,
       adm_valid => adm_valid, adm_offset => adm_offset, adm_count => adm_count,
@@ -433,12 +441,12 @@ begin
       ack => ack, ack_cmd => ack_cmd, ack_key => ack_key, ack_status => ack_status,
       ack_taken => ack_taken, jr => jr, jr_status => jr_status, jr_seq => jr_seq,
       jr_taken => jr_taken, dhcp_strobe => dhcp_strobe, dhcp_rx => dhcp_rx,
-      rx_rejects => rx_rejects);
+      rx_rejects => rx_rejects, vlan_drops => bstat.host_vdrops);
 
   ---------------------------------------------------------------- text tap
   ttap : entity work.text_rx_tap
     port map (clk => clk_rx, rx_dv => rx_dv, rxd => rxd,
-              mac0 => cfg(0).mac, mac1 => cfg(1).mac,
+              mac0 => cfg(0).mac, mac1 => cfg(1).mac, vlan => bcfg.host_vlan,
               wr_en => text_we, wr_addr => text_addr, wr_data => text_data,
               frames => open);
   addr_src0   <= dstat(0).addr_src;
@@ -454,10 +462,20 @@ begin
   process (clk_sys)
   begin
     if rising_edge(clk_sys) then
-      id_restart <= '0';
+      id_restart   <= '0';
+      dhcp_restart <= '0';
       if ids_prev /= (id1 & id0) then
         ids_prev   <= id1 & id0;
         id_restart <= '1';
+      end if;
+      -- host VLAN changed: drop the leases (DHCP starts over, tagged as
+      -- the new key says) 4..5 ms later; static addresses are kept
+      if hv_prev /= bcfg.host_vlan then
+        hv_prev <= bcfg.host_vlan;
+        hv_wait <= to_unsigned(5, 3);
+      elsif hv_wait /= 0 and tick_1ms = '1' then
+        hv_wait <= hv_wait - 1;
+        if hv_wait = 1 then dhcp_restart <= '1'; end if;
       end if;
     end if;
   end process;
@@ -484,7 +502,7 @@ begin
       th_valid => tp_valid, th_pkt => tp, th_taken => tp_taken, th_raddr => tp_raddr,
       th_rdata => tp_rdata, treq_valid => tq_valid, treq_scale => tq_sc, treq_div => tq_dv,
       treq_flags => tq_fl, treq_target => tq_tg, treq_taken => tq_taken,
-      mac_start => mac_start, mac_base => mac_base, mac_len => mac_len,
+      mac_start => mac_start, mac_base => mac_base, mac_len => mac_len, mac_vid => mac_vid,
       mac_busy => mac_busy, mem_we => txm_we, mem_addr => txm_wa,
       mem_data => txm_wd, frames_sent => frames_sent);
 
@@ -492,7 +510,7 @@ begin
     port map (clk_sys, txm_we, txm_wa, txm_wd, clk_sys, txm_ra, txm_rd);
   mtx : entity work.eth_mac_tx
     generic map (ADDR_W => 14, LEN_W => 13)
-    port map (clk_sys, mac_start, mac_base, mac_len, mac_busy, mac_done,
+    port map (clk_sys, mac_start, mac_base, mac_len, mac_vid, mac_busy, mac_done,
               txm_ra, txm_rd, tx_en, txd);
 
   ---------------------------------------------------------------- per DUT
@@ -528,7 +546,7 @@ begin
         generic map (FALLBACK_MS => DHCP_FALLBACK_MS, MS_PER_S => DHCP_MS_PER_S)
         port map (
           clk => clk_sys, tick_1ms => tick_1ms,
-          enable => cfg(i).dhcp_en and ep_enable(i), restart => id_restart,
+          enable => cfg(i).dhcp_en and ep_enable(i), restart => id_restart or dhcp_restart,
           xid_base => x"4D3635" & "000" & std_logic_vector(id),
           rx_strobe => dhcp_strobe(i), rx_type => dhcp_rx.typ, rx_xid => dhcp_rx.xid,
           rx_yiaddr => dhcp_rx.yiaddr, rx_server => dhcp_rx.server,

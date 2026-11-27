@@ -11,6 +11,20 @@
 --   UDP 6507 JTAG_REQ               -> jtag_engine admission + vector copy
 -- Owns all host-writable configuration registers.
 --
+-- Host VLAN (key 0x0046, issue 0062). eth_mac_rx strips an 802.1Q tag and
+-- reports it per slot, so all offsets below are the untagged ones.
+--   key 0:      untagged frames only (as before); tagged frames dropped.
+--   key V /= 0: frames tagged with VID V: everything as before.
+--               untagged frames: recovery only -- ARP requests, ICMP echo
+--               and unicast MGMT_SET (and broadcast SET_IDENTITY), so a
+--               host on the untagged LAN can still reach the board and
+--               set the key back; DHCP replies, keyboard, UART, JTAG and
+--               text are dropped.
+--   any other tag (other VID, VID 0 priority tags) -> dropped.
+-- Dropped frames count in vlan_drops. Replies (ARP, ICMP, MGMT ack, JTAG
+-- response) go back on the VLAN the request came on (reply_t.vid), so the
+-- ack of a key 0x0046 change still reaches the host that sent it.
+--
 -- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.
 library ieee;
 use ieee.std_logic_1164.all;
@@ -31,6 +45,7 @@ entity net_rx is
     rx_toggle  : in  std_logic_vector(1 downto 0);   -- async from clk_rx
     rel_toggle : out std_logic_vector(1 downto 0);
     len0, len1 : in  unsigned(11 downto 0);
+    tag0, tag1 : in  unsigned(12 downto 0) := (others => '0');   -- b12 tagged, VID (issue 0062)
     mem_addr   : out unsigned(11 downto 0);
     mem_data   : in  std_logic_vector(7 downto 0);
     -- configuration
@@ -87,7 +102,8 @@ entity net_rx is
     dhcp_strobe: out std_logic_vector(1 downto 0);
     dhcp_rx    : out dhcp_rx_t;
     -- statistics
-    rx_rejects : out u16_arr_t
+    rx_rejects : out u16_arr_t;
+    vlan_drops : out unsigned(15 downto 0)    -- frames dropped for their VLAN (issue 0062)
   );
 end entity;
 
@@ -106,6 +122,11 @@ architecture rtl of net_rx is
   signal rxs1, rxs2, rel : std_logic_vector(1 downto 0) := "00";
   signal cur     : std_logic := '0';
   signal flen    : unsigned(11 downto 0) := (others => '0');
+  signal ftag    : unsigned(12 downto 0) := (others => '0');   -- this frame's tag (issue 0062)
+  signal rvid    : unsigned(11 downto 0) := (others => '0');   -- VLAN for replies to it
+  signal v_full  : boolean := false;   -- VLAN class: everything allowed
+  signal f_vok   : boolean := false;   -- VLAN class allows this frame (issue 0062)
+  signal vdrops  : unsigned(15 downto 0) := (others => '0');
   signal ra, ca  : unsigned(11 downto 0) := (others => '0');
   signal rd_on   : std_logic := '0';
   signal csum    : unsigned(15 downto 0) := (others => '0');
@@ -120,7 +141,7 @@ architecture rtl of net_rx is
   signal cfg_init: std_logic := '0';
   signal bcfg_r  : board_cfg_t := (x"FF", x"FF", '1', "00", (others => '0'), x"00", (others => '0'), x"00",
                                    (others => '0'), x"01", x"02", x"00", x"00", '0', "01", "00",
-                                   DEFAULT_VLAN, "00", '1');
+                                   DEFAULT_VLAN, "00", '1', (others => '0'));
   signal last_cmd: u16_arr_t := (others => (others => '0'));
   signal last_cmd_v : std_logic_vector(1 downto 0) := "00";
   signal mgmt_arm : std_logic := '0';
@@ -199,6 +220,7 @@ begin
   jr_status  <= jrst_r;
   jr_seq     <= jrseq_r;
   rx_rejects <= rej;
+  vlan_drops <= vdrops;
   mem_addr   <= ra;
 
   -- registered read port (1-cycle latency like the other tail memories)
@@ -231,6 +253,7 @@ begin
     variable dhcp_hit : boolean;
     variable t        : integer range 0 to 2;
     variable ob       : byte_t;
+    variable vf, vr   : boolean;
 
   begin
     if rising_edge(clk) then
@@ -282,7 +305,7 @@ begin
       case state is
         when S_WAIT =>
           if (cur = '0' and rxs2(0) /= rel(0)) or (cur = '1' and rxs2(1) /= rel(1)) then
-            if cur = '0' then flen <= len0; else flen <= len1; end if;
+            if cur = '0' then flen <= len0; ftag <= tag0; else flen <= len1; ftag <= tag1; end if;
             ra    <= cur & "00000000000";
             ca    <= (others => '0');
             h     <= (others => (others => '0'));
@@ -321,6 +344,16 @@ begin
           typ      := h(45);
           dport    := to_integer(be16(h, 36));
           plen     := be16(h, 46);
+          -- VLAN class (issue 0062): full, or recovery (untagged while the
+          -- key is set: ARP, ICMP, UDP to the MGMT port only)
+          vf := (bcfg_r.host_vlan = 0 and ftag(12) = '0') or
+                (bcfg_r.host_vlan /= 0 and ftag(12) = '1' and ftag(11 downto 0) = bcfg_r.host_vlan);
+          vr := bcfg_r.host_vlan /= 0 and ftag(12) = '0';
+          v_full <= vf;
+          f_vok  <= vf or (vr and ((h(12) = x"08" and h(13) = x"06") or
+                                   (h(12) = x"08" and h(13) = x"00" and
+                                    (h(23) = x"01" or (h(23) = x"11" and dport = PORT_MGMT)))));
+          if ftag(12) = '1' then rvid <= ftag(11 downto 0); else rvid <= (others => '0'); end if;
           f_arp <= h(12) = x"08" and h(13) = x"06" and be16(h, 14) = 1 and
                    be16(h, 16) = 16#0800# and h(18) = x"06" and h(19) = x"04" and
                    be16(h, 20) = 1;
@@ -378,7 +411,9 @@ begin
           matched := false;
           bcast   := false;
           dd      := 0;
-          if f_arp then
+          if not f_vok then
+            vdrops <= vdrops + 1;       -- wrong VLAN, or not allowed untagged (issue 0062)
+          elsif f_arp then
             -- ARP request (Ethernet/IPv4) for one of our addresses?
             for i in 0 to 1 loop
               if f_arp_ip(i) = '1' then
@@ -397,7 +432,7 @@ begin
             end loop;
             -- DHCP replies (UDP 67 -> 68): match on chaddr, any dst IP
             dhcp_hit := false;
-            if f_dhcp then
+            if f_dhcp and v_full then
               for i in 0 to 1 loop
                 if f_dhcp_mac(i) = '1' then
                   dhcp_hit := true; dd := i;
@@ -458,13 +493,13 @@ begin
 
         when S_ARP =>
           if arp_r.pend = '0' then
-            arp_r <= ('1', d, slv48(h, 22), slv32(h, 28), (others => '0'));
+            arp_r <= ('1', d, slv48(h, 22), slv32(h, 28), (others => '0'), rvid);
             state <= S_RELEASE;
           end if;
 
         when S_ICMP =>
           if icmp_r.pend = '0' then
-            icmp_r <= ('1', d, slv48(h, 6), slv32(h, 26), (others => '0'));
+            icmp_r <= ('1', d, slv48(h, 6), slv32(h, 26), (others => '0'), rvid);
             icmp_len_r <= resize(be16(h, 16) - 20, 7);
             for i in 0 to 71 loop
               icmp_buf(i) <= h(34 + i);
@@ -559,6 +594,9 @@ begin
                 when K_VLAN =>
                   if vlen = 2 and be16(h, 56) <= 4094 then bcfg_r.vlan <= resize(be16(h, 56), 12);
                   elsif vlen = 2 then st := ST_BAD_VALUE; else st := ST_BAD_LEN; end if;
+                when K_HOST_VLAN =>
+                  if vlen = 2 and be16(h, 56) <= 4094 then bcfg_r.host_vlan <= resize(be16(h, 56), 12);
+                  elsif vlen = 2 then st := ST_BAD_VALUE; else st := ST_BAD_LEN; end if;
                 when K_HDMI_OWNER =>
                   if vlen = 1 and unsigned(h(56)) <= 3 then bcfg_r.hdmi_own <= h(56)(1 downto 0);
                   elsif vlen = 1 then st := ST_BAD_VALUE; else st := ST_BAD_LEN; end if;
@@ -592,7 +630,7 @@ begin
                 bcfg_r.cfg_gen <= bcfg_r.cfg_gen + 1;
               end if;
             end if;
-            ack_r     <= ('1', d, slv48(h, 6), slv32(h, 26), h(34) & h(35));
+            ack_r     <= ('1', d, slv48(h, 6), slv32(h, 26), h(34) & h(35), rvid);
             ack_cmd_r <= h(50) & h(51);
             ack_key_r <= h(52) & h(53);
             ack_st_r  <= st;
@@ -657,7 +695,7 @@ begin
             null;                       -- wait for previous response to go
           elsif f_jbad then
             -- malformed: answer without involving the engine
-            jr_r(t)    <= ('1', d, slv48(h, 6), slv32(h, 26), h(34) & h(35));
+            jr_r(t)    <= ('1', d, slv48(h, 6), slv32(h, 26), h(34) & h(35), rvid);
             jrst_r(t)  <= JS_BAD_FMT;
             jrseq_r(t) <= be32(h, 50);
             rej(d)     <= rej(d) + 1;
@@ -683,6 +721,7 @@ begin
             jr_r(jt).mac    <= slv48(h, 6);
             jr_r(jt).ip     <= slv32(h, 26);
             jr_r(jt).port_n <= h(34) & h(35);
+            jr_r(jt).vid    <= rvid;
             jrseq_r(jt)     <= j_seq;
             case code is
               when "000" =>              -- accepted: copy vectors

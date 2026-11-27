@@ -17,6 +17,13 @@
 -- answer an oversize JTAG_REQ with "bad format" instead of silence
 -- (issue 0059).
 --
+-- 802.1Q (issue 0062): a frame whose bytes 12..13 are 0x8100 is stored
+-- without its 4-byte tag (the EtherType lands at slot offset 12 as in an
+-- untagged frame, so every consumer offset is the untagged one); tag0/tag1
+-- report tagged (bit 12) and the VID (11..0) per slot, stable like the
+-- lengths. Only the outer tag is removed. A tagged frame needs 64 bytes on
+-- the wire incl. FCS (60 stored).
+--
 -- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.
 library ieee;
 use ieee.std_logic_1164.all;
@@ -36,7 +43,8 @@ entity eth_mac_rx is
     -- handshake
     rx_toggle  : out std_logic_vector(1 downto 0);
     rel_toggle : in  std_logic_vector(1 downto 0);  -- from sys domain (async)
-    len0, len1 : out unsigned(11 downto 0);         -- frame length excl. FCS
+    len0, len1 : out unsigned(11 downto 0);         -- frame length excl. FCS (and tag)
+    tag0, tag1 : out unsigned(12 downto 0);         -- b12 tagged, b11..0 VID (issue 0062)
     -- statistics strobes (clk_rx)
     stat_good, stat_crc_err, stat_drop : out std_logic
   );
@@ -53,12 +61,19 @@ architecture rtl of eth_mac_rx is
   signal err     : std_logic := '0';
   signal ovf     : std_logic := '0';      -- frame longer than a slot
   signal l0, l1  : unsigned(11 downto 0) := (others => '0');
+  signal t0, t1  : unsigned(12 downto 0) := (others => '0');
+  signal b12     : std_logic_vector(7 downto 0) := (others => '0');
+  signal tagged  : std_logic := '0';
+  signal skip    : unsigned(1 downto 0) := "00";  -- TCI bytes still to drop
+  signal vid     : unsigned(11 downto 0) := (others => '0');
   attribute ASYNC_REG : string;
   attribute ASYNC_REG of rel_s1, rel_s2 : signal is "TRUE";
 begin
   rx_toggle <= rxt;
   len0 <= l0;
   len1 <= l1;
+  tag0 <= t0;
+  tag1 <= t1;
 
   process (clk)
     variable s : integer range 0 to 1;
@@ -88,6 +103,8 @@ begin
             crc <= (others => '1');
             err <= rx_er;
             ovf <= '0';
+            tagged <= '0';
+            skip   <= "00";
           end if;
 
         when S_PRE =>
@@ -102,7 +119,19 @@ begin
         when S_DATA =>
           if rx_dv = '1' then
             if rx_er = '1' then err <= '1'; end if;
-            if idx = 2047 then
+            if skip /= 0 then
+              -- 802.1Q TCI: not stored
+              crc  <= crc32_byte(crc, rxd);
+              skip <= skip - 1;
+              if skip = 2 then vid(11 downto 8) <= unsigned(rxd(3 downto 0));
+              else vid(7 downto 0) <= unsigned(rxd); end if;
+            elsif idx = 13 and tagged = '0' and b12 = x"81" and rxd = x"00" then
+              -- TPID: rewind over byte 12, drop this byte and the TCI
+              tagged <= '1';
+              skip   <= "10";
+              idx    <= to_unsigned(12, 12);
+              crc    <= crc32_byte(crc, rxd);
+            elsif idx = 2047 then
               -- too long for a slot: keep the head, stop storing, keep
               -- checking the FCS (issue 0059)
               if ovf = '0' then
@@ -115,13 +144,15 @@ begin
               mem_addr <= slot & idx(10 downto 0);
               mem_data <= rxd;
               idx      <= idx + 1;
+              if idx = 12 then b12 <= rxd; end if;
               crc      <= crc32_byte(crc, rxd);
             end if;
           else
             -- end of frame: idx = bytes incl. FCS
-            if err = '0' and crc = CRC32_RESIDUE and idx >= 64 then
+            if err = '0' and crc = CRC32_RESIDUE and (idx >= 64 or (tagged = '1' and idx >= 60)) then
               s := 0;
               if slot = '1' then s := 1; end if;
+              if s = 0 then t0 <= tagged & vid; else t1 <= tagged & vid; end if;
               if ovf = '1' then
                 -- truncated head: all 2047 stored bytes are frame data
                 if s = 0 then l0 <= idx; else l1 <= idx; end if;
