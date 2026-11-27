@@ -123,3 +123,29 @@ silkscreen and engraving updated; ERC/DRC, then re-route with
 * `make -B pcb-routing`: 666 tracks, 68 vias, 0 incomplete. One starved
   thermal (U2 GND pin) fixed in the generator: IC GND pads connect solid to
   the pours. **ERC 0; DRC 0 violations, 0 unconnected**, schematic parity.
+
+## 2026-11-27 owner answer (round 13): LCD part
+
+The owner has no LCD yet: use a cheap 16x2 module that Jaycar sells, ideally
+one with an I2C backpack matching J2 (the PCA9306 I2C LCD header). Record the
+Jaycar part number, outline, holes, bezel and view area (datasheet vs
+typical); update the case `lcd` block and `tools/layout.py` if they differ
+from the 80 x 36 / 75 x 31 assumptions, and fix J2's pin order if the
+backpack's differs (re-route, DRC 0). Agent, branch `feature/rack-case-4`.
+
+## 2026-11-27 progress: Jaycar LCD (agent, branch feature/rack-case-4)
+
+* Chosen: **Jaycar QP5521** (16x2 white on blue, HD44780, 5 V, 16-pin SIL,
+  4 mounting holes; listing: screen 65.0 x 14.0 mm; "suits XC3706") +
+  **Jaycar XC3706** I2C port expander (PCF8574 FC-113 backpack, default
+  address 0x27, 50 x 25 x 10 mm, header GND VCC SDA SCL per its manual).
+* J2's order (1 GND, 2 VCC, 3 SDA, 4 SCL) already matches the XC3706: no
+  connector or circuit change. JP1 at 1-2 (5 V).
+* Jaycar gives no outline drawing (and jaycar.com.au refuses automated
+  fetches), so the outline 80 x 36, holes 75 x 31 and bezel 71.2 x 24.2 stay
+  the typical 1602A values (MEASURE on arrival). Only the viewing area
+  changed to Jaycar's 65 x 14 (panel window 67.5 x 16.5, same centre); in the
+  board that is a Dwgs.User drawing and panel-holes.json. The case cuts the
+  bezel opening, which did not change.
+* `make -B pcb-routing`: 632 tracks, 70 vias; **ERC 0, DRC 0 violations,
+  0 unconnected**.

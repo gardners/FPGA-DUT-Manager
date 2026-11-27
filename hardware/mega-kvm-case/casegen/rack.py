@@ -93,7 +93,13 @@ class Geo:
         for i in range(n):
             xc = self.W / 2 + (i - (n - 1) / 2) * pitch
             where = F['stagger'][i % len(F['stagger'])]
-            zc = F['edge'] + s / 2 if where == 'low' else self.FH - F['edge'] - s / 2
+            if where == 'low':
+                z0 = F['edge']
+                if S['fan_clearance'] == 'setback' and F.get('low_above_deck', True):
+                    z0 = max(z0, self.top + F['deck_gap'])    # clear of the carrier's own deck: no notches
+                zc = z0 + s / 2
+            else:
+                zc = self.FH - F['edge'] - s / 2
             self.fans.append({'i': i, 'x0': xc - s / 2, 'x1': xc + s / 2, 'xc': xc, 'zc': zc,
                               'z0': zc - s / 2, 'z1': zc + s / 2, 'where': where})
         self.nd = self.fspec['thick'] + S['notch_extra']     # notch depth
@@ -131,6 +137,7 @@ class Geo:
                 merged.append((a, b2))
         self.notches = merged
         self.cross = sorted(cross)
+        self.ndeff = self.nd if merged else 0.0              # notched front band of the decks (0: none)
         # MEGA65 placement on the deck
         fl = fp.FLOPPY if S['floppy'] else None
         span = b['w'] + ((S['floppy_gap'] + fl['w']) if fl else 0.0)
@@ -159,7 +166,7 @@ def shelf_deck(g):
     for x0 in (0.0, W - BT):
         p.ref.append(RRect(x0 + BT / 2, D / 2, BT, D, 0))
     for x in (BT, W - BT):
-        dashed(p, x, 4.0, x, D - g.nd - 3.0)
+        dashed(p, x, 4.0, x, D - g.ndeff - 3.0)
     for x, rot in ((BT / 2, True), (W - BT / 2, True)):
         for pl in font.text_vertical('EDGE STRIP: PARTS UNDER %.0f MM' % (g.clear_edge - S['clear_top']), x, D * 0.55, 3.0):
             p.line(pl)
@@ -222,7 +229,7 @@ def shelf_deck(g):
     sb = S['strain_bar']
     for s in (-1, 1):
         p.cut(RRect(W / 2 + s * sb['tab_u'], V(D - sb['from_rear']), sb['tab_w'] + 0.2, g.T + 0.2, 0))
-    label(p, 'FRONT', W / 2, V(g.nd + 3.5), 3.0)
+    label(p, 'FRONT', W / 2, V(g.ndeff + 3.5), 3.0)
     label(p, 'CABLE LOOPS / STRAIN RELIEF', W / 2, V(D - sb['from_rear'] - 9), 2.5)
     return p
 
@@ -251,6 +258,14 @@ def strain_bar(g):
     return p
 
 
+def logo_band(g, f):
+    """Free band (z0, z1) for a logo above or below fan f, whichever is taller."""
+    e = g.cfg.FAN_PLATE['edge']
+    above = (f['z1'] + 3.0, g.FH - e - 3.0)
+    below = (e + 3.0, f['z0'] - 3.0)
+    return max(above, below, key=lambda b: b[1] - b[0])
+
+
 def fan_plate(g):
     cfg = g.cfg
     F = cfg.FAN_PLATE
@@ -270,9 +285,9 @@ def fan_plate(g):
             p.cut(Circle(du + x, V(g.top + g.gus['h'] * fz), 1.75))
     for name, i in F['logos']:
         f = g.fans[i]
-        ztop = f['z1'] + 3.0
-        hh = min(cfg.LOGOS[name]['h'], H - F['edge'] - ztop - 3.0)
-        notes.append(logos.slot(cfg, p, name, du + f['xc'], V((ztop + H) / 2), min(cfg.LOGOS[name]['w'], F['fan'] - 6), hh))
+        za, zb = logo_band(g, f)
+        hh = min(cfg.LOGOS[name]['h'], zb - za)
+        notes.append(logos.slot(cfg, p, name, du + f['xc'], V((za + zb) / 2), min(cfg.LOGOS[name]['w'], F['fan'] - 6), hh))
     hi = [f for f in g.fans if f['where'] == 'high']
     if hi and F['text']:
         f = hi[0]
@@ -706,8 +721,8 @@ def group_check(g):
         xs.append(W)
         for i in range(0, len(xs), 2):
             if xs[i + 1] - xs[i] > 0.01:
-                solids.append(('shelf %d deck' % (k + 1), Box('d', xs[i], xs[i + 1], y0, y0 + g.nd, z + BT, z + top)))
-        solids.append(('shelf %d deck' % (k + 1), Box('d', 0, W, y0 + g.nd, y0 + g.D, z + BT, z + top)))
+                solids.append(('shelf %d deck' % (k + 1), Box('d', xs[i], xs[i + 1], y0, y0 + g.ndeff, z + BT, z + top)))
+        solids.append(('shelf %d deck' % (k + 1), Box('d', 0, W, y0 + g.ndeff, y0 + g.D, z + BT, z + top)))
     probs = []
     for name, it in items:
         best = None
@@ -790,7 +805,8 @@ def elevation(g, kv, path):
             for name, i in cfg.FAN_PLATE['logos']:
                 f = g.fans[i]
                 sp = cfg.LOGOS[name]
-                zc = (f['z1'] + 3 + g.FH) / 2
+                za, zb = logo_band(g, f)
+                zc = (za + zb) / 2
                 d.rect(cx - FW / 2 + g.du + f['xc'] - 55, Y(z0 + zc - 12), cx - FW / 2 + g.du + f['xc'] + 55,
                        Y(z0 + zc + 12), fill='#dddddd', stroke='#333', sw=0.3)
                 d.text(cx - FW / 2 + g.du + f['xc'], Y(z0 + zc) + 1.5, sp['label'] + ' logo', size=4)
@@ -884,7 +900,7 @@ def build(cfg, boards, fp, log=print):
     b, fl = fp.BOARD, fp.FLOPPY
     lim = g.clear_mid - cfg.SHELF['clear_top']
     lim_e = g.clear_edge - cfg.SHELF['clear_top']
-    hrows = [('MEGA65 board + tallest part', b['standoff'] + 1.6 + b['tallest'], lim, 'ASSUMED tallest part')]
+    hrows = [('MEGA65 board + tallest part', b['standoff'] + 1.6 + b['tallest'], lim, 'IEC socket, see below')]
     if g.fx is not None:
         hrows.append(('floppy drive on its spacers', fl['spacer'] + fl['h'], lim, 'rugged-case 5 mm nylon spacer'))
     hrows.append(('strain-relief bar', cfg.SHELF['strain_bar']['h'], lim, ''))
@@ -892,6 +908,26 @@ def build(cfg, boards, fp, log=print):
     for name, hh, L, note in hrows:
         if hh > L:
             problems.append('%s: %.1f mm tall, only %.1f mm under the next deck' % (name, hh, L))
+    # tall parts vs the next shelf: its deck (between the battens) and its battens (edge strips)
+    tall = []
+    parts_ = [(tp['name'], g.bx + tp['x0'], g.bx + tp['x1'], b['standoff'] + 1.6 + tp['h'], tp['src'])
+              for tp in getattr(fp, 'TALL_PARTS', [])]
+    parts_.append(('MEGA65 board outline', g.bx, g.bx + b['w'], b['standoff'] + 1.6, 'DIM drawing'))
+    if g.fx is not None:
+        parts_.append(('floppy drive', g.fx - fl['w'] / 2, g.fx + fl['w'] / 2, fl['spacer'] + fl['h'],
+                       'standard 3.5 in drive on 5 mm spacers'))
+    for name, x0, x1, hh, src in parts_:
+        under = x0 < g.BT or x1 > g.W - g.BT
+        side = min(x0 - g.BT, (g.W - g.BT) - x1)            # lateral gap to the nearer batten (<0: under it)
+        L = lim_e if under else lim
+        tall.append((name, x0, x1, hh, g.clear_mid - hh, g.clear_edge - hh, side, under, src))
+        if hh > L:
+            problems.append('%s: %.1f mm above the deck %s (limit %.1f)' % (
+                name, hh, 'UNDER a batten of the next shelf' if under else 'under the next deck', L))
+        elif under and hh > lim_e:
+            problems.append('%s reaches under a batten of the next shelf' % name)
+    if g.bx < g.BT or g.bx + b['w'] > g.W - g.BT:
+        problems.append('MEGA65 board outline is not inside the between-battens zone')
     # horizontal checks on the shelf
     inner = g.W - 2 * g.BT
     if g.span > inner:
@@ -901,8 +937,10 @@ def build(cfg, boards, fp, log=print):
     bar_y = g.D - cfg.SHELF['strain_bar']['from_rear'] - g.T / 2
     if cart_end > bar_y - 2:
         problems.append('Cart64out rear edge (y %.1f) reaches the strain-relief bar (y %.1f)' % (cart_end, bar_y))
-    if g.by < g.nd + 2:
+    if g.notches and g.by < g.nd + 2:
         problems.append('front allowance %.0f mm < notch depth %.0f mm + 2' % (g.by, g.nd))
+    if cfg.SHELF['fan_clearance'] == 'setback' and g.notches:
+        problems.append('set-back mode but the shelf decks still need fan notches')
     fl_end = (g.fy + fl['d']) if g.fx is not None else 0
     for (x, yr, w, h) in cfg.SHELF['cable_slots']:
         y = g.D - yr
@@ -928,5 +966,5 @@ def build(cfg, boards, fp, log=print):
                 problems.append('KVM deck: a hole at (%.1f, %.1f) lands on an under-deck gusset' % (hx, hy))
     parts = [deck, bar, plate, gus, kv['front'], kv['deck'], kv['rear'], kv['gusset']]
     return {'geo': g, 'kvm': kv, 'parts': parts, 'problems': problems, 'notes': notes, 'group_rows': rows,
-            'heights': hrows, 'lim': lim, 'lim_e': lim_e, 'logo_notes': logo_notes + kv['logo_notes'],
+            'heights': hrows, 'tall': tall, 'lim': lim, 'lim_e': lim_e, 'logo_notes': logo_notes + kv['logo_notes'],
             'kclear': kclear, 'cart_end': cart_end, 'bar_y': bar_y}

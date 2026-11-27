@@ -182,6 +182,8 @@
    "high",
    "low"
   ],
+  "low_above_deck": true,
+  "deck_gap": 2.0,
   "guard": "grille",
   "grille_hole": 6.0,
   "grille_pitch": 7.5,
@@ -225,6 +227,11 @@
     31.0
    ],
    "hole_d": 2.7,
+   "view": [
+    65.0,
+    14.0
+   ],
+   "part": "Jaycar QP5521 + XC3706",
    "depth": 27.0
   },
   "led_d": 3.1,
@@ -479,6 +486,10 @@
    600.0
   ]
  },
+ "RAILS": {
+  "thick": 12.7,
+  "status": "ASSUMED"
+ },
  "RU": 44.45,
  "SHEETS": {
   "mdf": [
@@ -492,13 +503,13 @@
  },
  "SHEET_MARGIN": 5.0,
  "SHELF": {
-  "deck_w": 425.0,
+  "deck_w": 424.6,
   "batten": 25.0,
   "front_allow": 35.0,
   "rear_space": 100.0,
   "depth": null,
   "clear_top": 1.0,
-  "fan_clearance": "notch",
+  "fan_clearance": "setback",
   "setback": null,
   "notch_clear": 1.0,
   "notch_extra": 3.0,

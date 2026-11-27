@@ -133,8 +133,13 @@ FAN = {'size': 40.0, 'thick': 10.0, 'count': 2,       # Noctua NF-A4x10 FLX (12 
        'wall_gap': 2.0}   # fan -> wall inner face (keeps a web next to the base fingers)
 
 FRONT = {               # front panel items (issue 0050)
+    # Jaycar QP5521 16x2 (white on blue, 5 V) + XC3706 PCF8574 I2C backpack (owner round 13).
+    # Jaycar: viewing area 65.0 x 14.0; backpack 50 x 25 x 10. Outline 80 x 36, holes 75 x 31
+    # and bezel 71.2 x 24.2 are typical 1602A values (Jaycar gives none: MEASURE on arrival).
+    # The rack KVM front reads its cut-outs from panel-holes.json; this block is for options A/B.
     'lcd': {'window': (71.6, 24.6), 'module': (80.0, 36.0), 'holes': (75.0, 31.0), 'hole_d': 2.7,
-            'depth': 27.0},            # 1602 module with I2C backpack; window = bezel 71.2 x 24.2 + 0.4
+            'view': (65.0, 14.0), 'part': 'Jaycar QP5521 + XC3706',
+            'depth': 27.0},            # window = bezel 71.2 x 24.2 + 0.4; depth: module ~10 + backpack 10 + header/lead
     'led_d': 3.1, 'led_pitch': 6.0,    # 3 mm LEDs (or light pipes from the 0050 PCB)
     'buttons': ['PREV', 'NEXT', 'SCAN', 'FIXED', 'PIP'],
     'button_d': 7.0, 'button_pitch': 10.5,   # 7 mm panel momentary or tact-switch caps (ASSUMED)
@@ -211,8 +216,15 @@ RACK = {
     'depth_posts': 600.0,       # front post face -> rear post face, elevation drawing only (MEASURE)
 }
 
+RAILS = {
+    # Server slide rails between each deck/batten edge and the rack post. ASSUMED
+    # standard 1/2 inch (12.7 mm) per side (owner round 13): MEASURE the real rails.
+    'thick': 12.7,
+    'status': 'ASSUMED',
+}
+
 SHELF = {
-    'deck_w': 425.0,            # 450 between posts - ~12.5 per slide (depends on the rails)
+    'deck_w': RACK['post_opening'] - 2 * RAILS['thick'],   # 450 - 2 x 12.7 = 424.6
     'batten': 25.0,             # 25 x 25 mm timber battens UNDER both deck edges (not cut: drill guide)
     'front_allow': 35.0,        # deck front -> first MEGA65 part (>= fan notch depth + margin)
     'rear_space': 100.0,        # free deck behind the MEGA65 board (cartridge / Cart64out), owner
@@ -224,7 +236,7 @@ SHELF = {
     #  'setback' the other shelves of a group are set back on their rails by
     #            'setback' (None = the minimum); notches only where the carrier
     #            shelf's own deck meets its fans.
-    'fan_clearance': 'notch',
+    'fan_clearance': 'setback',
     'setback': None,
     'notch_clear': 1.0,         # fan frame -> notch edge, sideways
     'notch_extra': 3.0,         # notch depth = fan thickness + this
@@ -252,12 +264,14 @@ FAN_PLATE = {
     'gap': 5.0,                 # between fan frames (3 x 120 + 2 x 5 = 370 < 375 between battens)
     'edge': 3.0,                # fan frame -> plate top/bottom edge
     'stagger': ['low', 'high', 'low'],
+    'low_above_deck': True,     # set-back mode: 'low' fans start above the carrier shelf's deck
+    'deck_gap': 2.0,            # (deck top + this), so no shelf deck needs a fan notch
     'guard': 'grille',          # 'grille' (cut finger guard) or 'open' (plain bore for wire guards)
     'grille_hole': 6.0, 'grille_pitch': 7.5,
     'batten_screws': (8.0, 17.0),   # screw heights (above the slot bottom) into each batten's front end
     'screw_d': 4.0,
     'gusset': {'h': 36.0, 'l': 90.0, 'chamfer': 6.0},   # right triangle standing on the carrier deck over each batten
-    'logos': [('mega65', 0), ('mega_ev', 2)],           # logo slot above fan n (a 'low' fan)
+    'logos': [('mega65', 0), ('mega_ev', 2)],           # logo slot above or below fan n (a 'low' fan), larger band
     'text': 'MEGA-KVM', 'text_size': 12.0,              # etched below the 'high' fan
 }
 

@@ -37,7 +37,8 @@ Python and run `hardware/mega-kvm-front/tools/build_all.sh`.
   with the F (component) side facing the panel. All SMD parts are on the F
   side and are no taller than 1.2 mm (TSSOP). The THT headers sit on the B
   side, pointing into the case.
-* **LCD:** a standard 80 x 36 mm 1602 module with its PCF8574 backpack is
+* **LCD:** a standard 80 x 36 mm 1602 module with its PCF8574 backpack
+  (chosen part: **Jaycar QP5521 + XC3706**, see "LCD part" below) is
   screwed to the **back** of the board (4 x M2.5, 75 x 31 mm pattern). Its
   bezel (71.2 x 24.2 mm) passes through a 73 x 26 mm window in the board and
   rests against the back of the panel. Board-to-module spacer =
@@ -175,13 +176,29 @@ panel top, at the right).
 
 | Feature | x | y | w | h | Note |
 |---|---|---|---|---|---|
-| Panel window | 6.5 | 9.5 | 67.0 | 17.0 | centre (40.0, 18.0); viewing area 64.5 x 14.5 + 1.25 mm |
+| Panel window | 6.25 | 9.75 | 67.5 | 16.5 | centre (40.0, 18.0); viewing area + 1.25 mm |
+| Viewing area | 7.5 | 11.0 | 65.0 | 14.0 | Jaycar QP5521 listing ("screen 65.0 x 14.0") |
 | Bezel (behind the panel) | 4.4 | 5.9 | 71.2 | 24.2 | typical 1602A frame |
 | Module PCB | 0 | 0 | 80 | 36 | on the back of the board |
 | Board window (cut-out) | 3.5 | 5.0 | 73.0 | 26.0 | |
 
 Viewing-area position and bezel size vary between makers. **Check against
 the actual module before cutting acrylic.**
+
+**LCD part** (owner round 13, 2026-11-27: no LCD bought yet, use a cheap
+Jaycar one):
+
+| Item | Part | From Jaycar's listing / manual | Typical (not stated by Jaycar: MEASURE) |
+|---|---|---|---|
+| LCD | **Jaycar QP5521** 16x2 white on blue | HD44780-compatible, 5 V, 4.5 mA max without backlight, 16-pin 0.1" SIL header, 4 mounting holes, screen 65.0 x 14.0 mm, same module as the XC4454 LCD shield, "suits XC3706" | outline 80 x 36, holes 75 x 31 (M2.5, 2.5 mm from the edges), bezel 71.2 x 24.2, module PCB + bezel ~10 mm |
+| I2C backpack | **Jaycar XC3706** I2C port expander | PCF8574 ("FC-113" board), solders onto the LCD's 16-pin header, contrast pot, backlight jumper, address solder bridges A0-A2, **default 0x27**, 4-pin header **GND VCC SDA SCL**, 50 x 25 x 10 mm | |
+
+The XC3706 header order (GND, VCC, SDA, SCL, from its manual) is the same as
+J2 (1 GND, 2 VCC, 3 SDA, 4 SCL): a straight 4-way F-F Dupont lead, no board
+change. JP1 stays at 1-2 (5 V): the QP5521 is a 5 V module. Sources: Jaycar
+XC3706 manual (via nowraelectronics.com.au/product/catalog/4059), Jaycar
+QP5521 listing; jaycar.com.au itself refuses automated fetches, so the
+module outline was not read from a Jaycar drawing.
 
 **Holes**
 
@@ -253,7 +270,8 @@ THT assembly or are easy to hand-solder.
 | C1-C4, C7 / C5, C6 | 100 n / 10 u 0603 | C14663 / C19702 | basic |
 | J1 / J2 / JP1 / J3 | 1x6 / 1x4 / 1x3 / 1x10 (DNP) 2.54 mm headers | C37208 / C124378 / C49257 / C57369 | extended THT |
 
-Not on the BOM: the 1602 LCD module with PCF8574 backpack, a 2.54 mm shunt
+Not on the BOM: the 1602 LCD module with PCF8574 backpack (Jaycar QP5521 +
+XC3706), a 2.54 mm shunt
 for JP1, the 6-way and 4-way Dupont leads, 4 x M2.5 screws with spacers, and
 4 x M3 x 3 mm spacers with screws.
 
@@ -267,8 +285,9 @@ array) before ordering.
    Freerouting and re-imports the session as `tracks.json`. That step
    needs Freerouting to be run by the owner, or the board routed by hand
    in KiCad. It is a simple 2-layer job (about 60 nets, 0.25 mm tracks).
-2. **LCD module dimensions:** the bezel height (sets the spacer) and the
-   viewing-area position must be measured on the purchased module.
+2. **LCD module dimensions:** Jaycar QP5521 + XC3706 chosen (2026-11-27);
+   the outline, hole pattern, bezel height (sets the spacer) and the
+   viewing-area position must still be measured on the purchased module.
 3. **Green LED colour:** C85161 is yellow-green (573 nm). It has a Vf
    matched to the red, so it runs well from 3.3 V. A "pure" InGaN green
    (Vf about 3 V) would be dim from 3.3 V through 470 R.

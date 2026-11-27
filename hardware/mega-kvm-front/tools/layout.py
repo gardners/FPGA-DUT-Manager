@@ -21,11 +21,19 @@ BOARD_H = 66.0
 THICK = 1.6
 PANEL_GAP = 3.0       # board front face to panel back face (M3 spacers)
 
-# 1602 module (80 x 36) on the back, flush with the board's left and top edges
+# 1602 module (80 x 36) on the back, flush with the board's left and top edges.
+# Part (owner round 13, 2026-11-27): Jaycar QP5521 (16x2 white on blue, HD44780,
+# 5 V, 16-pin 0.1" SIL header, 4 mounting holes; Jaycar: "screen 65.0 x 14.0 mm";
+# same module as the XC4454 LCD shield) + Jaycar XC3706 I2C port expander
+# (PCF8574 "FC-113" backpack, 50 x 25 x 10 mm, header GND VCC SDA SCL = J2's
+# order, default address 0x27). Jaycar gives no outline drawing: outline, holes
+# and bezel are the typical 1602A values below (MEASURE on arrival); the viewing
+# area takes Jaycar's 65 x 14, centred where the typical one was.
 LCD = {'x': 0.0, 'y': 0.0, 'w': 80.0, 'h': 36.0,
-       'holes': [(2.5, 2.5), (77.5, 2.5), (2.5, 33.5), (77.5, 33.5)],
+       'part': 'Jaycar QP5521 + XC3706 I2C backpack',
+       'holes': [(2.5, 2.5), (77.5, 2.5), (2.5, 33.5), (77.5, 33.5)],   # typical 1602A (75 x 31, M2.5)
        'bezel': (4.4, 5.9, 71.2, 24.2),        # x, y, w, h of the metal frame (typical 1602A)
-       'view': (7.75, 10.75, 64.5, 14.5)}      # viewing area (typical; check the module)
+       'view': (7.5, 11.0, 65.0, 14.0)}        # viewing area: Jaycar QP5521 listing, 65.0 x 14.0
 WINDOW = (3.5, 5.0, 76.5, 31.0)               # board cut-out for the bezel (x1, y1, x2, y2)
 
 # bottom row: LEDs (red over green) at the left, buttons at the right
@@ -69,7 +77,7 @@ LED_HOLE = 3.2        # 3 mm LED lens; the 3.8 mm flange stays behind the panel
 BTN_HOLE = 4.5        # K2-1102DP round stem, 3.5 mm
 M25_HOLE = 2.7
 M3_HOLE = 3.2
-LCD_WINDOW = (6.5, 9.5, 67.0, 17.0)   # panel window x, y, w, h (viewing area + 1.25 mm)
+LCD_WINDOW = (6.25, 9.75, 67.5, 16.5)   # panel window x, y, w, h (viewing area + 1.25 mm)
 
 # Master rocker: in the panel, not on this board. The case generator places
 # it (hardware/mega-kvm-case config KVM 'rocker_pos': left of the fans by

@@ -27,9 +27,37 @@ BOARD = {
     'holes': [(5.0, 93.0), (107.0, 93.0), (208.8, 93.8),
               (32.0, 4.88), (107.0, 4.88), (208.2, 4.88)],
     'standoff': 6.3,                        # HEX6.3 spacers (rugged case assembly.md)
-    'tallest': 15.0,                        # ASSUMED tallest part above the PCB (DB9/HDMI/USB); MEASURE
+    'tallest': 21.1,                        # IEC 6-pin DIN socket (owner round 13), see TALL_PARTS
     'port_x': 55.5,                         # expansion port centre (middle of the notch)
 }
+
+# ---------------------------------------------------------------- tall MEGA65 parts
+# Checked against the next shelf (deck underside 38.45 mm above the deck between
+# the battens, only 13.45 mm under the battens' 25 mm edge strips). Board
+# coordinates as BOARD (x from the left edge, y from the front edge), h = height
+# above the PCB top. Positions are read from mega65r6 DIM-TE0765-06.PDF (rear-edge
+# footprints and the dimension list; +-2 mm); the MEGA65 schematics (r3, r6) name
+# J6 "IEC - 1541 style Diskdrive" but give no part number, so heights are from a
+# standard part's datasheet or typical values as noted.
+TALL_PARTS = [
+    # IEC serial (J6): the footprint (6 pins on a circle, 2 x 2.4 mm mounting holes
+    # 15 mm apart, rear edge between the expansion-port notch and VGA) matches a
+    # standard right-angle 6-pin DIN socket; height from the Same Sky (CUI) SDS-60J
+    # datasheet: 20.0 W x 21.1 H above the PCB x 15.5 D, centre 10.0 above the PCB.
+    {'name': 'IEC socket (6-pin DIN)', 'x0': 86.5, 'x1': 106.5, 'y0': 102.5, 'y1': 118.0, 'h': 21.1,
+     'src': 'SDS-60J datasheet (standard R/A DIN; MEGA65 part not named: ASSUMED equivalent)'},
+    # Power switch at the rear-left corner (DIM: "POWER" block, x 0-20, y 99.5-118).
+    {'name': 'power switch', 'x0': 0.0, 'x1': 20.0, 'y0': 99.5, 'y1': 118.0, 'h': 17.0,
+     'src': 'owner 2026-11-27: ~17 mm above the PCB on the left edge'},
+    {'name': 'VGA (DB15HD)', 'x0': 110.7, 'x1': 139.5, 'y0': 106.0, 'y1': 118.0, 'h': 12.6,
+     'src': 'typical R/A DE-15 (ASSUMED)'},
+    {'name': 'Ethernet (RJ45)', 'x0': 165.0, 'x1': 182.0, 'y0': 97.0, 'y1': 118.0, 'h': 13.5,
+     'src': 'typical R/A RJ45 with magnetics (ASSUMED)'},
+    {'name': 'joystick port 1 (DB9)', 'x0': 0.0, 'x1': 12.5, 'y0': 43.1, 'y1': 73.9, 'h': 12.6,
+     'src': 'DIM: mounting holes y 46.0/71.0; typical R/A DE-9 (ASSUMED)'},
+    {'name': 'joystick port 2 (DB9)', 'x0': 0.0, 'x1': 12.5, 'y0': 11.6, 'y1': 42.4, 'h': 12.6,
+     'src': 'DIM: mounting holes y 14.5/39.5; typical R/A DE-9 (ASSUMED)'},
+]
 
 # ---------------------------------------------------------------- 3.5 inch floppy drive
 # Source: mega65-rugged-case lower-deck2-laser-cut.svg ("12mm M3 screw + 5mm

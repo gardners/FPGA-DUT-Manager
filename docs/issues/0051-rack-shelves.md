@@ -340,3 +340,71 @@ rocker. Fit report must stay at "Conflicts / problems: none".
   25 mm behind the panel; the power board starts at 40 mm.
 * Fit report: **Conflicts / problems: none**. The old 2 x 92 mm layout
   (`'fan': 92, 'rocker_pos': 'below_pcb'`, logos 'left'/'right') still builds.
+
+## 2026-11-27 owner answers (round 13)
+
+1. **M.E.G.A. e.V. logo**: use
+   https://www.m-e-g-a.org/wp-content/uploads/2012/06/mlogo.png (owner: not
+   really a PNG despite the name). Convert to a clean vector
+   `logos/mega-ev.svg` for laser etching; use it on the KVM front and the fan
+   plates instead of the placeholder.
+2. **MEGA65 tallest part**: assume the IEC serial (6-pin DIN) socket is the
+   tallest part. Find its height in the MEGA65 PCB sources (else a standard
+   right-angle DIN socket, stated as assumed); check it, and the other tall
+   connectors, against the next shelf's battens (13.45 mm above the deck)
+   as well as the 38.45 mm between the decks. The drawers have no top: the
+   next shelf's deck/battens are effectively the top.
+3. **Rails**: assume standard server slides, ~12.7 mm (1/2 in) per side,
+   ASSUMED until the owner measures them.
+4. **Fan plate clearance**: **set-back mode**: the other shelves of a group
+   are mounted further back on their rails; no fan cut-outs in the shelf
+   decks. (The KVM deck's notch for its own front fans is a separate matter.)
+5. **LCD**: the owner has none yet; use a cheap Jaycar 16x2 module, ideally
+   with an I2C backpack matching the front board's I2C LCD header (0050).
+
+Plan (agent, branch `feature/rack-case-4`): implement 1-4 in the case
+generator, the LCD part in 0050 / the front board generator.
+
+## 2026-11-27 owner follow-up: keep the MEGA65 off the battens
+
+Owner: "Basically don't put the MEGA65 mainboard flush over [the battens of
+the shelf above] if you can help it. The power switch sits about 17 mm above
+the PCB along that left edge." Add the power switch (~17 mm above the PCB,
+board left edge) as a tall part; keep the board outline inside the
+between-battens zone (full 38 mm height); the fit report flags any part over
+13.45 mm under a batten.
+
+## 2026-11-27 progress: round 13 implemented (agent, branch feature/rack-case-4)
+
+* **Logo**: `mlogo.png` is in fact a real PNG (200 x 52 px, 8-bit palette +
+  alpha, 4 KB; kept as `logos/src/mlogo.png`). It is a 25 x 5 block grid
+  ("MEGA") plus a 6 px text line, so instead of a pixel trace
+  `tools/make_mega_ev_logo.py` redraws the blocks as ideal squares from the
+  sampled grid and sets "MUSEUM OF ELECTRONIC GAMES & ART" in the
+  generator's stroke font, outlined and unioned by Inkscape:
+  `logos/mega-ev.svg`, filled shapes only. Etched on both fan plates
+  (92 x 24 mm, under fan 3) and the KVM front (81 x 21 mm, under the
+  MEGA65 logo). Placeholders gone.
+* **IEC socket**: the MEGA65 schematics (r3, r6) name J6 "IEC - 1541 style
+  Diskdrive" without a part number; the r6 DIM drawing shows a standard
+  R/A 6-pin DIN footprint at x 86.5-106.5 on the rear edge. Height from the
+  Same Sky SDS-60J datasheet: **21.1 mm above the PCB** (ASSUMED
+  equivalent). On 6.3 mm hexes: 29.0 mm above the deck, **9.5 mm below the
+  next deck**. Other tall parts (new `TALL_PARTS` table): power switch
+  ~17 mm (owner) 13.6 mm margin, VGA/RJ45/DB9 (typical) 17-18 mm margins,
+  floppy 8.1 mm. Board (deck x 49.5-263.5) and floppy (x 273.5-375.1) are
+  entirely between the battens, 24.5 mm from either batten's inner edge;
+  nothing is under a batten (the report would flag any part over 13.45 mm
+  there, and a board outline outside the between-battens zone).
+* **Rails**: `RAILS['thick'] = 12.7` (ASSUMED); deck width 424.6 mm (was
+  425), 374.6 between the battens. Nothing else changed (KVM front needs
+  421 of 424.6).
+* **Set-back**: `fan_clearance = 'setback'`, 92 mm (minimum: 25 mm fan
+  bodies, 90 mm gussets + 2). In set-back mode the plate's low fans start
+  2 mm above the carrier's deck top (z 33-153), so **no shelf deck has a
+  notch** (new check). The logos moved into the larger band below the low
+  fans. The KVM deck keeps its own front notch (x 32-275, 28 mm) for its
+  2 x 120 mm fans: 120 mm does not fit in the 102 mm above the KVM deck,
+  and avoiding it would mean hanging the front panel on the battens with the
+  deck set back behind the fans (not done).
+* Fit report: **Conflicts / problems: none**.
