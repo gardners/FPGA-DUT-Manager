@@ -17,6 +17,7 @@ of each section. Tick or delete an item when it is done (or tell the lead).
 
 | Since | Default taken | Issue |
 |---|---|---|
+| 2026-11-27 | LCD = **Jaycar QP5521** 16x2 + **XC3706** I2C backpack (0x27; header GND VCC SDA SCL matches J2). Module outline/holes/bezel are typical 1602A values: measure when it arrives. MEGA65 IEC socket assumed 21.1 mm tall (SDS-60J class): 9.5 mm under the next deck; MEGA65 sits wholly between the battens. Rails assumed 12.7 mm per side (deck 424.6 mm). Set-back shelves 92 mm. The KVM deck keeps a front notch for its 120 mm fans | 0050/0051 |
 | 2026-11-27 | KVM front panel with 2 x 120 mm fans: master rocker at the far left, then the two fans; the right-hand column holds the 140 x 66 mm display board, the MEGA-KVM etch, the MEGA65 logo and the M.E.G.A. e.V. logo (logos about 21 mm tall). The fans reach about 21 mm below the deck top through a notch in the deck front | 0050/0051 |
 | 2026-11-27 | Keep the LTC4417 + FET input selector rather than relays (relays lose more power at every realistic load, arc at 20 A DC, and drop all boards on changeover) | 0047 |
 | 2026-11-27 | Fan protection: **Infineon BSP452** (SOT-223, current-limited high-side switch, ~$1.26 each, ~$10 more per board than PTCs). A shorted fan lead is cut in microseconds instead of dragging the always-on group (and both Mimas) into its 5 A limit. PTC footprints stay available as the fallback | 0052 |
