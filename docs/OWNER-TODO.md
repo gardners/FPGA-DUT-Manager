@@ -14,7 +14,7 @@ of each section. Tick or delete an item when it is done (or tell the lead).
 | 2026-11-27 | **Real parts for cut-outs**: rocker switch, banana sockets, RJ45 coupler; your laser's kerf in 6 mm ply | panel holes | 0051 |
 | 2026-11-27 | **Fan-plate clearance style**: notch mode (the other three shelves' battens cut 92 mm short at the front) or set-back mode (those shelves set back 92 mm on their rails) | shelf deck | 0051 |
 | 2026-11-27 | **Measure the bought 16x2 LCD module**: bezel size and height, viewing-area position, mounting holes | front-panel window and panel cut-out | 0050 |
-| 2026-11-27 | **Review the routed front panel** (`make pcb-routing` now downloads Freerouting and routes; result in `hardware/mega-kvm-front/out/`) | front-panel PCB ready for fab | 0050 |
+| 2026-11-27 | **Review the routed front panel**: routed and DRC clean (`make pcb-routing`; renders in `hardware/mega-kvm-front/out/`) | front-panel PCB ready for fab | 0050 |
 | 2026-11-27 | **Install Lattice Diamond**, then in `~/Projects/mega65/mega65-keyboard-cpld` on branch `type3` run `./build.sh` and report fit/timing | keyboard type 3 firmware; then flash via remote JTAG and test (short cable, then 3 m) | 0046 |
 
 ## Decisions with a default (veto if you disagree)
@@ -22,13 +22,17 @@ of each section. Tick or delete an item when it is done (or tell the lead).
 | Since | Default taken | Issue |
 |---|---|---|
 | 2026-11-27 | Keep the LTC4417 + FET input selector rather than relays (relays lose more power at every realistic load, arc at 20 A DC, and drop all boards on changeover) | 0047 |
-| 2026-11-27 | Fan protection: pad-free eFuse per header if cheap and JLC-stocked, otherwise a 0.5 A PTC | 0052 |
+| 2026-11-27 | Fan protection: **Infineon BSP452** (SOT-223, current-limited high-side switch, ~$1.26 each, ~$10 more per board than PTCs). A shorted fan lead is cut in microseconds instead of dragging the always-on group (and both Mimas) into its 5 A limit. PTC footprints stay available as the fallback | 0052 |
+| 2026-11-27 | Fan control: 4 x EMC2302 (MSOP-10, 2 fans each) behind a TCA9548A I2C switch, one 26 kHz PWM + tach per fan; fans run at 100 % until the host sets them; 2 x TMP75 (main board, input-board FETs) | 0052 |
+| 2026-11-27 | Input board reshaped to **126 x 64 mm** (two tiers) to fit the 3RU front beside the fans; case agent is re-fitting the KVM front around it | 0047, 0051 |
 | 2026-11-27 | The keyboard CPLD `type3` branch stays local (not pushed) until you say where it should go | 0046 |
 
 ## Bench / hardware checks only the owner can do
 
 | Since | Item | Issue |
 |---|---|---|
+| 2026-11-27 | When the power board exists: measure the always-on group's **inrush at master-on** (8 fans at 100 % + 2 Mimas + GS105). If it trips the 5 A limit, raise it via R182 (to 5.5 A) or feed the fan switches from VBUS | 0052 |
+| 2026-11-27 | Before fab: check the 0.28 mm MSOP-10 land pattern against Microchip's drawing; EMC2302-1 stock is modest (217) and TCA9548APWR stock unconfirmed | 0052 |
 | 2026-11-27 | Plug a **USB JTAG adaptor** (TE0790 or FT2232H) onto a powered DUT to test `dutctl jtag-discover --scan` and the openFPGALoader commands; `--power-cycle --yes` needs your go-ahead at run time | 0053 |
 | 2026-11-27 | A **DUT on an octopus port** for `dutctl jtag-speed` on the DUT path | 0054 |
 | 2026-11-27 | **Keyboard JTAG error floor**: `jtag-speed --kbd` sees isolated 1s read as 0 at about 6e-5 at every TCK (worse at 7.8 MHz; clean at 20.8 MHz). Looks like signal integrity, not timing. A scope on TDI/TDO of the keyboard cable (at half period 8) would tell; matters for CPLD flashing | 0046, 0054 |
