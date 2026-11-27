@@ -42,6 +42,33 @@ so the two implementations cannot silently diverge.
   (Ethernet FCS protects the hop; this is an isolated lab VLAN). IPv4 header
   checksum is generated and verified. No fragmentation: fragments are dropped.
 * MTU: control-plane packets fit 1500. Raster packets need jumbo (≈2.2 kB).
+* **Host VLAN** (key 0x0046, issue 0062, 2026-11-27): 0 (default) = all of
+  the above untagged, as before. With a VID 1..4094 every frame the board
+  sends towards the host carries an 802.1Q tag after the source MAC (TPID
+  0x8100, PCP 0, DEI 0, that VID): heartbeats, UART snapshots, raster,
+  DHCP, ARP/ICMP replies, MGMT acks, JTAG responses, and thumbnail relay
+  frames to the key 0x0041 forced MAC. Received frames:
+  * tagged with that VID: accepted as before (all ports, DHCP replies,
+    TEXT_WRITE);
+  * untagged (recovery path, so a host on the untagged LAN can still set
+    the key back without a reload): only ARP requests, ICMP echo and UDP to
+    the MGMT port (6500) are answered; DHCP replies, keyboard, UART, JTAG
+    and text are dropped;
+  * any other tag (another VID, priority-tagged VID 0), or any tag while
+    the key is 0: dropped.
+  Dropped frames count in the heartbeat network block (section 3e).
+  Replies (ARP, ICMP, MGMT ack, JTAG response) always go out on the VLAN
+  their request came on (untagged for the recovery path), so the ack of a
+  key 0x0046 change reaches the host that sent it. Tagged frames are padded
+  to 64 bytes + FCS (60 without the tag). Only the outer tag is parsed.
+  The inter-board relay VLAN (key 0x0043, section 10) is separate; both may
+  be the same VID. **Changing the key at run time**: the new VID applies to
+  the next frame built; 1..2 ms later DHCP starts over on every DHCP
+  endpoint (lease dropped, the endpoint is silent until a new lease on the
+  new VLAN, or the fallback address where fallback is enabled; the ack of
+  the change still leaves from the old address). Static addresses (key
+  0x0002 / SET_IDENTITY) are kept. Keys are volatile: a reload (or SPI
+  boot) returns to 0.
 * Broadcast-addressed management is ignored except `SET_IDENTITY` carrying the
   exact board DNA (recovery when the IP is unknown).
 
@@ -105,7 +132,8 @@ the memory block (section 3b, issue 0034) 152 bytes (header + 144); with
 the shield block (section 3c, issue 0049) 160 bytes (header + 152); with
 the relay block (section 3d, issue 0061) 188 bytes (header + 180); with
 the relay receive load (section 3d, bytes 188..195, issue 0060) 196 bytes
-(header + 188).
+(header + 188); with the network block (section 3e, issue 0062) 200
+bytes (header + 192).
 Decoders must accept >= 100 and use the blocks only when present.
 
 ### 3a. Heartbeat link block (bytes 132..139; payload >= 132)
@@ -197,6 +225,15 @@ at 2**rl_fifo_aw and rl_wr_stall rising = DDR3 cannot keep up; rl_rx_ovf
 rising with a low rl_fifo_hwm cannot happen (an overflow needs a full
 FIFO); rl_mem_wait rising alone is harmless contention.
 
+### 3e. Heartbeat network block (bytes 196..199; payload >= 192)
+
+Host VLAN (issue 0062). Appended 2026-11-27.
+
+| Off | Size | Field |
+|---|---|---|
+| 196 | 2 | host_vlan: key 0x0046, the VID of host traffic (0 = untagged) |
+| 198 | 2 | host_vlan_drops: received frames for the host path dropped for their VLAN (wrong VID, tagged while the key is 0, untagged non-ARP/ICMP/MGMT while it is set), board-wide, wrapping. Relay frames (EtherType 0x88B5, key 0x0043) are not counted here (rl_rx_vlan) |
+
 ## 4. Management (port 6500)
 
 `MGMT_SET` type 0x10, host → FPGA:
@@ -236,9 +273,10 @@ Keys (whole values, never toggles):
 | 0x0035 | 1 | console screen (issue 0029): 0 auto (select while choosing; else passthrough of HDMI IN to HDMI OUT when the video target is one of this board's DUTs and its video is present (issue 0032); else editable when text is forced or video is present, else no video), 1 editable, 2 no video, 3 select (1..3 force a console screen and disable passthrough) |
 | 0x0040 | 1 | Ethernet capture enable (phase 2) |
 | 0x0041 | 8 | thumbnail relay forced destination (section 10): MAC(6), scale(1: 1 = 1/2, 2 = 1/4), frame divisor(1: 1..15). MAC 00:00:00:00:00:00 = off (default). A group (multicast/broadcast) MAC, another scale or divisor -> bad value. Board-wide |
-| 0x0043 | 2 | inter-board VLAN ID (section 10, issue 0060): u16, 0 = untagged (the behaviour before 2026-11-27), 1..4094 = thumbnail relay requests, lines and no-source frames between boards carry an 802.1Q tag (TPID 0x8100, PCP 0, DEI 0, this VID) and relay frames are accepted only with that VID. Default **1650**. Host-facing traffic (UDP to the host, and relay frames to the key 0x0041 forced MAC) is never tagged. Values > 4094 -> bad value. Board-wide |
+| 0x0043 | 2 | inter-board VLAN ID (section 10, issue 0060): u16, 0 = untagged (the behaviour before 2026-11-27), 1..4094 = thumbnail relay requests, lines and no-source frames between boards carry an 802.1Q tag (TPID 0x8100, PCP 0, DEI 0, this VID) and relay frames are accepted only with that VID. Default **1650**. Host-facing traffic (UDP to the host, and relay frames to the key 0x0041 forced MAC) follows key 0x0046 instead. Values > 4094 -> bad value. Board-wide |
 | 0x0044 | 1 | HDMI IN owner (section 10, issue 0060): which of this board's DUTs is cabled to the on-board HDMI IN. 0 (default) the video target's DUT (the behaviour before 2026-11-27: both DUTs share the input); 1 DUT0; 2 DUT1; 3 none. A local machine that does not own the HDMI IN (only with 1..3) shows relayed video for its machine number (thumbnails in the mosaic) and, as the video target, a full-resolution relayed picture (section 10, "selected target without local video"). Values > 3 -> bad value. Board-wide |
 | 0x0045 | 1 | relayed full view (section 10, issue 0060): 0 complete pictures only (triple buffered, never torn; a picture with any frame lost is never shown); 1 **live** line by line (default): every good 1/1 frame is written into the buffer being shown, so lines show up as they arrive and rows that are lost keep the previous picture's content (may tear). Values > 1 -> bad value. Board-wide |
+| 0x0046 | 2 | host VLAN ID (section 1, issue 0062): u16, 0 = untagged (default; the behaviour before 2026-11-27), 1..4094 = all host traffic tagged with this VID and host frames accepted only with it (untagged: ARP, ICMP echo and MGMT still answered, untagged); DHCP starts over on the new VLAN 1..2 ms after a change. Re-setting the current value changes nothing. Values > 4094 -> bad value. Board-wide |
 | 0x0050 | 2 | heartbeat period ms |
 | 0x0060 | 1 | target output enable policy (issue 0056): 0 auto: UART TXD, KIO10 and JTAG driven while the DUT is sensed powered (default); 1 force UART TXD and KIO10 on (JTAG still follows the sense); 2 force all of them off, JTAG included (JTAG_REQ then answers status 4, a running transaction is aborted): the host sets 2 before it cuts the DUT's power (`dutctl relay ... power N off`). The shield power-off hold (key 0x0062) overrides 0 and 1 |
 | 0x0061 | 1 | physical keyboard CPLD JTAG (section 7, ADR 0014): 0 auto (pins driven while a keyboard is detected and for 10 s after the last detection or keyboard JTAG transaction; default), 1 force on, 2 force off, 3 force on with KB_JTAGEN driven low (diagnostic: does J5 pin 3 gate the CPLD's JTAG port?). Board-wide |
@@ -432,11 +470,12 @@ offsets below are after the 4-byte tag (EtherType 0x88B5 at bytes 16..17 of
 the frame). Broadcast requests stay broadcast, only tagged. A board accepts
 relay frames only with its VID (untagged only when the key is 0, the
 behaviour before). Frames to the key 0x0041 forced MAC (host screenshots)
-stay untagged: the lab host has no VLAN interface. Today the thumbnail
+carry the host VLAN tag (key 0x0046, default 0 = untagged; issue 0062),
+not this one. Today the thumbnail
 relay is the only inter-board traffic (no other Mimas-to-Mimas frames
-exist yet; issue 0044's keyboard frames would use the same VLAN). Frames
-are padded to 60 bytes + FCS as before (a tagged request is 26 bytes of
-header and body).
+exist yet; issue 0044's keyboard frames would use the same VLAN). Tagged
+frames are padded to 64 bytes + FCS (issue 0062; 60 + FCS before: a
+tagged request is 26 bytes of header and body), untagged ones to 60.
 
 **Request** (subtype 1), broadcast (ff:ff:ff:ff:ff:ff), 8 bytes:
 

@@ -155,6 +155,12 @@ if (($(field "$l" has_relay))); then
 else
 	report INFO "relay counters" "no relay block (payload $(field "$l" plen))"
 fi
+# host VLAN (issue 0062, heartbeat network block)
+if (($(field "$l" has_net))); then
+	report INFO "host vlan" "key 0x0046 = $(field "$l" host_vlan) (0 = untagged), frames dropped for their VLAN $(field "$l" host_vlan_drops)"
+else
+	report INFO "host vlan" "no network block (payload $(field "$l" plen))"
+fi
 # relay receive load (relay-rx-speed): FIFO peaks in the last second, DDR3 back-pressure
 if (($(field "$l" has_rxload))); then
 	report INFO "relay rx load" "rx fifo peak $(field "$l" rl_fifo_hwm)/$((1 << $(field "$l" rl_fifo_aw))) entries, word fifo peak $((2 * $(field "$l" rl_wf_hwm)))/512, writer stalls $(field "$l" rl_wr_stall) x 2.048 us, memory waits $(field "$l" rl_mem_wait) x 2.048 us (wrapping)"
@@ -302,9 +308,15 @@ keytest vlan           0x0043 board 0672     "0000 0ffe 0672"  "0fff ffff" "06 0
 keytest hdmi-owner     0x0044 board 00       "01 02 03 00"     "04"       "0000"
 # relay-rx-speed: relayed full view, restored to 1 (live, the default)
 keytest relay-view     0x0045 board 01       "00 01"           "02"       "0000"
+# issue 0062: host VLAN. Only the current value is set (re-setting it is a
+# no-op: no DHCP restart); any other value would move this test's own
+# traffic to another VLAN. 0 is the "0 accepted" case on an untagged bench.
+hv=$(field "$l" host_vlan)
+keytest host-vlan      0x0046 board "$(printf %04x "${hv:-0}")" "$(printf %04x "${hv:-0}")" "0fff ffff" "06 067200"
 keytest hb-period-ms   0x0050 ep    "$(printf %04x "${orig_period[${eps[0]}]}")" "$(printf %04x "${orig_period[${eps[0]}]}")" "0000" "14 001400"
 keytest out-policy     0x0060 ep    00       "00"              "03"       "0000"
-# (0x0041 became the thumbnail forced-destination key, issue 0038; 0x0042 is the first unused one)
+# (0x0041 became the thumbnail forced-destination key, issue 0038; 0x0042 is still unused,
+# 0x0046 is the host VLAN, issue 0062)
 for k in 0x0000 0x0007 0x0042 0x7fff 0xffff; do
 	mres=""
 	expect "${ip[${eps[0]}]}" $k 00 1
