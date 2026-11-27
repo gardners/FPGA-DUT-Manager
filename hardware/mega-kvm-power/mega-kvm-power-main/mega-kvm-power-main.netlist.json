@@ -599,6 +599,96 @@
   "uuid": "03ef0b76-b2e6-5251-9ac6-dd994a43f884",
   "value": "1u"
  },
+ "C400": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C14663",
+   "Voltage": "25V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "uuid": "ce5092f6-2dd8-5e9a-864f-e7a81e459b5e",
+  "value": "100n"
+ },
+ "C401": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C14663",
+   "Voltage": "25V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "uuid": "c299c842-3356-54e2-968e-320bf636e8e2",
+  "value": "100n"
+ },
+ "C402": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C14663",
+   "Voltage": "25V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "uuid": "6cb3b820-5819-5cd9-b449-ae6e5e6f2204",
+  "value": "100n"
+ },
+ "C403": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C14663",
+   "Voltage": "25V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "uuid": "e0e8a185-9983-5c25-b261-436b2b053ba2",
+  "value": "100n"
+ },
+ "C404": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C14663",
+   "Voltage": "25V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "uuid": "2ff08357-2285-57aa-b36a-e4007e1ed4f1",
+  "value": "100n"
+ },
+ "C405": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C14663",
+   "Voltage": "25V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "uuid": "698c2f93-1bf3-5769-a1c6-25f8dd9b4b5f",
+  "value": "100n"
+ },
  "C5": {
   "dnp": false,
   "fields": {
@@ -964,6 +1054,24 @@
   "uuid": "51c9b2c4-5db1-5e4a-a889-67a5b946a428",
   "value": "M3"
  },
+ "H5": {
+  "dnp": false,
+  "fields": {},
+  "footprint": "MountingHole:MountingHole_3.2mm_M3",
+  "in_bom": false,
+  "pads": {},
+  "uuid": "b7b95936-6c60-537c-a6a2-e043d853f899",
+  "value": "M3"
+ },
+ "H6": {
+  "dnp": false,
+  "fields": {},
+  "footprint": "MountingHole:MountingHole_3.2mm_M3",
+  "in_bom": false,
+  "pads": {},
+  "uuid": "38edc915-ef3a-5bbb-ae60-dc6d8986246f",
+  "value": "M3"
+ },
  "J1": {
   "dnp": false,
   "fields": {
@@ -1161,40 +1269,6 @@
   "uuid": "1ea7ff70-4d1a-5bcc-9a2f-03cfd2d629d8",
   "value": "GS105 12V"
  },
- "J23": {
-  "dnp": false,
-  "fields": {
-   "LCSC": "TBD",
-   "MPN": "Molex 47053-1000 KK fan header 3-pin",
-   "Note": "Noctua NF-A4x10 FLX 12 V (50 mA)"
-  },
-  "footprint": "Connector:FanPinHeader_1x03_P2.54mm_Vertical",
-  "in_bom": true,
-  "pads": {
-   "1": "GND",
-   "2": "FANPWR0",
-   "3": "TACH0"
-  },
-  "uuid": "8cc04993-7bd5-5c20-aa16-660fc513ec62",
-  "value": "FAN0"
- },
- "J24": {
-  "dnp": false,
-  "fields": {
-   "LCSC": "TBD",
-   "MPN": "Molex 47053-1000 KK fan header 3-pin",
-   "Note": "Noctua NF-A4x10 FLX 12 V (50 mA)"
-  },
-  "footprint": "Connector:FanPinHeader_1x03_P2.54mm_Vertical",
-  "in_bom": true,
-  "pads": {
-   "1": "GND",
-   "2": "FANPWR1",
-   "3": "TACH1"
-  },
-  "uuid": "582cd8c3-9f5c-5e9c-b42e-dcd91067328c",
-  "value": "FAN1"
- },
  "J3": {
   "dnp": false,
   "fields": {
@@ -1219,19 +1293,161 @@
   "uuid": "aa9d514b-72b8-526e-a3f0-c8bb0bd54fed",
   "value": "CTRL 1x11 key2"
  },
+ "J30": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C240840",
+   "MPN": "Molex 47053-1000 4-pin PWM fan header",
+   "Note": "1 GND, 2 +12 V, 3 TACH, 4 PWM (Intel 4-wire); 3-pin fans run at full speed"
+  },
+  "footprint": "Connector:FanPinHeader_1x04_P2.54mm_Vertical",
+  "in_bom": true,
+  "pads": {
+   "1": "GND",
+   "2": "FANPWR0",
+   "3": "FTACH0",
+   "4": "FPWM0"
+  },
+  "uuid": "8d76ffcb-cdc0-5580-b711-7cac44404dc3",
+  "value": "FAN0"
+ },
+ "J31": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C240840",
+   "MPN": "Molex 47053-1000 4-pin PWM fan header",
+   "Note": "1 GND, 2 +12 V, 3 TACH, 4 PWM (Intel 4-wire); 3-pin fans run at full speed"
+  },
+  "footprint": "Connector:FanPinHeader_1x04_P2.54mm_Vertical",
+  "in_bom": true,
+  "pads": {
+   "1": "GND",
+   "2": "FANPWR1",
+   "3": "FTACH1",
+   "4": "FPWM1"
+  },
+  "uuid": "e94a0820-87de-5770-8cc6-56a3cf2a4491",
+  "value": "FAN1"
+ },
+ "J32": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C240840",
+   "MPN": "Molex 47053-1000 4-pin PWM fan header",
+   "Note": "1 GND, 2 +12 V, 3 TACH, 4 PWM (Intel 4-wire); 3-pin fans run at full speed"
+  },
+  "footprint": "Connector:FanPinHeader_1x04_P2.54mm_Vertical",
+  "in_bom": true,
+  "pads": {
+   "1": "GND",
+   "2": "FANPWR2",
+   "3": "FTACH2",
+   "4": "FPWM2"
+  },
+  "uuid": "16cb5ec7-2912-529d-86df-332b170afc16",
+  "value": "FAN2"
+ },
+ "J33": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C240840",
+   "MPN": "Molex 47053-1000 4-pin PWM fan header",
+   "Note": "1 GND, 2 +12 V, 3 TACH, 4 PWM (Intel 4-wire); 3-pin fans run at full speed"
+  },
+  "footprint": "Connector:FanPinHeader_1x04_P2.54mm_Vertical",
+  "in_bom": true,
+  "pads": {
+   "1": "GND",
+   "2": "FANPWR3",
+   "3": "FTACH3",
+   "4": "FPWM3"
+  },
+  "uuid": "fd667fcb-3955-5f22-8464-80d9041d3732",
+  "value": "FAN3"
+ },
+ "J34": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C240840",
+   "MPN": "Molex 47053-1000 4-pin PWM fan header",
+   "Note": "1 GND, 2 +12 V, 3 TACH, 4 PWM (Intel 4-wire); 3-pin fans run at full speed"
+  },
+  "footprint": "Connector:FanPinHeader_1x04_P2.54mm_Vertical",
+  "in_bom": true,
+  "pads": {
+   "1": "GND",
+   "2": "FANPWR4",
+   "3": "FTACH4",
+   "4": "FPWM4"
+  },
+  "uuid": "41c58383-f299-5cda-a775-11cc5463429d",
+  "value": "FAN4"
+ },
+ "J35": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C240840",
+   "MPN": "Molex 47053-1000 4-pin PWM fan header",
+   "Note": "1 GND, 2 +12 V, 3 TACH, 4 PWM (Intel 4-wire); 3-pin fans run at full speed"
+  },
+  "footprint": "Connector:FanPinHeader_1x04_P2.54mm_Vertical",
+  "in_bom": true,
+  "pads": {
+   "1": "GND",
+   "2": "FANPWR5",
+   "3": "FTACH5",
+   "4": "FPWM5"
+  },
+  "uuid": "206b0251-2402-50eb-bac5-03aa41ca868d",
+  "value": "FAN5"
+ },
+ "J36": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C240840",
+   "MPN": "Molex 47053-1000 4-pin PWM fan header",
+   "Note": "1 GND, 2 +12 V, 3 TACH, 4 PWM (Intel 4-wire); 3-pin fans run at full speed"
+  },
+  "footprint": "Connector:FanPinHeader_1x04_P2.54mm_Vertical",
+  "in_bom": true,
+  "pads": {
+   "1": "GND",
+   "2": "FANPWR6",
+   "3": "FTACH6",
+   "4": "FPWM6"
+  },
+  "uuid": "aa34c5ec-c268-555d-8cfe-70504a09fb96",
+  "value": "FAN6"
+ },
+ "J37": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C240840",
+   "MPN": "Molex 47053-1000 4-pin PWM fan header",
+   "Note": "1 GND, 2 +12 V, 3 TACH, 4 PWM (Intel 4-wire); 3-pin fans run at full speed"
+  },
+  "footprint": "Connector:FanPinHeader_1x04_P2.54mm_Vertical",
+  "in_bom": true,
+  "pads": {
+   "1": "GND",
+   "2": "FANPWR7",
+   "3": "FTACH7",
+   "4": "FPWM7"
+  },
+  "uuid": "7aa9d8dd-7f29-510d-a97b-ad72eb279723",
+  "value": "FAN7"
+ },
  "J4": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (2.54 mm 1x12 header)",
-   "Note": "1 GND, 2-9 /FLT0-7, 10 /FLT_AON (open drain, 10k to 3V3), 11-12 fan tach"
+   "LCSC": "TBD (2.54 mm 1x10 header)",
+   "Note": "1 GND, 2-9 /FLT0-7, 10 /FLT_AON (open drain, 10k to 3V3); fan tach now read over I2C (EMC2302)"
   },
-  "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x12_P2.54mm_Vertical",
+  "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x10_P2.54mm_Vertical",
   "in_bom": true,
   "pads": {
    "1": "GND",
    "10": "~{FLT_AON}",
-   "11": "TACH0",
-   "12": "TACH1",
    "2": "~{FLT0}",
    "3": "~{FLT1}",
    "4": "~{FLT2}",
@@ -1242,7 +1458,7 @@
    "9": "~{FLT7}"
   },
   "uuid": "2f239c67-e316-54be-96d6-6c7560f8bc41",
-  "value": "STATUS 1x12"
+  "value": "STATUS 1x10"
  },
  "J5": {
   "dnp": false,
@@ -1262,6 +1478,25 @@
   "uuid": "54fccdf5-fb39-5c0c-8056-c5dd953c9ca7",
   "value": "I2C 1x5"
  },
+ "J6": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C157991",
+   "MPN": "JST B5B-XH-A(LF)(SN)",
+   "Note": "to J8 of the input board: TMP75 at 0x49 next to the input FETs; 1 GND, 2 3V3, 3 SDA, 4 SCL, 5 /ALERT"
+  },
+  "footprint": "Connector_JST:JST_XH_B5B-XH-A_1x05_P2.50mm_Vertical",
+  "in_bom": true,
+  "pads": {
+   "1": "GND",
+   "2": "+3V3",
+   "3": "SDA",
+   "4": "SCL",
+   "5": "~{I2C_INT}"
+  },
+  "uuid": "c0289aa0-4276-5958-8350-905206dd1004",
+  "value": "TEMP I2C to input board"
+ },
  "JP1": {
   "dnp": false,
   "fields": {
@@ -1275,6 +1510,134 @@
   },
   "uuid": "7b20bce4-dfdb-5523-8492-895c469bd633",
   "value": "3V3 to I2C hdr"
+ },
+ "Q30": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C8545",
+   "Note": "PWM inverter: EMC2302 PWM polarity must be set to inverted (reg 2Ah)"
+  },
+  "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "in_bom": true,
+  "pads": {
+   "1": "PWMG0",
+   "2": "GND",
+   "3": "FPWM0"
+  },
+  "uuid": "d62cc11d-6244-50a3-92ba-3e50e1637cab",
+  "value": "2N7002"
+ },
+ "Q31": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C8545",
+   "Note": "PWM inverter: EMC2302 PWM polarity must be set to inverted (reg 2Ah)"
+  },
+  "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "in_bom": true,
+  "pads": {
+   "1": "PWMG1",
+   "2": "GND",
+   "3": "FPWM1"
+  },
+  "uuid": "537a7730-090f-5816-8969-6c35f71f02de",
+  "value": "2N7002"
+ },
+ "Q32": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C8545",
+   "Note": "PWM inverter: EMC2302 PWM polarity must be set to inverted (reg 2Ah)"
+  },
+  "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "in_bom": true,
+  "pads": {
+   "1": "PWMG2",
+   "2": "GND",
+   "3": "FPWM2"
+  },
+  "uuid": "1a31928a-53fb-5634-a13e-91afa47b6949",
+  "value": "2N7002"
+ },
+ "Q33": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C8545",
+   "Note": "PWM inverter: EMC2302 PWM polarity must be set to inverted (reg 2Ah)"
+  },
+  "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "in_bom": true,
+  "pads": {
+   "1": "PWMG3",
+   "2": "GND",
+   "3": "FPWM3"
+  },
+  "uuid": "63d6d9c6-20a7-5038-9db4-2d6d7cd003f4",
+  "value": "2N7002"
+ },
+ "Q34": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C8545",
+   "Note": "PWM inverter: EMC2302 PWM polarity must be set to inverted (reg 2Ah)"
+  },
+  "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "in_bom": true,
+  "pads": {
+   "1": "PWMG4",
+   "2": "GND",
+   "3": "FPWM4"
+  },
+  "uuid": "b11f42f9-270e-5bdf-bae4-614819b9a4f2",
+  "value": "2N7002"
+ },
+ "Q35": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C8545",
+   "Note": "PWM inverter: EMC2302 PWM polarity must be set to inverted (reg 2Ah)"
+  },
+  "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "in_bom": true,
+  "pads": {
+   "1": "PWMG5",
+   "2": "GND",
+   "3": "FPWM5"
+  },
+  "uuid": "6a8f7315-1ae4-5e02-b6e2-637cbff3cda9",
+  "value": "2N7002"
+ },
+ "Q36": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C8545",
+   "Note": "PWM inverter: EMC2302 PWM polarity must be set to inverted (reg 2Ah)"
+  },
+  "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "in_bom": true,
+  "pads": {
+   "1": "PWMG6",
+   "2": "GND",
+   "3": "FPWM6"
+  },
+  "uuid": "b2c3adcd-cc00-5029-ae9a-66f18726a65b",
+  "value": "2N7002"
+ },
+ "Q37": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C8545",
+   "Note": "PWM inverter: EMC2302 PWM polarity must be set to inverted (reg 2Ah)"
+  },
+  "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "in_bom": true,
+  "pads": {
+   "1": "PWMG7",
+   "2": "GND",
+   "3": "FPWM7"
+  },
+  "uuid": "f09acd4a-63d8-5faf-bedd-5b810e67070d",
+  "value": "2N7002"
  },
  "R1": {
   "dnp": false,
@@ -1474,6 +1837,22 @@
   },
   "uuid": "ded44ac2-4306-5934-bd5f-48030e38f2eb",
   "value": "4k7"
+ },
+ "R12": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25804",
+   "Note": "/INT pull-up: EMC2302 ALERT, TMP75 ALERTs (both boards), optional TCA9535",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "~{I2C_INT}"
+  },
+  "uuid": "290456f9-03b5-5666-aada-1c4a0fdf94e7",
+  "value": "10k"
  },
  "R120": {
   "dnp": false,
@@ -2007,68 +2386,6 @@
   "uuid": "1e0f6db0-afbd-5312-897a-b6cbf6e17a42",
   "value": "4k7"
  },
- "R190": {
-  "dnp": false,
-  "fields": {
-   "LCSC": "TBD (1%, JLC basic if stocked)",
-   "Note": "0R; fit ~47-100R (1 W) to slow a fan for silence",
-   "Tolerance": "1%"
-  },
-  "footprint": "Resistor_SMD:R_1206_3216Metric",
-  "in_bom": true,
-  "pads": {
-   "1": "AON12",
-   "2": "FANPWR0"
-  },
-  "uuid": "8d97ff14-59d1-5a4f-93c7-9ef3f9c29be7",
-  "value": "0R"
- },
- "R191": {
-  "dnp": false,
-  "fields": {
-   "LCSC": "TBD (1%, JLC basic if stocked)",
-   "Note": "0R; fit ~47-100R (1 W) to slow a fan for silence",
-   "Tolerance": "1%"
-  },
-  "footprint": "Resistor_SMD:R_1206_3216Metric",
-  "in_bom": true,
-  "pads": {
-   "1": "AON12",
-   "2": "FANPWR1"
-  },
-  "uuid": "c60cef87-ece3-55f9-8cbc-545c56e5c1e0",
-  "value": "0R"
- },
- "R192": {
-  "dnp": false,
-  "fields": {
-   "LCSC": "C25804",
-   "Tolerance": "1%"
-  },
-  "footprint": "Resistor_SMD:R_0603_1608Metric",
-  "in_bom": true,
-  "pads": {
-   "1": "+3V3",
-   "2": "TACH0"
-  },
-  "uuid": "12dafaaa-2d74-55a1-9880-492d91d8cbc7",
-  "value": "10k"
- },
- "R193": {
-  "dnp": false,
-  "fields": {
-   "LCSC": "C25804",
-   "Tolerance": "1%"
-  },
-  "footprint": "Resistor_SMD:R_0603_1608Metric",
-  "in_bom": true,
-  "pads": {
-   "1": "+3V3",
-   "2": "TACH1"
-  },
-  "uuid": "4046c1c5-38d2-54b1-971d-e3bd0111329d",
-  "value": "10k"
- },
  "R2": {
   "dnp": false,
   "fields": {
@@ -2100,6 +2417,646 @@
   "uuid": "bff40e26-c7df-52a9-b09d-c5818fde4f6b",
   "value": "10k"
  },
+ "R300": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25804",
+   "Note": "BSP452 IN tied on (input current <= 100 uA, IN may go to Vbb)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "AON12",
+   "2": "FANIN0"
+  },
+  "uuid": "77374ffd-03c0-5d33-81a4-5ec659c98b69",
+  "value": "10k"
+ },
+ "R301": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25803",
+   "Note": "gate pull-down: FET off (fan full speed) unless the EMC2302 drives push-pull high",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "PWMG0",
+   "2": "GND"
+  },
+  "uuid": "d436dc40-b411-5375-b584-e2b50c98e0e8",
+  "value": "100k"
+ },
+ "R302": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C23162",
+   "Note": "PWM pull-up for fans without an internal one",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "FPWM0"
+  },
+  "uuid": "2d3dc011-641f-5c28-b0b0-4676e2661034",
+  "value": "4k7"
+ },
+ "R303": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25804",
+   "Note": "tach pull-up (open-collector tach); to 3V3 so the EMC2302 never sees > 3.6 V",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "FTACH0"
+  },
+  "uuid": "0ecc1d79-2143-507d-ba5f-70be8a7d1a3c",
+  "value": "10k"
+ },
+ "R304": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C21190",
+   "Note": "series protection on the long tach lead",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "FTACH0",
+   "2": "TACH0"
+  },
+  "uuid": "fc4ce6c7-5fcc-51ab-a450-0f40b97588df",
+  "value": "1k"
+ },
+ "R310": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25804",
+   "Note": "BSP452 IN tied on (input current <= 100 uA, IN may go to Vbb)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "AON12",
+   "2": "FANIN1"
+  },
+  "uuid": "7dc36199-0f0b-5dc1-9a49-277d1c82a56a",
+  "value": "10k"
+ },
+ "R311": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25803",
+   "Note": "gate pull-down: FET off (fan full speed) unless the EMC2302 drives push-pull high",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "PWMG1",
+   "2": "GND"
+  },
+  "uuid": "e27c1c63-f7b1-5123-b9eb-0a31a26e6b53",
+  "value": "100k"
+ },
+ "R312": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C23162",
+   "Note": "PWM pull-up for fans without an internal one",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "FPWM1"
+  },
+  "uuid": "073b76f5-4f20-5be2-b16c-a8fde883af28",
+  "value": "4k7"
+ },
+ "R313": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25804",
+   "Note": "tach pull-up (open-collector tach); to 3V3 so the EMC2302 never sees > 3.6 V",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "FTACH1"
+  },
+  "uuid": "0ab8a959-939f-57a7-abbc-30f6528c56c7",
+  "value": "10k"
+ },
+ "R314": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C21190",
+   "Note": "series protection on the long tach lead",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "FTACH1",
+   "2": "TACH1"
+  },
+  "uuid": "3079da38-18fb-529a-99ac-4a847f53bb3c",
+  "value": "1k"
+ },
+ "R320": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25804",
+   "Note": "BSP452 IN tied on (input current <= 100 uA, IN may go to Vbb)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "AON12",
+   "2": "FANIN2"
+  },
+  "uuid": "d471ea28-3d65-5dd8-bd2f-f8a4b8967a8e",
+  "value": "10k"
+ },
+ "R321": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25803",
+   "Note": "gate pull-down: FET off (fan full speed) unless the EMC2302 drives push-pull high",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "PWMG2",
+   "2": "GND"
+  },
+  "uuid": "6076ffda-d757-521c-ba1b-93c1f47c6ffa",
+  "value": "100k"
+ },
+ "R322": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C23162",
+   "Note": "PWM pull-up for fans without an internal one",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "FPWM2"
+  },
+  "uuid": "240f973a-75c0-5015-a4b9-856f299d0fff",
+  "value": "4k7"
+ },
+ "R323": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25804",
+   "Note": "tach pull-up (open-collector tach); to 3V3 so the EMC2302 never sees > 3.6 V",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "FTACH2"
+  },
+  "uuid": "1c4cd3a5-8f0c-5f98-a80d-0719abc0565d",
+  "value": "10k"
+ },
+ "R324": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C21190",
+   "Note": "series protection on the long tach lead",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "FTACH2",
+   "2": "TACH2"
+  },
+  "uuid": "88c61ff1-4444-5123-8c81-97696041e504",
+  "value": "1k"
+ },
+ "R330": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25804",
+   "Note": "BSP452 IN tied on (input current <= 100 uA, IN may go to Vbb)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "AON12",
+   "2": "FANIN3"
+  },
+  "uuid": "ecbf7413-45d5-582e-8c74-6f5b4a404291",
+  "value": "10k"
+ },
+ "R331": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25803",
+   "Note": "gate pull-down: FET off (fan full speed) unless the EMC2302 drives push-pull high",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "PWMG3",
+   "2": "GND"
+  },
+  "uuid": "1904914d-a4ae-5b58-9c8e-a5c0b3c6972e",
+  "value": "100k"
+ },
+ "R332": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C23162",
+   "Note": "PWM pull-up for fans without an internal one",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "FPWM3"
+  },
+  "uuid": "95caa2b6-160d-5ada-835f-a4f8a62b5add",
+  "value": "4k7"
+ },
+ "R333": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25804",
+   "Note": "tach pull-up (open-collector tach); to 3V3 so the EMC2302 never sees > 3.6 V",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "FTACH3"
+  },
+  "uuid": "05857da4-b406-5097-8c69-955014f07863",
+  "value": "10k"
+ },
+ "R334": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C21190",
+   "Note": "series protection on the long tach lead",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "FTACH3",
+   "2": "TACH3"
+  },
+  "uuid": "94929b9c-d94d-5efd-b989-dfeabb1834f4",
+  "value": "1k"
+ },
+ "R340": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25804",
+   "Note": "BSP452 IN tied on (input current <= 100 uA, IN may go to Vbb)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "AON12",
+   "2": "FANIN4"
+  },
+  "uuid": "9d27db7b-72b2-5052-b9de-e09d2fdf5e95",
+  "value": "10k"
+ },
+ "R341": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25803",
+   "Note": "gate pull-down: FET off (fan full speed) unless the EMC2302 drives push-pull high",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "PWMG4",
+   "2": "GND"
+  },
+  "uuid": "161528fd-5053-5644-969d-1678383d0468",
+  "value": "100k"
+ },
+ "R342": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C23162",
+   "Note": "PWM pull-up for fans without an internal one",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "FPWM4"
+  },
+  "uuid": "506e1599-ecee-5040-88df-6da0c0c211cd",
+  "value": "4k7"
+ },
+ "R343": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25804",
+   "Note": "tach pull-up (open-collector tach); to 3V3 so the EMC2302 never sees > 3.6 V",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "FTACH4"
+  },
+  "uuid": "bbc630a3-b71a-501c-a77e-f3a8d0ea4114",
+  "value": "10k"
+ },
+ "R344": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C21190",
+   "Note": "series protection on the long tach lead",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "FTACH4",
+   "2": "TACH4"
+  },
+  "uuid": "af185803-0c73-5a01-9441-700c5d325372",
+  "value": "1k"
+ },
+ "R350": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25804",
+   "Note": "BSP452 IN tied on (input current <= 100 uA, IN may go to Vbb)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "AON12",
+   "2": "FANIN5"
+  },
+  "uuid": "7a88c6a3-2de2-53a6-8602-fc25876b4fc8",
+  "value": "10k"
+ },
+ "R351": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25803",
+   "Note": "gate pull-down: FET off (fan full speed) unless the EMC2302 drives push-pull high",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "PWMG5",
+   "2": "GND"
+  },
+  "uuid": "01095f51-bafc-567b-bd04-855430a27345",
+  "value": "100k"
+ },
+ "R352": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C23162",
+   "Note": "PWM pull-up for fans without an internal one",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "FPWM5"
+  },
+  "uuid": "94942a03-a1fd-585a-af14-3571962ea878",
+  "value": "4k7"
+ },
+ "R353": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25804",
+   "Note": "tach pull-up (open-collector tach); to 3V3 so the EMC2302 never sees > 3.6 V",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "FTACH5"
+  },
+  "uuid": "5c3df9e8-ab70-5a59-b412-a293d6b04b15",
+  "value": "10k"
+ },
+ "R354": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C21190",
+   "Note": "series protection on the long tach lead",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "FTACH5",
+   "2": "TACH5"
+  },
+  "uuid": "e1035dbc-6585-5ce0-81b4-1ff72bb67692",
+  "value": "1k"
+ },
+ "R360": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25804",
+   "Note": "BSP452 IN tied on (input current <= 100 uA, IN may go to Vbb)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "AON12",
+   "2": "FANIN6"
+  },
+  "uuid": "b61e1c6e-9dd2-5294-96ac-349aecd0ca3d",
+  "value": "10k"
+ },
+ "R361": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25803",
+   "Note": "gate pull-down: FET off (fan full speed) unless the EMC2302 drives push-pull high",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "PWMG6",
+   "2": "GND"
+  },
+  "uuid": "8c40353f-00e4-5e90-9749-c8662b0d10e3",
+  "value": "100k"
+ },
+ "R362": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C23162",
+   "Note": "PWM pull-up for fans without an internal one",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "FPWM6"
+  },
+  "uuid": "c952fe32-64ba-58b1-b204-f4970c10a510",
+  "value": "4k7"
+ },
+ "R363": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25804",
+   "Note": "tach pull-up (open-collector tach); to 3V3 so the EMC2302 never sees > 3.6 V",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "FTACH6"
+  },
+  "uuid": "39a07af4-e15e-529e-af03-54dfde7c1485",
+  "value": "10k"
+ },
+ "R364": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C21190",
+   "Note": "series protection on the long tach lead",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "FTACH6",
+   "2": "TACH6"
+  },
+  "uuid": "37a165ac-8611-5dcc-813c-f823b1ad50fb",
+  "value": "1k"
+ },
+ "R370": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25804",
+   "Note": "BSP452 IN tied on (input current <= 100 uA, IN may go to Vbb)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "AON12",
+   "2": "FANIN7"
+  },
+  "uuid": "56b5baed-3b23-554e-a098-488277c1ea2b",
+  "value": "10k"
+ },
+ "R371": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25803",
+   "Note": "gate pull-down: FET off (fan full speed) unless the EMC2302 drives push-pull high",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "PWMG7",
+   "2": "GND"
+  },
+  "uuid": "99a3f892-19ce-5486-ac4a-72decfe0b15b",
+  "value": "100k"
+ },
+ "R372": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C23162",
+   "Note": "PWM pull-up for fans without an internal one",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "FPWM7"
+  },
+  "uuid": "f8eb6dd1-e25e-581e-ac74-4fd1c65d48cf",
+  "value": "4k7"
+ },
+ "R373": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25804",
+   "Note": "tach pull-up (open-collector tach); to 3V3 so the EMC2302 never sees > 3.6 V",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "FTACH7"
+  },
+  "uuid": "5808b86a-c911-5613-91f9-0803c49b4685",
+  "value": "10k"
+ },
+ "R374": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C21190",
+   "Note": "series protection on the long tach lead",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "FTACH7",
+   "2": "TACH7"
+  },
+  "uuid": "637b8167-0fb8-5378-9d27-9a0e8dd29946",
+  "value": "1k"
+ },
  "R4": {
   "dnp": false,
   "fields": {
@@ -2114,6 +3071,205 @@
    "2": "PRESENT"
   },
   "uuid": "48e70712-324b-5bf4-8e3f-0321b75ff951",
+  "value": "10k"
+ },
+ "R400": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25804",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "MUXRST"
+  },
+  "uuid": "0d00d75b-75a5-5e50-9edf-d7b745786029",
+  "value": "10k"
+ },
+ "R401": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C23162",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "FSDA0"
+  },
+  "uuid": "b334ed50-2672-595c-a970-c0d57c979633",
+  "value": "4k7"
+ },
+ "R402": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C23162",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "FSCL0"
+  },
+  "uuid": "4a62b5b4-38f0-51a0-811c-c8aeee93c480",
+  "value": "4k7"
+ },
+ "R403": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C23162",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "FSDA1"
+  },
+  "uuid": "e4782074-e661-58c6-9dd7-76f22d1ce3d0",
+  "value": "4k7"
+ },
+ "R404": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C23162",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "FSCL1"
+  },
+  "uuid": "9cb94bd4-a056-523f-950f-bae2b3d64874",
+  "value": "4k7"
+ },
+ "R405": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C23162",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "FSDA2"
+  },
+  "uuid": "fcb31d4c-27cb-5218-be09-24ac5e560784",
+  "value": "4k7"
+ },
+ "R406": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C23162",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "FSCL2"
+  },
+  "uuid": "b881affb-81a9-5fa3-b8c7-94f17c6b8fca",
+  "value": "4k7"
+ },
+ "R407": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C23162",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "FSDA3"
+  },
+  "uuid": "10cccb7c-e37a-505c-a8b0-2b02051b53ac",
+  "value": "4k7"
+ },
+ "R408": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C23162",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "FSCL3"
+  },
+  "uuid": "51dede07-86bb-5e3e-b735-41c8d016e10f",
+  "value": "4k7"
+ },
+ "R410": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25804",
+   "Note": "CLK unused (internal clock); pulled down, not tied, as it can be set to an output",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "FCLK0",
+   "2": "GND"
+  },
+  "uuid": "75899563-16e9-5c00-8ea8-976cdf5302ba",
+  "value": "10k"
+ },
+ "R411": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25804",
+   "Note": "CLK unused (internal clock); pulled down, not tied, as it can be set to an output",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "FCLK1",
+   "2": "GND"
+  },
+  "uuid": "164e2524-d3ec-5be8-9688-7c531cefdaba",
+  "value": "10k"
+ },
+ "R412": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25804",
+   "Note": "CLK unused (internal clock); pulled down, not tied, as it can be set to an output",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "FCLK2",
+   "2": "GND"
+  },
+  "uuid": "ab7840ed-5769-5db0-a89f-bc430e9e4504",
+  "value": "10k"
+ },
+ "R413": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25804",
+   "Note": "CLK unused (internal clock); pulled down, not tied, as it can be set to an output",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "FCLK3",
+   "2": "GND"
+  },
+  "uuid": "284ca5a4-275a-5465-a120-669bef8d6649",
   "value": "10k"
  },
  "R5": {
@@ -2269,6 +3425,162 @@
   "uuid": "d0631603-707d-5136-ae87-ee31359015ad",
   "value": "TCA9535PWR"
  },
+ "U12": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C130026",
+   "MPN": "TI TCA9548APWR 8-ch I2C switch, TSSOP-24",
+   "Note": "0x70; channel m (0-3) = fan controller U14+m"
+  },
+  "footprint": "Package_SO:TSSOP-24_4.4x7.8mm_P0.65mm",
+  "in_bom": true,
+  "pads": {
+   "1": "GND",
+   "10": "FSDA3",
+   "11": "FSCL3",
+   "12": "GND",
+   "13": "unconnected-(U12-SD4-Pad13)",
+   "14": "unconnected-(U12-SC4-Pad14)",
+   "15": "unconnected-(U12-SD5-Pad15)",
+   "16": "unconnected-(U12-SC5-Pad16)",
+   "17": "unconnected-(U12-SD6-Pad17)",
+   "18": "unconnected-(U12-SC6-Pad18)",
+   "19": "unconnected-(U12-SD7-Pad19)",
+   "2": "GND",
+   "20": "unconnected-(U12-SC7-Pad20)",
+   "21": "GND",
+   "22": "SCL",
+   "23": "SDA",
+   "24": "+3V3",
+   "3": "MUXRST",
+   "4": "FSDA0",
+   "5": "FSCL0",
+   "6": "FSDA1",
+   "7": "FSCL1",
+   "8": "FSDA2",
+   "9": "FSCL2"
+  },
+  "uuid": "07178ee5-b37c-567f-b88f-7a44c5fd4a7a",
+  "value": "TCA9548APWR"
+ },
+ "U13": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C30389",
+   "MPN": "TI TMP75AIDR (LM75 pinout, 0x48-0x4F), SOIC-8",
+   "Note": "0x48: main board (eFuse row) temperature; ALERT on /INT (default 80 C / 75 C)"
+  },
+  "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+  "in_bom": true,
+  "pads": {
+   "1": "SDA",
+   "2": "SCL",
+   "3": "~{I2C_INT}",
+   "4": "GND",
+   "5": "GND",
+   "6": "GND",
+   "7": "GND",
+   "8": "+3V3"
+  },
+  "uuid": "abb611e0-ba97-5778-b241-bdb30134c719",
+  "value": "TMP75AIDR"
+ },
+ "U14": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C626969",
+   "MPN": "Microchip EMC2302-1-AIZL-TR, 2-ch 26 kHz PWM fan controller, SMBus 0x2E, MSOP-10 (no pad)",
+   "Note": "behind mux channel 0; fans 0 and 1"
+  },
+  "footprint": "mega-kvm-power:MSOP-10_3x3mm_P0.5mm_Pad0.28",
+  "in_bom": true,
+  "pads": {
+   "1": "FSDA0",
+   "10": "~{I2C_INT}",
+   "2": "FSCL0",
+   "3": "+3V3",
+   "4": "GND",
+   "5": "PWMG0",
+   "6": "TACH0",
+   "7": "PWMG1",
+   "8": "TACH1",
+   "9": "FCLK0"
+  },
+  "uuid": "1a88592c-cf48-5eec-9efa-c8da27999e70",
+  "value": "EMC2302-1-AIZL-TR"
+ },
+ "U15": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C626969",
+   "MPN": "Microchip EMC2302-1-AIZL-TR, 2-ch 26 kHz PWM fan controller, SMBus 0x2E, MSOP-10 (no pad)",
+   "Note": "behind mux channel 1; fans 2 and 3"
+  },
+  "footprint": "mega-kvm-power:MSOP-10_3x3mm_P0.5mm_Pad0.28",
+  "in_bom": true,
+  "pads": {
+   "1": "FSDA1",
+   "10": "~{I2C_INT}",
+   "2": "FSCL1",
+   "3": "+3V3",
+   "4": "GND",
+   "5": "PWMG2",
+   "6": "TACH2",
+   "7": "PWMG3",
+   "8": "TACH3",
+   "9": "FCLK1"
+  },
+  "uuid": "74a1d93e-3e4a-5ae6-acf2-c645f5cb8180",
+  "value": "EMC2302-1-AIZL-TR"
+ },
+ "U16": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C626969",
+   "MPN": "Microchip EMC2302-1-AIZL-TR, 2-ch 26 kHz PWM fan controller, SMBus 0x2E, MSOP-10 (no pad)",
+   "Note": "behind mux channel 2; fans 4 and 5"
+  },
+  "footprint": "mega-kvm-power:MSOP-10_3x3mm_P0.5mm_Pad0.28",
+  "in_bom": true,
+  "pads": {
+   "1": "FSDA2",
+   "10": "~{I2C_INT}",
+   "2": "FSCL2",
+   "3": "+3V3",
+   "4": "GND",
+   "5": "PWMG4",
+   "6": "TACH4",
+   "7": "PWMG5",
+   "8": "TACH5",
+   "9": "FCLK2"
+  },
+  "uuid": "9598c3b6-75a3-5905-840d-f1cbacc8bfff",
+  "value": "EMC2302-1-AIZL-TR"
+ },
+ "U17": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C626969",
+   "MPN": "Microchip EMC2302-1-AIZL-TR, 2-ch 26 kHz PWM fan controller, SMBus 0x2E, MSOP-10 (no pad)",
+   "Note": "behind mux channel 3; fans 6 and 7"
+  },
+  "footprint": "mega-kvm-power:MSOP-10_3x3mm_P0.5mm_Pad0.28",
+  "in_bom": true,
+  "pads": {
+   "1": "FSDA3",
+   "10": "~{I2C_INT}",
+   "2": "FSCL3",
+   "3": "+3V3",
+   "4": "GND",
+   "5": "PWMG6",
+   "6": "TACH6",
+   "7": "PWMG7",
+   "8": "TACH7",
+   "9": "FCLK3"
+  },
+  "uuid": "0a53f213-9749-5ff1-8a6f-dd4b232fe7ff",
+  "value": "EMC2302-1-AIZL-TR"
+ },
  "U2": {
   "dnp": false,
   "fields": {
@@ -2314,6 +3626,142 @@
   },
   "uuid": "25fc8f9b-c0e1-56e9-9845-457136187d49",
   "value": "TPS259470LRPWR"
+ },
+ "U30": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C58074",
+   "MPN": "Infineon BSP452 smart high-side switch, 160 mOhm, current limit 0.7-2.4 A, thermal auto-restart, SOT-223"
+  },
+  "footprint": "Package_TO_SOT_SMD:SOT-223",
+  "in_bom": true,
+  "pads": {
+   "1": "FANPWR0",
+   "2": "GND",
+   "3": "FANIN0",
+   "4": "AON12"
+  },
+  "uuid": "a8bce933-722c-56e0-8140-2cf5e59f0992",
+  "value": "BSP452"
+ },
+ "U31": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C58074",
+   "MPN": "Infineon BSP452 smart high-side switch, 160 mOhm, current limit 0.7-2.4 A, thermal auto-restart, SOT-223"
+  },
+  "footprint": "Package_TO_SOT_SMD:SOT-223",
+  "in_bom": true,
+  "pads": {
+   "1": "FANPWR1",
+   "2": "GND",
+   "3": "FANIN1",
+   "4": "AON12"
+  },
+  "uuid": "0533ff5d-d529-542a-98fd-e3b24e495349",
+  "value": "BSP452"
+ },
+ "U32": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C58074",
+   "MPN": "Infineon BSP452 smart high-side switch, 160 mOhm, current limit 0.7-2.4 A, thermal auto-restart, SOT-223"
+  },
+  "footprint": "Package_TO_SOT_SMD:SOT-223",
+  "in_bom": true,
+  "pads": {
+   "1": "FANPWR2",
+   "2": "GND",
+   "3": "FANIN2",
+   "4": "AON12"
+  },
+  "uuid": "4f25b59e-3665-5517-84b0-ce7bd4c72f26",
+  "value": "BSP452"
+ },
+ "U33": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C58074",
+   "MPN": "Infineon BSP452 smart high-side switch, 160 mOhm, current limit 0.7-2.4 A, thermal auto-restart, SOT-223"
+  },
+  "footprint": "Package_TO_SOT_SMD:SOT-223",
+  "in_bom": true,
+  "pads": {
+   "1": "FANPWR3",
+   "2": "GND",
+   "3": "FANIN3",
+   "4": "AON12"
+  },
+  "uuid": "79b7f2bc-1743-5749-ae1f-eb2283b4bbdf",
+  "value": "BSP452"
+ },
+ "U34": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C58074",
+   "MPN": "Infineon BSP452 smart high-side switch, 160 mOhm, current limit 0.7-2.4 A, thermal auto-restart, SOT-223"
+  },
+  "footprint": "Package_TO_SOT_SMD:SOT-223",
+  "in_bom": true,
+  "pads": {
+   "1": "FANPWR4",
+   "2": "GND",
+   "3": "FANIN4",
+   "4": "AON12"
+  },
+  "uuid": "23b0e5a1-8ca4-5c01-b92e-219bf03539fa",
+  "value": "BSP452"
+ },
+ "U35": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C58074",
+   "MPN": "Infineon BSP452 smart high-side switch, 160 mOhm, current limit 0.7-2.4 A, thermal auto-restart, SOT-223"
+  },
+  "footprint": "Package_TO_SOT_SMD:SOT-223",
+  "in_bom": true,
+  "pads": {
+   "1": "FANPWR5",
+   "2": "GND",
+   "3": "FANIN5",
+   "4": "AON12"
+  },
+  "uuid": "09f7af5d-17a7-58a8-833b-9bd790904189",
+  "value": "BSP452"
+ },
+ "U36": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C58074",
+   "MPN": "Infineon BSP452 smart high-side switch, 160 mOhm, current limit 0.7-2.4 A, thermal auto-restart, SOT-223"
+  },
+  "footprint": "Package_TO_SOT_SMD:SOT-223",
+  "in_bom": true,
+  "pads": {
+   "1": "FANPWR6",
+   "2": "GND",
+   "3": "FANIN6",
+   "4": "AON12"
+  },
+  "uuid": "83c4cdc8-c61b-5720-8f66-9557043edf6c",
+  "value": "BSP452"
+ },
+ "U37": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C58074",
+   "MPN": "Infineon BSP452 smart high-side switch, 160 mOhm, current limit 0.7-2.4 A, thermal auto-restart, SOT-223"
+  },
+  "footprint": "Package_TO_SOT_SMD:SOT-223",
+  "in_bom": true,
+  "pads": {
+   "1": "FANPWR7",
+   "2": "GND",
+   "3": "FANIN7",
+   "4": "AON12"
+  },
+  "uuid": "92f47933-9eb5-55bb-ba9a-598cc23cd8de",
+  "value": "BSP452"
  },
  "U4": {
   "dnp": false,

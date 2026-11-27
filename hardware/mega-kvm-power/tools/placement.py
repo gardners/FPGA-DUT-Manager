@@ -30,8 +30,6 @@ for k, ref in enumerate(['R180', 'R181', 'R182', 'C180', 'C181', 'R183']):
 MAIN.update({
     'J20': (121, 4.5, 90), 'J21': (134, 4.5, 90),
     'J22': (151, 14.5, 180),
-    'J23': (160, 42, 90), 'J24': (160, 54, 90),
-    'R190': (154, 42, 90), 'R191': (154, 54, 90), 'R192': (151, 42, 90), 'R193': (151, 54, 90),
     # VBUS entry
     'J1': (12, 69), 'J2': (27, 69),
     'C1': (43, 70), 'C2': (58, 70), 'C3': (68, 64, 90),
@@ -46,27 +44,60 @@ MAIN.update({
     'R5': (130, 55, 90), 'R7': (133, 55, 90), 'R8': (136, 55, 90),
     'R9': (150, 62, 90), 'R10': (153, 62, 90), 'R11': (130, 67, 90),
     'H1': (3.5, 40), 'H2': (166.5, 30), 'H3': (3.5, 76.5), 'H4': (166.5, 76.5),
+    'H5': (226.5, 9), 'H6': (226.5, 67),
 })
 # R6 is the expander A0 strap (moved next to the expander)
 MAIN['R6'] = (133, 67, 90)
+
+# Fan block (issue 0052): the board grows from 170 to 230 mm; the new 60 mm on
+# the right holds 8 fan cells (2 columns x 4 rows) on the always-on pour.
+# Cell: 4-pin header, BSP452 (tab = AON12) to its right, then a row with the
+# 2N7002 PWM inverter and the five resistors.
+FAN_CELLS = []
+for k in range(8):
+    ox, oy = 171 + 27 * (k // 4), 1 + 18.5 * (k % 4)
+    FAN_CELLS.append((ox, oy))
+    base = 300 + 10 * k
+    MAIN['J%d' % (30 + k)] = (ox + 3, oy + 4.5, 0)
+    MAIN['U%d' % (30 + k)] = (ox + 20, oy + 5, 0)
+    MAIN['Q%d' % (30 + k)] = (ox + 3, oy + 12.5, 0)
+    for i in range(5):
+        MAIN['R%d' % (base + i)] = (ox + 7 + 2.5 * i, oy + 12.5, 90)
+# controllers, mux and sensor in the space the old 3-pin fan headers used
+MAIN.update({
+    'U12': (143, 41, 0), 'C400': (143, 47.5, 0), 'R400': (143, 50.5, 0), 'R12': (146, 53, 0),
+    'U13': (100, 45, 0), 'C405': (100, 50, 0),
+    'J6': (204, 76, 0),
+})
+for m in range(4):
+    MAIN['U%d' % (14 + m)] = (156, 37 + 4.5 * m, 0)
+    MAIN['C%d' % (401 + m)] = (162, 37 + 4.5 * m, 0)
+    MAIN['R%d' % (410 + m)] = (166, 37 + 4.5 * m, 0)
+for i in range(8):
+    MAIN['R%d' % (401 + i)] = (148.6 + 2.4 * (i % 2), 37.5 + 3.5 * (i // 2), 90)
 
 BOARDS = {
     'main': {
         'name': 'mega-kvm-power-main',
         'origin': (100, 100),
-        'size': (170, 80),
+        'size': (230, 80),
         'place': MAIN,
         'zones': [
-            ('GND', 'B', [(0.5, 0.5), (169.5, 0.5), (169.5, 79.5), (0.5, 79.5)]),
+            ('GND', 'B', [(0.5, 0.5), (229.5, 0.5), (229.5, 79.5), (0.5, 79.5)]),
             ('VBUS', 'F', [(1, 24.1), (143, 24.1), (143, 60), (64, 60), (64, 79), (1, 79)]),
-            ('AON12', 'F', [(118.5, 1), (169, 1), (169, 61), (146, 61), (146, 23.9), (118.5, 23.9)]),
+            ('AON12', 'F', [(118.5, 1), (229, 1), (229, 72), (170, 72), (170, 61), (146, 61),
+                            (146, 23.9), (118.5, 23.9)]),
         ] + [('OUT%d' % n, 'F', [(8.6 + n * 13.5, 1), (21.4 + n * 13.5, 1),
                                  (21.4 + n * 13.5, 23.9), (8.6 + n * 13.5, 23.9)]) for n in range(8)],
-        'texts': [('MEGA-KVM power main v0.1  2 oz Cu  VBUS 12 V 25 A', 50, 50, 'F', 1.5),
+        'texts': [('MEGA-KVM power main v0.3  2 oz Cu  VBUS 12 V 25 A', 50, 50, 'F', 1.5),
                   ('DUT0', 10.5, 21, 'F', 1.0), ('DUT7', 105, 21, 'F', 1.0),
-                  ('MIMAS / GS105 / FANS (always on)', 140, 32, 'F', 1.0),
+                  ('MIMAS / GS105 (always on)', 140, 32, 'F', 1.0),
                   ('CTRL: 1 GND 2 KEY 3-10 CH0-7 11 PRESENT', 92, 66.5, 'F', 0.8),
-                  ('VBUS', 12, 61.5, 'F', 1.2), ('GND', 27, 61.5, 'F', 1.2)],
+                  ('VBUS', 12, 61.5, 'F', 1.2), ('GND', 27, 61.5, 'F', 1.2),
+                  ('FANS 1 GND 2 +12V 3 TACH 4 PWM', 186, 77.5, 'F', 0.8),
+                  ('J6 TEMP I2C to input board', 188, 75.8, 'F', 0.8)]
+                 + [('FAN%d %s' % (k, ['KVM', 'KVM', 'A', 'A', 'A', 'B', 'B', 'B'][k]),
+                     FAN_CELLS[k][0] + 7.6, FAN_CELLS[k][1] + 9.4, 'F', 0.8) for k in range(8)],
     },
 }
 

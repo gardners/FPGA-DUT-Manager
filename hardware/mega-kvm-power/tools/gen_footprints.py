@@ -75,9 +75,27 @@ def molex8981():
     return name, L
 
 
+SYSFP = os.environ.get(
+    'KICAD_FOOTPRINT_DIR_HOST',
+    '/var/lib/flatpak/runtime/org.kicad.KiCad.Library.Footprints/x86_64/stable/active/files/footprints')
+
+
+def msop10_narrow():
+    """KiCad's MSOP-10 with 0.28 mm instead of 0.35 mm wide pads: 0.22 mm
+    pad-to-pad gap at 0.5 mm pitch, which meets the 0.2 mm clearance (2 oz
+    copper) that the stock footprint (0.15 mm gap) does not.  EMC2302 land
+    pattern in the Microchip drawing is 0.30 mm wide; 0.28 is within reflow
+    tolerance for 0.17-0.27 mm leads."""
+    name = 'MSOP-10_3x3mm_P0.5mm_Pad0.28'
+    src = open(os.path.join(SYSFP, 'Package_SO.pretty', 'MSOP-10_3x3mm_P0.5mm.kicad_mod')).read()
+    src = src.replace('(footprint "MSOP-10_3x3mm_P0.5mm"', '(footprint "%s"' % name, 1)
+    src = src.replace('(size 1.5 0.35)', '(size 1.5 0.28)')
+    return name, src.rstrip('\n').split('\n')
+
+
 if __name__ == '__main__':
     os.makedirs(OUT, exist_ok=True)
-    for fn in (rpw, molex8981):
+    for fn in (rpw, molex8981, msop10_narrow):
         name, lines = fn()
         with open(os.path.join(OUT, name + '.kicad_mod'), 'w') as f:
             f.write('\n'.join(lines) + '\n')

@@ -46,3 +46,21 @@ NFET = dict(lib='Transistor_FET:2N7002', fp='Package_TO_SOT_SMD:SOT-23', value='
 LUG_M4 = dict(lib='Connector_Generic:Conn_01x01', fp='MountingHole:MountingHole_4.3mm_M4_Pad_Via',
               value='M4 lug', fields={'LCSC': 'n/a (ring terminal + M4 screw/nut)', 'Assembly': 'hand'})
 HOLE_M3 = dict(lib='Mechanical:MountingHole', fp='MountingHole:MountingHole_3.2mm_M3', value='M3')
+
+# ---- fans, I2C housekeeping and temperature (issue 0052). LCSC numbers, stock
+# and prices looked up 2026-11-27 (jlcsearch / LCSC); all leaded, no exposed pad.
+FAN_SW = dict(lib='mega-kvm-power:BSP452', fp='Package_TO_SOT_SMD:SOT-223', value='BSP452',
+              fields={'LCSC': 'C58074', 'MPN': 'Infineon BSP452 smart high-side switch, 160 mOhm, '
+                                                 'current limit 0.7-2.4 A, thermal auto-restart, SOT-223'})
+FAN_CTRL = dict(lib='Driver_Motor:EMC2302-x-AIZL', fp='mega-kvm-power:MSOP-10_3x3mm_P0.5mm_Pad0.28',
+                value='EMC2302-1-AIZL-TR',
+                fields={'LCSC': 'C626969', 'MPN': 'Microchip EMC2302-1-AIZL-TR, 2-ch 26 kHz PWM fan controller, '
+                                                  'SMBus 0x2E, MSOP-10 (no pad)'})
+I2C_MUX = dict(lib='Interface_Expansion:TCA9548APWR', fp='Package_SO:TSSOP-24_4.4x7.8mm_P0.65mm',
+               value='TCA9548APWR', fields={'LCSC': 'C130026', 'MPN': 'TI TCA9548APWR 8-ch I2C switch, TSSOP-24'})
+TSENS = dict(lib='Sensor_Temperature:LM75B', fp='Package_SO:SOIC-8_3.9x4.9mm_P1.27mm', value='TMP75AIDR',
+             fields={'LCSC': 'C30389', 'MPN': 'TI TMP75AIDR (LM75 pinout, 0x48-0x4F), SOIC-8'})
+FAN_HDR = dict(lib='Connector_Generic:Conn_01x04', fp='Connector:FanPinHeader_1x04_P2.54mm_Vertical',
+               value='FAN', fields={'LCSC': 'C240840', 'MPN': 'Molex 47053-1000 4-pin PWM fan header'})
+XH5 = dict(lib='Connector_Generic:Conn_01x05', fp='Connector_JST:JST_XH_B5B-XH-A_1x05_P2.50mm_Vertical',
+           value='XH-5', fields={'LCSC': 'C157991', 'MPN': 'JST B5B-XH-A(LF)(SN)'})

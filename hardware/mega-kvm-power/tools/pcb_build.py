@@ -111,7 +111,7 @@ def build(which):
             if k not in ('Datasheet', 'Description'):
                 fp.SetField(k, v)
                 fp.GetField(k).SetVisible(False)
-        small = re.match(r'(Resistor_SMD|Capacitor_SMD|LED_SMD|Diode_SMD|Package_TO_SOT_SMD|Jumper):',
+        small = re.match(r'(Resistor_SMD:|Capacitor_SMD:|LED_SMD:|Diode_SMD:|Package_TO_SOT_SMD:|Jumper:|mega-kvm-power:MSOP)',
                          p['footprint'])
         if small:   # dense passives: reference on the fab layer, not silk
             ref_t = fp.Reference()

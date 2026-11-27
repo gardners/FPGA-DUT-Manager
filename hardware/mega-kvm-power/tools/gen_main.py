@@ -1,19 +1,21 @@
 """MEGA-KVM power board, main (horizontal) PCB: 8 switched DUT outputs and
 one always-on output group, all eFuse protected, fed from VBUS (12 V) that
 comes from the input board over two M4 lugs.  Issue 0047.
+Fans: 8 x 4-pin PWM headers with per-header BSP452 protection, 4 x EMC2302
+behind a TCA9548A on the J5 I2C bus, TMP75 sensors.  Issue 0052.
 """
 import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from kigen import Schematic, write_project  # noqa: E402
-from parts import (B5819W, EFUSE_A, EFUSE_L, FP_C1206, FP_R1206, HOLE_M3, LDO, LED_G,  # noqa: E402,F401
-                   LUG_M4, SS34, c, r)
+from parts import (B5819W, EFUSE_A, EFUSE_L, FAN_CTRL, FAN_HDR, FAN_SW, FP_C1206, FP_R1206,  # noqa: E402,F401
+                   HOLE_M3, I2C_MUX, LDO, LED_G, LUG_M4, NFET, SS34, TSENS, XH5, c, r)
 
 NAME = 'mega-kvm-power-main'
 OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', NAME)
 
-S = Schematic(NAME, 'MEGA-KVM power board - main (eFuse outputs)', paper='A3')
+S = Schematic(NAME, 'MEGA-KVM power board - main (eFuse outputs, fans)', paper='A2', rev='0.3')
 
 
 def P(part, ref, x, y, nets, value=None, dnp=False, nc=(), fp=None, fields=None, rot=0):
@@ -95,15 +97,87 @@ S.place('Connector:Barrel_Jack_Switch', 'J22', 'GS105 12V', ax + 7.62, by + 35.5
         footprint='Connector_BarrelJack:BarrelJack_CUI_PJ-102AH_Horizontal',
         fields={'MPN': 'CUI PJ-102AH 2.1 mm, 2.5 A', 'LCSC': 'TBD',
                 'Note': 'male-male 5.5/2.1 lead to the Netgear GS105'})
-for k in range(2):
-    fx = ax + 38.1 + k * 27.94
-    P(r('0R'), 'R%d' % (190 + k), fx, by + 30.48, {'1': 'AON12', '2': 'FANPWR%d' % k}, fp=FP_R1206,
-      fields={'Note': '0R; fit ~47-100R (1 W) to slow a fan for silence'})
-    conn(3, 'J%d' % (23 + k), fx + 12.7, by + 40.64, {'1': 'GND', '2': 'FANPWR%d' % k, '3': 'TACH%d' % k},
-         'FAN%d' % k, 'Connector:FanPinHeader_1x03_P2.54mm_Vertical',
-         fields={'MPN': 'Molex 47053-1000 KK fan header 3-pin', 'LCSC': 'TBD',
-                 'Note': 'Noctua NF-A4x10 FLX 12 V (50 mA)'})
-    P(r('10k'), 'R%d' % (192 + k), fx, by + 48.26, {'1': '+3V3', '2': 'TACH%d' % k})
+S.text('8 x 4-pin PWM fans: see the fan section below\n(FAN0-1 KVM front panel, FAN2-4 shelf plate A,\nFAN5-7 shelf plate B; issue 0052).', ax + 38.1, by + 22.86, 1.27)
+
+# ---------------------------------------------------------------- fans (issue 0052)
+# Per header: BSP452 smart high-side switch (current limit 0.7-2.4 A, thermal
+# auto-restart) from the always-on group, so a shorted fan lead cannot pull the
+# Mimas/GS105 group into its 5 A limit.  PWM through a 2N7002 inverter: with the
+# EMC2302 unpowered, held in reset, at its power-on default or after its
+# watchdog fires, the FET is off and the fan's PWM input is high = full speed.
+FAN_USE = ['KVM front panel', 'KVM front panel', 'shelf plate A', 'shelf plate A', 'shelf plate A',
+           'shelf plate B', 'shelf plate B', 'shelf plate B']
+for k in range(8):
+    col, row = k % 4, k // 4
+    bx, by = 12.7 + col * 96.52, 292.1 + row * 60.96
+    base = 300 + 10 * k
+    S.box(bx, by, bx + 92, by + 55.88, 'FAN%d (%s): switch + PWM inverter + tach' % (k, FAN_USE[k]))
+    P(FAN_SW, 'U%d' % (30 + k), bx + 22.86, by + 17.78,
+      {'Vbb': 'AON12', 'IN': 'FANIN%d' % k, 'GND': 'GND', 'OUT': 'FANPWR%d' % k})
+    P(r('10k'), 'R%d' % (base + 0), bx + 7.62, by + 20.32, {'1': 'AON12', '2': 'FANIN%d' % k},
+      fields={'Note': 'BSP452 IN tied on (input current <= 100 uA, IN may go to Vbb)'})
+    P(FAN_HDR, 'J%d' % (30 + k), bx + 50.8, by + 17.78,
+      {'1': 'GND', '2': 'FANPWR%d' % k, '3': 'FTACH%d' % k, '4': 'FPWM%d' % k}, value='FAN%d' % k,
+      fields={'Note': '1 GND, 2 +12 V, 3 TACH, 4 PWM (Intel 4-wire); 3-pin fans run at full speed'})
+    P(NFET, 'Q%d' % (30 + k), bx + 22.86, by + 43.18, {'G': 'PWMG%d' % k, 'S': 'GND', 'D': 'FPWM%d' % k},
+      fields={'Note': 'PWM inverter: EMC2302 PWM polarity must be set to inverted (reg 2Ah)'})
+    P(r('100k'), 'R%d' % (base + 1), bx + 7.62, by + 43.18, {'1': 'PWMG%d' % k, '2': 'GND'},
+      fields={'Note': 'gate pull-down: FET off (fan full speed) unless the EMC2302 drives push-pull high'})
+    P(r('4k7'), 'R%d' % (base + 2), bx + 38.1, by + 40.64, {'1': '+3V3', '2': 'FPWM%d' % k},
+      fields={'Note': 'PWM pull-up for fans without an internal one'})
+    P(r('10k'), 'R%d' % (base + 3), bx + 66.04, by + 40.64, {'1': '+3V3', '2': 'FTACH%d' % k},
+      fields={'Note': 'tach pull-up (open-collector tach); to 3V3 so the EMC2302 never sees > 3.6 V'})
+    P(r('1k'), 'R%d' % (base + 4), bx + 78.74, by + 40.64, {'1': 'FTACH%d' % k, '2': 'TACH%d' % k},
+      fields={'Note': 'series protection on the long tach lead'})
+
+# ---------------------------------------------------------------- fan controllers, sensor (I2C, J5 bus)
+bx, by = 408.94, 15.24
+S.box(bx, by, bx + 172.72, by + 271.78,
+      'I2C housekeeping (shield bus via J5): TCA9548A 0x70 -> 4 x EMC2302-1 (0x2E), TMP75 0x48')
+mux = {'A0': 'GND', 'A1': 'GND', 'A2': 'GND', '~{RESET}': 'MUXRST', 'SDA': 'SDA', 'SCL': 'SCL',
+       'VCC': '+3V3', 'GND': 'GND'}
+for m in range(4):
+    mux['SD%d' % m] = 'FSDA%d' % m
+    mux['SC%d' % m] = 'FSCL%d' % m
+S.place(I2C_MUX['lib'], 'U12', I2C_MUX['value'], bx + 30.48, by + 55.88, mux,
+        footprint=I2C_MUX['fp'], nc=('SD4', 'SC4', 'SD5', 'SC5', 'SD6', 'SC6', 'SD7', 'SC7'),
+        fields=dict(I2C_MUX['fields'], Note='0x70; channel m (0-3) = fan controller U14+m'))
+P(c('100n'), 'C400', bx + 12.7, by + 22.86, {'1': '+3V3', '2': 'GND'})
+P(r('10k'), 'R400', bx + 12.7, by + 99.06, {'1': '+3V3', '2': 'MUXRST'})
+for m in range(4):
+    P(r('4k7'), 'R%d' % (401 + 2 * m), bx + 55.88 + 7.62 * m, by + 99.06, {'1': '+3V3', '2': 'FSDA%d' % m})
+    P(r('4k7'), 'R%d' % (402 + 2 * m), bx + 55.88 + 7.62 * m, by + 114.3, {'1': '+3V3', '2': 'FSCL%d' % m})
+for m in range(4):
+    ex, ey = bx + 129.54, by + 27.94 + m * 43.18
+    P(FAN_CTRL, 'U%d' % (14 + m), ex, ey,
+      {'SMDATA': 'FSDA%d' % m, 'SMCLK': 'FSCL%d' % m, 'VDD': '+3V3', 'GND': 'GND',
+       'PWM1': 'PWMG%d' % (2 * m), 'TACH1': 'TACH%d' % (2 * m),
+       'PWM2': 'PWMG%d' % (2 * m + 1), 'TACH2': 'TACH%d' % (2 * m + 1),
+       'CLK': 'FCLK%d' % m, '~{ALERT}': '~{I2C_INT}'},
+      fields={'Note': 'behind mux channel %d; fans %d and %d' % (m, 2 * m, 2 * m + 1)})
+    P(c('100n'), 'C%d' % (401 + m), ex + 22.86, ey + 7.62, {'1': '+3V3', '2': 'GND'})
+    P(r('10k'), 'R%d' % (410 + m), ex - 22.86, ey + 7.62, {'1': 'FCLK%d' % m, '2': 'GND'},
+      fields={'Note': 'CLK unused (internal clock); pulled down, not tied, as it can be set to an output'})
+P(TSENS, 'U13', bx + 30.48, by + 160.02,
+  {'SDA': 'SDA', 'SCL': 'SCL', 'O.S.': '~{I2C_INT}', 'A0': 'GND', 'A1': 'GND', 'A2': 'GND',
+   '+Vs': '+3V3', 'GND': 'GND'},
+  fields={'Note': '0x48: main board (eFuse row) temperature; ALERT on /INT (default 80 C / 75 C)'})
+P(c('100n'), 'C405', bx + 12.7, by + 147.32, {'1': '+3V3', '2': 'GND'})
+P(r('10k'), 'R12', bx + 55.88, by + 147.32, {'1': '+3V3', '2': '~{I2C_INT}'},
+  fields={'Note': '/INT pull-up: EMC2302 ALERT, TMP75 ALERTs (both boards), optional TCA9535'})
+P(XH5, 'J6', bx + 30.48, by + 205.74,
+  {'1': 'GND', '2': '+3V3', '3': 'SDA', '4': 'SCL', '5': '~{I2C_INT}'}, value='TEMP I2C to input board',
+  fields={'Note': 'to J8 of the input board: TMP75 at 0x49 next to the input FETs; '
+                  '1 GND, 2 3V3, 3 SDA, 4 SCL, 5 /ALERT'})
+S.text('Bring-up (host or FPGA), per controller m = 0..3:\n'
+       '  write 0x70 <- (1 << m)            select mux channel m\n'
+       '  0x2E reg 2Bh <- 03h               PWM1/2 push-pull\n'
+       '  0x2E reg 2Ah <- 03h               PWM1/2 inverted (2N7002 inverts again)\n'
+       '  0x2E reg 30h / 40h <- duty        fan 2m / 2m+1, 00h-FFh = 0-100 %\n'
+       '  0x2E reg 3Eh,3Fh / 4Eh,4Fh        TACH count -> RPM = 3932160 / count\n'
+       'Power-on / no traffic / no 3V3: fans at 100 %. Watchdog: after 4 s with no\n'
+       'access each EMC2302 drives 100 % (set CONFIG 20h bit 5 to keep it armed).\n'
+       'See docs/hardware/power-board.md "Fan control".', bx + 76.2, by + 205.74, 1.27)
 
 # ---------------------------------------------------------------- power entry
 bx, by = 205.74, 147.32
@@ -140,12 +214,13 @@ conn(11, 'J3', bx + 15.24, by + 27.94,
              'LCSC': 'TBD (2.54 mm 1x11 header)'})
 P(r('10k'), 'R4', bx + 30.48, by + 15.24, {'1': '+3V3', '2': 'PRESENT'},
   fields={'Note': 'PRESENT high = power board connected and powered; shield should pull down (100k)'})
-conn(12, 'J4', bx + 66.04, by + 30.48,
+conn(10, 'J4', bx + 66.04, by + 30.48,
      dict([('1', 'GND')] + [(str(2 + k), '~{FLT%d}' % k) for k in range(8)] +
-          [('10', '~{FLT_AON}'), ('11', 'TACH0'), ('12', 'TACH1')]),
-     'STATUS 1x12', 'Connector_PinHeader_2.54mm:PinHeader_1x12_P2.54mm_Vertical',
-     fields={'Note': '1 GND, 2-9 /FLT0-7, 10 /FLT_AON (open drain, 10k to 3V3), 11-12 fan tach',
-             'LCSC': 'TBD (2.54 mm 1x12 header)'})
+          [('10', '~{FLT_AON}')]),
+     'STATUS 1x10', 'Connector_PinHeader_2.54mm:PinHeader_1x10_P2.54mm_Vertical',
+     fields={'Note': '1 GND, 2-9 /FLT0-7, 10 /FLT_AON (open drain, 10k to 3V3); '
+                     'fan tach now read over I2C (EMC2302)',
+             'LCSC': 'TBD (2.54 mm 1x10 header)'})
 
 # ---------------------------------------------------------------- optional I2C expander
 bx, by = 12.7, 213.36
@@ -180,7 +255,7 @@ S.place('Jumper:SolderJumper_2_Open', 'JP1', '3V3 to I2C hdr', bx + 139.7, by + 
 S.pwr_flag('3V3_I2C', bx + 152.4, by + 58.42)
 
 # mounting holes
-for k in range(4):
+for k in range(6):
     S.place(HOLE_M3['lib'], 'H%d' % (1 + k), 'M3', 213.36 + 7.62 + k * 12.7, 271.78, {},
             footprint=HOLE_M3['fp'])
 
