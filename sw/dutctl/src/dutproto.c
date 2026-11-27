@@ -166,6 +166,20 @@ int dp_decode_heartbeat(const uint8_t *p, size_t len, dp_heartbeat_t *hb)
     hb->mem_errors = hb->mem_dq_fail = hb->mem_test_kib = 0;
     hb->mem_first_err = 0;
   }
+  hb->has_shield = len >= 152;
+  if (hb->has_shield) {
+    hb->shd_flags = p[144];
+    hb->shd_revision = p[145];
+    hb->shd_features = p[146];
+    hb->shd_sense = p[147];
+    hb->shd_hdmi = p[148];
+    hb->shd_pwr = p[149];
+    hb->shd_i2c_errors = dp_get16(p + 150);
+  } else {
+    hb->shd_flags = hb->shd_revision = hb->shd_features = hb->shd_sense = 0;
+    hb->shd_hdmi = hb->shd_pwr = 0;
+    hb->shd_i2c_errors = 0;
+  }
   return 0;
 }
 

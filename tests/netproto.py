@@ -16,6 +16,7 @@ K_PK_LED_MODE, K_PK_LED_HOST = 0x0033, 0x0034  # physical keyboard LEDs (ADR 000
 K_CON_SCREEN = 0x0035  # console screen: 0 auto, 1 editable, 2 no video, 3 select
 K_PK_JTAG = 0x0061  # physical keyboard CPLD JTAG: 0 auto, 1 on, 2 off, 3 on + JTAGEN low (ADR 0014)
 PK_JTAG_AUTO, PK_JTAG_ON, PK_JTAG_OFF, PK_JTAG_ON_JTAGEN_LOW = 0, 1, 2, 3
+K_PWR_CTL = 0x0062  # shield power CTRL0..7 bitmask, bit n = power-board output n (issue 0049)
 # JTAG_REQ flags (offset 18): b0 abort/reset session, b1 target = physical
 # keyboard CPLD (ADR 0014); JTAG_RESP byte 17 = target (0 DUT, 1 keyboard)
 JF_ABORT, JF_KBD = 0x0001, 0x0002
@@ -169,7 +170,16 @@ def decode_heartbeat(b):
     if len(b) >= 144:  # memory block (ADR 0005 section 3b), bytes 140..151 of the datagram
         (f["mem_flags"], f["mem_errors"], f["mem_dq_fail"], f["mem_test_kib"],
          f["mem_first_err"]) = struct.unpack(">BxHHHI", b[132:144])
+    if len(b) >= 152:  # shield block (ADR 0005 section 3c), bytes 152..159 of the datagram
+        (f["shd_flags"], f["shd_revision"], f["shd_features"], f["shd_sense"], f["shd_hdmi"],
+         f["shd_pwr"], f["shd_i2c_errors"]) = struct.unpack(">BBBBBBH", b[144:152])
     return f
+
+
+SHD_FIELDS = ("shd_flags", "shd_revision", "shd_features", "shd_sense", "shd_hdmi", "shd_pwr",
+              "shd_i2c_errors")
+# shd_flags bits (ADR 0005 section 3c, issue 0049)
+SF_BUILD, SF_PROBED, SF_PRESENT, SF_SENSE, SF_PWRB, SF_ADOPTED = 0x01, 0x02, 0x04, 0x08, 0x10, 0x20
 
 
 MEM_FIELDS = ("mem_flags", "mem_errors", "mem_dq_fail", "mem_test_kib", "mem_first_err")
@@ -296,6 +306,10 @@ def encode_heartbeat(dut, f):
         assert len(b) == 132
         b += struct.pack(">BBHHHI", f["mem_flags"], 0, f["mem_errors"], f["mem_dq_fail"],
                          f["mem_test_kib"], f["mem_first_err"])
+    if "shd_flags" in f:  # shield block (needs the memory block) -> 152-byte payload
+        assert len(b) == 144
+        b += struct.pack(">BBBBBBH", f["shd_flags"], f["shd_revision"], f["shd_features"],
+                         f["shd_sense"], f["shd_hdmi"], f["shd_pwr"], f["shd_i2c_errors"])
     return custom(T_HEARTBEAT, dut, b)
 
 

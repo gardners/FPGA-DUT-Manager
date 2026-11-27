@@ -191,7 +191,7 @@ begin
     report "captured " & integer'image(captured) & " frames; rx good " &
       integer'image(to_integer(good)) & " bad " & integer'image(to_integer(bad));
     assert bad = 0 report "RX CRC errors/drops" severity failure;
-    assert good = 36 report "expected 36 good RX frames" severity failure;
+    assert good = 38 report "expected 38 good RX frames" severity failure;
     assert pk_jtagen_seen_low report "JTAGEN never driven low in key 0x0061 mode 3" severity failure;
     -- thumbnails: local machines 0 (DUT0, video target: captured) and 3
     -- (DUT1) seen; machine 5's picture from a peer stored at 1/4 scale

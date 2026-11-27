@@ -192,6 +192,7 @@ static int cmd_set(int argc, char **argv)
             "         kbd-leds (physical keyboard LEDs: 0 status colour, 1 DUT's, 2 host)\n"
             "         console-screen (0 auto incl. passthrough, 1 editable, 2 no video, 3 select)\n"
             "         kbd-jtag (keyboard CPLD JTAG: 0 auto, 1 on, 2 off, 3 on with JTAGEN low)\n"
+            "         power-ctl (shield power outputs CTRL0..7 bitmask, e.g. 0x05)\n"
             "         kbd-led-rgb RRGGBB,RRGGBB,RRGGBB,RRGGBB (LED0..3 for kbd-leds 2;\n"
             "                     LED0/1 = drive LED, LED2/3 = power LED)\n");
     return 2;
@@ -212,7 +213,7 @@ static int cmd_set(int argc, char **argv)
     {"coupled", DP_K_COUPLED, 1}, {"capture", DP_K_CAPTURE_EN, 1},
     {"hb-period-ms", DP_K_HB_PERIOD, 2}, {"out-policy", DP_K_OUT_POLICY, 1},
     {"kbd-leds", DP_K_PK_LED_MODE, 1}, {"console-screen", DP_K_CON_SCREEN, 1},
-    {"kbd-jtag", DP_K_PK_JTAG, 1},
+    {"kbd-jtag", DP_K_PK_JTAG, 1}, {"power-ctl", DP_K_PWR_CTL, 1},
   };
   if (!strcmp(name, "kbd-led-rgb")) {
     unsigned c[4];
@@ -363,6 +364,12 @@ static void print_hb_kv(const char *ip, const dp_hdr_t *h, const dp_heartbeat_t 
   if (hb->has_mem)
     printf(" mem_flags=%u mem_errors=%u mem_dq_fail=%u mem_test_kib=%u mem_first_err=%u",
            hb->mem_flags, hb->mem_errors, hb->mem_dq_fail, hb->mem_test_kib, hb->mem_first_err);
+  printf(" has_shield=%u", hb->has_shield);
+  if (hb->has_shield)
+    printf(" shd_flags=%u shd_revision=%u shd_features=%u shd_sense=%u shd_hdmi=%u shd_pwr=%u "
+           "shd_i2c_errors=%u",
+           hb->shd_flags, hb->shd_revision, hb->shd_features, hb->shd_sense, hb->shd_hdmi,
+           hb->shd_pwr, hb->shd_i2c_errors);
   printf("\n");
   fflush(stdout);
 }
