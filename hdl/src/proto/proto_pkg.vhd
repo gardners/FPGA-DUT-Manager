@@ -88,6 +88,8 @@ package proto_pkg is
   constant K_CON_SCREEN   : natural := 16#0035#;  -- console: 0 auto, 1 editable, 2 no video, 3 select
   constant K_CAPTURE_EN   : natural := 16#0040#;
   constant K_THUMB_FORCE  : natural := 16#0041#;  -- thumbnail relay to MAC(6) scale(1) div(1); MAC 0 = off
+  constant K_VLAN         : natural := 16#0043#;  -- inter-board VLAN ID u16 0..4094 (default 1650, 0 = untagged), issue 0060
+  constant K_HDMI_OWNER   : natural := 16#0044#;  -- HDMI IN owner: 0 follows the video target, 1 DUT0, 2 DUT1, 3 none (issue 0060)
   constant K_HB_PERIOD    : natural := 16#0050#;
   constant K_OUT_POLICY   : natural := 16#0060#;  -- 0 auto (sense), 1 UART/KIO10 on, 2 all off incl. JTAG (issue 0056)
   constant K_PK_JTAG      : natural := 16#0061#;  -- physical kbd CPLD JTAG: 0 auto, 1 on, 2 off, 3 on + JTAGEN low (ADR 0014)
@@ -128,6 +130,8 @@ package proto_pkg is
   -- heartbeat byte 109, HDMI OUT shown: 0 editable, 1 no video, 2 select
   -- (console screens, issue 0029), 3 passthrough of HDMI IN (issue 0032)
   constant CON_SHOWN_PASSTHROUGH : std_logic_vector(7 downto 0) := x"03";
+
+  constant DEFAULT_VLAN : unsigned(11 downto 0) := to_unsigned(1650, 12);   -- key 0x0043 (issue 0060)
 
   constant DEFAULT_BAUD_INC : unsigned(31 downto 0) := x"0418_9375"; -- 2 Mbaud @125 MHz
   constant DEFAULT_IP_BASE  : std_logic_vector(31 downto 0) := x"C0A8_4110"; -- 192.168.65.16

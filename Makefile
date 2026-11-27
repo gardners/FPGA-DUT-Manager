@@ -108,6 +108,7 @@ test-hdl: $(STAMPS)/nvc
 	$(REPO)/scripts/run-hdl-tests.sh $(TB)
 
 test-sw:
+	python3 -I $(REPO)/tests/netproto.py
 	$(MAKE) -C $(REPO)/sw/dutctl test
 	$(MAKE) -C $(REPO)/firmware/relay-controller test
 

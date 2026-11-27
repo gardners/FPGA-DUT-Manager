@@ -58,6 +58,9 @@ enum dp_key {
   DP_K_CON_SCREEN = 0x0035,  /* console screen: 0 auto, 1 editable, 2 no video, 3 select */
   DP_K_CAPTURE_EN = 0x0040,
   DP_K_THUMB_FORCE = 0x0041, /* thumbnail relay to MAC(6) scale(1) div(1); MAC 0 = off */
+  DP_K_VLAN = 0x0043,        /* inter-board VLAN ID u16 0..4094 (default 1650, 0 = untagged), issue 0060 */
+  DP_K_HDMI_OWNER = 0x0044,  /* HDMI IN owner: 0 follows the video target (default), 1 DUT0,
+                                2 DUT1, 3 none (issue 0060) */
   DP_K_HB_PERIOD = 0x0050,
   DP_K_OUT_POLICY = 0x0060, /* 0 auto (sense), 1 UART/KIO10 forced on (JTAG follows the
                                sense), 2 all outputs off, JTAG included (issue 0056) */
@@ -297,12 +300,16 @@ enum {
 #define DP_TH_MAX_H 200
 #define DP_CAP_THUMBS (1u << 7) /* heartbeat capabilities bit */
 enum { DP_TH_SUB_REQ = 1, DP_TH_SUB_LINES = 2, DP_TH_SUB_NOSRC = 3 };
-enum { DP_TH_SCALE_HALF = 1, DP_TH_SCALE_QUARTER = 2 };
+enum { DP_TH_SCALE_HALF = 1, DP_TH_SCALE_QUARTER = 2, DP_TH_SCALE_FULL = 3 /* 1/1, issue 0060 */ };
+/* request byte 6 flags (issue 0060): b0 targeted (byte 7 = machine), b1 priority */
+enum { DP_TH_RF_TARGETED = 1, DP_TH_RF_PRIORITY = 2 };
+#define DP_VLAN_DEFAULT 1650 /* inter-board VLAN (key 0x0043) */
 enum { DP_TH_FLAG_PRESENT = 1, DP_TH_FLAG_LAST = 2 };
 
 typedef struct {
   uint8_t subtype;        /* DP_TH_SUB_* */
   uint8_t scale, div;     /* request: scale and frame divisor; lines: scale */
+  uint8_t rflags, target; /* request: flags (DP_TH_RF_*) and target machine */
   uint8_t machine, flags, encoding; /* DP_ENC_RAW (RAW888) / DP_ENC_RLE24 */
   uint32_t frame;         /* picture number */
   uint16_t row, nlines, width, height, payload_bytes;
@@ -311,6 +318,8 @@ typedef struct {
 
 /* Request body (8 bytes) into buf; returns its length. */
 size_t dp_encode_thumb_request(uint8_t *buf, uint8_t scale, uint8_t div);
+/* The same with request flags (DP_TH_RF_*) and target machine (issue 0060). */
+size_t dp_encode_thumb_request2(uint8_t *buf, uint8_t scale, uint8_t div, uint8_t flags, uint8_t target);
 /* Decode a body (after the Ethernet header); 0 ok, -1 malformed / other. */
 int dp_decode_thumb(const uint8_t *body, size_t len, dp_thumb_t *t);
 /* Expand a lines frame into RGB888 rows (nlines * width * 3 bytes into out).

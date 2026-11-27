@@ -334,15 +334,21 @@ const char *dp_key_name(int key)
 }
 
 /* ---------------------------------------------------------- thumbnails */
-size_t dp_encode_thumb_request(uint8_t *b, uint8_t scale, uint8_t div)
+size_t dp_encode_thumb_request2(uint8_t *b, uint8_t scale, uint8_t div, uint8_t flags, uint8_t target)
 {
   b[0] = DP_TH_VERSION;
   b[1] = DP_TH_SUB_REQ;
   dp_put16(b + 2, DP_MAGIC);
   b[4] = scale;
   b[5] = div;
-  b[6] = b[7] = 0;
+  b[6] = flags;
+  b[7] = target;
   return DP_TH_REQ_LEN;
+}
+
+size_t dp_encode_thumb_request(uint8_t *b, uint8_t scale, uint8_t div)
+{
+  return dp_encode_thumb_request2(b, scale, div, 0, 0);
 }
 
 int dp_decode_thumb(const uint8_t *p, size_t len, dp_thumb_t *t)
@@ -354,6 +360,8 @@ int dp_decode_thumb(const uint8_t *p, size_t len, dp_thumb_t *t)
   if (t->subtype == DP_TH_SUB_REQ) {
     t->scale = p[4];
     t->div = p[5];
+    t->rflags = p[6];
+    t->target = p[7];
     return 0;
   }
   if (len < DP_TH_HDR_LEN || (t->subtype != DP_TH_SUB_LINES && t->subtype != DP_TH_SUB_NOSRC))
@@ -372,7 +380,9 @@ int dp_decode_thumb(const uint8_t *p, size_t len, dp_thumb_t *t)
   if (t->subtype == DP_TH_SUB_NOSRC)
     return t->machine < 32 ? 0 : -1;
   if (t->machine >= 32 || (size_t)DP_TH_HDR_LEN + t->payload_bytes > len || t->encoding > DP_ENC_RLE24 ||
-      !(t->width == DP_TH_MAX_W || t->width == DP_TH_MAX_W / 2) || t->height > DP_TH_MAX_H ||
+      (t->scale == DP_TH_SCALE_FULL ? (t->width == 0 || t->width > 1024 || t->height > 1080)
+                                    : (!(t->width == DP_TH_MAX_W || t->width == DP_TH_MAX_W / 2) ||
+                                       t->height > DP_TH_MAX_H)) ||
       t->nlines == 0 || t->row + t->nlines > t->height)
     return -1;
   return 0;

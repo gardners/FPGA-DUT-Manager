@@ -1976,6 +1976,8 @@ static int cmd_thumbs(int argc, char **argv)
       continue;
     }
     frames++;
+    if (t.width > DP_TH_MAX_W || t.height > DP_TH_MAX_H) /* 1/1 pictures (issue 0060): not stored here */
+      continue;
     if (t.nlines > 64 || dp_thumb_lines(&t, lines, sizeof lines) < 0) {
       bad++;
       continue;
