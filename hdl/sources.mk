@@ -54,6 +54,7 @@ SYNTH_SOURCES := \
 	$(HDL_SRC)/video/seg7_status.vhd \
 	$(HDL_SRC)/video/edid_pkg.vhd \
 	$(HDL_SRC)/video/ddc_edid.vhd \
+	$(HDL_SRC)/top/dut_out_gate.vhd \
 	$(HDL_SRC)/top/supervisor_core.vhd \
 	$(HDL_SRC)/top/shield_io.vhd \
 	$(HDL_SRC)/platform/xc7/xc7_prims_pkg.vhd \
