@@ -7295,6 +7295,802 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Regulator_Switching:TPS565208"
+			(property "Reference" "U"
+				(at -7.62 6.35 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Value" "TPS565208"
+				(at -2.54 6.35 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" "Package_TO_SOT_SMD:SOT-23-6"
+				(at 1.27 -6.35 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Datasheet" "http://www.ti.com/lit/ds/symlink/tps565208.pdf"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "5A Synchronous Step-Down Voltage Regulator, Adjustable Output Voltage, 4.5-17V Input Voltage, SOT-23-6"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "step-down dcdc voltage regulator"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "SOT?23*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(symbol "TPS565208_0_1"
+				(rectangle
+					(start -7.62 5.08)
+					(end 7.62 -5.08)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(symbol "TPS565208_1_1"
+				(pin power_in line
+					(at 0 -7.62 90)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 10.16 2.54 180)
+					(length 2.54)
+					(name "SW"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at -10.16 2.54 0)
+					(length 2.54)
+					(name "VIN"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at 10.16 -2.54 180)
+					(length 2.54)
+					(name "VFB"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -10.16 -2.54 0)
+					(length 2.54)
+					(name "EN"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 10.16 0 180)
+					(length 2.54)
+					(name "VBST"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "Device:L"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 1.016)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "L"
+				(at -1.27 0 90)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "L"
+				(at 1.905 0 90)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Inductor"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "inductor choke coil reactor magnetic"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "Choke_* *Coil* Inductor_* L_*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "L_0_1"
+				(arc
+					(start 0 2.54)
+					(mid 0.6323 1.905)
+					(end 0 1.27)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 0 1.27)
+					(mid 0.6323 0.635)
+					(end 0 0)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 0 0)
+					(mid 0.6323 -0.635)
+					(end 0 -1.27)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 0 -1.27)
+					(mid 0.6323 -1.905)
+					(end 0 -2.54)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "L_1_1"
+				(pin passive line
+					(at 0 3.81 270)
+					(length 1.27)
+					(name "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -3.81 90)
+					(length 1.27)
+					(name "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "Device:D"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 1.016)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "D"
+				(at 0 2.54 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "D"
+				(at 0 -2.54 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Diode"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Sim.Device" "D"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Sim.Pins" "1=K 2=A"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "diode"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "TO-???* *_Diode_* *SingleDiode* D_*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "D_0_1"
+				(polyline
+					(pts
+						(xy -1.27 1.27)
+						(xy -1.27 -1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.27 1.27)
+						(xy 1.27 -1.27)
+						(xy -1.27 0)
+						(xy 1.27 1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.27 0)
+						(xy -1.27 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "D_1_1"
+				(pin passive line
+					(at -3.81 0 0)
+					(length 2.54)
+					(name "K"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 3.81 0 180)
+					(length 2.54)
+					(name "A"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "Connector_Generic:Conn_02x02_Odd_Even"
+			(pin_names
+				(offset 1.016)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "J"
+				(at 1.27 2.54 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "Conn_02x02_Odd_Even"
+				(at 1.27 -5.08 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Generic connector, double row, 02x02, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "connector"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "Connector*:*_2x??_*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "Conn_02x02_Odd_Even_1_1"
+				(rectangle
+					(start -1.27 1.27)
+					(end 3.81 -3.81)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(rectangle
+					(start -1.27 0.127)
+					(end 0 -0.127)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 -2.413)
+					(end 0 -2.667)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start 3.81 0.127)
+					(end 2.54 -0.127)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start 3.81 -2.413)
+					(end 2.54 -2.667)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin passive line
+					(at -5.08 0 0)
+					(length 3.81)
+					(name "Pin_1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 7.62 0 180)
+					(length 3.81)
+					(name "Pin_2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -2.54 0)
+					(length 3.81)
+					(name "Pin_3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 7.62 -2.54 180)
+					(length 3.81)
+					(name "Pin_4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 	)
 	(rectangle
 		(start 12.7 15.24)
@@ -32850,7 +33646,7 @@
 				(hide yes)
 			)
 		)
-		(property "Note" "/INT pull-up: EMC2302 ALERT, TMP75 ALERT, optional TCA9535"
+		(property "Note" "/INT pull-up: EMC2302 ALERT, TMP75 ALERT, TCA9535 /INT"
 			(at 464.82 162.56 0)
 			(effects
 				(font
@@ -34014,7 +34810,7 @@
 				(hide yes)
 			)
 		)
-		(property "Note" "OVLO 14.8 V shared by all 9 eFuses"
+		(property "Note" "OVLO 14.8 V shared by the 10 VBUS eFuses (8 DUT, always-on, 6 V buck input U71)"
 			(at 241.3 190.5 0)
 			(effects
 				(font
@@ -34843,7 +35639,7 @@
 		)
 		(uuid "2d18249f-fc3a-5dea-8739-6b8998ce904b")
 	)
-	(text "Optional (DNP): TCA9535 fault expander on the shield I2C bus, addr 0x24"
+	(text "TCA9535 status/control expander on the shield I2C bus, addr 0x24 (fitted)"
 		(exclude_from_sim no)
 		(at 13.97 214.63 0)
 		(effects
@@ -34852,7 +35648,7 @@
 			)
 			(justify left top)
 		)
-		(uuid "fcbbcf06-57c5-5301-9ae4-e028a0d79bc9")
+		(uuid "18cf5c9b-c429-5353-96d1-5cba5dab8681")
 	)
 	(label "~{I2C_INT}"
 		(at 40.64 233.68 180)
@@ -35024,7 +35820,7 @@
 		)
 		(uuid "d6d621b5-4575-5b4e-95e8-e3dd52d426af")
 	)
-	(label "EXUNUSED"
+	(label "6V_CTRL"
 		(at 76.2 264.16 0)
 		(effects
 			(font
@@ -35032,9 +35828,9 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "8f33392f-b933-5cbe-b8e2-4cba4416b537")
+		(uuid "c3f01b6b-fd56-55d8-ba65-038df0334ff8")
 	)
-	(label "EXUNUSED"
+	(label "~{FLT6V}"
 		(at 76.2 266.7 0)
 		(effects
 			(font
@@ -35042,9 +35838,9 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "961d064f-f48f-5eb1-a82f-b2047e2b4d30")
+		(uuid "50be2e3e-9eec-5e05-8865-47f1492f33f3")
 	)
-	(label "EXUNUSED"
+	(label "6V_PG"
 		(at 76.2 269.24 0)
 		(effects
 			(font
@@ -35052,7 +35848,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "f600c7be-d75a-5e34-bf70-f0783154a3c9")
+		(uuid "20c3ef01-7f25-5b77-a184-bc1667d793d7")
 	)
 	(label "EXA0"
 		(at 40.64 269.24 180)
@@ -35101,7 +35897,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp yes)
+		(dnp no)
 		(uuid "d0631603-707d-5136-ae87-ee31359015ad")
 		(property "Reference" "U11"
 			(at 58.42 214.63 0)
@@ -35155,7 +35951,7 @@
 				(hide yes)
 			)
 		)
-		(property "Note" "DNP by default; P00-07 /FLT0-7 (5-7: 12 V or 5 V output), P10 /FLT_AON, P11 5V_PRESENT, P12-14 EN5V5-7"
+		(property "Note" "fitted (0055 round 15); P00-07 /FLT0-7 (5-7: 12 V or 5 V output), P10 /FLT_AON, P11 5V_PRESENT, P12-14 EN5V5-7, P15 6V outlet enable (output), P16 /FLT6V, P17 6V_PG"
 			(at 58.42 248.92 0)
 			(effects
 				(font
@@ -35245,122 +36041,6 @@
 			)
 		)
 	)
-	(label "EXUNUSED"
-		(at 96.52 267.97 90)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify left bottom)
-		)
-		(uuid "cd1caffd-cb03-5868-89f1-1b4a0eaea012")
-	)
-	(label "GND"
-		(at 96.52 275.59 270)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify right bottom)
-		)
-		(uuid "770ae6b1-24a0-5b74-83ff-ab26aa737cf3")
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 96.52 271.78 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp yes)
-		(uuid "e15e2a78-5630-55f1-86de-75513dc256bb")
-		(property "Reference" "R11"
-			(at 99.06 270.51 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "10k"
-			(at 99.06 273.05 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 96.52 271.78 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 96.52 271.78 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 96.52 271.78 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "LCSC" "C25804"
-			(at 96.52 271.78 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Tolerance" "1%"
-			(at 96.52 271.78 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Note" "unused P15-P17 held low; firmware may also set them as outputs"
-			(at 96.52 271.78 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "c0f7fd9b-5f2a-5996-b0bc-a3686dfd9eb8")
-		)
-		(pin "2"
-			(uuid "16944148-8b62-533c-a6ff-12747dfefa9c")
-		)
-		(instances
-			(project "mega-kvm-power-main"
-				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
-					(reference "R11")
-					(unit 1)
-				)
-			)
-		)
-	)
 	(label "+3V3"
 		(at 96.52 224.79 90)
 		(effects
@@ -35388,7 +36068,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp yes)
+		(dnp no)
 		(uuid "5c2866fb-339d-5c82-8994-7bb5e76fee44")
 		(property "Reference" "C7"
 			(at 99.06 227.33 0)
@@ -35495,7 +36175,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp yes)
+		(dnp no)
 		(uuid "200ba25c-ecdb-5bbe-8167-08887a7d7880")
 		(property "Reference" "R5"
 			(at 116.84 234.95 0)
@@ -35602,7 +36282,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp yes)
+		(dnp no)
 		(uuid "c186aad1-3906-5862-8b0e-6f07d4e304e5")
 		(property "Reference" "R6"
 			(at 124.46 234.95 0)
@@ -35709,7 +36389,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp yes)
+		(dnp no)
 		(uuid "5af108a7-4e72-58b2-bf98-6376da7ef944")
 		(property "Reference" "R7"
 			(at 132.08 234.95 0)
@@ -36962,7 +37642,7 @@
 			)
 		)
 	)
-	(text "Notes\n* eFuse = TPS259470A (auto-retry, owner 2026-11-27; the L latch-off part is unstocked).\n  All 12 eFuses (DUT, 5 V, always-on) the same part. EN/UVLO threshold 1.2 V: 3.3 V logic drives it directly.\n* 20k pull-downs: everything off when the shield is unplugged, unpowered or in reset.\n* Reverse current blocked (back-to-back FETs inside the eFuse). OVLO 14.8 V cuts all outputs.\n* No quick-output-discharge in TPS25947: the LED + 4k7 (2.5 mA) bleeds an unloaded output.\n* Copper: 2 oz both layers. VBUS and OUTn are polygons; see docs/hardware/power-board.md."
+	(text "Notes\n* eFuse = TPS259470A (auto-retry, owner 2026-11-27; the L latch-off part is unstocked).\n  All 14 eFuses (DUT, 5 V, 6 V outlet, always-on) the same part. EN/UVLO threshold 1.2 V: 3.3 V logic drives it directly.\n* 20k pull-downs: everything off when the shield is unplugged, unpowered or in reset.\n* Reverse current blocked (back-to-back FETs inside the eFuse). OVLO 14.8 V cuts all outputs.\n* No quick-output-discharge in TPS25947: the LED + 4k7 (2.5 mA) bleeds an unloaded output.\n* Copper: 2 oz both layers. VBUS and OUTn are polygons; see docs/hardware/power-board.md."
 		(exclude_from_sim no)
 		(at 213.36 215.9 0)
 		(effects
@@ -51825,6 +52505,5093 @@
 				)
 			)
 		)
+	)
+	(rectangle
+		(start 317.5 419.1)
+		(end 409.5 477.52)
+		(stroke
+			(width 0.2)
+			(type dash)
+		)
+		(fill
+			(type none)
+		)
+		(uuid "45ec8aa9-8ecf-5ce3-8eee-a7ca59c7698a")
+	)
+	(text "6 V outlet control: TCA9535 U11 P1.5-P1.7 (0x24)"
+		(exclude_from_sim no)
+		(at 318.77 420.37 0)
+		(effects
+			(font
+				(size 2 2)
+			)
+			(justify left top)
+		)
+		(uuid "0f2ef6e0-1a27-5577-8954-9ae6c26d5744")
+	)
+	(label "6V_CTRL"
+		(at 330.2 430.53 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "8b205743-c2b4-5e14-a6e0-1c6544564639")
+	)
+	(label "6V_EN"
+		(at 330.2 438.15 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "13e22a7e-cfad-5d2c-9cb1-f58d0e409ad6")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 330.2 434.34 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "12ff8fec-6216-5417-947c-33f77c08ee11")
+		(property "Reference" "R700"
+			(at 332.74 433.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1k"
+			(at 332.74 435.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 330.2 434.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 330.2 434.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 330.2 434.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C21190"
+			(at 330.2 434.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Tolerance" "1%"
+			(at 330.2 434.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "from U11 P1.5 (push-pull output once the host configures it)"
+			(at 330.2 434.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "6cbe145a-c300-5c2a-b74a-94be82b6b1a2")
+		)
+		(pin "2"
+			(uuid "1b799fe4-8623-5c30-80f1-0379af163dad")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "R700")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "6V_EN"
+		(at 342.9 438.15 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "9dbeb1ca-f506-5123-b16c-51413725207d")
+	)
+	(label "GND"
+		(at 342.9 445.77 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "576fa86a-3fdb-5121-a04a-d3f3e9a84737")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 342.9 441.96 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "d2f05eb0-cbdd-5b97-9d85-18318ba90ca2")
+		(property "Reference" "R701"
+			(at 345.44 440.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "20k"
+			(at 345.44 443.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 342.9 441.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 342.9 441.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 342.9 441.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C4184"
+			(at 342.9 441.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Tolerance" "1%"
+			(at 342.9 441.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "outlet off while U11 P1.5 is an input (power-on default), U11 unpowered or the shield off"
+			(at 342.9 441.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "73ffe8da-965b-57c5-a7c3-1b14dede639c")
+		)
+		(pin "2"
+			(uuid "4cab200f-eba4-53f6-9b48-509638800590")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "R701")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "+3V3"
+		(at 355.6 430.53 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "f693ad17-5b2d-5421-b894-18d9cc7190f4")
+	)
+	(label "~{FLT6V}"
+		(at 355.6 438.15 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "c6129345-bf74-5d41-beeb-d16e9f28d39e")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 355.6 434.34 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "bd7e75bc-2307-5f2d-b54d-32cc1859e774")
+		(property "Reference" "R702"
+			(at 358.14 433.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "10k"
+			(at 358.14 435.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 355.6 434.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 355.6 434.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 355.6 434.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C25804"
+			(at 355.6 434.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Tolerance" "1%"
+			(at 355.6 434.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "/FLT of U71 and U72 (open drain, wire-OR) -> U11 P1.6"
+			(at 355.6 434.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "25dfa362-0a5b-56d5-b17c-4bd319a8321d")
+		)
+		(pin "2"
+			(uuid "26faa43d-b98f-5d7b-a4e6-5c60a5801123")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "R702")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(text "Host (I2C 0x24): write Output Port 1 (03h) bit 5 = 0 FIRST (default 1 = on!),\nthen Configuration Port 1 (07h) = DFh (P1.5 output, the rest inputs).\nOn: 03h bit 5 = 1.  Off: 03h bit 5 = 0.  Read Input Port 1 (01h):\nbit 5 = 6V_EN as driven, bit 6 = /FLT6V (0 = fault), bit 7 = 6V_PG (1 = outlet live)."
+		(exclude_from_sim no)
+		(at 320.04 452.12 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left top)
+		)
+		(uuid "766c9a9b-df72-58ac-b2af-fc0e08b42065")
+	)
+	(rectangle
+		(start 414.02 419.1)
+		(end 506.02 477.52)
+		(stroke
+			(width 0.2)
+			(type dash)
+		)
+		(fill
+			(type none)
+		)
+		(uuid "f0760d8e-2db4-51af-ad66-f260b8bbd95f")
+	)
+	(text "U71: VBUS -> VIN6, buck input eFuse, 5 A, OVLO 14.8 V (shared)"
+		(exclude_from_sim no)
+		(at 415.29 420.37 0)
+		(effects
+			(font
+				(size 2 2)
+			)
+			(justify left top)
+		)
+		(uuid "2915c833-24d8-51a6-9dce-57f536583967")
+	)
+	(label "VBUS"
+		(at 434.34 431.8 180)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "fa58420b-ef69-599e-9740-33bd65784df9")
+	)
+	(label "6V_EN"
+		(at 434.34 436.88 180)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "a822ed3d-6739-5b1e-8806-fa284c07fec6")
+	)
+	(label "OVLO"
+		(at 434.34 439.42 180)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "99775cc4-34de-59a8-985b-4087838c7ff3")
+	)
+	(label "DVDT6I"
+		(at 434.34 444.5 180)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "d12614d4-1183-5999-bbfb-da0f261662c5")
+	)
+	(label "ITMR6I"
+		(at 434.34 447.04 180)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "dc4c0f73-bc49-5fa0-a610-e4c86b4d278d")
+	)
+	(label "VIN6"
+		(at 454.66 431.8 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "00da44bc-413d-5fa1-87b8-7f4d739dc647")
+	)
+	(label "~{FLT6V}"
+		(at 454.66 436.88 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "3ff2ee7a-c610-504e-a94f-ba37b1f57912")
+	)
+	(no_connect
+		(at 454.66 439.42)
+		(uuid "f8768030-966a-5aa6-b456-a1698667a82c")
+	)
+	(label "ILM6I"
+		(at 454.66 444.5 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "dffce334-571b-501b-bce9-2f197793bad8")
+	)
+	(label "GND"
+		(at 444.5 452.12 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "457f8c49-06e8-5cd1-b0b7-1687e3408868")
+	)
+	(symbol
+		(lib_id "mega-kvm-power:TPS259470")
+		(at 444.5 439.42 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "629913e1-a519-5714-b084-a3ed31b9f4bb")
+		(property "Reference" "U71"
+			(at 444.5 425.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TPS259470ARPWR"
+			(at 444.5 427.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm"
+			(at 444.5 439.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 444.5 439.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 444.5 439.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C3662799"
+			(at 444.5 439.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "TI TPS259470ARPWR"
+			(at 444.5 439.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "keeps VBUS spikes (TVS clamp up to 24.4 V) off the 17 V buck; isolates a failed buck from VBUS; off = buck unpowered"
+			(at 444.5 439.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "5"
+			(uuid "f1e2cbd2-26d6-53b7-99df-e6c6f7f07ad0")
+		)
+		(pin "1"
+			(uuid "5814f081-f9d6-54cc-9188-4d7643f8c134")
+		)
+		(pin "2"
+			(uuid "f498ad08-6a81-5767-9a27-5050ffff24a8")
+		)
+		(pin "7"
+			(uuid "fc82c916-7090-5197-a53f-d3231a5dfc1a")
+		)
+		(pin "10"
+			(uuid "d2b5e8da-2625-5f83-9d09-7cac9f71cfa4")
+		)
+		(pin "6"
+			(uuid "b60b7279-7036-5aa3-8166-2caec4ee3b0b")
+		)
+		(pin "4"
+			(uuid "a71cc0ec-8c20-5754-ae15-d4674967c633")
+		)
+		(pin "3"
+			(uuid "e62b5275-760b-5db2-8a76-6b9a3568f04e")
+		)
+		(pin "9"
+			(uuid "f313680e-10ce-51bd-8800-9bab26627646")
+		)
+		(pin "8"
+			(uuid "bad31e8a-b385-5037-a26f-36c0555a32ab")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "U71")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "ILM6I"
+		(at 421.64 461.01 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "e2501b73-5533-5c20-8c0e-c2f5e367707d")
+	)
+	(label "GND"
+		(at 421.64 468.63 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "9db88cde-261b-509e-8079-cf561bc51d57")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 421.64 464.82 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "08a7d55c-7521-59c3-97ba-e4b5ae18c5a0")
+		(property "Reference" "R710"
+			(at 424.18 463.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "665"
+			(at 424.18 466.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 421.64 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 421.64 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 421.64 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "TBD (1%, JLC basic if stocked)"
+			(at 421.64 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Tolerance" "1%"
+			(at 421.64 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "ILIM 5.0 A (3334/R), as the 12 V cells"
+			(at 421.64 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "ab0bdf46-20e1-5f78-b093-90afbfe857e0")
+		)
+		(pin "2"
+			(uuid "6cb8e9be-6b55-5cf7-9297-f2056be6a1c6")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "R710")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "DVDT6I"
+		(at 429.26 461.01 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "2a1c7de3-d27f-5696-b173-a243379d4fae")
+	)
+	(label "GND"
+		(at 429.26 468.63 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "414a912e-014b-529e-8130-31f11695b45e")
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 429.26 464.82 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "f1d80f22-9d15-5c5d-b07d-7d4e4f4bac8a")
+		(property "Reference" "C710"
+			(at 431.8 463.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "2n2"
+			(at 431.8 466.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+			(at 429.26 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 429.26 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 429.26 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "TBD (X7R 50V)"
+			(at 429.26 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Voltage" "50V"
+			(at 429.26 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "802fd483-45a2-54dd-adfe-ac07af2f8368")
+		)
+		(pin "2"
+			(uuid "4d9b96a7-2a33-538c-be1e-57ba67ab05f3")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "C710")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "ITMR6I"
+		(at 436.88 461.01 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "e61429f8-895c-57c7-b390-07a0e0d0999e")
+	)
+	(label "GND"
+		(at 436.88 468.63 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "4890f415-8c41-53f9-aea7-a619bd6b3b98")
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 436.88 464.82 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "7a1e7991-99ac-5547-9502-71c370079f51")
+		(property "Reference" "C711"
+			(at 439.42 463.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "4n7"
+			(at 439.42 466.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+			(at 436.88 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 436.88 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 436.88 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "TBD (X7R 50V)"
+			(at 436.88 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Voltage" "50V"
+			(at 436.88 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "9d3ce008-6738-5722-9df5-25166270c53f")
+		)
+		(pin "2"
+			(uuid "be6c2ff5-0f60-5271-9f8c-4192f6e3ca89")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "C711")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "VBUS"
+		(at 444.5 461.01 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "5a6749b6-84ee-5d17-9039-4763b3b7a023")
+	)
+	(label "GND"
+		(at 444.5 468.63 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "8cae62b5-6f36-53e3-a621-7c0daa7c5e87")
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 444.5 464.82 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "225b39fd-1190-51bc-816d-be431dc3c608")
+		(property "Reference" "C712"
+			(at 447.04 463.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1u"
+			(at 447.04 466.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
+			(at 444.5 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 444.5 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 444.5 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "TBD (X7R 50V)"
+			(at 444.5 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Voltage" "50V"
+			(at 444.5 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "d30ee2f9-85c8-52df-846b-c61fdf4166de")
+		)
+		(pin "2"
+			(uuid "ff818080-bd52-5526-9428-f8c7111f426c")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "C712")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "VIN6"
+		(at 452.12 461.01 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "c952c04f-74fd-50e5-abff-3b8e2484b35c")
+	)
+	(label "GND"
+		(at 452.12 468.63 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "5691e235-3361-598d-9921-00957e65ae8b")
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 452.12 464.82 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "42a8c6b0-97bc-5df5-a1dc-34d5af0cf4d7")
+		(property "Reference" "C713"
+			(at 454.66 463.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1u"
+			(at 454.66 466.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
+			(at 452.12 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 452.12 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 452.12 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "TBD (X7R 50V)"
+			(at 452.12 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Voltage" "50V"
+			(at 452.12 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "d747d333-a607-53ed-8ae8-2624a17be2e2")
+		)
+		(pin "2"
+			(uuid "ff5d6082-64da-5afc-afa3-009749f571d7")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "C713")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(rectangle
+		(start 510.54 419.1)
+		(end 602.54 477.52)
+		(stroke
+			(width 0.2)
+			(type dash)
+		)
+		(fill
+			(type none)
+		)
+		(uuid "12295ae9-0cc1-55b9-a89f-43153d1345bd")
+	)
+	(text "U73 TPS565201: VIN6 (10.5-14.8 V) -> +6V, 5 A, 500 kHz"
+		(exclude_from_sim no)
+		(at 511.81 420.37 0)
+		(effects
+			(font
+				(size 2 2)
+			)
+			(justify left top)
+		)
+		(uuid "57be6928-766a-5afe-8dff-88495ff4fc0c")
+	)
+	(label "GND"
+		(at 541.02 449.58 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "fe972589-c605-5136-902a-785f8cec3021")
+	)
+	(label "SW6"
+		(at 551.18 439.42 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "9dde1947-34e0-5bb8-bff4-6dbb687940ed")
+	)
+	(label "VIN6"
+		(at 530.86 439.42 180)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "06a3b7c8-685e-503c-9454-e906cdf6496f")
+	)
+	(label "FB6"
+		(at 551.18 444.5 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "d601a89b-c399-52b0-a1bc-b9ec131aa70e")
+	)
+	(label "EN_BK"
+		(at 530.86 444.5 180)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "e22eeb78-b945-5f90-9e41-da5bbb3e60d3")
+	)
+	(label "BST6"
+		(at 551.18 441.96 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "09331d8f-11c5-5bcb-a442-affe167789e3")
+	)
+	(symbol
+		(lib_id "Regulator_Switching:TPS565208")
+		(at 541.02 441.96 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "7e2df438-36ad-5878-b13a-da903cc3d98b")
+		(property "Reference" "U73"
+			(at 541.02 433.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TPS565201DDCR"
+			(at 541.02 435.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:TSOT-23-6"
+			(at 541.02 441.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 541.02 441.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 541.02 441.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C327676"
+			(at 541.02 441.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "TI TPS565201DDCR 4.5-17 V, 5 A sync buck, D-CAP2, Eco-mode, 500 kHz, TSOT-23-6 (no pad); symbol of the TPS565208 (same pinout)"
+			(at 541.02 441.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "runs whenever U71 is on (EN from VIN6, starts at ~6-8 V); 1 ms internal soft start"
+			(at 541.02 441.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "bfb439cf-3648-50f8-b21d-412a0d9a5331")
+		)
+		(pin "2"
+			(uuid "1fe2d1ae-8ea2-5d31-b40c-a2ce0fdd747f")
+		)
+		(pin "3"
+			(uuid "ef06a029-6844-52d4-8bcb-70a5e5f6672f")
+		)
+		(pin "4"
+			(uuid "55510f39-7fe0-59e3-86d5-df96f81354b7")
+		)
+		(pin "5"
+			(uuid "6b6af03a-e99a-5559-aa90-f39cc06103de")
+		)
+		(pin "6"
+			(uuid "b20ddcc1-054b-5ee1-94f1-e2ad71b7285f")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "U73")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "SW6"
+		(at 566.42 433.07 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "34d9c0cc-4016-51ae-a7e7-b1bfa86feb39")
+	)
+	(label "+6V"
+		(at 566.42 440.69 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "e9d577c5-7a5d-546b-8d9d-44150218a1a3")
+	)
+	(symbol
+		(lib_id "Device:L")
+		(at 566.42 436.88 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "0873c893-0e55-58cf-901a-addffbd89aaa")
+		(property "Reference" "L70"
+			(at 568.96 435.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "4.7u"
+			(at 568.96 438.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Inductor_SMD:L_Changjiang_FXL1040"
+			(at 566.42 436.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 566.42 436.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 566.42 436.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C167230"
+			(at 566.42 436.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "Changjiang FXL1040-4R7-M 4.7 uH, 20 mOhm, Irms 9 A, Isat 15 A, 11.5 x 10 mm"
+			(at 566.42 436.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "49869e74-65c9-538b-a762-04e1647bf436")
+		)
+		(pin "2"
+			(uuid "d3838767-42cb-5c07-8df5-4bb9b0beb571")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "L70")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "+6V"
+		(at 579.12 429.26 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "50d733d6-f447-5324-a5a6-ceabe5b8410f")
+	)
+	(symbol
+		(lib_id "power:PWR_FLAG")
+		(at 579.12 429.26 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(dnp no)
+		(uuid "f3386f00-4190-522d-91fc-df243ac11435")
+		(property "Reference" "#FLG07"
+			(at 581.66 427.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Value" "PWR_FLAG"
+			(at 581.66 430.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 579.12 429.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 579.12 429.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 579.12 429.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "b24d2c01-1571-5377-aee0-4634225584e0")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "#FLG07")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "VIN6"
+		(at 515.62 461.01 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "60d476a5-4013-5a4b-820b-56d0a811e3fb")
+	)
+	(label "GND"
+		(at 515.62 468.63 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "17182e54-ecc6-5e42-86fe-754ec2cf479e")
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 515.62 464.82 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "f668b811-34d6-5bd4-8a41-e9ee4537f1f8")
+		(property "Reference" "C720"
+			(at 518.16 463.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "10u"
+			(at 518.16 466.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
+			(at 515.62 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 515.62 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 515.62 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C13585"
+			(at 515.62 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Voltage" "50V"
+			(at 515.62 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "Samsung CL31A106KBHNNNE 10 uF 50 V X5R 1206 (JLC basic)"
+			(at 515.62 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "23e6a79f-184d-5edb-91db-9260a5d0f796")
+		)
+		(pin "2"
+			(uuid "16d80593-3586-54be-b557-586852cbd168")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "C720")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "VIN6"
+		(at 521.97 461.01 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "aad03126-7cf2-5e4c-9b42-be8eb32253f9")
+	)
+	(label "GND"
+		(at 521.97 468.63 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "63960071-e844-5580-a379-d8c590ece41c")
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 521.97 464.82 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "db334c8b-d286-549d-bcc7-d3e04946a6a3")
+		(property "Reference" "C721"
+			(at 524.51 463.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "10u"
+			(at 524.51 466.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
+			(at 521.97 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 521.97 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 521.97 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C13585"
+			(at 521.97 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Voltage" "50V"
+			(at 521.97 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "Samsung CL31A106KBHNNNE 10 uF 50 V X5R 1206 (JLC basic)"
+			(at 521.97 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "003ec558-74c9-5332-9604-f49dfd897c03")
+		)
+		(pin "2"
+			(uuid "1e3cde5b-c093-52c5-a155-4f29314f9738")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "C721")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "VIN6"
+		(at 528.32 461.01 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "9f0aa969-f0ae-51a4-9038-a9e9400302eb")
+	)
+	(label "GND"
+		(at 528.32 468.63 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "5810128a-8cb0-5460-be64-ced878156e12")
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 528.32 464.82 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "4dded8b4-f60d-5f57-b198-3cb8ab7d5f56")
+		(property "Reference" "C722"
+			(at 530.86 463.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "10u"
+			(at 530.86 466.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
+			(at 528.32 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 528.32 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 528.32 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C13585"
+			(at 528.32 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Voltage" "50V"
+			(at 528.32 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "Samsung CL31A106KBHNNNE 10 uF 50 V X5R 1206 (JLC basic)"
+			(at 528.32 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "3 x 10 uF: ~2.3 A rms input ripple current at 4.66 A out"
+			(at 528.32 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "e24eb5ed-715d-5e8e-9089-62a18ed715ce")
+		)
+		(pin "2"
+			(uuid "19916113-1df3-5c46-a792-f6b8b4173031")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "C722")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "VIN6"
+		(at 534.67 461.01 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "51afcbc1-5ae9-5b78-bd35-8b19e4cf9ff3")
+	)
+	(label "GND"
+		(at 534.67 468.63 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "0ac14717-859f-5bc1-b004-19d2df111d79")
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 534.67 464.82 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "948c9343-c1c2-5589-be00-23aabfc0b4fa")
+		(property "Reference" "C723"
+			(at 537.21 463.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "100n"
+			(at 537.21 466.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+			(at 534.67 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 534.67 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 534.67 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C14663"
+			(at 534.67 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Voltage" "25V"
+			(at 534.67 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a609e3b5-9229-5059-a15e-fdf8ac4fb462")
+		)
+		(pin "2"
+			(uuid "50b643c0-bfd9-5561-bb70-39cd2d041fb3")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "C723")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "BST6"
+		(at 556.26 425.45 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "e6cc3bde-f99d-5eec-9600-a453aa667cd7")
+	)
+	(label "SW6"
+		(at 556.26 433.07 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "7f06f34b-aea6-5a5c-8251-76d6638e68ca")
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 556.26 429.26 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "7f4bc723-ae3b-51d1-a27e-736427c0ebd6")
+		(property "Reference" "C724"
+			(at 558.8 427.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "100n"
+			(at 558.8 430.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+			(at 556.26 429.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 556.26 429.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 556.26 429.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C14663"
+			(at 556.26 429.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Voltage" "25V"
+			(at 556.26 429.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "VBST - SW"
+			(at 556.26 429.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "afba5d9d-dc0f-5fb8-88f8-3bb0745830c2")
+		)
+		(pin "2"
+			(uuid "6f7c50df-bd2b-551e-b5b8-3cfd73101d25")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "C724")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "VIN6"
+		(at 541.02 461.01 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "f30f543c-2be4-597d-845d-3055f34523be")
+	)
+	(label "EN_BK"
+		(at 541.02 468.63 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "1a138de4-e786-5449-abc5-e2810c715140")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 541.02 464.82 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "88ff0843-2314-5ede-9c0b-288aeba0edc2")
+		(property "Reference" "R720"
+			(at 543.56 463.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "100k"
+			(at 543.56 466.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 541.02 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 541.02 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 541.02 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C25803"
+			(at 541.02 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Tolerance" "1%"
+			(at 541.02 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "1cd7a316-c7a9-5e5d-88ee-00d7a16f14f7")
+		)
+		(pin "2"
+			(uuid "09132991-b309-584b-b411-3f060daa797e")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "R720")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "EN_BK"
+		(at 547.37 461.01 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "62288c8c-4e7a-5ca7-b009-bc0bcde5cac5")
+	)
+	(label "GND"
+		(at 547.37 468.63 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "fa61ecf9-cc60-5067-bad3-da2748a160d0")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 547.37 464.82 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "d7d21a5d-697c-5edc-9722-83f471c84d77")
+		(property "Reference" "R721"
+			(at 549.91 463.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "33k"
+			(at 549.91 466.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 547.37 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 547.37 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 547.37 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "TBD (1%, JLC basic if stocked)"
+			(at 547.37 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Tolerance" "1%"
+			(at 547.37 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "EN 1.6 V max with REN 120-400k internal: buck starts at VIN6 ~6-8 V; EN 3.3 V at 14.8 V"
+			(at 547.37 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "51be54e4-38fd-570b-bb74-f96a2a53e623")
+		)
+		(pin "2"
+			(uuid "56bd5ba7-cca3-55d9-b4a6-1f81b1a997ed")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "R721")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "+6V"
+		(at 553.72 461.01 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "30a18816-1b36-51cd-9b4c-0867f94e0995")
+	)
+	(label "FB6"
+		(at 553.72 468.63 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "335f88d1-737e-55db-bf18-4bc291f6aa81")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 553.72 464.82 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "cdeac8c1-14cf-510d-a105-c5c16778b646")
+		(property "Reference" "R722"
+			(at 556.26 463.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "27k"
+			(at 556.26 466.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 553.72 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 553.72 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 553.72 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Tolerance" "0.1%"
+			(at 553.72 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "TBD (0603 0.1 % thin film 27k, e.g. Yageo RT0603BRD07)"
+			(at 553.72 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "VOUT = 0.760 V x (1 + 27k / 3.92k) = 5.995 V"
+			(at 553.72 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "7c5f4b43-5f2f-505d-a450-9b101f55b085")
+		)
+		(pin "2"
+			(uuid "0c496a22-3513-54fc-a9f0-722084a6b425")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "R722")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "FB6"
+		(at 560.07 461.01 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "a4286920-7c6f-5fa6-9687-3702911ac3b6")
+	)
+	(label "GND"
+		(at 560.07 468.63 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "df739236-1e14-52cb-884b-527935d77686")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 560.07 464.82 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "daa57b7f-0c32-58cc-98c2-f9c537c31197")
+		(property "Reference" "R723"
+			(at 562.61 463.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "3k92"
+			(at 562.61 466.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 560.07 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 560.07 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 560.07 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Tolerance" "0.1%"
+			(at 560.07 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "TBD (0603 0.1 % thin film 3k92, e.g. Yageo RT0603BRD07)"
+			(at 560.07 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "d6bea693-b557-52ac-8f6c-cc7f8170d734")
+		)
+		(pin "2"
+			(uuid "2e8ae9c6-b7a3-5b3e-96b7-81a5826ee686")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "R723")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "+6V"
+		(at 566.42 461.01 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "1b9d92de-aa2f-5285-8dc1-a05f19a1e597")
+	)
+	(label "GND"
+		(at 566.42 468.63 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "b15ce19e-a6eb-52fb-bd27-0ac45f644e4e")
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 566.42 464.82 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "3cea6d93-12a3-5606-9b5f-f4f26693a8c4")
+		(property "Reference" "C725"
+			(at 568.96 463.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "22u"
+			(at 568.96 466.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
+			(at 566.42 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 566.42 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 566.42 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C12891"
+			(at 566.42 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Voltage" "25V"
+			(at 566.42 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "Samsung CL31A226KAHNNNE 22 uF 25 V X5R 1206 (JLC basic)"
+			(at 566.42 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "dc4d8e7e-4eb8-559b-a269-2b632572a32a")
+		)
+		(pin "2"
+			(uuid "2c1ec17b-cd0e-56ad-b0d8-0e4c8056717f")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "C725")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "+6V"
+		(at 572.77 461.01 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "239bc95c-0b45-5264-b726-b5d0effaa2be")
+	)
+	(label "GND"
+		(at 572.77 468.63 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "c0dcff57-2aa8-5195-b75b-7eaf3a1b4978")
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 572.77 464.82 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "f16e2660-e48f-54d1-8ccd-3972fda616e0")
+		(property "Reference" "C726"
+			(at 575.31 463.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "22u"
+			(at 575.31 466.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
+			(at 572.77 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 572.77 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 572.77 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C12891"
+			(at 572.77 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Voltage" "25V"
+			(at 572.77 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "Samsung CL31A226KAHNNNE 22 uF 25 V X5R 1206 (JLC basic)"
+			(at 572.77 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "1fddc02b-fec6-580f-a059-c3c06cd334d6")
+		)
+		(pin "2"
+			(uuid "045bae8c-eb2a-5dab-9d26-bcae84bf3f6f")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "C726")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "+6V"
+		(at 579.12 461.01 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "69c4e112-0a20-57bf-8de5-464f770d5bd9")
+	)
+	(label "GND"
+		(at 579.12 468.63 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "fbdf7005-4e97-599b-b9cb-a840f4a68fb2")
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 579.12 464.82 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "2b0a3bc6-d9e6-50ff-b1c8-b8b0c1a0b12d")
+		(property "Reference" "C727"
+			(at 581.66 463.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "22u"
+			(at 581.66 466.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
+			(at 579.12 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 579.12 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 579.12 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C12891"
+			(at 579.12 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Voltage" "25V"
+			(at 579.12 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "Samsung CL31A226KAHNNNE 22 uF 25 V X5R 1206 (JLC basic)"
+			(at 579.12 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "3 x 22 uF (~40 uF at 6 V bias): TI range 20-68 uF; ~10 mV ripple"
+			(at 579.12 464.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "df666116-d9a9-5315-a2b4-136e28d8409d")
+		)
+		(pin "2"
+			(uuid "fe728c00-4778-5e11-bbdd-c6af1b266734")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "C727")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(rectangle
+		(start 317.5 492.76)
+		(end 457.5 551.18)
+		(stroke
+			(width 0.2)
+			(type dash)
+		)
+		(fill
+			(type none)
+		)
+		(uuid "c2fff07e-7020-56fd-b921-35892bdb8d31")
+	)
+	(text "U72: +6V -> J70 \"DUT 6V ONLY (K325T)\", 4.66 A, OVLO 6.9 V, UVLO 5.4 V"
+		(exclude_from_sim no)
+		(at 318.77 494.03 0)
+		(effects
+			(font
+				(size 2 2)
+			)
+			(justify left top)
+		)
+		(uuid "a31ee70f-3a1a-5ea3-a9bb-81a799508997")
+	)
+	(label "+6V"
+		(at 337.82 505.46 180)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "63b40760-6884-598c-9207-3f8217aa897f")
+	)
+	(label "EN6O"
+		(at 337.82 510.54 180)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "028561ec-8bba-59c0-9303-8f8c51fe324f")
+	)
+	(label "OVLO6"
+		(at 337.82 513.08 180)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "6c4e2394-ba1e-5fa9-9884-a6e83961dc23")
+	)
+	(label "DVDT6O"
+		(at 337.82 518.16 180)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "099d5142-957d-5dd6-aaa3-a30229e0a9a0")
+	)
+	(label "ITMR6O"
+		(at 337.82 520.7 180)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "83903d06-48dc-526b-a793-5972c859527a")
+	)
+	(label "OUT6V"
+		(at 358.14 505.46 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "4c1f6ddc-75c7-5f94-8b1c-0c777b52f723")
+	)
+	(label "~{FLT6V}"
+		(at 358.14 510.54 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "ceb4f90a-d1b1-543f-95a5-f3889656f845")
+	)
+	(no_connect
+		(at 358.14 513.08)
+		(uuid "ddaf918d-a9f4-57cf-8628-2e74d52fbb45")
+	)
+	(label "ILM6O"
+		(at 358.14 518.16 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "6eb644e3-3348-5483-a957-906a95cd0302")
+	)
+	(label "GND"
+		(at 347.98 525.78 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "7cf0632f-0bf5-58b8-b171-456c5e9f2de9")
+	)
+	(symbol
+		(lib_id "mega-kvm-power:TPS259470")
+		(at 347.98 513.08 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "13bb03a6-cdf3-5320-ac66-f0bc214a835c")
+		(property "Reference" "U72"
+			(at 347.98 499.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TPS259470ARPWR"
+			(at 347.98 501.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm"
+			(at 347.98 513.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 347.98 513.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 347.98 513.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C3662799"
+			(at 347.98 513.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "TI TPS259470ARPWR"
+			(at 347.98 513.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "opens within 1.2 us above 6.9 V (e.g. a shorted buck high-side FET)"
+			(at 347.98 513.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "5"
+			(uuid "7103eb0f-5e29-5677-a1ca-64407a410303")
+		)
+		(pin "1"
+			(uuid "d40bb666-b16f-5801-bf5b-b795f6ad67f3")
+		)
+		(pin "2"
+			(uuid "c340c732-01d2-51c1-afb4-283a6ea33652")
+		)
+		(pin "7"
+			(uuid "f112f66f-b7cb-5f67-9ea2-30595bc1fe10")
+		)
+		(pin "10"
+			(uuid "a34b79f3-f1bf-5667-8d6e-02f23b5b067f")
+		)
+		(pin "6"
+			(uuid "4d90e4d7-0b4a-54a5-a368-3e1d9ed77a09")
+		)
+		(pin "4"
+			(uuid "9c1d5683-4f91-538e-af34-45d41dc2175b")
+		)
+		(pin "3"
+			(uuid "f90fc326-f871-5d1b-b5aa-8ce9f1076c4b")
+		)
+		(pin "9"
+			(uuid "00d54750-7523-5b51-839d-de4440a65f15")
+		)
+		(pin "8"
+			(uuid "995c872f-15bd-5b38-8be1-ef916c3dafbb")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "U72")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "ILM6O"
+		(at 325.12 534.67 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "244373fa-8f8d-51be-a40a-b742476c00a5")
+	)
+	(label "GND"
+		(at 325.12 542.29 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "4cac1243-309c-5a50-bf5e-a59c35a1da45")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 325.12 538.48 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "0651025a-4c6e-5f4d-9131-9207c06f01de")
+		(property "Reference" "R730"
+			(at 327.66 537.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "715"
+			(at 327.66 539.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 325.12 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 325.12 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 325.12 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "TBD (1%, JLC basic if stocked)"
+			(at 325.12 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Tolerance" "1%"
+			(at 325.12 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "ILIM 4.66 A (3334/R), +-10 %: 4.2-5.1 A; below the buck limit (5.3 A valley min, ~5.9 A average)"
+			(at 325.12 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "897b32c5-0e79-5015-bd14-11d57dc6fc6f")
+		)
+		(pin "2"
+			(uuid "6c9015fa-65fe-5c8d-895c-624594ab5492")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "R730")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "DVDT6O"
+		(at 332.74 534.67 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "425e7195-751f-5ff8-8bed-2f2060a78afe")
+	)
+	(label "GND"
+		(at 332.74 542.29 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "7b4d7f57-5c9b-5904-a171-bdccc5835c5d")
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 332.74 538.48 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "a4acea4b-3f7a-5f25-8141-382c9206caef")
+		(property "Reference" "C730"
+			(at 335.28 537.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "2n2"
+			(at 335.28 539.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+			(at 332.74 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 332.74 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 332.74 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "TBD (X7R 50V)"
+			(at 332.74 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Voltage" "50V"
+			(at 332.74 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "57033e48-6d7c-5173-82d8-fc90199eb85e")
+		)
+		(pin "2"
+			(uuid "d4766cf3-af47-5e49-b4ea-e94530e809c5")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "C730")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "ITMR6O"
+		(at 340.36 534.67 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "fc2fb5af-279f-5d3a-b24c-9ee104908071")
+	)
+	(label "GND"
+		(at 340.36 542.29 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "46477156-088f-561b-95ab-0a7a0feab37e")
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 340.36 538.48 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "e8ee733a-758f-5b68-954c-ccad024260c2")
+		(property "Reference" "C731"
+			(at 342.9 537.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "4n7"
+			(at 342.9 539.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+			(at 340.36 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 340.36 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 340.36 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "TBD (X7R 50V)"
+			(at 340.36 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Voltage" "50V"
+			(at 340.36 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "0d9e819a-c92a-52ba-b0bf-a0e607f5c205")
+		)
+		(pin "2"
+			(uuid "3099cc06-c23c-5945-b49e-527b8f112d58")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "C731")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "+6V"
+		(at 347.98 534.67 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "e8eb77b4-68fd-5996-9b2f-4cacfe0e126c")
+	)
+	(label "OVLO6"
+		(at 347.98 542.29 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "84d04a78-4d36-502f-8795-daf96584efe1")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 347.98 538.48 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "a8cbd7da-a354-57a9-8369-95aabd917e7b")
+		(property "Reference" "R731"
+			(at 350.52 537.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "475k"
+			(at 350.52 539.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 347.98 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 347.98 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 347.98 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "TBD (1%, JLC basic if stocked)"
+			(at 347.98 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Tolerance" "1%"
+			(at 347.98 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "OVLO 1.20 V x 5.75 = 6.90 V rising, 6.27 V falling"
+			(at 347.98 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "fac6a5ab-75ee-5157-931b-a2115a58e144")
+		)
+		(pin "2"
+			(uuid "412e39a4-fdde-5f24-8a45-eda940a43887")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "R731")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "OVLO6"
+		(at 355.6 534.67 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "ae5eac47-782c-576d-84e0-ce1c6216e41b")
+	)
+	(label "GND"
+		(at 355.6 542.29 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "f0dc794c-2051-5c90-b706-f4a22f3703ba")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 355.6 538.48 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "2b063993-9709-52cc-85f6-9460cbd89cb6")
+		(property "Reference" "R732"
+			(at 358.14 537.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "100k"
+			(at 358.14 539.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 355.6 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 355.6 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 355.6 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C25803"
+			(at 355.6 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Tolerance" "1%"
+			(at 355.6 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "6899c3ab-1cc1-56ff-b126-c3431b0e4dd6")
+		)
+		(pin "2"
+			(uuid "c2b79efc-70ba-5eaf-b9b3-2d57b5856d2d")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "R732")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "OVLO6"
+		(at 363.22 534.67 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "caddbe92-c998-5625-9992-643f51044271")
+	)
+	(label "GND"
+		(at 363.22 542.29 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "4fb5990b-e047-5881-a74b-8ef822294816")
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 363.22 538.48 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "6cfea705-233e-50ce-bc56-aa8dad9d14d3")
+		(property "Reference" "C732"
+			(at 365.76 537.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "100n"
+			(at 365.76 539.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+			(at 363.22 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 363.22 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 363.22 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C14663"
+			(at 363.22 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Voltage" "25V"
+			(at 363.22 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "d27b9f23-f083-5f40-b398-bcf4da2c2cb9")
+		)
+		(pin "2"
+			(uuid "9dbc7d76-a514-598d-b8f4-a9cf2f36e4c4")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "C732")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "+6V"
+		(at 370.84 534.67 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "19522cfb-4b13-53b9-9d65-6265e1aee246")
+	)
+	(label "EN6O"
+		(at 370.84 542.29 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "c1900051-7c07-5c9b-8856-37e6cc25081b")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 370.84 538.48 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "60981b6e-a468-522a-a593-b54a759c5e75")
+		(property "Reference" "R733"
+			(at 373.38 537.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "348k"
+			(at 373.38 539.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 370.84 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 370.84 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 370.84 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "TBD (1%, JLC basic if stocked)"
+			(at 370.84 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Tolerance" "1%"
+			(at 370.84 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "UVLO 1.20 V x 4.48 = 5.38 V rising, 4.88 V falling; high impedance so that D730 cannot lift 6V_EN above 0.4 V through the 20 k pull-down"
+			(at 370.84 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "c6d04548-4529-5b55-8e9a-86f4a1e7447c")
+		)
+		(pin "2"
+			(uuid "133c2c40-98d7-50c9-ac5d-194ea7fce788")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "R733")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "EN6O"
+		(at 378.46 534.67 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "29f025dd-ef69-501b-a2ff-2f9d45f4e98b")
+	)
+	(label "GND"
+		(at 378.46 542.29 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "9584228b-e193-5932-837e-ad20c8c37a91")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 378.46 538.48 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "c424fbdc-7bbb-5297-a6e0-93b69de19502")
+		(property "Reference" "R734"
+			(at 381 537.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "100k"
+			(at 381 539.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 378.46 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 378.46 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 378.46 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C25803"
+			(at 378.46 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Tolerance" "1%"
+			(at 378.46 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "ade945a0-d4ee-572a-b1f3-ef4dd3e6edd9")
+		)
+		(pin "2"
+			(uuid "c101cc30-d6e8-54b9-ae8e-108252034759")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "R734")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "6V_EN"
+		(at 382.27 523.24 180)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "81c61174-1eea-5f86-8984-d1e9ba665fe4")
+	)
+	(label "EN6O"
+		(at 389.89 523.24 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "a3877d95-0188-5689-8dbf-2194747d6dda")
+	)
+	(symbol
+		(lib_id "Device:D")
+		(at 386.08 523.24 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "a59e9ba6-347f-5b1e-837b-37549d24f7df")
+		(property "Reference" "D730"
+			(at 388.62 521.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1N4148WS"
+			(at 388.62 524.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Diode_SMD:D_SOD-323"
+			(at 386.08 523.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 386.08 523.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 386.08 523.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C2128"
+			(at 386.08 523.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "1N4148WS 100 V 150 mA SOD-323 (JLC basic); silicon, not Schottky: its reverse leakage into EN6O stays < 0.5 uA hot"
+			(at 386.08 523.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "6V_EN low pulls EN6O to ~0.5 V (< 1.09 V): U72 opens at once, not when +6V has decayed"
+			(at 386.08 523.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "845ec1e3-7a32-52b6-96a5-fa891c0ce481")
+		)
+		(pin "2"
+			(uuid "155ec5d2-e908-5847-a674-08ecd13146a7")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "D730")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "+6V"
+		(at 393.7 534.67 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "40dc9697-66e6-540f-9d17-7a461ee24c20")
+	)
+	(label "GND"
+		(at 393.7 542.29 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "3f92be3a-7453-5ffe-84bd-7cef6b8a5034")
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 393.7 538.48 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "cd632d72-46b4-5dac-8cae-043d82519020")
+		(property "Reference" "C733"
+			(at 396.24 537.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1u"
+			(at 396.24 539.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
+			(at 393.7 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 393.7 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 393.7 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "TBD (X7R 50V)"
+			(at 393.7 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Voltage" "50V"
+			(at 393.7 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "5bea3d05-f047-599e-b540-4126a916ae62")
+		)
+		(pin "2"
+			(uuid "b1c4746d-4644-5de2-b7ad-74ab92961bde")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "C733")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "OUT6V"
+		(at 401.32 534.67 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "c24ace32-785b-5999-a26b-5d3e7af5667d")
+	)
+	(label "GND"
+		(at 401.32 542.29 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "8d4aa9fd-0f67-5c38-998c-9d5cd752acf3")
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 401.32 538.48 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "79d82214-3218-5b8b-8324-4578a926a148")
+		(property "Reference" "C734"
+			(at 403.86 537.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1u"
+			(at 403.86 539.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
+			(at 401.32 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 401.32 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 401.32 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "TBD (X7R 50V)"
+			(at 401.32 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Voltage" "50V"
+			(at 401.32 538.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "3da9205d-30ae-517f-8579-8de0d4ca51b8")
+		)
+		(pin "2"
+			(uuid "68328c90-2a64-5399-948b-963678a403c9")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "C734")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "OUT6V"
+		(at 393.7 511.81 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "9423921a-eb3d-537e-b82e-b680365db04a")
+	)
+	(label "GND"
+		(at 393.7 504.19 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "8f7abe8f-52ff-5f8f-890f-ba4b9945f004")
+	)
+	(symbol
+		(lib_id "Device:D_Schottky")
+		(at 393.7 508 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "30e1d0ec-bb64-5b97-9953-60edfe5e912a")
+		(property "Reference" "D740"
+			(at 396.24 506.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "SS34"
+			(at 396.24 509.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Diode_SMD:D_SMA"
+			(at 393.7 508 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 393.7 508 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 393.7 508 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C8678"
+			(at 393.7 508 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "SS34 40 V 3 A SMA"
+			(at 393.7 508 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "negative-spike clamp on OUT (TI 8.3 layout)"
+			(at 393.7 508 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "f4ef453d-74da-5417-a90b-4a6bcd20fe16")
+		)
+		(pin "2"
+			(uuid "1e07ce58-8aa3-5496-a47c-d33348eef76a")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "D740")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "OUT6V"
+		(at 406.4 499.11 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "6bf7950b-7451-5941-9a2b-9ef0566ca3cf")
+	)
+	(label "LED6V"
+		(at 406.4 506.73 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "eaec1ab6-6592-5cd0-8a51-9a2b5d16849e")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 406.4 502.92 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "48296e82-0e1c-523c-be12-c0afd72a46ff")
+		(property "Reference" "R740"
+			(at 408.94 501.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1k"
+			(at 408.94 504.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 406.4 502.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 406.4 502.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 406.4 502.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C21190"
+			(at 406.4 502.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Tolerance" "1%"
+			(at 406.4 502.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "4 mA: \"6V\" LED at the outlet, also bleeds an unloaded output"
+			(at 406.4 502.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "c45dbdef-4c38-5921-bbb4-2a9435989e65")
+		)
+		(pin "2"
+			(uuid "bb03b32d-a971-5760-8ca0-59a99fa20845")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "R740")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "GND"
+		(at 406.4 521.97 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "86ab9c05-2d70-5fed-a541-b3adbd6ba19c")
+	)
+	(label "LED6V"
+		(at 406.4 514.35 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "e1a0479b-170a-556b-9dcd-8b7dba60f9fc")
+	)
+	(symbol
+		(lib_id "Device:LED")
+		(at 406.4 518.16 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "d115e65e-9ab2-51a0-9535-6c3c47f6d95b")
+		(property "Reference" "D741"
+			(at 408.94 516.89 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "green"
+			(at 408.94 519.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0603_1608Metric"
+			(at 406.4 518.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 406.4 518.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 406.4 518.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "TBD (0603 green, JLC basic)"
+			(at 406.4 518.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "\"6V\" outlet live (by J70)"
+			(at 406.4 518.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "1d973bc6-200b-5126-9b58-53bcb2ef7df3")
+		)
+		(pin "2"
+			(uuid "eb440973-375f-552a-8563-9e13919022e9")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "D741")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "OUT6V"
+		(at 419.1 499.11 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "deea6eb7-9974-5296-8fef-9cccaa11092f")
+	)
+	(label "6V_PG"
+		(at 419.1 506.73 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "b9da3d8e-63d0-557f-ba4b-256cdb90e7fe")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 419.1 502.92 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "4a8da520-2907-55cf-891c-2a87671f3cbd")
+		(property "Reference" "R741"
+			(at 421.64 501.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "20k"
+			(at 421.64 504.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 419.1 502.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 419.1 502.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 419.1 502.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C4184"
+			(at 419.1 502.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Tolerance" "1%"
+			(at 419.1 502.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "7b77eda8-891d-580a-a80b-bf22d29aedd7")
+		)
+		(pin "2"
+			(uuid "2d4d60eb-ca2b-5db9-a62e-5bf8818bb4ce")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "R741")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "6V_PG"
+		(at 419.1 514.35 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "8506cd6d-4362-5d15-8ea9-9af885bdd0a3")
+	)
+	(label "GND"
+		(at 419.1 521.97 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "c5035a97-29f6-56a7-a90d-82f87c479815")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 419.1 518.16 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "c162c5f1-b293-589d-8d24-7504b054f778")
+		(property "Reference" "R742"
+			(at 421.64 516.89 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "20k"
+			(at 421.64 519.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 419.1 518.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 419.1 518.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 419.1 518.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C4184"
+			(at 419.1 518.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Tolerance" "1%"
+			(at 419.1 518.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "3.0 V at 6 V (3.45 V at 6.9 V); TCA9535 high above ~4.6 V on OUT6V; -> U11 P1.7"
+			(at 419.1 518.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "e214d8a9-496c-5331-b05d-8a4196217e4f")
+		)
+		(pin "2"
+			(uuid "adc9f01b-2795-5cf2-bd87-5d664c59e7b3")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "R742")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "GND"
+		(at 436.88 513.08 180)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "ef155129-c179-5220-98b2-a0041597cd99")
+	)
+	(label "GND"
+		(at 449.58 513.08 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "d7e83c5d-1051-5f3a-8017-dc1ea54274fa")
+	)
+	(label "OUT6V"
+		(at 436.88 515.62 180)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "72be42cf-ff6c-5882-b104-2b5b86b23eaf")
+	)
+	(label "OUT6V"
+		(at 449.58 515.62 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "c3242e2a-ac79-5f7d-9442-a44d507d4b0c")
+	)
+	(symbol
+		(lib_id "Connector_Generic:Conn_02x02_Odd_Even")
+		(at 441.96 513.08 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "0676a92e-31d7-52a3-9e92-78269e191100")
+		(property "Reference" "J70"
+			(at 441.96 506.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "DUT 6V ONLY (K325T)"
+			(at 441.96 509.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Connector_Molex:Molex_Micro-Fit_3.0_43045-0400_2x02_P3.00mm_Horizontal"
+			(at 441.96 513.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 441.96 513.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 441.96 513.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "Molex 43045-0400 Micro-Fit 3.0 2x2 right-angle header, 3.0 mm, 8.5 A per contact, positive latch, polarised; pins 1-2 GND, 3-4 +6 V (two contacts per pole). Mates 43025-0400 (C122417) + 43030-0001 crimps (C259786, 20-24 AWG)"
+			(at 441.96 513.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C122413"
+			(at 441.96 513.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Assembly" "THT"
+			(at 441.96 513.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "deliberately not VH (5 V), screw terminal (12 V) or Mini-Fit Jr (Mimas 12 V)"
+			(at 441.96 513.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "49af81b6-5391-5c32-bb94-de102f6332cd")
+		)
+		(pin "2"
+			(uuid "ebad45b6-a9c9-590f-98a0-0d18aa69eb9f")
+		)
+		(pin "3"
+			(uuid "738cacde-1398-50a7-becb-54bb1dc8d22f")
+		)
+		(pin "4"
+			(uuid "fe7988cc-f794-576a-800d-f0325083e9ae")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "J70")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(text "K325T outlet: 6.0 V, designed for 4 A continuous, limit 4.66 A (auto-retry).\nOff (6V_EN low): U71 open, buck unpowered, U72 open via D730.\nOn: VIN6 ramps (~0.9 V/ms), buck soft-starts at VIN6 ~6-8 V, U72 closes at +6V > 5.4 V\nand ramps OUT6V at ~0.9 V/ms (0.9 A into 1000 uF)."
+		(exclude_from_sim no)
+		(at 320.04 556.26 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left top)
+		)
+		(uuid "b42b1442-4a1a-576f-8a6c-d568310fb79e")
 	)
 	(sheet_instances
 		(path "/"

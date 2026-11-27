@@ -13,6 +13,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from kigen import Schematic, write_project  # noqa: E402
 import input_stage  # noqa: E402
 import five_volt  # noqa: E402
+import six_volt  # noqa: E402
 from parts import (B5819W, EFUSE_A, EFUSE_L, FAN_CTRL, FAN_HDR, FAN_SW, FP_C1206, FP_R1206,  # noqa: E402,F401
                    HOLE_M3, I2C_MUX, LDO, LED_G, NFET, SS34, TSENS, c, r)
 
@@ -172,7 +173,7 @@ P(TSENS, 'U13', bx + 30.48, by + 160.02,
                   'hottest parts); ALERT on /INT (default 80 C / 75 C)'})
 P(c('100n'), 'C405', bx + 12.7, by + 147.32, {'1': '+3V3', '2': 'GND'})
 P(r('10k'), 'R12', bx + 55.88, by + 147.32, {'1': '+3V3', '2': '~{I2C_INT}'},
-  fields={'Note': '/INT pull-up: EMC2302 ALERT, TMP75 ALERT, optional TCA9535'})
+  fields={'Note': '/INT pull-up: EMC2302 ALERT, TMP75 ALERT, TCA9535 /INT'})
 S.text('Bring-up (host or FPGA), per controller m = 0..3:\n'
        '  write 0x70 <- (1 << m)            select mux channel m\n'
        '  0x2E reg 2Bh <- 03h               PWM1/2 push-pull\n'
@@ -200,7 +201,7 @@ P(r('4k7'), 'R1', bx + 10.16, by + 43.18, {'1': 'VBUS', '2': 'LEDVB'})
 P(LED_G, 'D1', bx + 17.78, by + 50.8, {'A': 'LEDVB', 'K': 'GND'}, rot=90)
 # shared OVLO divider: 1.2 V * (113k + 10k) / 10k = 14.8 V
 P(r('113k'), 'R2', bx + 35.56, by + 43.18, {'1': 'VBUS', '2': 'OVLO'},
-  fields={'Note': 'OVLO 14.8 V shared by all 9 eFuses'})
+  fields={'Note': 'OVLO 14.8 V shared by the 10 VBUS eFuses (8 DUT, always-on, 6 V buck input U71)'})
 P(r('10k'), 'R3', bx + 43.18, by + 43.18, {'1': 'OVLO', '2': 'GND'})
 P(c('100n'), 'C6', bx + 50.8, by + 43.18, {'1': 'OVLO', '2': 'GND'})
 S.text('VBUS 12 V nominal, 25 A max (input fuse). Sum of DUT limits (8 x 5 A + 5 A)\n'
@@ -226,7 +227,7 @@ conn(10, 'J4', bx + 66.04, by + 30.48,
 
 # ---------------------------------------------------------------- optional I2C expander
 bx, by = 12.7, 213.36
-S.box(bx, by, bx + 188.98, by + 71.12, 'Optional (DNP): TCA9535 fault expander on the shield I2C bus, addr 0x24')
+S.box(bx, by, bx + 188.98, by + 71.12, 'TCA9535 status/control expander on the shield I2C bus, addr 0x24 (fitted)')
 ex, ey = bx + 45.72, by + 35.56
 nets = {'VCC': '+3V3', 'GND': 'GND', 'SDA': 'SDA', 'SCL': 'SCL', '~{INT}': '~{I2C_INT}',
         'A0': 'EXA0', 'A1': 'EXA1', 'A2': 'EXA2', 'P10': '~{FLT_AON}'}
@@ -235,18 +236,19 @@ for k in range(8):
 nets['P11'] = '5V_PRESENT'          # issue 0055: Molex +5 V present (divider R601/R602)
 for k, n in enumerate(five_volt.CHANNELS):   # 0055: 5 V eFuse EN = channel n on and set to 5 V
     nets['P1%d' % (2 + k)] = 'EN5V%d' % n
-for k in range(5, 8):
-    nets['P1%d' % k] = 'EXUNUSED'
+# 0055 round 15: the dedicated 6 V outlet (six_volt.py) is switched and read back here
+nets['P15'] = '6V_CTRL'             # output: 6 V outlet on (via R700 1 k; R701 20 k pull-down)
+nets['P16'] = '~{FLT6V}'            # /FLT of the 6 V input and output eFuses (U71, U72)
+nets['P17'] = '6V_PG'               # OUT6V present (20 k / 20 k divider)
 S.place('Interface_Expansion:TCA9535PWR', 'U11', 'TCA9535PWR', ex, ey, nets,
-        footprint='Package_SO:TSSOP-24_4.4x7.8mm_P0.65mm', dnp=True,
-        fields={'LCSC': 'C130204', 'Note': 'DNP by default; P00-07 /FLT0-7 (5-7: 12 V or 5 V output), '
-                                           'P10 /FLT_AON, P11 5V_PRESENT, P12-14 EN5V5-7'})
-P(r('10k'), 'R11', bx + 83.82, by + 58.42, {'1': 'EXUNUSED', '2': 'GND'}, dnp=True,
-  fields={'Note': 'unused P15-P17 held low; firmware may also set them as outputs'})
-P(c('100n'), 'C7', bx + 83.82, by + 15.24, {'1': '+3V3', '2': 'GND'}, dnp=True)
+        footprint='Package_SO:TSSOP-24_4.4x7.8mm_P0.65mm',
+        fields={'LCSC': 'C130204', 'Note': 'fitted (0055 round 15); P00-07 /FLT0-7 (5-7: 12 V or 5 V output), '
+                                           'P10 /FLT_AON, P11 5V_PRESENT, P12-14 EN5V5-7, '
+                                           'P15 6V outlet enable (output), P16 /FLT6V, P17 6V_PG'})
+P(c('100n'), 'C7', bx + 83.82, by + 15.24, {'1': '+3V3', '2': 'GND'})
 for k, (net, to) in enumerate([('EXA0', 'GND'), ('EXA1', 'GND'), ('EXA2', '+3V3')]):
     a, b = ('1', '2') if to == 'GND' else ('2', '1')
-    P(r('10k'), 'R%d' % (5 + k), bx + 101.6 + k * 7.62, by + 22.86, {a: net, b: to}, dnp=True)
+    P(r('10k'), 'R%d' % (5 + k), bx + 101.6 + k * 7.62, by + 22.86, {a: net, b: to})
 for k, net in enumerate(['SDA', 'SCL', '~{I2C_INT}']):
     P(r('4k7' if k < 2 else '10k'), 'R%d' % (8 + k), bx + 101.6 + k * 7.62, by + 48.26,
       {'1': '3V3_I2C', '2': net}, dnp=True,
@@ -267,7 +269,7 @@ for k in range(8):
 
 S.text('Notes\n'
        '* eFuse = TPS259470A (auto-retry, owner 2026-11-27; the L latch-off part is unstocked).\n'
-       '  All 12 eFuses (DUT, 5 V, always-on) the same part. EN/UVLO threshold 1.2 V: 3.3 V logic drives it directly.\n'
+       '  All 14 eFuses (DUT, 5 V, 6 V outlet, always-on) the same part. EN/UVLO threshold 1.2 V: 3.3 V logic drives it directly.\n'
        '* 20k pull-downs: everything off when the shield is unplugged, unpowered or in reset.\n'
        '* Reverse current blocked (back-to-back FETs inside the eFuse). OVLO 14.8 V cuts all outputs.\n'
        '* No quick-output-discharge in TPS25947: the LED + 4k7 (2.5 mA) bleeds an unloaded output.\n'
@@ -279,6 +281,9 @@ input_stage.build(S, P, 609.6, 15.24)
 
 # ---------------------------------------------------------------- 5 V DUT outputs (issue 0055)
 five_volt.build(S, P, 12.7, 419.1)
+
+# ---------------------------------------------------------------- dedicated 6 V outlet (0055 round 15)
+six_volt.build(S, P, 317.5, 419.1)
 
 if __name__ == '__main__':
     os.makedirs(OUTDIR, exist_ok=True)
