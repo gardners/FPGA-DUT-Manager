@@ -10,6 +10,7 @@ Board must run from the DC jack (USB power alone browns out).
 
 | Build id | Commit | Verified on hardware (2026-11-25) | Notes |
 |---|---|---|---|
+| 618e7266 | 618e726 | 2026-11-27: hwtest 63/0; `jtag-speed --kbd` clean at every step to half 3 (20.8 MHz) with default settings | keyboard scan paused during keyboard JTAG by default (key 0x0063 = 1), optional TDO voting (key 0x0064) (0054); WNS +0.191 ns. **known-good** |
 | 7b9a7921 | 7b9a792 | 2026-11-27: hwtest 63/0; keyboard IDCODE 0x012ba043 | merges rack case, dutctl JTAG tools (0053/0054), shield I2C master + heartbeat shield block + power-ctl key 0x0062 (0049 step 2); WNS +0.204 ns. **known-good** |
 | c73c7b23 | c73c7b2 | 2026-11-27: hwtest 63/0; keyboard IDCODE 0x012ba043 in kbd-jtag modes 0, 1 and 3 (JTAGEN low) | adds kbd-jtag mode 3 (pin-3 diagnostic); WNS +0.200 ns. |
 | aba06812 | aba0681 | 2026-11-27: hwtest 63/0 (DHCP both DUTs, real DVI source, passthrough); keyboard IDCODE 0x012ba043 via remote JTAG | timing pipelining (net_tx DHCP, dhcp_client, thumb_rx_writer, mosaic), MGMT dup compare; normal WNS +0.200 ns, shield build +0.276 ns. |
