@@ -7430,7 +7430,7 @@
 				)
 			)
 		)
-		(property "Value" "TPS259470LRPWR"
+		(property "Value" "TPS259470ARPWR"
 			(at 43.18 24.13 0)
 			(effects
 				(font
@@ -7465,7 +7465,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C3662793"
+		(property "LCSC" "C3662799"
 			(at 43.18 35.56 0)
 			(effects
 				(font
@@ -7474,7 +7474,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "TI TPS259470LRPWR"
+		(property "MPN" "TI TPS259470ARPWR"
 			(at 43.18 35.56 0)
 			(effects
 				(font
@@ -8949,7 +8949,7 @@
 				)
 			)
 		)
-		(property "Value" "TPS259470LRPWR"
+		(property "Value" "TPS259470ARPWR"
 			(at 139.7 24.13 0)
 			(effects
 				(font
@@ -8984,7 +8984,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C3662793"
+		(property "LCSC" "C3662799"
 			(at 139.7 35.56 0)
 			(effects
 				(font
@@ -8993,7 +8993,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "TI TPS259470LRPWR"
+		(property "MPN" "TI TPS259470ARPWR"
 			(at 139.7 35.56 0)
 			(effects
 				(font
@@ -10468,7 +10468,7 @@
 				)
 			)
 		)
-		(property "Value" "TPS259470LRPWR"
+		(property "Value" "TPS259470ARPWR"
 			(at 236.22 24.13 0)
 			(effects
 				(font
@@ -10503,7 +10503,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C3662793"
+		(property "LCSC" "C3662799"
 			(at 236.22 35.56 0)
 			(effects
 				(font
@@ -10512,7 +10512,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "TI TPS259470LRPWR"
+		(property "MPN" "TI TPS259470ARPWR"
 			(at 236.22 35.56 0)
 			(effects
 				(font
@@ -11987,7 +11987,7 @@
 				)
 			)
 		)
-		(property "Value" "TPS259470LRPWR"
+		(property "Value" "TPS259470ARPWR"
 			(at 332.74 24.13 0)
 			(effects
 				(font
@@ -12022,7 +12022,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C3662793"
+		(property "LCSC" "C3662799"
 			(at 332.74 35.56 0)
 			(effects
 				(font
@@ -12031,7 +12031,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "TI TPS259470LRPWR"
+		(property "MPN" "TI TPS259470ARPWR"
 			(at 332.74 35.56 0)
 			(effects
 				(font
@@ -13506,7 +13506,7 @@
 				)
 			)
 		)
-		(property "Value" "TPS259470LRPWR"
+		(property "Value" "TPS259470ARPWR"
 			(at 43.18 90.17 0)
 			(effects
 				(font
@@ -13541,7 +13541,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C3662793"
+		(property "LCSC" "C3662799"
 			(at 43.18 101.6 0)
 			(effects
 				(font
@@ -13550,7 +13550,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "TI TPS259470LRPWR"
+		(property "MPN" "TI TPS259470ARPWR"
 			(at 43.18 101.6 0)
 			(effects
 				(font
@@ -15025,7 +15025,7 @@
 				)
 			)
 		)
-		(property "Value" "TPS259470LRPWR"
+		(property "Value" "TPS259470ARPWR"
 			(at 139.7 90.17 0)
 			(effects
 				(font
@@ -15060,7 +15060,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C3662793"
+		(property "LCSC" "C3662799"
 			(at 139.7 101.6 0)
 			(effects
 				(font
@@ -15069,7 +15069,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "TI TPS259470LRPWR"
+		(property "MPN" "TI TPS259470ARPWR"
 			(at 139.7 101.6 0)
 			(effects
 				(font
@@ -16553,7 +16553,7 @@
 				)
 			)
 		)
-		(property "Value" "TPS259470LRPWR"
+		(property "Value" "TPS259470ARPWR"
 			(at 236.22 90.17 0)
 			(effects
 				(font
@@ -16588,7 +16588,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C3662793"
+		(property "LCSC" "C3662799"
 			(at 236.22 101.6 0)
 			(effects
 				(font
@@ -16597,7 +16597,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "TI TPS259470LRPWR"
+		(property "MPN" "TI TPS259470ARPWR"
 			(at 236.22 101.6 0)
 			(effects
 				(font
@@ -18081,7 +18081,7 @@
 				)
 			)
 		)
-		(property "Value" "TPS259470LRPWR"
+		(property "Value" "TPS259470ARPWR"
 			(at 332.74 90.17 0)
 			(effects
 				(font
@@ -18116,7 +18116,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C3662793"
+		(property "LCSC" "C3662799"
 			(at 332.74 101.6 0)
 			(effects
 				(font
@@ -18125,7 +18125,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "TI TPS259470LRPWR"
+		(property "MPN" "TI TPS259470ARPWR"
 			(at 332.74 101.6 0)
 			(effects
 				(font
@@ -19644,7 +19644,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "TBD (C3662793 is the L variant)"
+		(property "LCSC" "C3662799"
 			(at 43.18 167.64 0)
 			(effects
 				(font
@@ -36962,7 +36962,7 @@
 			)
 		)
 	)
-	(text "Notes\n* eFuse = TPS259470L (latch-off): a DUT short latches until the shield toggles CTRLn.\n  Always-on = TPS259470A (auto-retry). EN/UVLO threshold 1.2 V: 3.3 V logic drives it directly.\n* 20k pull-downs: everything off when the shield is unplugged, unpowered or in reset.\n* Reverse current blocked (back-to-back FETs inside the eFuse). OVLO 14.8 V cuts all outputs.\n* No quick-output-discharge in TPS25947: the LED + 4k7 (2.5 mA) bleeds an unloaded output.\n* Copper: 2 oz both layers. VBUS and OUTn are polygons; see docs/hardware/power-board.md."
+	(text "Notes\n* eFuse = TPS259470A (auto-retry, owner 2026-11-27; the L latch-off part is unstocked).\n  All 12 eFuses (DUT, 5 V, always-on) the same part. EN/UVLO threshold 1.2 V: 3.3 V logic drives it directly.\n* 20k pull-downs: everything off when the shield is unplugged, unpowered or in reset.\n* Reverse current blocked (back-to-back FETs inside the eFuse). OVLO 14.8 V cuts all outputs.\n* No quick-output-discharge in TPS25947: the LED + 4k7 (2.5 mA) bleeds an unloaded output.\n* Copper: 2 oz both layers. VBUS and OUTn are polygons; see docs/hardware/power-board.md."
 		(exclude_from_sim no)
 		(at 213.36 215.9 0)
 		(effects
@@ -47652,7 +47652,7 @@
 				)
 			)
 		)
-		(property "Value" "TPS259470LRPWR"
+		(property "Value" "TPS259470ARPWR"
 			(at 58.42 494.03 0)
 			(effects
 				(font
@@ -47687,7 +47687,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C3662793"
+		(property "LCSC" "C3662799"
 			(at 58.42 505.46 0)
 			(effects
 				(font
@@ -47696,7 +47696,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "TI TPS259470LRPWR"
+		(property "MPN" "TI TPS259470ARPWR"
 			(at 58.42 505.46 0)
 			(effects
 				(font
@@ -49131,7 +49131,7 @@
 				)
 			)
 		)
-		(property "Value" "TPS259470LRPWR"
+		(property "Value" "TPS259470ARPWR"
 			(at 154.94 494.03 0)
 			(effects
 				(font
@@ -49166,7 +49166,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C3662793"
+		(property "LCSC" "C3662799"
 			(at 154.94 505.46 0)
 			(effects
 				(font
@@ -49175,7 +49175,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "TI TPS259470LRPWR"
+		(property "MPN" "TI TPS259470ARPWR"
 			(at 154.94 505.46 0)
 			(effects
 				(font
@@ -50610,7 +50610,7 @@
 				)
 			)
 		)
-		(property "Value" "TPS259470LRPWR"
+		(property "Value" "TPS259470ARPWR"
 			(at 251.46 494.03 0)
 			(effects
 				(font
@@ -50645,7 +50645,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C3662793"
+		(property "LCSC" "C3662799"
 			(at 251.46 505.46 0)
 			(effects
 				(font
@@ -50654,7 +50654,7 @@
 				(hide yes)
 			)
 		)
-		(property "MPN" "TI TPS259470LRPWR"
+		(property "MPN" "TI TPS259470ARPWR"
 			(at 251.46 505.46 0)
 			(effects
 				(font

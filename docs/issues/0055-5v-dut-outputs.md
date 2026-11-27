@@ -71,3 +71,31 @@ Open for the owner (also in power-board.md): TPS259470L has no JLC stock
 alternatives); fit U11 by default; shunt default 1-2; 8 rear lead holes are
 enough only for one lead per channel; 3 A per output and 0.2-0.4 V drop at
 full load.
+
+### 2026-11-27 owner (round 14) and lead
+
+* **Auto-retry is fine.** All 12 eFuses (8 x 12 V DUT, 3 x 5 V, always-on)
+  are now TPS259470ARPWR (C3662799, stocked); the latch-off L part showed 0
+  stock. Same footprint, so latch-off stays a drop-in. ERC 0 / DRC 0
+  (unrouted only) after the rebuild.
+* **First 5 V board: a K325T board** that prefers **6 V** and probably needs
+  at least 5 V. It claims 2 A; the owner expects ~3 A with gigabit
+  Ethernet, SD card and GPIO loads. The owner will try it at about 4.5 V on
+  the bench: if it only draws more current, the Molex 5 V path stays; if it
+  misbehaves, add a 12 V -> 6 V step-down.
+* Lead notes for that decision:
+  * Through the Molex path the board sees about 4.6-4.8 V at 3 A (PSU
+    regulation ±5 %, 18 AWG lead, fuse, eFuse), so 4.5 V is the right
+    worst case to test. Watch for resets when the gigabit link comes up and
+    under SD/GPIO load, not just at idle (that is when the Mimas browned
+    out on USB power).
+  * 3 A per output is too tight for a board that may draw 3 A: the ILIM
+    would trip on peaks. If the 5 V path stays, raise ILIM to about 4 A
+    (R_ILM about 820 R), but three of those can reach 12 A, beyond the
+    Molex 5 V contact (~11 A) and the 10 A fuse.
+  * A 12 V -> 6 V buck per output fixes all three at once: correct
+    voltage, works from every input including banana, and moves the load
+    onto the 12 V bus (3 x 18 W = 54 W, about 5 A at 12 V). Pad-free 3-4 A
+    bucks with ≥ 17 V input exist in SOT-23-6 / TSOT-23-8 (TPS563201-,
+    MP2315-class; to be checked for stock). The 5 V eFuse OVLO (5.9 V)
+    would then move to about 6.9 V.

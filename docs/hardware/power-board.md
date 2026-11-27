@@ -255,7 +255,7 @@ as the shield's own SHD_FEAT1 strap.
 | Overcurrent blanking | ~4 ms (C_ITIMER 4.7 nF), up to 2 x ILIM meanwhile | |
 | Sum of limits | 8 x 5 + 5 = 45 A > 25 A input | the input fuse/PSU is the real total limit; MEGA65s draw far less |
 | +5 V (0055) | from Molex pin 4 only, F4 **10 A**; 3 x 3.03 A limits = 9.1 A | Molex 8981 contact ~11 A; PSU 5 V lead 18 AWG; see "5 V DUT outputs" |
-| 5 V outputs | 3 x 3.03 A (R_ILM 1.1 k), OVLO 5.90 V rising / 5.36 V falling (392 k / 100 k), ~0.8 V/ms (2.2 nF), ~4 ms blanking (4.7 nF), latch-off | TPS25947 eq. 5, OVLO thresholds 1.20 V / 1.09 V |
+| 5 V outputs | 3 x 3.03 A (R_ILM 1.1 k), OVLO 5.90 V rising / 5.36 V falling (392 k / 100 k), ~0.8 V/ms (2.2 nF), ~4 ms blanking (4.7 nF), auto-retry | TPS25947 eq. 5, OVLO thresholds 1.20 V / 1.09 V |
 | eFuse dissipation | 5 A x 5 A x 28-45 mOhm = 0.7-1.1 W, about 30-47 K rise (RthJA 41.7 K/W EVM) | continuous 5 A per DUT is not expected |
 | Input FETs | BSC030P03NS3G, 3 mOhm; banana: 2 in parallel per side, 12.5 A each = ~0.5 W (pads for a third pair Q512/Q513, DNP); PCIe 15 A single = ~0.7 W | |
 | Copper | **2 oz** both layers (stackup set in the boards) | |
@@ -276,8 +276,7 @@ fee. Check stock when ordering.
 
 | Part | Use | LCSC | Why / sourcing |
 |---|---|---|---|
-| TI **TPS259470LRPWR** | 8 DUT eFuses (latch-off) | C3662793 (~6k earlier; JLC showed **0 in stock** on 2026-11-27: re-check before ordering) | 5.5 A, 28 mOhm, true reverse blocking, adjustable ILIM/OVLO/dVdt, EN works with 3.3 V logic, FLT output. Latch-off: a shorted DUT stays off until the shield toggles CTRLn and the host logs it. |
-| TI **TPS259470ARPWR** | always-on eFuse (auto-retry) | TBD (same family) | Nobody toggles EN on the always-on group, so it must retry by itself. |
+| TI **TPS259470ARPWR** | all 12 eFuses: 8 x 12 V DUT, 3 x 5 V DUT, always-on (auto-retry) | C3662799 (stocked, ~4k on 2026-11-27) | 5.5 A, 28 mOhm, true reverse blocking, adjustable ILIM/OVLO/dVdt, EN works with 3.3 V logic, FLT output. **Auto-retry** (owner 2026-11-27, because the latch-off TPS259470L, C3662793, showed 0 stock): a shorted DUT is retried by the eFuse itself; /FLTn pulses on every retry, so the host sees the fault and can switch CTRLn off. The L part is a drop-in (same footprint and pins) if latch-off is wanted later. |
 | ADI **LTC4417CGN** | 3-input priority PowerPath (gate controller) | C688500, **0 in stock at JLC on 2026-11-27** (was ~3) | Leaded SSOP-24, no exposed pad. Order through JLC global sourcing / parts pre-order; JLC places it, no hand-fitting. The fallback board is fully stocked (see above). |
 | TI **LM74700QDBVRQ1** (fallback) | ideal diode, 3 x | C2941042 (stocked) | SOT-23-6, leaded |
 | Infineon **BSC014N04LS** (fallback) | ideal-diode N-FETs | C2760081 | 40 V, 1.4 mOhm, TDSON-8 |
@@ -344,9 +343,9 @@ outputs at **5.90 V** rising and lets them back on below 5.36 V (ATX allows
 adapter. No series FET: it would add 50-100 mV and parts for a case the
 eFuse already survives.
 
-**eFuses.** **TPS259470L** (latch-off), the same part and footprint as the
-12 V DUT eFuses, so a shorted 5 V DUT stays off until the host toggles
-CTRLn. Settings, with the 12 V cell values where they suit 5 V too:
+**eFuses.** **TPS259470A** (auto-retry since 2026-11-27, see the key-parts
+table), the same part and footprint as the 12 V DUT eFuses; a shorted 5 V
+DUT is retried by the eFuse and shows as pulses on /FLTn. Settings, with the 12 V cell values where they suit 5 V too:
 
 | Setting | Part | Value | Why |
 |---|---|---|---|

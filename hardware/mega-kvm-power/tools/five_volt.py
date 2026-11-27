@@ -6,7 +6,7 @@ the LTC4417 12 V selector.  A reversed supply forward-biases the TVS and blows
 F4; the eFuses themselves block down to -15 V meanwhile (TPS25947 7.3.1).
 No 5 V on the banana or PCIe inputs and no 12 V -> 5 V converter (owner).
 
-Three outputs, one per shared channel 5/6/7: TPS259470L (latch-off, the same
+Three outputs, one per shared channel 5/6/7: TPS259470A (auto-retry, the same
 part as the 12 V DUT eFuses) with ILIM 3.0 A, OVLO 5.9 V (shared divider,
 392 k / 100 k: >= 350 k on the supply side per TPS25947 note 4 for reverse
 polarity), the same dV/dt and ITIMER as the 12 V cells.
@@ -17,7 +17,7 @@ Channel selector JP5-JP7 (3-pin 2.54 mm header + shunt): CTRLn -> 1 k -> CSELn
 with no shunt both are off.  /FLT of the 5 V eFuse is wire-ORed onto /FLTn:
 only the selected one can be on, so /FLTn is "channel n faulted" either way.
 """
-from parts import (EFUSE_L, FP_C1206, LED_G, SS34, TVS5, c, r)
+from parts import (EFUSE_A, FP_C1206, LED_G, SS34, TVS5, c, r)
 
 CHANNELS = (5, 6, 7)
 RILM5 = '1k1'     # ILIM = 3334 / 1100 = 3.03 A (TPS25947 eq. 5)
@@ -81,7 +81,7 @@ def build(S, P, ox, oy):
                         'LCSC': 'C2932698 (1x3 2.54 mm header); shunt C100114 fitted at box assembly',
                         'Note': 'shunt 1-2 = DUT%d 12 V, 2-3 = DUT%d 5 V, none = both off' % (n, n)})
         ux, uy = cx + 45.72, cy + 22.86
-        P(EFUSE_L, u, ux, uy, {'IN': '+5V', 'EN/UVLO': en, 'OVLO': 'OVLO5', 'DVDT': 'DVDT5V%d' % n,
+        P(EFUSE_A, u, ux, uy, {'IN': '+5V', 'EN/UVLO': en, 'OVLO': 'OVLO5', 'DVDT': 'DVDT5V%d' % n,
                                'ITIMER': 'ITMR5V%d' % n, 'OUT': out, '~{FLT}': '~{FLT%d}' % n,
                                'ILM': 'ILM5V%d' % n, 'GND': 'GND'}, nc=('AUXOFF',),
           fields={'Note': '/FLT wire-ORed with the 12 V eFuse of channel %d (pull-up in that cell)' % n})

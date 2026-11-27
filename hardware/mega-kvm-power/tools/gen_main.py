@@ -79,7 +79,7 @@ FP_TERM = 'TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.0
 for n in range(8):
     col, row = n % 4, n // 4
     bx, by = 12.7 + col * 96.52, 15.24 + row * 66.04
-    efuse_cell(n, bx, by, EFUSE_L, ('CTRL%d' % n, 'EN%d' % n), 'OUT%d' % n, '~{FLT%d}' % n,
+    efuse_cell(n, bx, by, EFUSE_A, ('CTRL%d' % n, 'EN%d' % n), 'OUT%d' % n, '~{FLT%d}' % n,
                ('DUT%d switched 12 V, 5 A' % n + (' (or 5 V via JP%d)' % n if n in five_volt.CHANNELS else ''),),
                sel='CSEL%d' % n if n in five_volt.CHANNELS else None)
     conn(2, 'J%d' % (10 + n), bx + 76.2, by + 22.86, {'1': 'OUT%d' % n, '2': 'GND'},
@@ -266,8 +266,8 @@ for k in range(8):
             footprint=HOLE_M3['fp'])
 
 S.text('Notes\n'
-       '* eFuse = TPS259470L (latch-off): a DUT short latches until the shield toggles CTRLn.\n'
-       '  Always-on = TPS259470A (auto-retry). EN/UVLO threshold 1.2 V: 3.3 V logic drives it directly.\n'
+       '* eFuse = TPS259470A (auto-retry, owner 2026-11-27; the L latch-off part is unstocked).\n'
+       '  All 12 eFuses (DUT, 5 V, always-on) the same part. EN/UVLO threshold 1.2 V: 3.3 V logic drives it directly.\n'
        '* 20k pull-downs: everything off when the shield is unplugged, unpowered or in reset.\n'
        '* Reverse current blocked (back-to-back FETs inside the eFuse). OVLO 14.8 V cuts all outputs.\n'
        '* No quick-output-discharge in TPS25947: the LED + 4k7 (2.5 mA) bleeds an unloaded output.\n'

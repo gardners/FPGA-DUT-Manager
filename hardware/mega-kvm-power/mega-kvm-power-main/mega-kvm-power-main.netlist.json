@@ -5172,8 +5172,8 @@
  "U1": {
   "dnp": false,
   "fields": {
-   "LCSC": "C3662793",
-   "MPN": "TI TPS259470LRPWR"
+   "LCSC": "C3662799",
+   "MPN": "TI TPS259470ARPWR"
   },
   "footprint": "mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm",
   "in_bom": true,
@@ -5190,7 +5190,7 @@
    "9": "ILM0"
   },
   "uuid": "21a0a54e-0267-536b-9e9a-03c08f7c9c51",
-  "value": "TPS259470LRPWR"
+  "value": "TPS259470ARPWR"
  },
  "U10": {
   "dnp": false,
@@ -5404,8 +5404,8 @@
  "U2": {
   "dnp": false,
   "fields": {
-   "LCSC": "C3662793",
-   "MPN": "TI TPS259470LRPWR"
+   "LCSC": "C3662799",
+   "MPN": "TI TPS259470ARPWR"
   },
   "footprint": "mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm",
   "in_bom": true,
@@ -5422,13 +5422,13 @@
    "9": "ILM1"
   },
   "uuid": "70afe19f-cdc9-51fa-b9ea-c471eb2dc633",
-  "value": "TPS259470LRPWR"
+  "value": "TPS259470ARPWR"
  },
  "U3": {
   "dnp": false,
   "fields": {
-   "LCSC": "C3662793",
-   "MPN": "TI TPS259470LRPWR"
+   "LCSC": "C3662799",
+   "MPN": "TI TPS259470ARPWR"
   },
   "footprint": "mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm",
   "in_bom": true,
@@ -5445,7 +5445,7 @@
    "9": "ILM2"
   },
   "uuid": "25fc8f9b-c0e1-56e9-9845-457136187d49",
-  "value": "TPS259470LRPWR"
+  "value": "TPS259470ARPWR"
  },
  "U30": {
   "dnp": false,
@@ -5586,8 +5586,8 @@
  "U4": {
   "dnp": false,
   "fields": {
-   "LCSC": "C3662793",
-   "MPN": "TI TPS259470LRPWR"
+   "LCSC": "C3662799",
+   "MPN": "TI TPS259470ARPWR"
   },
   "footprint": "mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm",
   "in_bom": true,
@@ -5604,13 +5604,13 @@
    "9": "ILM3"
   },
   "uuid": "5e195fd4-1ad4-5c16-9329-c911c3afb3f4",
-  "value": "TPS259470LRPWR"
+  "value": "TPS259470ARPWR"
  },
  "U5": {
   "dnp": false,
   "fields": {
-   "LCSC": "C3662793",
-   "MPN": "TI TPS259470LRPWR"
+   "LCSC": "C3662799",
+   "MPN": "TI TPS259470ARPWR"
   },
   "footprint": "mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm",
   "in_bom": true,
@@ -5627,7 +5627,7 @@
    "9": "ILM4"
   },
   "uuid": "fe60cdfa-2b54-53b3-a26c-bc3bdf55249b",
-  "value": "TPS259470LRPWR"
+  "value": "TPS259470ARPWR"
  },
  "U50": {
   "dnp": false,
@@ -5669,8 +5669,8 @@
  "U6": {
   "dnp": false,
   "fields": {
-   "LCSC": "C3662793",
-   "MPN": "TI TPS259470LRPWR"
+   "LCSC": "C3662799",
+   "MPN": "TI TPS259470ARPWR"
   },
   "footprint": "mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm",
   "in_bom": true,
@@ -5687,13 +5687,13 @@
    "9": "ILM5"
   },
   "uuid": "9a99a0e6-d416-51c0-a4a5-5595ececce42",
-  "value": "TPS259470LRPWR"
+  "value": "TPS259470ARPWR"
  },
  "U61": {
   "dnp": false,
   "fields": {
-   "LCSC": "C3662793",
-   "MPN": "TI TPS259470LRPWR",
+   "LCSC": "C3662799",
+   "MPN": "TI TPS259470ARPWR",
    "Note": "/FLT wire-ORed with the 12 V eFuse of channel 5 (pull-up in that cell)"
   },
   "footprint": "mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm",
@@ -5711,13 +5711,13 @@
    "9": "ILM5V5"
   },
   "uuid": "1e7df6dd-5013-5f7c-a256-0fd58d0218f3",
-  "value": "TPS259470LRPWR"
+  "value": "TPS259470ARPWR"
  },
  "U62": {
   "dnp": false,
   "fields": {
-   "LCSC": "C3662793",
-   "MPN": "TI TPS259470LRPWR",
+   "LCSC": "C3662799",
+   "MPN": "TI TPS259470ARPWR",
    "Note": "/FLT wire-ORed with the 12 V eFuse of channel 6 (pull-up in that cell)"
   },
   "footprint": "mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm",
@@ -5735,13 +5735,13 @@
    "9": "ILM5V6"
   },
   "uuid": "5ffe0837-59d9-5404-ba86-18e812fdfac1",
-  "value": "TPS259470LRPWR"
+  "value": "TPS259470ARPWR"
  },
  "U63": {
   "dnp": false,
   "fields": {
-   "LCSC": "C3662793",
-   "MPN": "TI TPS259470LRPWR",
+   "LCSC": "C3662799",
+   "MPN": "TI TPS259470ARPWR",
    "Note": "/FLT wire-ORed with the 12 V eFuse of channel 7 (pull-up in that cell)"
   },
   "footprint": "mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm",
@@ -5759,13 +5759,13 @@
    "9": "ILM5V7"
   },
   "uuid": "081155d1-039f-57f1-ad2c-29bddf978c84",
-  "value": "TPS259470LRPWR"
+  "value": "TPS259470ARPWR"
  },
  "U7": {
   "dnp": false,
   "fields": {
-   "LCSC": "C3662793",
-   "MPN": "TI TPS259470LRPWR"
+   "LCSC": "C3662799",
+   "MPN": "TI TPS259470ARPWR"
   },
   "footprint": "mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm",
   "in_bom": true,
@@ -5782,13 +5782,13 @@
    "9": "ILM6"
   },
   "uuid": "f29e7f64-8301-5040-b7d2-2f660151512f",
-  "value": "TPS259470LRPWR"
+  "value": "TPS259470ARPWR"
  },
  "U8": {
   "dnp": false,
   "fields": {
-   "LCSC": "C3662793",
-   "MPN": "TI TPS259470LRPWR"
+   "LCSC": "C3662799",
+   "MPN": "TI TPS259470ARPWR"
   },
   "footprint": "mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm",
   "in_bom": true,
@@ -5805,12 +5805,12 @@
    "9": "ILM7"
   },
   "uuid": "7bf180d8-8bbe-5e55-84ac-a10ef5869fa6",
-  "value": "TPS259470LRPWR"
+  "value": "TPS259470ARPWR"
  },
  "U9": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (C3662793 is the L variant)",
+   "LCSC": "C3662799",
    "MPN": "TI TPS259470ARPWR"
   },
   "footprint": "mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm",

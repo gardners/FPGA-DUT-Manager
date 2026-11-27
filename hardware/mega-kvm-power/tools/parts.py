@@ -28,7 +28,7 @@ def c(value, volt='25V', fp=FP_C):
 EFUSE_L = dict(lib='mega-kvm-power:TPS259470', fp='mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm',
                value='TPS259470LRPWR', fields={'LCSC': 'C3662793', 'MPN': 'TI TPS259470LRPWR'})
 EFUSE_A = dict(lib='mega-kvm-power:TPS259470', fp='mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm',
-               value='TPS259470ARPWR', fields={'LCSC': 'TBD (C3662793 is the L variant)', 'MPN': 'TI TPS259470ARPWR'})
+               value='TPS259470ARPWR', fields={'LCSC': 'C3662799', 'MPN': 'TI TPS259470ARPWR'})
 LED_G = dict(lib='Device:LED', fp=FP_LED, value='green', fields={'LCSC': 'TBD (0603 green, JLC basic)'})
 LED_R = dict(lib='Device:LED', fp=FP_LED, value='red', fields={'LCSC': 'TBD (0603 red, JLC basic)'})
 SS34 = dict(lib='Device:D_Schottky', fp='Diode_SMD:D_SMA', value='SS34',
