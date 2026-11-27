@@ -41,6 +41,8 @@ LDO = dict(lib='Regulator_Linear:L78L33_SOT89', fp='Package_TO_SOT_SMD:SOT-89-3'
            fields={'LCSC': 'TBD (78L33 SOT-89, 30 V in)', 'MPN': 'ST L78L33ACUTR'})
 TVS = dict(lib='mega-kvm-power:TVS_Uni', fp='Diode_SMD:D_SMC', value='SMCJ15A',
            fields={'LCSC': 'C2834490', 'MPN': 'MDD SMCJ15A 1500 W, Vrwm 15 V, Vc 24.4 V'})
+TVS5 = dict(lib='mega-kvm-power:TVS_Uni', fp='Diode_SMD:D_SMB', value='SMBJ5.0A',
+            fields={'LCSC': 'C2758500', 'MPN': 'SMBJ5.0A 600 W, Vrwm 5.0 V, Vbr 6.4 V min, Vc 9.2 V (issue 0055)'})
 PFET = dict(lib='mega-kvm-power:PMOS_TDSON8', fp='Package_SON:Infineon_PG-TDSON-8_6.15x5.15mm',
             value='BSC030P03NS3G', fields={'LCSC': 'C152375', 'MPN': 'Infineon BSC030P03NS3G -30 V 3 mOhm'})
 NFET = dict(lib='Transistor_FET:2N7002', fp='Package_TO_SOT_SMD:SOT-23', value='2N7002',

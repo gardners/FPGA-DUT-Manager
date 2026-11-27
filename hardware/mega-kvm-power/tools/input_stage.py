@@ -48,10 +48,11 @@ def build(S, P, ox, oy):
                             'LCSC': 'TBD (JLC-stocked Mini-Fit 2x4 vertical)', 'Assembly': 'THT'})
         else:
             S.place('Connector_Generic:Conn_01x04', 'J53', 'Molex 4-pin', bx + 12.7, by + 25.4,
-                    {'1': raw, '2': 'GND', '3': 'GND'}, nc=('4',),
+                    {'1': raw, '2': 'GND', '3': 'GND', '4': '+5V_RAW'},
                     footprint='mega-kvm-power:Molex_8981_PeripheralPower_1x04_P5.08mm_Vertical',
                     fields={'MPN': 'Molex 8981 4-pin male PCB header, vertical (e.g. 15-24-4048); '
-                                   '1 +12 V, 2-3 GND, 4 +5 V unused', 'LCSC': 'TBD', 'Assembly': 'THT'})
+                                   '1 +12 V, 2-3 GND, 4 +5 V (to F4 and the 5 V outputs, issue 0055)',
+                            'LCSC': 'TBD', 'Assembly': 'THT'})
         S.place('Device:Fuse', 'F%d' % n, fuse, bx + 38.1, by + 20.32, {'1': raw, '2': vn},
                 footprint=FUSE_FP,
                 fields={'MPN': 'Littelfuse 178.6165.0002 ATO PCB holder + ATO blade fuse %s' % fuse,

@@ -50,11 +50,13 @@ MAIN['R6'] = (133, 67, 90)
 
 # Fan block (issue 0052): the board grows from 170 to 230 mm; the new 60 mm on
 # the right holds 8 fan cells (2 columns x 4 rows) on the always-on pour.
+# Issue 0055: the block moved 39 mm towards the front (rows from y 40) so that
+# the three 5 V DUT outputs fit on the rear edge at x 160-204.
 # Cell: 4-pin header, BSP452 (tab = AON12) to its right, then a row with the
 # 2N7002 PWM inverter and the five resistors.
 FAN_CELLS = []
 for k in range(8):
-    ox, oy = 171 + 27 * (k // 4), 1 + 18.5 * (k % 4)
+    ox, oy = 171 + 27 * (k // 4), 40 + 18.5 * (k % 4)
     FAN_CELLS.append((ox, oy))
     base = 300 + 10 * k
     MAIN['J%d' % (30 + k)] = (ox + 3, oy + 4.5, 0)
@@ -102,11 +104,11 @@ MAIN.update({
     'C504': (68, 83.5, 0), 'C505': (74, 83.5, 0),
     # master switch passives and bypass jumper by the rocker connector
     'R502': (84, 125, 0), 'R503': (89, 125, 0), 'R504': (92.5, 125, 0), 'C506': (96, 125, 0),
-    'R505': (99.5, 125, 0), 'R506': (103, 125, 0), 'C507': (106.5, 125, 0), 'JP2': (90, 120.5, 0),
+    'R505': (99.5, 125, 0), 'R506': (103, 125, 0), 'C507': (106.5, 125, 0), 'JP2': (97.5, 129.5, 0),
     # input-selected LED logic
     'R507': (84, 110, 90), 'R508': (86.5, 110, 90), 'R509': (89, 110, 90),
     'R540': (91.5, 110, 90), 'R541': (94, 110, 90), 'R542': (96.5, 110, 90),
-    'Q509': (85, 115.5, 0), 'Q510': (90, 115.5, 0), 'Q511': (95, 115.5, 0),
+    'Q509': (85, 104.5, 0), 'Q510': (90, 104.5, 0), 'Q511': (95, 104.5, 0),   # moved for F4 (0055)
     # the one temperature sensor: between the banana FETs and the PCIe pair, on the VS copper
     'U13': (35, 92, 90), 'C405': (35, 98.5, 90),
     'H7': (112, 134), 'H8': (226.5, 134),
@@ -119,6 +121,34 @@ for n in (1, 2, 3):        # gate drive (datasheet Fig. 8): CS, RS, DS per chann
 MAIN.update({'C514': (11.5, 92, 90), 'C515': (47, 92, 90), 'C516': (60, 92, 90),
              # LTC4417 VOUT pin RC filter (datasheet Fig. 10) by U50
              'R543': (76, 89, 90), 'C517': (78, 86.2, 90)})
+
+# 5 V DUT outputs (issue 0055). Input: F4 continues the fuse row behind J53
+# (its pin 1 picks up J53 pin 4 on a B.Cu strip), TVS / caps / LED / sense
+# right of it, then the +5V bus on a B.Cu strip (y 112.5-121, then up x
+# 161.5-169, passing H2) to the 5 V eFuse row on the rear edge, x 170-213,
+# right of the GS105 jack. Cells at 15 mm pitch: JST VH connector on the edge,
+# eFuse below it.
+CELLS5 = {}
+MAIN.update({
+    'F4': (81, 117.5, 0), 'D600': (102.5, 117, 0), 'C600': (108.5, 117, 90),
+    'R603': (112, 117, 90), 'D601': (78.5, 124.2, 0), 'R601': (114.5, 117, 90), 'R602': (117, 117, 90),
+    'R604': (214.5, 28.5, 0), 'R605': (217.7, 28.5, 0), 'C602': (220.9, 28.5, 0), 'C601': (216, 33, 0),
+})
+for k, n in enumerate((5, 6, 7)):
+    cx = 171 + 15 * k
+    base = 610 + 10 * k
+    CELLS5[n] = cx
+    MAIN['J%d' % (61 + k)] = (cx + 3, 7.5, 0)
+    MAIN['U%d' % (61 + k)] = (cx + 2.5, 24, 90)
+    MAIN['D%d' % base] = (cx + 5, 17, 0)
+    MAIN['D%d' % (base + 1)] = (cx + 10.5, 21.5, 90)
+    MAIN['R%d' % (base + 4)] = (cx + 10.5, 17.5, 90)
+    for i, ref in enumerate(['R%d' % (base + 1), 'R%d' % (base + 2), 'C%d' % base, 'C%d' % (base + 1)]):
+        MAIN[ref] = (cx + 1 + (i % 3) * 3.2, 28.5 + (i // 3) * 2.2, 0)
+    MAIN['C%d' % (base + 2)] = (cx + 1.5, 34, 0)
+    MAIN['C%d' % (base + 3)] = (cx + 5, 20.6, 0)
+    # channel selector by the CTRL header J3: pin 1 (rear) = 12 V, pin 3 (front) = 5 V
+    MAIN['JP%d' % n] = (100 + 5 * k, 63, 0)
 
 BOARDS = {
     'main': {
@@ -139,17 +169,32 @@ BOARDS = {
                          (26, 105.2), (34.5, 105.2)]),
             ('V3', 'F', [(49.5, 98), (62, 98), (62, 104.8), (76, 104.8), (76, 113.5), (51, 113.5),
                          (51, 105.2), (49.5, 105.2)]),
-            ('AON12', 'F', [(118.5, 1), (229, 1), (229, 72), (170, 72), (170, 61), (146, 61),
-                            (146, 23.9), (118.5, 23.9)]),
-        ] + [('OUT%d' % n, 'F', [(8.6 + n * 13.5, 1), (21.4 + n * 13.5, 1),
+            ('AON12', 'F', [(118.5, 1), (158, 1), (158, 38), (229, 38), (229, 113), (170, 113),
+                            (170, 61), (146, 61), (146, 23.9), (118.5, 23.9)]),
+            # 5 V (issue 0055): J53 pin 4 -> F4 pin 1 and F4 pin 2 -> eFuse row on B.Cu strips
+            # (they cut the B.Cu GND plane; stitch GND around them when routing),
+            # F.Cu pours at the TVS/caps and under the 5 V eFuse row
+            ('+5V_RAW', 'B', [(74.5, 115.5), (86, 115.5), (86, 121.5), (78.5, 121.5), (78.5, 133.5),
+                              (74.5, 133.5)], 1),
+            ('+5V', 'B', [(88.5, 112.5), (161.5, 112.5), (161.5, 34), (169, 34), (169, 121), (88.5, 121)], 1),
+            ('+5V', 'F', [(88.5, 112.5), (119, 112.5), (119, 123.3), (88.5, 123.3)]),
+            ('+5V', 'F', [(169.6, 24.1), (222.5, 24.1), (222.5, 37), (169.6, 37), (169.6, 35.9),
+                          (161.5, 35.9), (161.5, 34), (169.6, 34)]),
+        ] + [('OUT5V%d' % n, 'F', [(cx - 1.4, 1), (cx + 11.4, 1), (cx + 11.4, 23.9), (cx - 1.4, 23.9)])
+             for n, cx in CELLS5.items()] + [('OUT%d' % n, 'F', [(8.6 + n * 13.5, 1), (21.4 + n * 13.5, 1),
                                  (21.4 + n * 13.5, 23.9), (8.6 + n * 13.5, 23.9)]) for n in range(8)],
         'texts': [('MEGA-KVM power v0.4 (one board)  2 oz Cu  VBUS 12 V 25 A', 50, 50, 'F', 1.5),
                   ('IN1 BANANA 25A', 17.5, 137.3, 'F', 0.8), ('IN2 PCIe 15A', 46, 137.3, 'F', 0.8),
-                  ('IN3 MOLEX 10A', 70, 137.3, 'F', 0.8), ('ROCKER', 88.5, 137.3, 'F', 0.8),
+                  ('IN3 MOLEX 10A (+5V: F4)', 69, 137.3, 'F', 0.8), ('ROCKER', 88.5, 137.3, 'F', 0.8),
+                  ('5V', 75.3, 124.2, 'F', 0.8),
+                  ('JP5-7: 1-2 = 12V, 2-3 = 5V, none = off', 105, 57.8, 'F', 0.8),
+                  ('12V', 96.4, 63, 'F', 0.8), ('5V', 96.4, 68.1, 'F', 0.8),
+                  ('5V ONLY (JST VH): channel set by JP5-7', 182, 39.0, 'F', 0.8),
                   ('DUT0', 10.5, 21, 'F', 1.0), ('DUT7', 105, 21, 'F', 1.0),
                   ('MIMAS / GS105 (always on)', 140, 32, 'F', 1.0),
-                  ('CTRL: 1 GND 2 KEY 3-10 CH0-7 11 PRESENT', 92, 66.5, 'F', 0.8),
-                  ('FANS 1 GND 2 +12V 3 TACH 4 PWM', 186, 77.5, 'F', 0.8)]
+                  ('CTRL: 1 GND 2 KEY 3-10 CH0-7 11 PRESENT', 104, 78.5, 'F', 0.8),
+                  ('FANS 1 GND 2 +12V 3 TACH 4 PWM', 186, 116.5, 'F', 0.8)]
+                 + [('DUT%d 5V ONLY' % n, cx + 5, 14.2, 'F', 0.9) for n, cx in CELLS5.items()]
                  + [('FAN%d %s' % (k, ['KVM', 'KVM', 'A', 'A', 'A', 'B', 'B', 'B'][k]),
                      FAN_CELLS[k][0] + 7.6, FAN_CELLS[k][1] + 9.4, 'F', 0.8) for k in range(8)],
     },
