@@ -25,3 +25,9 @@ say when it is there.
   resolution like our thumbnails. Reconcile when the module arrives.
 * VLAN 1650 tagging on the host side is a host network change the owner
   makes; the supervisor's network path would need 802.1Q handling.
+
+### 2026-11-27 owner
+
+On hold: the HWVS description in the hardweb repo is being corrected, so
+nothing is implemented yet. Meanwhile, screen text from a HewnWeb build on
+the K325T can come over its UART (now wired, issue 0057).
