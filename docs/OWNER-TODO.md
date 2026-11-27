@@ -30,7 +30,7 @@ of each section. Tick or delete an item when it is done (or tell the lead).
 
 | Since | Item | Issue |
 |---|---|---|
-| 2026-11-27 | Measure a real Mimas: **PCB thickness** (vendor STEP says 1.16 mm, we assumed 1.6) and the RJ45 height (STEP: 14.1 mm, which hits the shield; being fixed) | 0045 |
+| 2026-11-27 | Measure a real Mimas: **PCB thickness** (vendor STEP 1.16 mm, we assumed 1.6: set `MIMAS_PCB` in `hardware/mega-kvm-shield/scripts/geometry.py`); RJ45 depth/height (STEP 21.8 / 14.1 mm; the shield cut-out now clears it); whether the HDMI sockets are flush (STEP) or 1.5 mm proud, and that the plugs mate fully through the rear panel; hole positions with calipers | 0045 |
 | 2026-11-27 | Before fab: JLC shows **0 in stock** for LTC4417CGN (C688500) and TPS259470LRPWR (C3662793) today; re-check or pre-order. The new LTC4417 soft-start (RS 1 k / CS 22 nF) values need a bench check | 0047 |
 | 2026-11-27 | When the power board exists: measure the always-on group's **inrush at master-on** (8 fans at 100 % + 2 Mimas + GS105). If it trips the 5 A limit, raise it via R182 (to 5.5 A) or feed the fan switches from VBUS | 0052 |
 | 2026-11-27 | Before fab: check the 0.28 mm MSOP-10 land pattern against Microchip's drawing; EMC2302-1 stock is modest (217) and TCA9548APWR stock unconfirmed | 0052 |
