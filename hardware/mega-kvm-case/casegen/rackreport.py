@@ -136,12 +136,27 @@ def report(cfg, fp, res, boards, files, OUT):
     w('Edge strips (x < %.0f and x > %.0f on the deck): parts there must stay below %.1f mm. The deck has '
       'etched dashed lines at the battens\' inner edges.' % (g.BT, g.W - g.BT, res['lim_e']))
     w('')
+    w('MEGA65 tall parts against the next shelf (the drawers have no top: the next shelf\'s deck and battens are '
+      'the top). Heights above the deck = %.1f spacer + 1.6 PCB + part.' % fp.BOARD['standoff'])
+    w('')
+    w('| Part | deck x | height above the deck | margin to the next deck | margin to a batten above (if it were under one) | '
+      'lateral gap to the nearer batten | ok | source |')
+    w('|---|---|---|---|---|---|---|---|')
+    for name, x0, x1, hh, md, me, side, under, src in res['tall']:
+        ok = hh <= (res['lim_e'] if under else res['lim'])
+        w('| %s | %.1f-%.1f | %.1f | %.1f | %s | %s | %s | %s |' % (
+            name, x0, x1, hh, md, ('%.1f' % me) if under else '(%.1f, not under one)' % me,
+            ('%.1f' % side) if side >= 0 else '**under (%.1f)**' % side, 'yes' if ok else '**NO**', src))
+    w('')
     w('## Widths')
     w('')
     w('| Item | mm |')
     w('|---|---|')
     w('| between the rack posts | %.1f |' % cfg.RACK['post_opening'])
-    w('| deck (slides take the rest) | %.1f |' % g.W)
+    R = getattr(cfg, 'RAILS', None)
+    if R:
+        w('| slide rails, per side (%s: measure) | %.1f |' % (R['status'], R['thick']))
+    w('| deck (between the rails) | %.1f |' % g.W)
     w('| full height between the battens | **%.1f** |' % (g.W - 2 * g.BT))
     w('| MEGA65 board (%.0f) + gap + floppy (%.1f) | %.1f |' % (fp.BOARD['w'], fp.FLOPPY['w'], g.span))
     w('| board left edge / floppy centre (deck x) | %.1f / %s |' % (g.bx, '%.1f' % g.fx if g.fx else '-'))

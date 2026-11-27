@@ -28,23 +28,37 @@ Options A and B (the single 1RU box) are in `fit-report-options-AB.md` and are n
 
 | Part on a shelf | height above the deck | limit (1 mm air gap) | ok | note |
 |---|---|---|---|---|
-| MEGA65 board + tallest part | 22.9 | 37.5 | yes | ASSUMED tallest part |
+| MEGA65 board + tallest part | 29.0 | 37.5 | yes | IEC socket, see below |
 | floppy drive on its spacers | 30.4 | 37.5 | yes | rugged-case 5 mm nylon spacer |
 | strain-relief bar | 30.0 | 37.5 | yes |  |
 | fan-plate gusset | 36.0 | 37.5 | yes | carrier shelf only |
 
 Edge strips (x < 25 and x > 400 on the deck): parts there must stay below 12.5 mm. The deck has etched dashed lines at the battens' inner edges.
 
+MEGA65 tall parts against the next shelf (the drawers have no top: the next shelf's deck and battens are the top). Heights above the deck = 6.3 spacer + 1.6 PCB + part.
+
+| Part | deck x | height above the deck | margin to the next deck | margin to a batten above (if it were under one) | lateral gap to the nearer batten | ok | source |
+|---|---|---|---|---|---|---|---|
+| IEC socket (6-pin DIN) | 136.0-156.0 | 29.0 | 9.5 | (-15.5, not under one) | 111.0 | yes | SDS-60J datasheet (standard R/A DIN; MEGA65 part not named: ASSUMED equivalent) |
+| power switch | 49.5-69.5 | 24.9 | 13.6 | (-11.4, not under one) | 24.5 | yes | owner 2026-11-27: ~17 mm above the PCB on the left edge |
+| VGA (DB15HD) | 160.2-189.0 | 20.5 | 18.0 | (-7.0, not under one) | 135.2 | yes | typical R/A DE-15 (ASSUMED) |
+| Ethernet (RJ45) | 214.5-231.5 | 21.4 | 17.1 | (-7.9, not under one) | 168.1 | yes | typical R/A RJ45 with magnetics (ASSUMED) |
+| joystick port 1 (DB9) | 49.5-62.0 | 20.5 | 18.0 | (-7.0, not under one) | 24.5 | yes | DIM: mounting holes y 46.0/71.0; typical R/A DE-9 (ASSUMED) |
+| joystick port 2 (DB9) | 49.5-62.0 | 20.5 | 18.0 | (-7.0, not under one) | 24.5 | yes | DIM: mounting holes y 14.5/39.5; typical R/A DE-9 (ASSUMED) |
+| MEGA65 board outline | 49.5-263.5 | 7.9 | 30.6 | (5.6, not under one) | 24.5 | yes | DIM drawing |
+| floppy drive | 273.5-375.1 | 30.4 | 8.1 | (-16.9, not under one) | 24.5 | yes | standard 3.5 in drive on 5 mm spacers |
+
 ## Widths
 
 | Item | mm |
 |---|---|
 | between the rack posts | 450.0 |
-| deck (slides take the rest) | 425.0 |
-| full height between the battens | **375.0** |
+| slide rails, per side (ASSUMED: measure) | 12.7 |
+| deck (between the rails) | 424.6 |
+| full height between the battens | **374.6** |
 | MEGA65 board (214) + gap + floppy (101.6) | 325.6 |
-| board left edge / floppy centre (deck x) | 49.7 / 324.5 |
-| 3 x 120 mm fans + gaps on the fan plate | 370.0 (x 27.5-397.5) |
+| board left edge / floppy centre (deck x) | 49.5 / 324.3 |
+| 3 x 120 mm fans + gaps on the fan plate | 370.0 (x 27.3-397.3) |
 | fan plate / KVM front face | 482.6 |
 
 ## Shelf deck
@@ -57,7 +71,7 @@ Edge strips (x < 25 and x > 400 on the deck): parts there must stay below 12.5 m
 
 ## Fan plate (4RU = 177.8 mm) clearances within a group
 
-Fans (z above the bottom of the carrier shelf's slot): fan 1 low x 27.5-147.5 z 33.0-153.0; fan 2 high x 152.5-272.5 z 54.8-174.8; fan 3 low x 277.5-397.5 z 33.0-153.0.
+Fans (z above the bottom of the carrier shelf's slot): fan 1 low x 27.3-147.3 z 33.0-153.0; fan 2 high x 152.3-272.3 z 54.8-174.8; fan 3 low x 277.3-397.3 z 33.0-153.0.
 Gussets: 36 mm tall x 90 mm long on the carrier deck over each batten.
 
 | Item | nearest part of the group | clearance mm | direction |
@@ -73,16 +87,16 @@ Gussets: 36 mm tall x 90 mm long on the carrier deck over each batten.
 * Deck 425 x 349 mm (open top; the next unit sits 133.35 mm up). Front zone 36 mm deep (fans, display PCB + LCD, rocker).
 * Depth budget: power board front edge at y 40 (behind the front panel) + board 138.5 + cable gap 15 (DUT leads cross here) + RJ45 patch clearance 35 + Mimas 120 = 349 mm. All units together: shelves 253 mm, KVM 349 mm, rack 600 mm between the posts (MEASURE).
 * Power board (owner round 12, 230 x 138.5 mm) at x 25-255, y 40.0-178.5, top 37.6 mm above the slot bottom. The input connectors along its front edge are plugged from the open top: 40 mm of free height above the board over its front 25 mm (checked as the "input plugs" box), and 55.8 mm to the next unit's battens above that.
-* GS105 at x 263-357 beside the board. Cable routes (dashed in the top view): DUT leads from the terminals on the board's rear edge (y 178.5) across the cable gap to the bulkhead/DUT-power column at the rear left (x 3-37, the bays start at x 40.8); Mimas Mini-Fit leads back to the bays; the GS105 jack lead sideways to the switch. Tie-slot pairs hold the DUT bundle in the cable gap.
-* Front panel width budget behind the face: fans 2 x 120 mm (x 33.0-274.0, z 10.4-130.4), display column 140.0 mm (x 280.0-420.0): needs 421.0 of 425.0 mm.
-* Display column: PCB 140 x 66 mm at z 64.4-130.4 (x 280.0-420.0), read from panel-holes.json; the MEGA-KVM etch and the logos under it.
+* GS105 at x 263-357 beside the board. Cable routes (dashed in the top view): DUT leads from the terminals on the board's rear edge (y 178.5) across the cable gap to the bulkhead/DUT-power column at the rear left (x 3-37, the bays start at x 40.4); Mimas Mini-Fit leads back to the bays; the GS105 jack lead sideways to the switch. Tie-slot pairs hold the DUT bundle in the cable gap.
+* Front panel width budget behind the face: fans 2 x 120 mm (x 33.0-274.0, z 10.4-130.4), display column 140.0 mm (x 279.6-419.6): needs 421.0 of 424.6 mm.
+* Display column: PCB 140 x 66 mm at z 64.4-130.4 (x 279.6-419.6), read from panel-holes.json; the MEGA-KVM etch and the logos under it.
 * Fans cross the deck: they reach 20.6 mm below the deck top, through one notch in the deck front (x 32-275, 28 mm deep), between the front gussets; nearest under-deck part (gusset/batten) 2.0 mm away sideways. Fan bodies (25 mm deep) end at y 25; the power board starts at y 40.
-* Etched: MEGA-KVM at x 310-386, z 50.4-60.4 (checked against the fans, display PCB, rocker and screws).
+* Etched: MEGA-KVM at x 309-386, z 50.4-60.4 (checked against the fans, display PCB, rocker and screws).
 * Etched: mega65 logo at x 278-388, z 26.2-47.4 (checked against the fans, display PCB, rocker and screws).
 * Etched: mega_ev logo at x 278-388, z 2.0-23.2 (checked against the fans, display PCB, rocker and screws).
 * Rocker: left (deck x 19.0, z 70.4).
-* Rear plate 425 x 132.0 mm (seen from the rear): bays 381.2 mm at the left, the bulkhead/DUT power column at the right (= deck left, behind the DUT terminals); 3.8 mm spare. The keyboard feed-through sits above the column; vent slots fill the upper part.
-* KVM deck: 3 bay holes are over the right batten: kbd sub (x 417.3, y 317.8); shield support (x 417.0, y 233.8); shield support (x 417.0, y 298.8). Drill them on through the batten and use M3 x 40 screws from below
+* Rear plate 425 x 132.0 mm (seen from the rear): bays 381.2 mm at the left, the bulkhead/DUT power column at the right (= deck left, behind the DUT terminals); 3.4 mm spare. The keyboard feed-through sits above the column; vent slots fill the upper part.
+* KVM deck: 3 bay holes are over the right batten: kbd sub (x 416.9, y 317.8); shield support (x 416.6, y 233.8); shield support (x 416.6, y 298.8). Drill them on through the batten and use M3 x 40 screws from below
 * KVM rear gusset moved 6 mm inwards off the batten to clear deck holes
 * KVM front: MEGA-KVM etched under the display PCB (deck x 276-420), 10.0 mm letters
 * Gussets: 4 under the deck against the battens' inner faces (24 x 90 mm), front and rear.
@@ -91,7 +105,7 @@ Gussets: 36 mm tall x 90 mm long on the carrier deck over each batten.
 |---|---|---|---|
 | KVM fan 1 | KVM fan 2 | 1.0 | 3.0 |
 | KVM fan 2 | KVM fan 1 | 1.0 | 3.0 |
-| front PCB + LCD | KVM fan 2 | 6.0 | 3.0 |
+| front PCB + LCD | KVM fan 2 | 5.6 | 3.0 |
 | rocker | KVM fan 1 | 7.5 | 53.4 |
 | power board | GS105 | 8.0 | 70.8 |
 | input plugs (from above) | KVM fan 1 | 15.0 | 55.8 |
@@ -109,13 +123,13 @@ Gussets: 36 mm tall x 90 mm long on the carrier deck over each batten.
 
 | Part | size mm | qty |
 |---|---|---|
-| shelf-deck | 425.0 x 253.0 | 8 |
-| strain-bar | 371.0 x 36.0 | 8 |
+| shelf-deck | 424.6 x 253.0 | 8 |
+| strain-bar | 370.6 x 36.0 | 8 |
 | fan-plate | 482.6 x 177.8 | 2 |
 | fan-gusset | 90.0 x 36.0 | 4 |
 | kvm-front | 482.6 x 133.4 | 1 |
-| kvm-deck | 425.0 x 349.0 | 1 |
-| kvm-rear | 425.0 x 132.0 | 1 |
+| kvm-deck | 424.6 x 349.0 | 1 |
+| kvm-rear | 424.6 x 132.0 | 1 |
 | kvm-gusset | 90.0 x 24.0 | 4 |
 
 * Not cut: 25 x 25 timber battens: 2 per shelf and 2 for the KVM, deck depth long.

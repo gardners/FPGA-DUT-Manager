@@ -481,6 +481,10 @@
    600.0
   ]
  },
+ "RAILS": {
+  "thick": 12.7,
+  "status": "ASSUMED"
+ },
  "RU": 44.45,
  "SHEETS": {
   "mdf": [
@@ -494,7 +498,7 @@
  },
  "SHEET_MARGIN": 5.0,
  "SHELF": {
-  "deck_w": 425.0,
+  "deck_w": 424.6,
   "batten": 25.0,
   "front_allow": 35.0,
   "rear_space": 100.0,

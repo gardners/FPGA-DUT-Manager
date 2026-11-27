@@ -900,7 +900,7 @@ def build(cfg, boards, fp, log=print):
     b, fl = fp.BOARD, fp.FLOPPY
     lim = g.clear_mid - cfg.SHELF['clear_top']
     lim_e = g.clear_edge - cfg.SHELF['clear_top']
-    hrows = [('MEGA65 board + tallest part', b['standoff'] + 1.6 + b['tallest'], lim, 'ASSUMED tallest part')]
+    hrows = [('MEGA65 board + tallest part', b['standoff'] + 1.6 + b['tallest'], lim, 'IEC socket, see below')]
     if g.fx is not None:
         hrows.append(('floppy drive on its spacers', fl['spacer'] + fl['h'], lim, 'rugged-case 5 mm nylon spacer'))
     hrows.append(('strain-relief bar', cfg.SHELF['strain_bar']['h'], lim, ''))
@@ -908,6 +908,26 @@ def build(cfg, boards, fp, log=print):
     for name, hh, L, note in hrows:
         if hh > L:
             problems.append('%s: %.1f mm tall, only %.1f mm under the next deck' % (name, hh, L))
+    # tall parts vs the next shelf: its deck (between the battens) and its battens (edge strips)
+    tall = []
+    parts_ = [(tp['name'], g.bx + tp['x0'], g.bx + tp['x1'], b['standoff'] + 1.6 + tp['h'], tp['src'])
+              for tp in getattr(fp, 'TALL_PARTS', [])]
+    parts_.append(('MEGA65 board outline', g.bx, g.bx + b['w'], b['standoff'] + 1.6, 'DIM drawing'))
+    if g.fx is not None:
+        parts_.append(('floppy drive', g.fx - fl['w'] / 2, g.fx + fl['w'] / 2, fl['spacer'] + fl['h'],
+                       'standard 3.5 in drive on 5 mm spacers'))
+    for name, x0, x1, hh, src in parts_:
+        under = x0 < g.BT or x1 > g.W - g.BT
+        side = min(x0 - g.BT, (g.W - g.BT) - x1)            # lateral gap to the nearer batten (<0: under it)
+        L = lim_e if under else lim
+        tall.append((name, x0, x1, hh, g.clear_mid - hh, g.clear_edge - hh, side, under, src))
+        if hh > L:
+            problems.append('%s: %.1f mm above the deck %s (limit %.1f)' % (
+                name, hh, 'UNDER a batten of the next shelf' if under else 'under the next deck', L))
+        elif under and hh > lim_e:
+            problems.append('%s reaches under a batten of the next shelf' % name)
+    if g.bx < g.BT or g.bx + b['w'] > g.W - g.BT:
+        problems.append('MEGA65 board outline is not inside the between-battens zone')
     # horizontal checks on the shelf
     inner = g.W - 2 * g.BT
     if g.span > inner:
@@ -946,5 +966,5 @@ def build(cfg, boards, fp, log=print):
                 problems.append('KVM deck: a hole at (%.1f, %.1f) lands on an under-deck gusset' % (hx, hy))
     parts = [deck, bar, plate, gus, kv['front'], kv['deck'], kv['rear'], kv['gusset']]
     return {'geo': g, 'kvm': kv, 'parts': parts, 'problems': problems, 'notes': notes, 'group_rows': rows,
-            'heights': hrows, 'lim': lim, 'lim_e': lim_e, 'logo_notes': logo_notes + kv['logo_notes'],
+            'heights': hrows, 'tall': tall, 'lim': lim, 'lim_e': lim_e, 'logo_notes': logo_notes + kv['logo_notes'],
             'kclear': kclear, 'cart_end': cart_end, 'bar_y': bar_y}

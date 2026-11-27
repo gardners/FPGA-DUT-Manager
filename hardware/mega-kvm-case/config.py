@@ -211,8 +211,15 @@ RACK = {
     'depth_posts': 600.0,       # front post face -> rear post face, elevation drawing only (MEASURE)
 }
 
+RAILS = {
+    # Server slide rails between each deck/batten edge and the rack post. ASSUMED
+    # standard 1/2 inch (12.7 mm) per side (owner round 13): MEASURE the real rails.
+    'thick': 12.7,
+    'status': 'ASSUMED',
+}
+
 SHELF = {
-    'deck_w': 425.0,            # 450 between posts - ~12.5 per slide (depends on the rails)
+    'deck_w': RACK['post_opening'] - 2 * RAILS['thick'],   # 450 - 2 x 12.7 = 424.6
     'batten': 25.0,             # 25 x 25 mm timber battens UNDER both deck edges (not cut: drill guide)
     'front_allow': 35.0,        # deck front -> first MEGA65 part (>= fan notch depth + margin)
     'rear_space': 100.0,        # free deck behind the MEGA65 board (cartridge / Cart64out), owner
