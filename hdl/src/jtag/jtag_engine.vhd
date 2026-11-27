@@ -16,6 +16,13 @@
 -- end of the high phase, just before the falling edge (the target updates
 -- TDO on the falling edge). Exactly bit_count rising edges; TCK idles low.
 --
+-- TDO sampling (MGMT key 0x0064, issue 0054), latched at admission:
+-- vote 0 = the single sample above; 1 = majority of the synchronised TDO on
+-- the last three clk_sys cycles of the high half period (half >= 4, else
+-- single); 2 = majority of the last five (half >= 6; half 4..5 -> three).
+-- start_ok (key 0x0063): after go the engine waits for it before the first
+-- TCK edge (the keyboard host is pausing); '1' when unused.
+--
 -- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.
 library ieee;
 use ieee.std_logic_1164.all;
@@ -55,7 +62,10 @@ entity jtag_engine is
     -- pins
     tck, tms, tdi : out std_logic;
     jtag_oe      : out std_logic;
-    tdo          : in  std_logic
+    tdo          : in  std_logic;
+    -- TDO sampling mode (key 0x0064) and start permission (key 0x0063)
+    vote         : in  unsigned(1 downto 0) := "00";
+    start_ok     : in  std_logic := '1'
   );
 end entity;
 
@@ -67,7 +77,7 @@ architecture rtl of jtag_engine is
   constant DEC_BAD_FORMAT : unsigned(2 downto 0) := "100";
   constant DEC_UNPOWERED  : unsigned(2 downto 0) := "101";
 
-  type state_t is (S_IDLE, S_LOADED, S_RD_TMS, S_RD_TDI, S_GOT, S_LOW, S_HIGH, S_STORE, S_DONE);
+  type state_t is (S_IDLE, S_LOADED, S_WAIT, S_RD_TMS, S_RD_TDI, S_GOT, S_LOW, S_HIGH, S_STORE, S_DONE);
   signal state : state_t := S_IDLE;
 
   signal nseq, cur_seq   : unsigned(31 downto 0) := (others => '0');
@@ -79,6 +89,8 @@ architecture rtl of jtag_engine is
   signal tms_byte, tdi_byte, tdo_byte : std_logic_vector(7 downto 0) := (others => '0');
   signal tck_r, tms_r, tdi_r : std_logic := '0';
   signal tdo_s           : std_logic_vector(1 downto 0) := (others => '0');
+  signal tdo_h           : std_logic_vector(3 downto 0) := (others => '0');  -- tdo_s(1) history
+  signal vote_r          : unsigned(1 downto 0) := "00";
   signal abort_r         : std_logic := '0';
 
   signal vec_ra  : unsigned(10 downto 0) := (others => '0');
@@ -102,12 +114,16 @@ begin
 
   process (clk)
     variable b : integer range 0 to 7;
+    variable s0, s1, s2, s3, s4 : std_logic;
+    variable n3 : unsigned(1 downto 0);
+    variable n5 : unsigned(2 downto 0);
   begin
     if rising_edge(clk) then
       dec_valid   <= '0';
       tdo_we      <= '0';
       done_strobe <= '0';
       tdo_s <= tdo_s(0) & tdo;
+      tdo_h <= tdo_h(2 downto 0) & tdo_s(1);
 
       -- admission -----------------------------------------------------------
       if req_valid = '1' then
@@ -143,6 +159,12 @@ begin
           nbits       <= req_bits(13 downto 0);
           half        <= req_half(15 downto 0);
           state       <= S_LOADED;
+          vote_r      <= "00";
+          if vote = 2 and req_half >= 6 then
+            vote_r <= "10";
+          elsif vote /= 0 and req_half >= 4 then
+            vote_r <= "01";
+          end if;
         end if;
       end if;
 
@@ -153,6 +175,14 @@ begin
         when S_LOADED =>
           bitn <= (others => '0');
           if go = '1' then
+            state <= S_WAIT;
+          end if;
+        when S_WAIT =>
+          -- keyboard host pausing (key 0x0063): no TCK edge until allowed
+          if powered = '0' then
+            abort_r <= '1';
+            state   <= S_DONE;
+          elsif start_ok = '1' then
             state <= S_RD_TMS;
           end if;
         when S_RD_TMS =>
@@ -193,7 +223,17 @@ begin
             cnt   <= (others => '0');
             tck_r <= '0';
             b := to_integer(bitn(2 downto 0));
-            tdo_byte(b) <= tdo_s(1);
+            -- s0 = this cycle's synchronised TDO, s1..s4 the cycles before
+            s0 := tdo_s(1); s1 := tdo_h(0); s2 := tdo_h(1); s3 := tdo_h(2); s4 := tdo_h(3);
+            n3 := ('0' & s0) + ('0' & s1) + ('0' & s2);
+            n5 := ("00" & s0) + ("00" & s1) + ("00" & s2) + ("00" & s3) + ("00" & s4);
+            if vote_r = "10" then
+              tdo_byte(b) <= n5(2) or (n5(1) and n5(0));   -- >= 3 of 5
+            elsif vote_r = "01" then
+              tdo_byte(b) <= n3(1);                         -- >= 2 of 3
+            else
+              tdo_byte(b) <= s0;
+            end if;
             if b = 7 or bitn + 1 = nbits then
               state <= S_STORE;
             else
