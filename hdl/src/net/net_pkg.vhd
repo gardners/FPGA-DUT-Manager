@@ -43,6 +43,10 @@ package net_pkg is
     -- physical keyboard CPLD JTAG (key 0x0061, ADR 0014): 0 auto, 1 on,
     -- 2 off, 3 on with KB_JTAGEN driven low (diagnostic)
     pk_jtag    : std_logic_vector(7 downto 0);
+    -- shield power CTRL0..7 (key 0x0062, issue 0049); pwr_set = written
+    -- since configuration (until then shield_io keeps what it found)
+    pwr_ctl    : std_logic_vector(7 downto 0);
+    pwr_set    : std_logic;
   end record;
 
   -- a pending reply addressed to a requester
@@ -66,6 +70,19 @@ package net_pkg is
   type u16_arr_t is array (0 to 1) of unsigned(15 downto 0);
   type slv8_arr_t is array (0 to 1) of std_logic_vector(7 downto 0);
   type kbd_arr_t is array (0 to 1) of std_logic_vector(79 downto 0);
+
+  -- shield I2C status (shield_io, issue 0049; ADR 0005 section 3c)
+  type shd_status_t is record
+    flags    : std_logic_vector(7 downto 0);   -- SF_* bits
+    revision : std_logic_vector(7 downto 0);
+    features : std_logic_vector(7 downto 0);
+    sense    : std_logic_vector(7 downto 0);   -- b0-3 VIO DUT0..3, b4-7 kbd 3V3 DUT0..3
+    hdmi     : std_logic_vector(7 downto 0);   -- b0-2 +5V HDMI1..3, b3 PK_JTAGEN, b4-6 HPD HDMI1..3
+    pwr      : std_logic_vector(7 downto 0);   -- CTRL0..7 as driven
+    errors   : unsigned(15 downto 0);
+  end record;
+  constant SHD_STATUS_NONE : shd_status_t :=
+    (x"00", x"00", x"00", x"00", x"00", x"00", (others => '0'));
 
   -- per-DUT live status for heartbeats
   type dut_status_t is record
@@ -110,6 +127,8 @@ package net_pkg is
     con_shown   : std_logic_vector(7 downto 0);   -- console screen shown: 0 editable, 1 no video, 2 select
     -- DDR3 frame store (issue 0034), heartbeat memory block
     mem         : mem_status_t;
+    -- shield (issue 0049), heartbeat shield block
+    shd         : shd_status_t;
   end record;
 
   -- UART snapshot counters (latched by uart_bridge on snap_ack)

@@ -5,6 +5,7 @@ SYNTH_SOURCES := \
 	$(HDL_SRC)/common/common_pkg.vhd \
 	$(HDL_SRC)/mem/mem_pkg.vhd \
 	$(HDL_SRC)/common/sync_bit.vhd \
+	$(HDL_SRC)/common/i2c_master.vhd \
 	$(HDL_SRC)/common/async_fifo.vhd \
 	$(HDL_SRC)/mem/mem_arbiter.vhd \
 	$(HDL_SRC)/mem/mem_selftest.vhd \
@@ -54,6 +55,7 @@ SYNTH_SOURCES := \
 	$(HDL_SRC)/video/edid_pkg.vhd \
 	$(HDL_SRC)/video/ddc_edid.vhd \
 	$(HDL_SRC)/top/supervisor_core.vhd \
+	$(HDL_SRC)/top/shield_io.vhd \
 	$(HDL_SRC)/platform/xc7/xc7_prims_pkg.vhd \
 	$(HDL_SRC)/platform/xc7/clocks_xc7.vhd \
 	$(HDL_SRC)/platform/xc7/rgmii_xc7.vhd \

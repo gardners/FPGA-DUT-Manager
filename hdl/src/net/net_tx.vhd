@@ -128,7 +128,7 @@ architecture rtl of net_tx is
   type state_t is (S_IDLE, S_DISCARD, S_LATCH, S_HIST, S_PREP, S_CSUM, S_START, S_WRITE, S_WAIT_MAC);
   signal state : state_t := S_IDLE;
 
-  constant PF_MAX : natural := 152;   -- heartbeat: 8 + 144
+  constant PF_MAX : natural := 160;   -- heartbeat: 8 + 152
   type pf_t is array (0 to PF_MAX - 1) of byte_t;
   type hdr_t is array (0 to 41) of byte_t;
   signal hdr   : hdr_t := (others => (others => '0'));
@@ -583,6 +583,11 @@ begin
               pf(144) <= bstat.mem.dq_fail(15 downto 8); pf(145) <= bstat.mem.dq_fail(7 downto 0);
               pf(146) <= bu(bstat.mem.test_kib, 0); pf(147) <= bu(bstat.mem.test_kib, 1);
               for i in 0 to 3 loop pf(148 + i) <= b(bstat.mem.first_err, i); end loop;
+              -- 152..159 shield block (ADR 0005 s3c, issue 0049)
+              pf(152) <= bstat.shd.flags;    pf(153) <= bstat.shd.revision;
+              pf(154) <= bstat.shd.features; pf(155) <= bstat.shd.sense;
+              pf(156) <= bstat.shd.hdmi;     pf(157) <= bstat.shd.pwr;
+              pf(158) <= bu(bstat.shd.errors, 0); pf(159) <= bu(bstat.shd.errors, 1);
             when others => null;
           end case;
 

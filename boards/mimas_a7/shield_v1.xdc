@@ -58,11 +58,21 @@ set_clock_groups -asynchronous \
 set_false_path -to   [get_ports {shd_sda[*]}]
 set_false_path -from [get_ports {shd_scl[*] shd_sda[*]}]
 
+## Shield I2C bus (issue 0049 step 2; shield-pinplan.md P12 row 25):
+## expander A (TCA6424A 0x22), expander B (TCA6416A 0x20), external I2C
+## header. Open drain from shield_io (400 kHz); 2.2 k pull-ups on the
+## shield, the weak PULLUPs only stop the lines floating without one.
+## Not the per-receiver DDC pins shd_scl/shd_sda above.
+set_property -dict {PACKAGE_PIN G15 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW PULLUP TRUE} [get_ports {shd_i2c_scl[0]}]
+set_property -dict {PACKAGE_PIN G16 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW PULLUP TRUE} [get_ports {shd_i2c_sda[0]}]
+set_false_path -to   [get_ports {shd_i2c_scl[0] shd_i2c_sda[0]}]
+set_false_path -from [get_ports {shd_i2c_scl[0] shd_i2c_sda[0]}]
+
 ## Physical keyboard CPLD JTAG on the shield (issue 0046, ADR 0014;
 ## docs/hardware/shield-pinplan.md): HDMI3 above takes the bodge pins
 ## L19/L20/M21/L21. PK_JTAGEN is on I2C expander B (TCA6416A @0x20, P0.3),
-## driven from supervisor_core's pk_jtag_oe once the shield I2C master exists
-## (issue 0049 step 2); there is no pk_jtagen port in this build.
+## driven from supervisor_core's pk_jtag_oe by shield_io (issue 0049 step 2);
+## there is no pk_jtagen port in this build.
 set_property -dict {PACKAGE_PIN H19 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW PULLDOWN TRUE} [get_ports pk_tck]
 set_property -dict {PACKAGE_PIN M20 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW PULLUP TRUE}   [get_ports pk_tms]
 set_property -dict {PACKAGE_PIN H18 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW PULLUP TRUE}   [get_ports pk_tdi]
