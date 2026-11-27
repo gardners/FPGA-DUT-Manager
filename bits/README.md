@@ -10,6 +10,7 @@ Board must run from the DC jack (USB power alone browns out).
 
 | Build id | Commit | Verified on hardware (2026-11-25) | Notes |
 |---|---|---|---|
+| 7b9a7921 | 7b9a792 | 2026-11-27: hwtest 63/0; keyboard IDCODE 0x012ba043 | merges rack case, dutctl JTAG tools (0053/0054), shield I2C master + heartbeat shield block + power-ctl key 0x0062 (0049 step 2); WNS +0.204 ns. **known-good** |
 | c73c7b23 | c73c7b2 | 2026-11-27: hwtest 63/0; keyboard IDCODE 0x012ba043 in kbd-jtag modes 0, 1 and 3 (JTAGEN low) | adds kbd-jtag mode 3 (pin-3 diagnostic); WNS +0.200 ns. |
 | aba06812 | aba0681 | 2026-11-27: hwtest 63/0 (DHCP both DUTs, real DVI source, passthrough); keyboard IDCODE 0x012ba043 via remote JTAG | timing pipelining (net_tx DHCP, dhcp_client, thumb_rx_writer, mosaic), MGMT dup compare; normal WNS +0.200 ns, shield build +0.276 ns. |
 | 88734375 | 8873437 | 2026-11-27: hwtest 63/0 (real DVI source on HDMI IN, passthrough); keyboard CPLD IDCODE 0x012ba043 over remote JTAG (`dutctl jtag-idcode IP --kbd`) | keyboard type 3 host + keyboard JTAG (0046), shield receivers off (SHIELD_RX=0), WNS +0.234 ns. |
@@ -37,4 +38,3 @@ Board must run from the DC jack (USB power alone browns out).
 | a4b00fb9 | a4b00fb | DHCP both DUTs, ping, seg7 `0-10` | console LEFT 18 (3 px too far right) |
 | 6e7991b4 | 6e7991b | DHCP, heartbeats (DUT 0 only, old ID scheme) | 480p60, LEFT 0 (left edge cropped) |
 | da7897a1 | da7897a | DHCP, heartbeats, ping, mgmt, text | 576p50, old ID scheme |
-| 7b9a7921 | 7b9a792 | 2026-11-27: hwtest 63/0; keyboard IDCODE 0x012ba043 | merges rack case, dutctl JTAG tools (0053/0054), shield I2C master + heartbeat shield block + power-ctl key 0x0062 (0049 step 2); WNS +0.204 ns. **known-good** |
