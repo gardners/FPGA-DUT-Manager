@@ -7,7 +7,7 @@
 #   k325t.sh stat             read the configuration status register
 #   k325t.sh off              park TMS/TDI low (TAP in Run-Test/Idle), then relay 5 off
 #
-# Env: DUTCTL, OFL (openFPGALoader), IP (10.231.50.162), DUT (1), RELAY_TTY
+# Env: DUTCTL, OFL (openFPGALoader), IP (203.28.176.87), DUT (1), RELAY_TTY
 # (/dev/ttyACM0), RELAY_CH (5), HALF (6 = 10.4 MHz, from dutctl jtag-speed),
 # PORT (2557, dutctl xvc), DUTCTL_MTU (path MTU, dutctl default 1500).
 # dutctl xvc splits shifts itself (issue 0059); SPLIT=1 puts the old
@@ -19,7 +19,7 @@ repo=$(cd "$here/../.." && pwd)
 main=$(git -C "$repo" worktree list --porcelain | awk '/^worktree /{print $2; exit}')
 DUTCTL=${DUTCTL:-$main/sw/dutctl/build/dutctl}
 OFL=${OFL:-$main/tools/prefix/bin/openFPGALoader}
-IP=${IP:-10.231.50.162}
+IP=${IP:-203.28.176.87}
 DUT=${DUT:-1}
 RELAY_TTY=${RELAY_TTY:-/dev/ttyACM0}
 RELAY_CH=${RELAY_CH:-5}

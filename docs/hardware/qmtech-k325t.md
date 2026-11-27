@@ -162,13 +162,13 @@ microSD adapters).
 
 Format: **2,000,000 baud 8N1**, the supervisor's default (`DEFAULT_BAUD_INC`,
 ADR 0005 key 0x0010). If the supervisor's baud was changed, set it back with
-`dutctl set 10.231.50.162 baud 2000000`; read with `dutctl uart 10.231.50.162`.
+`dutctl set 203.28.176.87 baud 2000000`; read with `dutctl uart 203.28.176.87`.
 
 ## JTAG
 
 6-pin header J1 (3V3, GND, TCK, TDO, TDI, TMS), wired to DUT1 per
 `docs/cabling/dut-cable.md` section 4. IDCODE 0x43651093 (XC7K325T rev 4).
-`dutctl jtag-speed 10.231.50.162 1` (2026-11-27): ok up to half 3 (20.8
+`dutctl jtag-speed 203.28.176.87 1` (2026-11-27): ok up to half 3 (20.8
 MHz), fails at half 2 (31.25 MHz); recommended **tck_half 6 = 10.4 MHz**.
 
 Configuration: M[2:0] = 001 (master SPI), S25FL256L flash. At power-on the

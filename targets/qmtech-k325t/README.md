@@ -50,7 +50,7 @@ mkdir -p build && (cd build && source /opt/Xilinx/Vivado/2023.2/settings64.sh &&
   vivado -mode batch -nojournal -log vivado.log -source ../build_sdprobe.tcl -tclargs $PWD up)
 nvc --std=2008 -a hdl/k325t_sdprobe.vhd hdl/tb_k325t_sdprobe.vhd -e tb_k325t_sdprobe -r
 ./k325t.sh load build/k325t_sdprobe_up.bit
-(sleep 1; printf a; sleep 8) | dutctl uart 10.231.50.162    # p / j / d / a
+(sleep 1; printf a; sleep 8) | dutctl uart 203.28.176.87    # p / j / d / a
 ```
 
 After configuration the probe runs the pin test. It then runs the J11 and
