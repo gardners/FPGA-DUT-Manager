@@ -160,6 +160,15 @@ without it (and with no keyboard harness) the supervisor keeps TCK/TMS/TDI
 tri-stated. The 1 kOhm keeps the sense reliable and limits current if the
 Mimas is unpowered (back-feed through its input clamp) or the ball is ever
 driven low by a wrong bitstream (3.3 mA instead of a short on the K325T
-3V3 rail). Workaround without the wire: `dutctl set IP out-policy 1` on
-that DUT's endpoint forces the outputs on (then power the K325T first and
-switch the policy back to 0 when it is off).
+3V3 rail). There is no workaround without the wire: the JTAG outputs follow
+the power sense only; `out-policy` (key 0x0060) switches the UART and
+keyboard outputs, not JTAG.
+
+**Back-powering caution (2026-11-27):** while the sense reads powered, TCK
+(low), TMS and TDI (their last bit, TMS usually high after a reset to
+Test-Logic-Reset) stay driven between transactions. When the DUT is switched
+off, a high TMS/TDI feeds its 3V3 rail through the FPGA's input clamp
+diodes; if that holds the rail high enough, the sense keeps reading powered
+and the outputs keep driving. Until the supervisor releases idle JTAG
+outputs (issue 0056), unplug the JTAG lead or leave the DUT powered while
+the lead is connected and the supervisor is running.
