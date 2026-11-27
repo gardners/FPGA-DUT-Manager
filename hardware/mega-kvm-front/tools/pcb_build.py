@@ -172,7 +172,8 @@ def build():
     wx, wy, ww, wh = L.LCD_WINDOW
     rect(board, wx, wy, wx + ww, wy + wh, pcbnew.Dwgs_User, 0.1)
     text(board, 'panel window', wx + ww / 2, wy + wh / 2, pcbnew.Dwgs_User, 1.5)
-    text(board, 'ROCKER (panel, off-board) ->', L.BOARD_W - 30, 1.6, pcbnew.Dwgs_User, 1.0)
+    text(board, 'ROCKER: in the panel, off-board (case generator places it)', L.BOARD_W / 2 + 30,
+         L.BOARD_H + 2.0, pcbnew.Dwgs_User, 1.0)
 
     gnd = nets['GND']
     full = [(0.3, 0.3), (L.BOARD_W - 0.3, 0.3), (L.BOARD_W - 0.3, L.BOARD_H - 0.3), (0.3, L.BOARD_H - 0.3)]
