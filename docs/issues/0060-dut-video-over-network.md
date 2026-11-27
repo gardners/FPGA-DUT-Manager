@@ -181,3 +181,13 @@ Build (Vivado, commit e4f8df7, build id e4f8df7d): **TIMING MET, WNS
 MMCMs 5/5, PLLs 2/5. `make test` green: 35 HDL testbenches, netproto
 selftest, 885 dutctl checks, 52 relay checks. Not loaded on hardware.
 Bitstream: build/vivado/supervisor.bit in the feature/hwvs-vlan worktree.
+
+### 2026-11-27 relay counters (issue 0061)
+
+The heartbeat now carries a relay block (ADR 0005 s3d, bytes 160..187):
+requests sent / full, frames heard (lines, bad, FIFO overflow, no source,
+VLAN drops, > 2047 bytes, not taken), full pictures completed / shown, the
+full view's state and the last frame's machine and scale; `dutctl listen`
+prints them. thumb_rx_tap reads the GMII stream directly (not the MAC's
+2 KiB slots), so 1/1 frames up to ~8 KB are received; the switch path must
+pass jumbo frames. Details and a debugging table in issue 0061.
