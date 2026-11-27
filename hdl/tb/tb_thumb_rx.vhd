@@ -4,6 +4,11 @@
 -- 8 are written to CAP_OUT; tests/scenarios/tb_thumb_rx.py generates the
 -- frames (RAW888 and RLE24, 1/2 and 1/4 scale, bad FCS, foreign MAC, local
 -- machine, no-source, request) and checks the result (issue 0038).
+-- Issue 0060: the tap is on VLAN 1650 (untagged and other-VID frames are
+-- dropped), local machine 1 has no local video (relay1) so its relayed
+-- thumbnails are stored, machine 0's are not; 1/1 pictures of machine 1
+-- (full view) go to the triple-buffered full store, whose latest complete
+-- buffer is dumped too. Addresses are folded into 18 bits for mem_model.
 -- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.
 library ieee;
 use ieee.std_logic_1164.all;
@@ -25,9 +30,27 @@ architecture tb of tb_thumb_rx is
   signal f_dout : std_logic_vector(35 downto 0);
   signal req_stb : std_logic;
   signal req_mac : std_logic_vector(47 downto 0);
-  signal req_scale, req_div : std_logic_vector(7 downto 0);
+  signal req_scale, req_div, req_flags, req_target : std_logic_vector(7 downto 0);
   signal nreq : natural := 0;
   signal req : mem_req_arr_t(0 to 1) := (others => MEM_REQ_IDLE);
+  signal reqf : mem_req_arr_t(0 to 1);
+  signal fev : std_logic := '0';
+  signal fbuf : unsigned(1 downto 0);
+  signal fw : unsigned(10 downto 0);
+  signal fh : unsigned(9 downto 0);
+  signal nfull : natural := 0;
+  -- thumbnails: machine & buf, row 3:0, word; full: buf, row 5:0, word
+  function fold(r : mem_req_t) return mem_req_t is
+    variable o : mem_req_t := r;
+  begin
+    o.addr := (others => '0');
+    if r.addr(21) = '1' then
+      o.addr(17 downto 0) := '1' & r.addr(19 downto 18) & '0' & r.addr(13 downto 0);
+    else
+      o.addr(17 downto 0) := '0' & r.addr(20 downto 15) & r.addr(10 downto 7) & r.addr(6 downto 0);
+    end if;
+    return o;
+  end function;
   signal rsp : mem_rsp_arr_t(0 to 1);
   signal ev, ev_buf, ev_q, sev : std_logic;
   signal ev_m, sm : unsigned(4 downto 0);
@@ -44,28 +67,34 @@ begin
   tap : entity work.thumb_rx_tap
     generic map (FIFO_AW => 11)
     port map (clk => clk_rx, rx_dv => rx_dv, rxd => rxd,
-              mac0 => x"024D36350000", mac1 => x"024D36350011",
+              mac0 => x"024D36350000", mac1 => x"024D36350011", vlan => to_unsigned(1650, 12),
               sclk => clk, f_valid => f_valid, f_dout => f_dout, f_pop => f_pop,
               req_stb => req_stb, req_mac => req_mac, req_scale => req_scale,
-              req_div => req_div, frames => tapfr);
+              req_div => req_div, req_flags => req_flags, req_target => req_target, frames => tapfr);
   wr : entity work.thumb_rx_writer
     port map (clk => clk, f_valid => f_valid, f_dout => f_dout, f_pop => f_pop,
-              local0 => L0, local1 => L1, cur => cur, mem_req => req(0), mem_rsp => rsp(0),
+              local0 => L0, local1 => L1, relay0 => '0', relay1 => '1',
+              cur => cur, mem_req => req(0), mem_rsp => rsp(0),
               ev => ev, ev_machine => ev_m, ev_buf => ev_buf, ev_quarter => ev_q,
-              seen_ev => sev, seen_machine => sm, pictures => pics);
+              seen_ev => sev, seen_machine => sm, pictures => pics,
+              full_en => '1', full_m => L1, full_shown => "00",
+              full_ev => fev, full_buf => fbuf, full_width => fw, full_height => fh, full_pics => open);
   st : entity work.thumb_status
     port map (clk => clk, tick_1ms => '0', local0 => L0, local1 => L1,
               ev_a => '0', ev_a_machine => L0, ev_a_buf => '0', ev_a_quarter => '0',
               ev_b => ev, ev_b_machine => ev_m, ev_b_buf => ev_buf, ev_b_quarter => ev_q,
               seen_ev => sev, seen_machine => sm,
               seen => seen, fresh => fresh, cur => cur, quarter => quarter, n_seen => nseen);
-  mm : entity work.mem_mux_model generic map (N => 2, ADDR_BITS => 17, LATENCY => 10, STALL_EVERY => 5)
-    port map (clk => clk, req => req, rsp => rsp);
+  reqf(0) <= fold(req(0));
+  reqf(1) <= fold(req(1));
+  mm : entity work.mem_mux_model generic map (N => 2, ADDR_BITS => 18, LATENCY => 10, STALL_EVERY => 5)
+    port map (clk => clk, req => reqf, rsp => rsp);
 
   process (clk)
   begin
     if rising_edge(clk) then
       if req_stb = '1' then nreq <= nreq + 1; end if;
+      if fev = '1' then nfull <= nfull + 1; end if;
     end if;
   end process;
 
@@ -142,9 +171,24 @@ begin
     write(l, string'("req ") & integer'image(nreq) & " ");
     hwrite(l, req_mac); write(l, string'(" ")); hwrite(l, req_scale);
     write(l, string'(" ")); hwrite(l, req_div);
+    write(l, string'(" ")); hwrite(l, req_flags);
+    write(l, string'(" ")); hwrite(l, req_target);
     writeline(fo, l);
     dump(3, 6, 80);
     dump(8, 4, 40);
+    dump(1, 4, 40);
+    write(l, string'("full ") & integer'image(nfull) & " " & integer'image(to_integer(fbuf)) & " " &
+      integer'image(to_integer(fw)) & " " & integer'image(to_integer(fh)));
+    writeline(fo, l);
+    for r in 0 to to_integer(fh) - 1 loop
+      write(l, string'("frow ") & integer'image(r));
+      for w in 0 to (to_integer(fw) + 3) / 4 - 1 loop
+        rd(full_addr(fbuf, to_unsigned(r, 10), to_unsigned(w, 8)), wd);
+        write(l, string'(" "));
+        hwrite(l, wd);
+      end loop;
+      writeline(fo, l);
+    end loop;
     report "tb_thumb_rx PASSED (frame-level); tap frames " & integer'image(to_integer(tapfr));
     fin <= true;
     wait;

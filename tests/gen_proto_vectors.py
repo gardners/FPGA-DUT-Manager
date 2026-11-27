@@ -80,6 +80,11 @@ def vectors():
     for name, p in v[-5:-1]:
         d = P.decode_thumb(p[14:])
         assert d["sub"] != P.TH_SUB_LINES or d["lines"] in (q, h)
+    # issue 0060: targeted priority 1/1 request (machine 5); a 1/1 lines frame
+    v.append(("thumb_req_target", P.thumb_request(src, P.TH_SCALE_FULL, 1,
+                                                  P.TH_RF_TARGETED | P.TH_RF_PRIORITY, 5)))
+    v.append(("thumb_full", P.thumb_frame(P.mac("02:00:00:00:00:aa"), src, 1, 9, 479,
+                                          [bytes([1, 2, 3]) * 720], P.TH_SCALE_FULL, 480)))
     hist = bytes(507) + b"HELLO"
     snap = dict(boot_id=0x11223344, snap_seq=5, rx_seq=5, tx_accepted=5, tx_emitted=5,
                 tx_free=2043, framing_errors=1, rx_overflows=0, tx_rejects=2, clear_gen=0,

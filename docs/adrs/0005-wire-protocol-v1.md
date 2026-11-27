@@ -194,6 +194,8 @@ Keys (whole values, never toggles):
 | 0x0035 | 1 | console screen (issue 0029): 0 auto (select while choosing; else passthrough of HDMI IN to HDMI OUT when the video target is one of this board's DUTs and its video is present (issue 0032); else editable when text is forced or video is present, else no video), 1 editable, 2 no video, 3 select (1..3 force a console screen and disable passthrough) |
 | 0x0040 | 1 | Ethernet capture enable (phase 2) |
 | 0x0041 | 8 | thumbnail relay forced destination (section 10): MAC(6), scale(1: 1 = 1/2, 2 = 1/4), frame divisor(1: 1..15). MAC 00:00:00:00:00:00 = off (default). A group (multicast/broadcast) MAC, another scale or divisor -> bad value. Board-wide |
+| 0x0043 | 2 | inter-board VLAN ID (section 10, issue 0060): u16, 0 = untagged (the behaviour before 2026-11-27), 1..4094 = thumbnail relay requests, lines and no-source frames between boards carry an 802.1Q tag (TPID 0x8100, PCP 0, DEI 0, this VID) and relay frames are accepted only with that VID. Default **1650**. Host-facing traffic (UDP to the host, and relay frames to the key 0x0041 forced MAC) is never tagged. Values > 4094 -> bad value. Board-wide |
+| 0x0044 | 1 | HDMI IN owner (section 10, issue 0060): which of this board's DUTs is cabled to the on-board HDMI IN. 0 (default) the video target's DUT (the behaviour before 2026-11-27: both DUTs share the input); 1 DUT0; 2 DUT1; 3 none. A local machine that does not own the HDMI IN (only with 1..3) shows relayed video for its machine number (thumbnails in the mosaic) and, as the video target, a full-resolution relayed picture (section 10, "selected target without local video"). Values > 3 -> bad value. Board-wide |
 | 0x0050 | 2 | heartbeat period ms |
 | 0x0060 | 1 | target output enable policy (issue 0056): 0 auto: UART TXD, KIO10 and JTAG driven while the DUT is sensed powered (default); 1 force UART TXD and KIO10 on (JTAG still follows the sense); 2 force all of them off, JTAG included (JTAG_REQ then answers status 4, a running transaction is aborted): the host sets 2 before it cuts the DUT's power (`dutctl relay ... power N off`). The shield power-off hold (key 0x0062) overrides 0 and 1 |
 | 0x0061 | 1 | physical keyboard CPLD JTAG (section 7, ADR 0014): 0 auto (pins driven while a keyboard is detected and for 10 s after the last detection or keyboard JTAG transaction; default), 1 force on, 2 force off, 3 force on with KB_JTAGEN driven low (diagnostic: does J5 pin 3 gate the CPLD's JTAG port?). Board-wide |
@@ -351,7 +353,7 @@ to 124 bytes; decoders must accept >= 100)
 | Off | Size | Field |
 |---|---|---|
 | 108 | 1 | video_flags: b0 TMDS clock present, b1 locked (aligned + decoding), b2 capture enabled, b3 HDMI mode seen (video/data-island preambles; 0 = DVI source), b4 data islands seen (InfoFrames/audio), both over the last two frames and only while locked (issue 0040; guard bands and islands never count as pixels), b5-b7 reserved (0) |
-| 109 | 1 | HDMI OUT shown: 0 editable, 1 no video, 2 select (console screens, issue 0029), 3 passthrough of HDMI IN (issue 0032) |
+| 109 | 1 | HDMI OUT shown: 0 editable, 1 no video, 2 select (console screens, issue 0029), 3 passthrough of HDMI IN (issue 0032), 4 full-resolution relayed picture of the video target (section 10, issue 0060) |
 | 110 | 2 | h_total |
 | 112 | 2 | v_total |
 | 114 | 2 | h_active |
@@ -380,6 +382,19 @@ Thumbnails: the centre 640x400 of the active picture (x offset
 576p), averaged over 2x2 boxes (scale 1/2 -> 320x200) or 4x4 boxes (1/4 ->
 160x100), RGB888, every `div`-th source frame (2 = 30 Hz from 60 Hz).
 
+**VLAN (issue 0060, 2026-11-27).** Relay traffic between boards (requests,
+lines and no-source frames) carries an 802.1Q tag after the source MAC
+(TPID 0x8100, PCP 0, DEI 0, VID = key 0x0043, default **1650**), so the
+offsets below are after the 4-byte tag (EtherType 0x88B5 at bytes 16..17 of
+the frame). Broadcast requests stay broadcast, only tagged. A board accepts
+relay frames only with its VID (untagged only when the key is 0, the
+behaviour before). Frames to the key 0x0041 forced MAC (host screenshots)
+stay untagged: the lab host has no VLAN interface. Today the thumbnail
+relay is the only inter-board traffic (no other Mimas-to-Mimas frames
+exist yet; issue 0044's keyboard frames would use the same VLAN). Frames
+are padded to 60 bytes + FCS as before (a tagged request is 26 bytes of
+header and body).
+
 **Request** (subtype 1), broadcast (ff:ff:ff:ff:ff:ff), 8 bytes:
 
 | Off | Size | Field |
@@ -387,16 +402,28 @@ Thumbnails: the centre 640x400 of the active picture (x offset
 | 0 | 1 | version = 1 |
 | 1 | 1 | subtype = 1 |
 | 2 | 2 | magic 0x4D36 |
-| 4 | 1 | scale: 1 = 1/2 (320x200), 2 = 1/4 (160x100) |
+| 4 | 1 | scale: 1 = 1/2 (320x200), 2 = 1/4 (160x100), 3 = 1/1 (the whole active picture, issue 0060) |
 | 5 | 1 | frame divisor (1..15) |
-| 6 | 2 | reserved (0) |
+| 6 | 1 | flags (was reserved 0, issue 0060): b0 targeted (byte 7 is the target machine), b1 priority (the source sends video ahead of its other traffic; 0 = only with spare TX bandwidth), b2..b7 0 |
+| 7 | 1 | target machine number 0..31 (was reserved 0), used only with b0; 32..255 match no board |
 
-A board whose console shows the select screen sends one about every
-250 ms, from its DUT0 MAC, with scale 1/2 when it has seen <= 4 machines,
-else 1/4, and divisor 2. Every board that hears a request (broadcast or to
-one of its MACs, good FCS) streams its thumbnails for the next ~1 s,
-**unicast to the request's source MAC** (latest request wins), at the
-requested scale and divisor. Management key 0x0041 forces streaming to a
+Examples: untargeted 1/2 at divisor 2 (the select screen's request)
+`01 01 4D 36 01 02 00 00`; targeted at machine 5, 1/1, divisor 1, priority
+`01 01 4D 36 03 01 03 05` (tests/netproto.py selftest).
+
+A board whose console shows the select screen sends an untargeted request
+about every **500 ms** (2 Hz; 250 ms before issue 0060), from its DUT0 MAC,
+with scale 1/2 when it has seen <= 4 machines, else 1/4, and divisor 2.
+Every board that hears a request (broadcast or to one of its MACs, good
+FCS, its VLAN) that is untargeted or targeted at one of its machine numbers
+streams its thumbnails for the next ~1 s, **unicast to the request's source
+MAC** (latest request wins), at the requested scale and divisor; a targeted
+request streams only the target machine. A source drops what it cannot send
+at once, never queues or retransmits. The Mimas source stores only 1/2 and
+1/4 thumbnails, so it answers a scale 3 request at 1/2 (its lines frames say
+scale 1); the full-resolution sources are boards without a frame store of
+their own, such as the HewnWeb K325T (hardweb `src/hwvs/`, its
+docs/hwvs_implementation.md). Management key 0x0041 forces streaming to a
 given MAC instead (host screenshots). Bulk thumbnail frames never go to a
 group MAC. A board stores its own thumbnails directly; they never loop
 through the network.
@@ -435,3 +462,38 @@ Rules:
   mark the machine seen.
 * RAW888 at 1/2 scale and 30 Hz is ~46 Mb/s per source, 1/4 scale ~12 Mb/s
   (less with RLE24).
+
+**Scale 3 = 1/1 (issue 0060).** Lines frames with byte 6 = 3: width
+(bytes 16..17) = the active width (<= 1024; this receiver stores up to
+1020 pixels per line), height (18..19) = the active height (e.g. 480 or
+576, no longer <= 200). No centre crop and no averaging; everything else as
+above (per-line RLE24 when strictly smaller, packing within 8000 payload
+bytes, flag b1 on the picture's last frame). 720x480 RAW888 at 60 Hz is
+~500 Mb/s; one such stream fits a gigabit link.
+
+**Relayed video for local machines (issue 0060).** A board ignores relay
+lines for its own machine numbers only when that machine owns the HDMI IN
+(key 0x0044; with the default 0 both DUTs own it, as before). A local
+machine without local video (key 0x0044 = 1..3) accepts relayed frames for
+its machine number like a remote machine: thumbnails appear in its mosaic
+tile. This is how a board without HDMI capture of its own (the K325T, whose
+UART/JTAG/keyboard are cabled to a Mimas DUT slot) appears in that slot: it
+sends with machine number = the slot's machine number (DUT ID nibble * 2 +
+half; DUT1 of the bench board, DIP 0x00, is machine 1). Such a slot also
+stops announcing "present, no source" for itself while relayed pictures
+arrive.
+
+**Selected target without local video (issue 0060).** When the video target
+is a local machine that does not own the HDMI IN (key 0x0044 = 1..3), the
+console screen is on auto and no selection is pending, the board sends
+**targeted, priority, scale 3, divisor 1** requests for that machine every
+500 ms for as long as it stays selected, and shows the received pictures
+full-screen at full resolution on HDMI OUT (in the 720x480p60 console
+timing: a 576-line picture shows its centre 480 lines; the picture is
+placed at the top left; up to 720 pixels per line). Pictures go into a
+triple-buffered DDR3 frame buffer (word address 0x200000 + buffer *
+0x40000, row stride 256 words, xRGB32 as the thumbnail store); the output
+switches to the last complete picture at its vertical blank, so a picture
+is never shown torn. Without a complete picture in the last second the
+console shows its "no video" screen. Passthrough is used only for a video
+target that owns the HDMI IN.

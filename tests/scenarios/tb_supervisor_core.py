@@ -39,6 +39,9 @@ K_CAPTURE_EN = 0x0040
 K_THUMB_FORCE = 0x0041
 PEER_MAC = P.mac("02:4D:36:35:00:22")
 PEER_TILE = [bytes((x * 3 + y) & 255 for x in range(480)) for y in range(4)]
+VLAN = P.VLAN_DEFAULT          # inter-board relay traffic (issue 0060)
+# 1/1 picture of machine 3 (DUT1's slot) from a board without HDMI (issue 0060)
+FULL_PIC = [bytes((x * 5 + 7 * y) & 255 for x in range(3 * 64)) for y in range(8)]
 # thumbnail of the testbench picture: centre 640 columns (x offset 40), all
 # 8 lines (shorter than 400), 2x2 boxes -> 320 x 4
 THUMB_TILE = P.thumb_box(lambda x, y: (x & 255, y & 255, (7 * x + 31 * y + 5) & 255), 40, 0, 2, 320, 4)
@@ -86,8 +89,9 @@ def scenario():
     f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 13, K_THUMB_FORCE, HOST_MAC + b"\x01\x02"))))
     f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 14, K_THUMB_FORCE, b"\x01\x00\x5e\x00\x00\x01\x01\x02"))))
     # a peer board's picture of machine 5 at 1/4 scale, and its request
-    f.append((5, P.with_fcs(P.thumb_frame(DUT_MAC[1], PEER_MAC, 5, 1, 0, PEER_TILE, P.TH_SCALE_QUARTER, 4))))
-    f.append((5, P.with_fcs(P.thumb_request(PEER_MAC, P.TH_SCALE_QUARTER, 2))))
+    f.append((5, P.with_fcs(P.thumb_frame(DUT_MAC[1], PEER_MAC, 5, 1, 0, PEER_TILE, P.TH_SCALE_QUARTER, 4,
+                                          vlan=VLAN))))
+    f.append((5, P.with_fcs(P.thumb_request(PEER_MAC, P.TH_SCALE_QUARTER, 2, vlan=VLAN))))
     f.append((5, udp_to(0, P.PORT_KBD, P.kbd_set(0xFF, [10, 63]))))  # wildcard dut
     f.append((5, udp_to(0, P.PORT_UART, P.uart_tx(0, 0, 1, b"HELLO"))))
     f.append((5, udp_to(0, P.PORT_JTAG, P.jtag_req(0, 0, JTAG_TMS, JTAG_TDI, half=2))))
@@ -138,6 +142,21 @@ def scenario():
     big = P.JTAG_MAX_BITS
     f.append((5, udp_to(0, P.PORT_JTAG, P.jtag_req(0, 3, "1" * big, "0" * big, half=2))))
     f.append((300, udp_to(0, P.PORT_JTAG, P.jtag_req(0, 4, "1" * (big + 8), "0" * (big + 8), half=2))))
+    # issue 0060: HDMI IN owned by DUT0 (key 0x0044 = 1); bad values for
+    # 0x0044 and 0x0043; a relayed 1/4 thumbnail of DUT1's machine 3 is now
+    # stored; console back to auto, video target DUT1 (no local video) ->
+    # targeted priority 1/1 requests on VLAN 1650 and the full view of two
+    # relayed 1/1 pictures
+    f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 27, P.K_HDMI_OWNER, b"\x01"))))
+    f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 28, P.K_HDMI_OWNER, b"\x04"))))
+    f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 29, P.K_VLAN, struct.pack(">H", 4095)))))
+    f.append((5, P.with_fcs(P.thumb_frame(DUT_MAC[0], PEER_MAC, 3, 1, 0, PEER_TILE, P.TH_SCALE_QUARTER, 4,
+                                          vlan=VLAN))))
+    f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 30, P.K_CON_SCREEN, b"\x00"))))
+    f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 31, 0x0031, b"\x01"))))
+    for k in (1, 2):
+        for fr in P.thumb_packets(DUT_MAC[0], PEER_MAC, 3, k, FULL_PIC, P.TH_SCALE_FULL, budget=1000, vlan=VLAN):
+            f.append((5 if k == 1 else 20, P.with_fcs(fr)))
     return f
 
 
@@ -221,14 +240,16 @@ def check(path):
             (18, P.K_PWR_CTL, 0), (19, P.K_PWR_CTL, 2),
             (20, P.K_KJ_QUIET, 3), (21, P.K_TDO_VOTE, 3), (22, P.K_KJ_QUIET, 0),
             (23, P.K_TDO_VOTE, 0), (24, P.K_KJ_QUIET, 0),
-            (25, P.K_OUT_POLICY, 0), (26, P.K_OUT_POLICY, 0)]
+            (25, P.K_OUT_POLICY, 0), (26, P.K_OUT_POLICY, 0),
+            (27, P.K_HDMI_OWNER, 0), (28, P.K_HDMI_OWNER, 3), (29, P.K_VLAN, 3),
+            (30, P.K_CON_SCREEN, 0), (31, 0x0031, 0)]
     got = [(a["cmd_id"], a["key"], a["status"]) for a in acks]
     if got != want:
         err("MGMT acks %r != %r" % (got, want))
-    elif acks[-1]["cfg_gen"] != 18:  # baud, hb period, LED mode, LED vector, dest x2, capture,
+    elif acks[-1]["cfg_gen"] != 21:  # baud, hb period, LED mode, LED vector, dest x2, capture,
         # thumb force, DUT1 hb period, console screen, kbd JTAG x2, power, quiet x2, vote,
-        # out-policy x2
-        err("cfg_gen %d != 18" % acks[-1]["cfg_gen"])
+        # out-policy x2, HDMI owner, console screen, video target
+        err("cfg_gen %d != 21" % acks[-1]["cfg_gen"])
 
     jrall = [(d["dut"], P.decode_jtag_resp(d["body"])) for d in parsed
              if d.get("kind") == "udp" and d.get("ptype") == P.T_JTAG_RESP]
@@ -345,14 +366,20 @@ def check(path):
     if not hb0 or not hb0[-1]["video_flags"] & 4:
         err("DUT0 heartbeat does not show capture enabled")
     # HDMI OUT shown (byte 109, issue 0032): passthrough (3) while the video
-    # target's video is present on auto, editable (0) once key 0x0035 = 1
+    # target's video is present on auto, editable (0) once key 0x0035 = 1;
+    # at the end (issue 0060) the video target DUT1 has no local video: the
+    # full view (4) while relayed pictures arrive, else no video (1)
     shown = [h["console_screen"] for h in hb0]
     first0 = shown.index(0) if 0 in shown else None
-    if 3 not in shown or first0 is None or any(x != 0 for x in shown[first0:]) or \
-       any(x != 3 for x in shown[:first0]):
+    if 3 not in shown or first0 is None or any(x != 3 for x in shown[:first0]):
         err("DUT0 heartbeat console_screen sequence %r (want 3 ... then 0)" % shown)
     else:
-        print("console shown (byte 109): %r" % shown)
+        tail = shown[first0:]
+        n0 = next((i for i, x in enumerate(tail) if x != 0), len(tail))
+        if any(x not in (1, 4) for x in tail[n0:]):
+            err("DUT0 heartbeat console_screen sequence %r (want 3 ... 0 ... then 1/4)" % shown)
+        else:
+            print("console shown (byte 109): %r" % shown)
     if not hb1 or hb1[-1]["addr_src"] != 2 or hb1[-1]["dut_id"] != 0x11:
         err("DUT1 heartbeat missing or addr_src/dut_id wrong")
 
@@ -441,6 +468,27 @@ def check(path):
         err("no 'present, no source' frame for machine 3 from DUT1 (%r)" % nosrc)
     print("thumbnails: %d relay frames, %d complete pictures equal to the source, no-source %r"
           % (len(ths), len(done), sorted(m for m, _ in nosrc)))
+
+    # issue 0060: inter-board relay frames carry the VLAN 1650 tag; the full
+    # view requests DUT1's machine 3 (targeted, priority, 1/1, divisor 1)
+    tagged = [(vid, u) for vid, u in (P.vlan_untag(f[:-4]) for f in frames) if vid is not None]
+    for vid, u in tagged:
+        if vid != VLAN or u[12:14] != b"\x88\xb5":
+            err("tagged frame VID %d EtherType %s" % (vid, u[12:14].hex()))
+    treqs = [(u, P.decode_thumb(u[14:])) for vid, u in tagged if u[12:14] == b"\x88\xb5"]
+    full = [u for u, t in treqs if t["sub"] == P.TH_SUB_REQ]
+    if not full:
+        err("no tagged requests for the full view")
+    for u in full:
+        if u[:6] != BCAST or u[6:12] != DUT_MAC[0] or u[14:22] != bytes.fromhex("01014d3603010303"):
+            err("full-view request %s" % u[:22].hex())
+    if any(t["sub"] != P.TH_SUB_REQ for u, t in treqs):
+        err("tagged relay frames other than requests (nothing was requested from this board)")
+    # (the full view itself is checked by the testbench: full_on; with the
+    # shortened 1 s = 1 ms a heartbeat rarely falls into it)
+    shown = sorted(set(h["console_screen"] for h in hb0))
+    print("full view: %d tagged requests (%s), console shown %r"
+          % (len(full), full[0][14:22].hex() if full else "-", shown))
 
     print("DHCP: %d DISCOVER, %d REQUEST" % (len(disc), len(reqs)))
     print("captured %d frames: %d ARP, %d ICMP, %d ACK, %d JTAG (%d keyboard), %d snapshots, %d heartbeats"

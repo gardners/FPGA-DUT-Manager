@@ -285,6 +285,10 @@ keytest kbd-leds       0x0033 board 00       "01 02 00"        "03"       "0000"
 keytest kbd-led-rgb    0x0034 board 000000000000000000000000 "000000000000000000000000" "" "0000000000000000000000 00000000000000000000000000"
 keytest console-screen 0x0035 board 00       "01 02 03 00"     "04"       "0000"
 keytest capture        0x0040 ep    00       "00"              ""         "0000"
+# issue 0060: inter-board VLAN (restored to the default 1650) and HDMI IN
+# owner (restored to 0: set it again after hwtest for a relayed slot)
+keytest vlan           0x0043 board 0672     "0000 0ffe 0672"  "0fff ffff" "06 067200"
+keytest hdmi-owner     0x0044 board 00       "01 02 03 00"     "04"       "0000"
 keytest hb-period-ms   0x0050 ep    "$(printf %04x "${orig_period[${eps[0]}]}")" "$(printf %04x "${orig_period[${eps[0]}]}")" "0000" "14 001400"
 keytest out-policy     0x0060 ep    00       "00"              "03"       "0000"
 # (0x0041 became the thumbnail forced-destination key, issue 0038; 0x0042 is the first unused one)

@@ -174,12 +174,21 @@ architecture rtl of mimas_a7_top is
   signal sel_slots : std_logic_vector(9 downto 0);
   signal vid_machine : unsigned(4 downto 0);
   signal vid_machine_ok : std_logic;
+  -- full-resolution relayed picture (issue 0060)
+  signal fv_req : mem_req_t;
+  signal fv_rsp : mem_rsp_t := MEM_RSP_IDLE;
+  signal fv_core_on, fv_en, fv_on : std_logic;
+  signal fv_buf, fv_shown : unsigned(1 downto 0);
+  signal fv_w : unsigned(10 downto 0);
+  signal fv_h : unsigned(9 downto 0);
+  signal fv_r, fv_g, fv_b : std_logic_vector(7 downto 0);
   signal tx_vic : std_logic_vector(6 downto 0);
   attribute ASYNC_REG : string;
   attribute ASYNC_REG of vrst_s : signal is "TRUE";
   -- DDR3 frame store (issue 0034): client ports of the arbiter. Port 0 is
   -- the start-up self-test; thumbnail writer/reader ports go after it.
-  constant MEM_PORTS : positive := 5;   -- 0 self-test, 1 mosaic reader, 2..4 thumbnails (0035/0038)
+  constant MEM_PORTS : positive := 6;   -- 0 self-test, 1 mosaic reader, 2..4 thumbnails (0035/0038),
+                                        -- 5 full-resolution relayed picture reader (0060)
   constant MEM_TEST_BITS : positive := 16;       -- self-test 2**16 words = 1 MiB
   signal mem_reqs : mem_req_arr_t(0 to MEM_PORTS - 1);
   signal mem_rsps : mem_rsp_arr_t(0 to MEM_PORTS - 1);
@@ -266,7 +275,9 @@ begin
       thumb_mem_req => mem_reqs(2 to 4), thumb_mem_rsp => mem_rsps(2 to 4),
       thumb_seen => core_th_seen, thumb_fresh => core_th_fresh, thumb_cur => core_th_cur,
       thumb_quarter => core_th_q,
-      vid_machine => vid_machine, vid_machine_ok => vid_machine_ok);
+      vid_machine => vid_machine, vid_machine_ok => vid_machine_ok,
+      full_on => fv_core_on, full_buf => fv_buf, full_width => fv_w, full_height => fv_h,
+      full_shown => fv_shown);
 
   ---------------------------------------------------------------- DDR3
   -- Nothing waits on DDR3: until calibration the subsystem holds ready='0'
@@ -465,6 +476,15 @@ begin
   end generate;
   mos_en <= ddr_ok when con_screen = "10" else '0';
   sel_slots <= con_slots or th_seen(9 downto 0);
+  -- full-resolution relayed picture (issue 0060): DDR3 arbiter port 5
+  mem_reqs(5) <= fv_req;
+  fv_rsp <= mem_rsps(5);
+  fv_en <= fv_core_on and mem_stat.calibrated;
+  fullv : entity work.full_display
+    port map (clk_sys => clk_sys, mem_req => fv_req, mem_rsp => fv_rsp, enable => fv_en,
+              buf => fv_buf, width => fv_w, height => fv_h, shown => fv_shown,
+              clk_pix => clk_pix, x => vx, y => vy, de => v_de,
+              r => fv_r, g => fv_g, b => fv_b, layer_on => fv_on);
   mosaic : entity work.mosaic_display
     port map (clk_sys => clk_sys, mem_req => mos_req, mem_rsp => mos_rsp, enable => mos_en,
               slots => con_slots, seen => th_seen, fresh => th_fresh, cur_buf => th_buf,
@@ -478,7 +498,8 @@ begin
               clk_pix => clk_pix, x => vx, y => vy, de_in => v_de, hs_in => v_hs, vs_in => v_vs,
               r => t_r, g => t_g, b => t_b, de_out => t_de, hs_out => t_hs, vs_out => t_vs,
               force_text => t_force, screen => con_screen, slots => sel_slots,
-              mos_on => m_on, mos_quad => m_quad, mos_r => m_r, mos_g => m_g, mos_b => m_b);
+              mos_on => m_on, mos_quad => m_quad, mos_r => m_r, mos_g => m_g, mos_b => m_b,
+              full_on => fv_on, full_r => fv_r, full_g => fv_g, full_b => fv_b);
   -- AVI VIC (issue 0037): the console mode, or for passthrough the CTA code
   -- of the measured HDMI IN geometry (720x480 -> 3, 720x576 -> 18, both
   -- 16:9 like the console; anything else 0 = no VIC). Quasi-static clk_sys

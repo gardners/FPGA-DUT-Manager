@@ -2,19 +2,32 @@
 -- issue 0038) parsed at line rate in the clk_rx domain, beside the RX slots
 -- (relay frames are up to ~8 KiB, larger than a slot).
 --
+--   * VLAN (issue 0060): with vlan /= 0 only frames carrying an 802.1Q tag
+--     with that VID are taken, with vlan = 0 only untagged ones. The 4 tag
+--     bytes are skipped (the parse index is rewound), so every offset below
+--     is the untagged one.
 --   * request (subtype 1, broadcast or to one of our MACs): at a good FCS
---     the requester's MAC, scale and rate divisor are published to clk_sys
---     (held bus + toggle; requests are >= 64 bytes apart).
+--     the requester's MAC, scale, rate divisor, flags and target machine
+--     (bytes 4..7, issue 0060) are published to clk_sys (held bus + toggle;
+--     requests are >= 64 bytes apart).
 --   * lines (subtype 2, to one of our MACs): every line becomes a LINE tag
---     (machine, row, frame low byte, scale, height) followed by RUN entries
---     (count, RGB888): one per pixel for RAW888, one per tuple for RLE24.
+--     (scale code, machine, row, frame number low 7 bits, height) followed
+--     by RUN entries (count, RGB888): one per pixel for RAW888, one per
+--     tuple for RLE24. Scales 1 (320 wide), 2 (160 wide) and 3 (1/1, width
+--     1..1024, height <= 1023; issue 0060).
 --     An END tag closes the frame: good = FCS ok, header sane, every line
---     complete (runs never cross a line end) and no FIFO overflow. Pixels
+--     complete (runs never cross a line end) and no FIFO overflow; it also
+--     carries the frame's width. Pixels
 --     of a bad frame may already be in the FIFO; thumb_rx_writer only
 --     counts the rows of good frames, so they never complete a picture.
 --   * present, no source (subtype 3, to one of our MACs): a SEEN tag at a
 --     good FCS.
--- FIFO entries (36 bits): tag(35:34) & data(33:0).
+-- FIFO entries (36 bits): tag(35:34) & data(33:0):
+--   LINE "00": sc(33:32) (00 1/2, 01 1/4, 10 1/1) machine(31:27) row(26:17)
+--              frame(16:10) height(9:0)
+--   RUN  "01": 00 count(31:24) RGB(23:0)
+--   END  "10": width(11:1) good(0)
+--   SEEN "11": machine(4:0)
 --
 -- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.
 library ieee;
@@ -30,6 +43,7 @@ entity thumb_rx_tap is
     rx_dv    : in  std_logic;
     rxd      : in  std_logic_vector(7 downto 0);
     mac0, mac1 : in std_logic_vector(47 downto 0);  -- quasi-static (sys domain)
+    vlan     : in  unsigned(11 downto 0) := (others => '0');   -- quasi-static; 0 = untagged
     -- clk_sys side
     sclk     : in  std_logic;
     f_valid  : out std_logic;
@@ -39,6 +53,8 @@ entity thumb_rx_tap is
     req_mac  : out std_logic_vector(47 downto 0);
     req_scale: out std_logic_vector(7 downto 0);
     req_div  : out std_logic_vector(7 downto 0);
+    req_flags  : out std_logic_vector(7 downto 0);  -- b0 targeted, b1 priority (issue 0060)
+    req_target : out std_logic_vector(7 downto 0);
     frames   : out unsigned(15 downto 0)            -- good relay frames (clk_rx)
   );
 end entity;
@@ -55,6 +71,11 @@ architecture rtl of thumb_rx_tap is
   signal idx : unsigned(13 downto 0) := (others => '0');
   signal crc : std_logic_vector(31 downto 0) := (others => '1');
   signal m0, m1 : std_logic_vector(47 downto 0) := (others => '0');
+  signal vl : unsigned(11 downto 0) := (others => '0');
+  signal b12 : std_logic_vector(7 downto 0) := (others => '0');
+  signal tagged, vok : std_logic := '0';
+  signal skip : unsigned(1 downto 0) := "00";       -- tag bytes (TCI) still to skip
+  signal vid : unsigned(11 downto 0) := (others => '0');
   signal okd0, okd1, okb : std_logic := '0';       -- destination matches so far
   signal hdr_ok : std_logic := '0';                -- EtherType/version/magic so far
   signal sub : std_logic_vector(7 downto 0) := (others => '0');
@@ -82,7 +103,7 @@ architecture rtl of thumb_rx_tap is
   signal nfr : unsigned(15 downto 0) := (others => '0');
   -- request to clk_sys
   signal rq_mac : std_logic_vector(47 downto 0) := (others => '0');
-  signal rq_sc, rq_dv : std_logic_vector(7 downto 0) := (others => '0');
+  signal rq_sc, rq_dv, rq_fl, rq_tg : std_logic_vector(7 downto 0) := (others => '0');
   signal rq_t : std_logic := '0';
   signal rq_s : std_logic_vector(3 downto 0) := (others => '0');
   attribute ASYNC_REG : string;
@@ -90,11 +111,11 @@ architecture rtl of thumb_rx_tap is
 
   function line_tag(m : unsigned(4 downto 0); r : unsigned(15 downto 0); f : std_logic_vector(7 downto 0);
                     sc : std_logic_vector(7 downto 0); h : unsigned(15 downto 0)) return std_logic_vector is
-    variable q : std_logic;
+    variable q : std_logic_vector(1 downto 0);
   begin
-    if sc = x"02" then q := '1'; else q := '0'; end if;
-    return G_LINE & "0000" & std_logic_vector(m) & std_logic_vector(r(7 downto 0)) & f & q &
-           std_logic_vector(h(7 downto 0));
+    if sc = x"02" then q := "01"; elsif sc = x"03" then q := "10"; else q := "00"; end if;
+    return G_LINE & q & std_logic_vector(m) & std_logic_vector(r(9 downto 0)) & f(6 downto 0) &
+           std_logic_vector(h(9 downto 0));
   end function;
 begin
   fifo : entity work.async_fifo_bram generic map (FIFO_AW, 36)
@@ -110,7 +131,7 @@ begin
     variable pushed : boolean;
   begin
     if rising_edge(clk) then
-      m0 <= mac0; m1 <= mac1;
+      m0 <= mac0; m1 <= mac1; vl <= vlan;
       f_we <= '0';
       room := room_r = '1';                  -- always leave room for END
       if f_used < DEPTH - 5 then room_r <= '1'; else room_r <= '0'; end if;
@@ -122,6 +143,7 @@ begin
             idx <= (others => '0');
             crc <= (others => '1');
             okd0 <= '1'; okd1 <= '1'; okb <= '1'; hdr_ok <= '1';
+            tagged <= '0'; skip <= "00"; vok <= '0';
             in_pl <= '0'; bad <= '0'; line_pend <= '0'; mbad <= '0'; chk <= '0';
           end if;
 
@@ -131,7 +153,13 @@ begin
           elsif rxd /= x"55" then st <= S_IDLE; end if;
 
         when S_DATA =>
-          if rx_dv = '1' then
+          if rx_dv = '1' and skip /= 0 then
+            -- 802.1Q TCI (PCP, DEI, VID): not parsed further, idx stays at 12
+            crc <= crc32_byte(crc, rxd);
+            skip <= skip - 1;
+            if skip = 2 then vid(11 downto 8) <= unsigned(rxd(3 downto 0));
+            else vid(7 downto 0) <= unsigned(rxd); end if;
+          elsif rx_dv = '1' then
             b := rxd;
             crc <= crc32_byte(crc, b);
             if idx /= 16383 then idx <= idx + 1; end if;
@@ -145,17 +173,32 @@ begin
               src <= src(39 downto 0) & b;
             end if;
             case i is
-              when 12 => if b /= TH_ETYPE(15 downto 8) then hdr_ok <= '0'; end if;
-              when 13 => if b /= TH_ETYPE(7 downto 0) then hdr_ok <= '0'; end if;
-              when 14 => if b /= TH_VERSION then hdr_ok <= '0'; end if;
+              when 12 => b12 <= b;
+              when 13 =>
+                if tagged = '0' and b12 = TH_TPID(15 downto 8) and b = TH_TPID(7 downto 0) then
+                  -- 802.1Q tag: skip the TCI, then parse the EtherType at 12 again
+                  tagged <= '1';
+                  skip   <= "10";
+                  idx    <= to_unsigned(12, 14);
+                elsif b12 /= TH_ETYPE(15 downto 8) or b /= TH_ETYPE(7 downto 0) then
+                  hdr_ok <= '0';
+                end if;
+              when 14 =>
+                if b /= TH_VERSION then hdr_ok <= '0'; end if;
+                -- VLAN known from here on (registered: timing)
+                if (vl = 0 and tagged = '0') or (vl /= 0 and tagged = '1' and vid = vl) then
+                  vok <= '1';
+                else
+                  vok <= '0';
+                end if;
               when 15 => sub <= b;
               when 16 => if b /= TH_MAGIC(15 downto 8) then hdr_ok <= '0'; end if;
               when 17 => if b /= TH_MAGIC(7 downto 0) then hdr_ok <= '0'; end if;
               when 18 => machine <= unsigned(b(4 downto 0)); b18 <= b;     -- request: scale
                          if b(7 downto 5) /= "000" then mbad <= '1'; end if;
               when 19 => rdiv <= b;                                          -- request: divisor
-              when 20 => scale <= b;
-              when 21 => enc <= b;
+              when 20 => scale <= b;                                         -- request: flags
+              when 21 => enc <= b;                                           -- request: target
                          if b = TH_ENC_RAW then enc_raw <= '1'; else enc_raw <= '0'; end if;
               when 25 => frame8 <= b;
               when 26 => row(15 downto 8) <= unsigned(b);
@@ -171,8 +214,9 @@ begin
                 -- header sanity, registered a byte early (timing)
                 sane <= '0';
                 if mbad = '0' and (enc = TH_ENC_RAW or enc = TH_ENC_RLE) and
-                   ((scale = x"01" and width = 320) or (scale = x"02" and width = 160)) and
-                   nlines /= 0 and height /= 0 and height <= 200 and row + nlines <= height then
+                   ((((scale = x"01" and width = 320) or (scale = x"02" and width = 160)) and height <= 200) or
+                    (scale = x"03" and width /= 0 and width <= 1024 and height <= 1023)) and
+                   nlines /= 0 and height /= 0 and row + nlines <= height then
                   sane <= '1';
                 end if;
               when 35 =>
@@ -182,7 +226,7 @@ begin
                 ldone <= (others => '0');
                 bi <= (others => '0');
                 -- a lines frame for us with a sane header: first LINE tag
-                if hdr_ok = '1' and (okd0 = '1' or okd1 = '1') and sub = TH_SUB_LINES then
+                if hdr_ok = '1' and vok = '1' and (okd0 = '1' or okd1 = '1') and sub = TH_SUB_LINES then
                   if sane = '1' and (plen(15 downto 8) /= 0 or b /= x"00") then
                     in_pl <= '1';
                     if room then
@@ -255,11 +299,13 @@ begin
           else
             -- end of frame (FCS included in the CRC)
             st <= S_IDLE;
-            if hdr_ok = '1' and crc = CRC32_RESIDUE then
+            if hdr_ok = '1' and vok = '1' and crc = CRC32_RESIDUE then
               if sub = TH_SUB_REQ and (okb = '1' or okd0 = '1' or okd1 = '1') then
                 rq_mac <= src;
                 rq_sc  <= b18;
                 rq_dv  <= rdiv;
+                rq_fl  <= scale;
+                rq_tg  <= enc;
                 rq_t   <= not rq_t;
                 nfr    <= nfr + 1;
               elsif sub = TH_SUB_NOSRC and (okd0 = '1' or okd1 = '1') and mbad = '0' then
@@ -268,13 +314,13 @@ begin
                 nfr   <= nfr + 1;
               end if;
             end if;
-            if sub = TH_SUB_LINES and hdr_ok = '1' and (okd0 = '1' or okd1 = '1') and idx > 35 then
+            if sub = TH_SUB_LINES and hdr_ok = '1' and vok = '1' and (okd0 = '1' or okd1 = '1') and idx > 35 then
               f_we <= '1';
               if crc = CRC32_RESIDUE and bad = '0' and ldone = nlines and line_pend = '0' then
-                f_din <= G_END & (33 downto 1 => '0') & '1';
+                f_din <= G_END & (33 downto 12 => '0') & std_logic_vector(width(10 downto 0)) & '1';
                 nfr   <= nfr + 1;
               else
-                f_din <= G_END & (33 downto 0 => '0');
+                f_din <= G_END & (33 downto 12 => '0') & std_logic_vector(width(10 downto 0)) & '0';
               end if;
             end if;
           end if;
@@ -292,6 +338,8 @@ begin
         req_mac   <= rq_mac;
         req_scale <= rq_sc;
         req_div   <= rq_dv;
+        req_flags <= rq_fl;
+        req_target <= rq_tg;
       end if;
     end if;
   end process;

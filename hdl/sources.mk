@@ -49,6 +49,7 @@ SYNTH_SOURCES := \
 	$(HDL_SRC)/video/video_pt_ctrl.vhd \
 	$(HDL_SRC)/video/mosaic_pkg.vhd \
 	$(HDL_SRC)/video/mosaic_display.vhd \
+	$(HDL_SRC)/video/full_display.vhd \
 	$(HDL_SRC)/video/text_display.vhd \
 	$(HDL_SRC)/video/text_rx_tap.vhd \
 	$(HDL_SRC)/video/seg7_status.vhd \

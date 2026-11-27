@@ -118,7 +118,16 @@ entity supervisor_core is
     -- machine number of the video target when it is one of this board's
     -- DUTs (HDMI OUT SPD InfoFrame, issue 0037)
     vid_machine    : out unsigned(4 downto 0);
-    vid_machine_ok : out std_logic
+    vid_machine_ok : out std_logic;
+    -- full-resolution relayed picture of the video target when it has no
+    -- local video (issue 0060): show it (full_on), from DDR3 buffer
+    -- full_buf (mem_pkg full_addr), full_width x full_height; full_shown =
+    -- the buffer the display latched at its last vertical blank
+    full_on     : out std_logic;
+    full_buf    : out unsigned(1 downto 0);
+    full_width  : out unsigned(10 downto 0);
+    full_height : out unsigned(9 downto 0);
+    full_shown  : in  unsigned(1 downto 0) := "00"
   );
 end entity;
 
@@ -183,7 +192,15 @@ architecture rtl of supervisor_core is
   signal tf_dout : std_logic_vector(35 downto 0);
   signal trq_stb : std_logic;
   signal trq_mac : std_logic_vector(47 downto 0);
-  signal trq_sc, trq_dv : std_logic_vector(7 downto 0);
+  signal trq_sc, trq_dv, trq_fl, trq_tg : std_logic_vector(7 downto 0);
+  signal tq_fl, tq_tg : std_logic_vector(7 downto 0);
+  -- HDMI IN owner / relayed local video / full view (issue 0060)
+  signal own : std_logic_vector(1 downto 0) := "11";   -- DUT i owns the HDMI IN
+  signal sel_own : std_logic := '1';                  -- the video target has local video
+  signal vid_sel : std_logic := '0';                  -- ... and it is decoded
+  signal full_want, full_fresh, full_ev : std_logic := '0';
+  signal full_m : unsigned(4 downto 0) := (others => '0');
+  signal full_age : unsigned(10 downto 0) := (others => '1');
   signal tr_ev, tr_buf, tr_q, tr_sev : std_logic;
   signal tr_m, tr_sm : unsigned(4 downto 0);
   signal tp_valid, tp_taken, tq_valid, tq_taken : std_logic;
@@ -455,7 +472,7 @@ begin
       rast_rdata => rast_rdata,
       th_valid => tp_valid, th_pkt => tp, th_taken => tp_taken, th_raddr => tp_raddr,
       th_rdata => tp_rdata, treq_valid => tq_valid, treq_scale => tq_sc, treq_div => tq_dv,
-      treq_taken => tq_taken,
+      treq_flags => tq_fl, treq_target => tq_tg, treq_taken => tq_taken,
       mac_start => mac_start, mac_base => mac_base, mac_len => mac_len,
       mac_busy => mac_busy, mem_we => txm_we, mem_addr => txm_wa,
       mem_data => txm_wd, frames_sent => frames_sent);
@@ -720,7 +737,7 @@ begin
     if rising_edge(clk_sys) then
       -- never to a broadcast/multicast telemetry destination: ~570 Mb/s of
       -- raster would flood the whole segment (issue 0023 hardware note)
-      if sel_vid < 2 and bcfg.capture_en(cap_dut) = '1' and ep_enable(cap_dut) = '1' and
+      if sel_vid < 2 and sel_own = '1' and bcfg.capture_en(cap_dut) = '1' and ep_enable(cap_dut) = '1' and
          ip_eff(cap_dut) /= x"00000000" and cfg(cap_dut).dest_ip /= x"FFFFFFFF" and
          cfg(cap_dut).dest_mac(40) = '0' then
         cap_on <= '1';
@@ -746,9 +763,45 @@ begin
   process (clk_sys)
   begin
     if rising_edge(clk_sys) then
-      if sel_vid < 2 and vid_b1 = '1' then tc_en <= '1'; else tc_en <= '0'; end if;
-      if sel_vid(0) = '1' then tc_m <= m1; else tc_m <= m0; end if;
+      -- HDMI IN owner (key 0x0044, issue 0060): 0 the video target's DUT
+      -- (both share the input), 1 DUT0, 2 DUT1, 3 none
+      case bcfg.hdmi_own is
+        when "00"   => own <= "11";
+        when "01"   => own <= "01";
+        when "10"   => own <= "10";
+        when others => own <= "00";
+      end case;
+      if bcfg.hdmi_own = "00" or (sel_vid < 2 and own(to_integer(sel_vid(0 downto 0))) = '1') then
+        sel_own <= '1';
+      else
+        sel_own <= '0';
+      end if;
+      vid_sel <= vid_b1 and sel_own;
+      case bcfg.hdmi_own is
+        when "00" =>
+          if sel_vid < 2 and vid_b1 = '1' then tc_en <= '1'; else tc_en <= '0'; end if;
+          if sel_vid(0) = '1' then tc_m <= m1; else tc_m <= m0; end if;
+        when "01" => tc_en <= vid_b1; tc_m <= m0;
+        when "10" => tc_en <= vid_b1; tc_m <= m1;
+        when others => tc_en <= '0';
+      end case;
       if scr = "10" then selecting <= '1'; else selecting <= '0'; end if;
+      -- full view: the video target is a local machine without local video,
+      -- the console is on auto and no selection is pending
+      if sel_vid < 2 and sel_own = '0' and hk_sel = '0' and bcfg.con_screen = x"00" and
+         text_forced = '0' then
+        full_want <= '1';
+      else
+        full_want <= '0';
+      end if;
+      if sel_vid(0) = '1' then full_m <= m1; else full_m <= m0; end if;
+      -- a complete full picture in the last second
+      if full_ev = '1' then
+        full_age <= (others => '0');
+      elsif tick_1ms = '1' and full_age /= 2047 then
+        full_age <= full_age + 1;
+      end if;
+      if full_want = '1' and full_age < THUMB_MS_PER_S then full_fresh <= '1'; else full_fresh <= '0'; end if;
     end if;
   end process;
   tcap : entity work.thumb_capture
@@ -769,28 +822,37 @@ begin
   thtap : entity work.thumb_rx_tap
     generic map (FIFO_AW => 11)
     port map (clk => clk_rx, rx_dv => rx_dv, rxd => rxd, mac0 => cfg(0).mac, mac1 => cfg(1).mac,
+              vlan => bcfg.vlan,
               sclk => clk_sys, f_valid => tf_valid, f_dout => tf_dout, f_pop => tf_pop,
               req_stb => trq_stb, req_mac => trq_mac, req_scale => trq_sc, req_div => trq_dv,
+              req_flags => trq_fl, req_target => trq_tg,
               frames => open);
   trw : entity work.thumb_rx_writer
     port map (clk => clk_sys, f_valid => tf_valid, f_dout => tf_dout, f_pop => tf_pop,
-              local0 => m0, local1 => m1, cur => th_cur,
+              local0 => m0, local1 => m1, relay0 => not own(0), relay1 => not own(1), cur => th_cur,
               mem_req => thumb_mem_req(1), mem_rsp => thumb_mem_rsp(1),
               ev => tr_ev, ev_machine => tr_m, ev_buf => tr_buf, ev_quarter => tr_q,
-              seen_ev => tr_sev, seen_machine => tr_sm, pictures => open);
+              seen_ev => tr_sev, seen_machine => tr_sm, pictures => open,
+              full_en => full_want, full_m => full_m, full_shown => full_shown,
+              full_ev => full_ev, full_buf => full_buf, full_width => full_width,
+              full_height => full_height, full_pics => open);
+  full_on <= full_fresh;
   ttx : entity work.thumb_tx
     generic map (MS_PER_S => THUMB_MS_PER_S)
     port map (clk => clk_sys, tick_1ms => tick_1ms, local0 => m0, local1 => m1,
               selecting => selecting, n_seen => th_nseen,
               force_mac => bcfg.thumb_mac, force_scale => bcfg.thumb_scale, force_div => bcfg.thumb_div,
               req_stb => trq_stb, req_mac => trq_mac, req_scale => trq_sc, req_div => trq_dv,
+              req_flags => trq_fl, req_target => trq_tg,
+              full_want => full_want, full_machine => full_m, rx_ev => tr_ev, rx_machine => tr_m,
               cap_done => tc_done, cap_machine => tc_dm, cap_buf => tc_buf, cap_quarter => tc_q,
               cap_rows => tc_rows, eff_quarter => te_q, eff_div => te_div,
               lock_valid => tl_v, lock_machine => tl_m, lock_buf => tl_b,
               mem_req => thumb_mem_req(2), mem_rsp => thumb_mem_rsp(2),
               pkt_valid => tp_valid, pkt => tp, pkt_taken => tp_taken,
               pb_raddr => tp_raddr, pb_rdata => tp_rdata,
-              treq_valid => tq_valid, treq_scale => tq_sc, treq_div => tq_dv, treq_taken => tq_taken,
+              treq_valid => tq_valid, treq_scale => tq_sc, treq_div => tq_dv,
+              treq_flags => tq_fl, treq_target => tq_tg, treq_taken => tq_taken,
               streaming => open, pictures => open);
 
   ---------------------------------------------------------------- physical keyboard
@@ -839,7 +901,7 @@ begin
          "01" when bcfg.con_screen = x"02" else
          "10" when bcfg.con_screen = x"03" else
          "10" when hk_sel = '1' else
-         "00" when text_forced = '1' or vid_b1 = '1' else
+         "00" when text_forced = '1' or vid_sel = '1' or full_fresh = '1' else
          "01";
   con_screen <= scr;
   -- passthrough (issue 0032): the auto screen choice with the video target
@@ -851,7 +913,7 @@ begin
   begin
     if rising_edge(clk_sys) then
       if bcfg.con_screen /= x"01" and bcfg.con_screen /= x"02" and bcfg.con_screen /= x"03" and
-         hk_sel = '0' and text_forced = '0' and vid_b1 = '1' and sel_vid < 2 then
+         hk_sel = '0' and text_forced = '0' and vid_b1 = '1' and sel_vid < 2 and sel_own = '1' then
         pt_req_r <= '1';
       else
         pt_req_r <= '0';
@@ -860,6 +922,7 @@ begin
   end process;
   pt_request <= pt_req_r;
   bstat.con_shown <= CON_SHOWN_PASSTHROUGH when pt_active = '1' else
+                     CON_SHOWN_RELAYED when full_fresh = '1' else
                      "000000" & std_logic_vector(scr);
 
   -- selection: management writes or front-panel buttons (last writer wins);

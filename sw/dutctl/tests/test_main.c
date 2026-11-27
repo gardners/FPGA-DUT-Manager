@@ -603,6 +603,21 @@ static void test_thumbs(void)
 
   v = vec("thumb_badver");
   CHECK(dp_decode_thumb(v->data + 14, v->len - 14, &t) < 0);
+
+  /* issue 0060: request flags / target, scale 3 (1/1) lines */
+  v = vec("thumb_req_target");
+  CHECK(dp_encode_thumb_request2(req, DP_TH_SCALE_FULL, 1, DP_TH_RF_TARGETED | DP_TH_RF_PRIORITY, 5) == 8 &&
+        !memcmp(req, v->data + 14, 8));
+  CHECK(!memcmp(req, "\x01\x01\x4d\x36\x03\x01\x03\x05", 8));
+  CHECK(dp_encode_thumb_request(req, DP_TH_SCALE_HALF, 2) == 8 && !memcmp(req, "\x01\x01\x4d\x36\x01\x02\x00\x00", 8));
+  CHECK(dp_decode_thumb(v->data + 14, v->len - 14, &t) == 0);
+  CHECK(t.subtype == DP_TH_SUB_REQ && t.scale == 3 && t.div == 1 && t.rflags == 3 && t.target == 5);
+  v = vec("thumb_full");
+  CHECK(dp_decode_thumb(v->data + 14, v->len - 14, &t) == 0);
+  CHECK(t.scale == DP_TH_SCALE_FULL && t.width == 720 && t.height == 480 && t.row == 479 && t.nlines == 1);
+  CHECK(t.encoding == DP_ENC_RLE24 && t.payload_bytes == 12);
+  static uint8_t full[3 * 720];
+  CHECK(dp_thumb_lines(&t, full, sizeof full) == 1 && full[0] == 1 && full[3 * 720 - 1] == 3);
 }
 
 /* ------------------------------------------------------------ PNG writer */

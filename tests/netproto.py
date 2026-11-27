@@ -25,6 +25,10 @@ K_KJ_QUIET = 0x0063  # kbd JTAG quiet: 0 off, 1 (default) pause the kbd host dur
 KJ_QUIET_OFF, KJ_QUIET_PAUSE, KJ_QUIET_STOP = 0, 1, 2
 K_TDO_VOTE = 0x0064  # JTAG TDO sampling: 0 single, 1 majority of 3 (half >= 4), 2 of 5 (half >= 6) (issue 0054)
 TDO_VOTE_SINGLE, TDO_VOTE_3, TDO_VOTE_5 = 0, 1, 2
+K_VLAN = 0x0043  # inter-board VLAN ID u16 (0..4094, default 1650; 0 = untagged), issue 0060
+K_HDMI_OWNER = 0x0044  # HDMI IN owner: 0 follows the video target (default), 1 DUT0, 2 DUT1, 3 none
+HDMI_OWNER_FOLLOW, HDMI_OWNER_DUT0, HDMI_OWNER_DUT1, HDMI_OWNER_NONE = 0, 1, 2, 3
+VLAN_DEFAULT = 1650
 # JTAG_REQ flags (offset 18): b0 abort/reset session, b1 target = physical
 # keyboard CPLD (ADR 0014); JTAG_RESP byte 17 = target (0 DUT, 1 keyboard)
 JF_ABORT, JF_KBD = 0x0001, 0x0002
@@ -35,8 +39,9 @@ CAP_UART, CAP_JTAG, CAP_KBD_DEV, CAP_PHYS_KBD, CAP_HDMI, CAP_THUMBS, CAP_KBD_JTA
 # heartbeat byte 76 kbd_phys_type
 PHYS_TYPES = {0: "none", 1: "MK-I", 2: "MK-II", 3: "type3"}
 # heartbeat byte 109, what HDMI OUT shows (issues 0029, 0032)
-CON_SHOWN = {0: "editable", 1: "no-video", 2: "select", 3: "passthrough"}
+CON_SHOWN = {0: "editable", 1: "no-video", 2: "select", 3: "passthrough", 4: "relayed"}
 CON_PASSTHROUGH = 3
+CON_RELAYED = 4   # full-resolution relayed picture of the video target (issue 0060)
 # heartbeat byte 108 video_flags (ADR 0005 s8; b3/b4 issue 0040)
 VF_CLOCK, VF_LOCKED, VF_CAPTURE, VF_HDMI, VF_ISLANDS = 0x01, 0x02, 0x04, 0x08, 0x10
 PORT_MGMT, PORT_HB, PORT_KBD, PORT_UART, PORT_JTAG = 6500, 6501, 6502, 6503, 6507
@@ -388,10 +393,13 @@ ETH_THUMB = 0x88B5
 TH_VERSION = 1
 TH_SUB_REQ, TH_SUB_LINES, TH_SUB_NOSRC = 1, 2, 3
 TH_SCALE_HALF, TH_SCALE_QUARTER = 1, 2      # 320x200 / 160x100 tiles
+TH_SCALE_FULL = 3                           # 1/1: the whole active picture (issue 0060)
+# request byte 6 flags (issue 0060, hardweb hwvs_implementation.md s7)
+TH_RF_TARGETED, TH_RF_PRIORITY = 0x01, 0x02
 TH_ENC_RAW, TH_ENC_RLE24 = 0, 1             # RAW888 / RLE24 (as raster)
 TH_FLAG_PRESENT, TH_FLAG_LAST = 1, 2
 TH_HDR = ">BBHBBBBIHHHHH"                   # 22 bytes after the Ethernet header
-TH_REQ = ">BBHBBH"                          # 8 bytes
+TH_REQ = ">BBHBBBB"                         # 8 bytes: ..., scale, div, flags, target
 TH_PKT_BUDGET = 8000                        # payload bytes per frame (FPGA packing)
 BCAST_MAC = b"\xff" * 6
 
@@ -400,9 +408,30 @@ def thumb_tile_size(scale):
     return (320, 200) if scale == TH_SCALE_HALF else (160, 100)
 
 
-def thumb_request(src, scale=TH_SCALE_HALF, div=2):
-    """Broadcast request frame (no FCS)."""
-    return eth(BCAST_MAC, src, ETH_THUMB, struct.pack(TH_REQ, TH_VERSION, TH_SUB_REQ, MAGIC, scale, div, 0))
+def thumb_request_body(scale=TH_SCALE_HALF, div=2, flags=0, target=0):
+    """Request body (8 bytes). flags: TH_RF_TARGETED (target = machine
+    number in byte 7), TH_RF_PRIORITY."""
+    return struct.pack(TH_REQ, TH_VERSION, TH_SUB_REQ, MAGIC, scale, div, flags, target)
+
+
+def vlan_tag(frame, vid):
+    """Insert an 802.1Q tag (TPID 0x8100, PCP 0, DEI 0, VID) after the source
+    MAC of an untagged frame (no FCS). vid 0 = leave untagged."""
+    if not vid:
+        return frame
+    return frame[:12] + struct.pack(">HH", 0x8100, vid & 0x0FFF) + frame[12:]
+
+
+def vlan_untag(frame):
+    """(vid, untagged frame): vid None when the frame carries no 802.1Q tag."""
+    if len(frame) >= 18 and frame[12:14] == b"\x81\x00":
+        return struct.unpack(">H", frame[14:16])[0] & 0x0FFF, frame[:12] + frame[16:]
+    return None, frame
+
+
+def thumb_request(src, scale=TH_SCALE_HALF, div=2, flags=0, target=0, vlan=0):
+    """Broadcast request frame (no FCS), tagged with vlan unless 0."""
+    return vlan_tag(eth(BCAST_MAC, src, ETH_THUMB, thumb_request_body(scale, div, flags, target)), vlan)
 
 
 def thumb_line_bytes(line, enc):
@@ -410,10 +439,12 @@ def thumb_line_bytes(line, enc):
     return line if enc == TH_ENC_RAW else rle24_encode(line)
 
 
-def thumb_frame(dst, src, machine, frame, row, lines, scale, height, enc=None, flags=TH_FLAG_PRESENT):
+def thumb_frame(dst, src, machine, frame, row, lines, scale, height, enc=None, flags=TH_FLAG_PRESENT,
+                vlan=0):
     """Lines frame (no FCS). lines: list of RGB888 byte strings (one tile row
-    each). enc None = RLE24 when the RLE24 bytes of all lines are fewer."""
-    width = thumb_tile_size(scale)[0]
+    each). enc None = RLE24 when the RLE24 bytes of all lines are fewer.
+    Scale 3 (1/1): the width is the line length (the active width)."""
+    width = len(lines[0]) // 3 if scale == TH_SCALE_FULL else thumb_tile_size(scale)[0]
     assert all(len(x) == 3 * width for x in lines)
     if enc is None:
         enc = TH_ENC_RLE24 if sum(len(rle24_encode(x)) for x in lines) < sum(len(x) for x in lines) \
@@ -421,15 +452,15 @@ def thumb_frame(dst, src, machine, frame, row, lines, scale, height, enc=None, f
     pl = b"".join(thumb_line_bytes(x, enc) for x in lines)
     hdr = struct.pack(TH_HDR, TH_VERSION, TH_SUB_LINES, MAGIC, machine, flags, scale, enc, frame,
                       row, len(lines), width, height, len(pl))
-    return eth(dst, src, ETH_THUMB, hdr + pl)
+    return vlan_tag(eth(dst, src, ETH_THUMB, hdr + pl), vlan)
 
 
-def thumb_nosrc(dst, src, machine):
+def thumb_nosrc(dst, src, machine, vlan=0):
     hdr = struct.pack(TH_HDR, TH_VERSION, TH_SUB_NOSRC, MAGIC, machine, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-    return eth(dst, src, ETH_THUMB, hdr)
+    return vlan_tag(eth(dst, src, ETH_THUMB, hdr), vlan)
 
 
-def thumb_packets(dst, src, machine, frame, tile, scale, budget=TH_PKT_BUDGET):
+def thumb_packets(dst, src, machine, frame, tile, scale, budget=TH_PKT_BUDGET, vlan=0):
     """The FPGA's packing (thumb_tx): per line RLE24 when strictly smaller
     than RAW888; lines are packed while the encoding stays the same and the
     payload stays within budget. tile: list of RGB888 rows. Flag b1 marks the
@@ -449,7 +480,7 @@ def thumb_packets(dst, src, machine, frame, tile, scale, budget=TH_PKT_BUDGET):
     if cur:
         out.append((first, cur, cur_enc))
     return [thumb_frame(dst, src, machine, frame, f, ls, scale, len(tile), enc=e,
-                        flags=TH_FLAG_PRESENT | (TH_FLAG_LAST if k == len(out) - 1 else 0))
+                        flags=TH_FLAG_PRESENT | (TH_FLAG_LAST if k == len(out) - 1 else 0), vlan=vlan)
             for k, (f, ls, e) in enumerate(out)]
 
 
@@ -462,8 +493,8 @@ def decode_thumb(body):
     if ver != TH_VERSION or magic != MAGIC:
         raise ValueError("not a thumbnail frame (version %d magic %04x)" % (ver, magic))
     if sub == TH_SUB_REQ:
-        _, _, _, scale, div, _ = struct.unpack(TH_REQ, body[:8])
-        return {"sub": sub, "scale": scale, "div": div}
+        _, _, _, scale, div, flags, target = struct.unpack(TH_REQ, body[:8])
+        return {"sub": sub, "scale": scale, "div": div, "flags": flags, "target": target}
     if len(body) < 22:
         raise ValueError("thumbnail frame too short")
     f = {}
@@ -511,3 +542,49 @@ def thumb_box(pixel, x0, y0, s, w, h):
             row += bytes(a // (s * s) for a in acc)
         rows.append(bytes(row))
     return rows
+
+
+# ------------------------------------------- self-test (make test-sw)
+def selftest():
+    """Byte-exact checks of the thumbnail relay extensions (issue 0060;
+    hardweb docs/hwvs_implementation.md section 7). Returns 0 when passing."""
+    errors = []
+
+    def want(name, got, hexs):
+        if got != bytes.fromhex(hexs):
+            errors.append("%s: %s != %s" % (name, got.hex(" "), hexs))
+
+    # today's request (untargeted 1/2, divisor 2) and the section 7 example
+    want("request untargeted", thumb_request_body(TH_SCALE_HALF, 2), "01 01 4D 36 01 02 00 00")
+    want("request targeted", thumb_request_body(TH_SCALE_FULL, 1, TH_RF_TARGETED | TH_RF_PRIORITY, 5),
+         "01 01 4D 36 03 01 03 05")
+    d = decode_thumb(bytes.fromhex("01014D3603010305"))
+    if (d["scale"], d["div"], d["flags"], d["target"]) != (3, 1, 3, 5):
+        errors.append("decode targeted request %r" % d)
+    # 802.1Q: TPID 0x8100, PCP 0, VID 1650 (0x672) after the source MAC
+    src = mac("02:4D:36:35:00:00")
+    r = thumb_request(src, TH_SCALE_HALF, 2, vlan=VLAN_DEFAULT)
+    want("tagged request", r, "ffffffffffff 024d36350000 8100 0672 88b5 01014d3601020000")
+    if vlan_untag(r) != (VLAN_DEFAULT, thumb_request(src, TH_SCALE_HALF, 2)):
+        errors.append("vlan_untag")
+    if vlan_untag(thumb_request(src))[0] is not None:
+        errors.append("untagged frame reported tagged")
+    if len(with_fcs(r)) != 64:
+        errors.append("tagged request not padded to 60 + FCS")
+    # scale 3 lines frame: width = active width, height = active height
+    line = bytes([1, 2, 3]) * 720
+    f = thumb_frame(src, src, 1, 9, 479, [line], TH_SCALE_FULL, 480, vlan=VLAN_DEFAULT)
+    vid, u = vlan_untag(f)
+    t = decode_thumb(u[14:])
+    if vid != VLAN_DEFAULT or (t["scale"], t["width"], t["height"], t["row"], t["enc"]) != (3, 720, 480, 479, 1) \
+            or t["lines"] != [line] or t["payload_bytes"] != 12:
+        errors.append("scale 3 lines frame %r" % {k: v for k, v in t.items() if k != "lines"})
+    for e in errors:
+        print("ERROR:", e)
+    print("netproto selftest", "FAILED" if errors else "PASSED")
+    return 1 if errors else 0
+
+
+if __name__ == "__main__":
+    import sys
+    sys.exit(selftest())

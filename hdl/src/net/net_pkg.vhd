@@ -50,6 +50,11 @@ package net_pkg is
     -- keyboard JTAG quiet (key 0x0063) / TDO sampling (key 0x0064), issue 0054
     kj_quiet   : std_logic_vector(1 downto 0);
     tdo_vote   : std_logic_vector(1 downto 0);
+    -- inter-board VLAN ID (key 0x0043, issue 0060): 0 = untagged
+    vlan       : unsigned(11 downto 0);
+    -- HDMI IN owner (key 0x0044, issue 0060): 0 the video target's DUT,
+    -- 1 DUT0, 2 DUT1, 3 none
+    hdmi_own   : std_logic_vector(1 downto 0);
   end record;
 
   -- a pending reply addressed to a requester

@@ -28,10 +28,12 @@ def tile(m, w, h, zero=False):
 
 DST_A = P.mac("02:00:00:00:00:aa")
 DST_R = P.mac("02:4D:36:35:00:22")
+DST_T = P.mac("02:4D:36:35:00:33")     # targeted requester (issue 0060)
 # (machine, endpoint, dst, frame, scale, tile)
 PICTURES = [(4, 0, DST_A, 1, P.TH_SCALE_HALF, tile(4, 320, 16)),
             (5, 1, DST_A, 2, P.TH_SCALE_QUARTER, tile(5, 160, 6)),
-            (4, 0, DST_R, 3, P.TH_SCALE_QUARTER, tile(4, 160, 3, zero=True))]
+            (4, 0, DST_R, 3, P.TH_SCALE_QUARTER, tile(4, 160, 3, zero=True)),
+            (5, 1, DST_T, 4, P.TH_SCALE_QUARTER, tile(5, 160, 6))]
 
 
 def check(path):
@@ -41,12 +43,16 @@ def check(path):
         for line in fh:
             p = line.split()
             if p[0] == "treq":
-                treqs.append(int(p[1]))
+                treqs.append(tuple(int(x) for x in p[1:5]))
                 continue
             sub, d, dst = int(p[1]), int(p[2]), bytes.fromhex(p[3])
             (machine, flags, scale, enc, frame, row, nlines, height, width,
              nbytes) = (int(x) for x in p[4:14])
-            payload = bytes.fromhex(p[14]) if len(p) > 14 else b""
+            tag = p[14] == "1"
+            payload = bytes.fromhex(p[15]) if len(p) > 15 else b""
+            # issue 0060: frames to a requester are tagged, to the forced MAC not
+            if tag != (dst != DST_A):
+                errors.append("frame to %s tagged %r" % (dst.hex(), tag))
             body = struct.pack(P.TH_HDR, P.TH_VERSION, sub, P.MAGIC, machine, flags, scale, enc,
                                frame, row, nlines, width, height, nbytes) + payload
             if sub == P.TH_SUB_NOSRC:
@@ -71,10 +77,16 @@ def check(path):
         errors.append("%d lines frames in total" % len(got))
     if (4, 0, DST_A) not in nos or (5, 1, DST_A) not in nos:
         errors.append("no-source frames %r" % nos[:4])
-    if any(x[2] not in (DST_A, DST_R) for x in nos):
+    if any(x[2] not in (DST_A, DST_R, DST_T) for x in nos):
         errors.append("no-source frame to another destination")
-    if len(treqs) < 3 or any(x != P.TH_SCALE_QUARTER for x in treqs):
-        errors.append("requests %r" % treqs)
+    if any(x[0] != 5 for x in nos if x[2] == DST_T):
+        errors.append("targeted requester got no-source frames for other machines %r" % nos)
+    sel = [x for x in treqs if x[0] != P.TH_SCALE_FULL]
+    full = [x for x in treqs if x[0] == P.TH_SCALE_FULL]
+    if len(sel) < 3 or any(x != (P.TH_SCALE_QUARTER, 2, 0, 0) for x in sel):
+        errors.append("select-screen requests %r" % sel)
+    if len(full) < 2 or any(x != (P.TH_SCALE_FULL, 1, P.TH_RF_TARGETED | P.TH_RF_PRIORITY, 9) for x in full):
+        errors.append("full-view requests %r" % full)
     print("%d lines frames, %d no-source, %d requests" % (len(got), len(nos), len(treqs)))
     for e in errors:
         print("ERROR:", e)

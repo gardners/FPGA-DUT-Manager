@@ -76,6 +76,15 @@ package mem_pkg is
   function thumb_addr(machine : unsigned(4 downto 0); buf : std_logic;
                       row : unsigned(7 downto 0); word : unsigned(6 downto 0))
     return unsigned;
+
+  -- full-resolution relayed picture (issue 0060): three buffers above the
+  -- thumbnail store, xRGB32 as above, row stride 256 words (1024 px):
+  --   word address = 0x200000 + buf * 0x40000 + row * 256 + col / 4
+  constant FULL_BASE      : natural := 16#200000#;
+  constant FULL_ROW_WORDS : natural := 256;
+  constant FULL_MAX_W     : natural := 1020;   -- pixels stored per line (255 words)
+  function full_addr(buf : unsigned(1 downto 0); row : unsigned(9 downto 0); word : unsigned(7 downto 0))
+    return unsigned;
 end package;
 
 package body mem_pkg is
@@ -87,6 +96,17 @@ package body mem_pkg is
     a(20 downto 15) := machine & buf;
     a(14 downto 7)  := row;
     a(6 downto 0)   := word;
+    return a;
+  end function;
+
+  function full_addr(buf : unsigned(1 downto 0); row : unsigned(9 downto 0); word : unsigned(7 downto 0))
+    return unsigned is
+    variable a : unsigned(MEM_AW - 1 downto 0) := (others => '0');
+  begin
+    a(21)           := '1';                -- FULL_BASE
+    a(19 downto 18) := buf;
+    a(17 downto 8)  := row;
+    a(7 downto 0)   := word;
     return a;
   end function;
 end package body;
