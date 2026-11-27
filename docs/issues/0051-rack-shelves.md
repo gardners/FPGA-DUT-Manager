@@ -221,3 +221,34 @@ everything.
   minimise cable lengths.
 * The owner organises the logos (SVG) and the MEGA65 PCB/case drawings.
 * Owner-facing blockers are tracked in `docs/OWNER-TODO.md`.
+
+## 2026-11-27 progress: rack case generator (agent, branch feature/rack-case)
+
+* `hardware/mega-kvm-case` now generates the rack layout (`out/rack/`,
+  `out/fit-report.md`; write-up in `docs/hardware/case.md`). Options A/B
+  still build (`out/fit-report-options-AB.md`).
+* Parts (6 mm ply, nested on 3 sheets of 900 x 600): common shelf deck
+  425 x 253 (x8), strain-relief bar (x8), 4RU fan plate with 3 x 120 mm fans
+  staggered low/high/low (x2), fan gussets (x4), KVM front / deck / rear
+  plate and 4 KVM gussets. Rack elevation (front + side, cable-loop zone)
+  and a KVM top view.
+* MEGA65 data (lead message, owner's sources): r6 board 214 x 118 mm, 6
+  holes from the Trenz drawing `DIM-TE0765-06.PDF`, agreeing with
+  `mega65-rugged-case` lower-deck3 within 0.8 mm; floppy hole pattern
+  70 x 94 from lower-deck2; Cart64out holes from its Eagle board, identical
+  in the DXF (outline 97 x 62 including a 12 mm tongue; the body is 85 mm, not 86).
+  The Cart64out insertion depth comes from the rugged case's breakout support
+  hole. All in `mega65_footprint.py`, with sources noted there.
+* Fan clearance: with 3 fans at 125 mm pitch the notches merge into one
+  28 mm deep notch (x 26.5-398.5) on every deck. The gussets (36 x 90 mm)
+  stand on the carrier deck over the battens, so in notch mode the
+  battens of the other three shelves of each group start 92 mm behind the
+  deck front. `SHELF['fan_clearance']='setback'` is the alternative
+  (minimum set-back 92 mm with these gussets).
+* **Conflict for the owner:** 2 x 120 mm KVM fans do not fit beside the
+  227 mm display PCB and the 197 mm input board (about 480 mm needed behind a
+  425 mm deck). Default 2 x 92 mm (fits, keeps the 8 fan headers); 1 x 120 mm
+  also fits.
+* MEGA65 logo etched from `assets/mega65.svg` (copied to
+  `hardware/mega-kvm-case/logos/`); the M.E.G.A. e.V. slot is a placeholder in
+  the hidden reference layer until `logos/mega-ev.svg` exists.

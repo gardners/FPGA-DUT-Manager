@@ -1,6 +1,81 @@
-# MEGA-KVM case (issue 0048)
+# MEGA-KVM case (issues 0048, 0051)
 
-Status: **generator v0.1 (2026-11-27)**. Option A (stand-alone laser-cut
+Status: **rack layout v0.2 (2026-11-27, issue 0051)** is the primary output:
+one sliding 6 mm ply shelf per MEGA65, a 4RU fan plate per group of four
+shelves, and a 3RU KVM unit on slides, 11RU in all (4 shelves, KVM, 4
+shelves). The single-box options A and B (below, "Options A and B") still
+generate but are no longer developed.
+
+## Rack layout (issue 0051)
+
+`make` in `hardware/mega-kvm-case` writes `out/rack/` and
+`out/fit-report.md`. The fit report lists conflicts first, then heights, widths,
+fan clearances, the KVM fit and the sheet count.
+
+### Parts (`out/rack/parts/`, nested on `out/rack/sheets/ply6-900x600-N.svg`)
+
+| Part | Size (mm) | Qty | What |
+|---|---|---|---|
+| `shelf-deck` | 425 x 253 | 8 | Common deck. Batten outlines are in the hidden reference layer (drill guide, not cut). Dashed etched lines mark the 25 mm edge strips (parts there < 12 mm, under the next shelf's battens). Holes: MEGA65 board (6), floppy (4), Cart64out (4), deck-to-batten screws, gusset pilots, two cable pass-throughs with tie slots, two strain-bar slots. Front notch x 26.5-398.5, 28 mm deep, for the fan bodies. |
+| `strain-bar` | 371 x 36 | 8 | Stands in the deck's rear slots (30 mm tall); cable-tie slot pairs every 40 mm. |
+| `fan-plate` | 482.6 x 177.8 | 2 | 4RU (`FAN_PLATE['ru']`, 1-4). 3 x 120 mm fans at 125 mm pitch, staggered low/high/low (centres 63 / 114.8 mm above the plate bottom), cut grille or plain bore (`guard`). Screws into the carrier shelf's batten ends and two gussets. MEGA65 logo etch above fan 1, M.E.G.A. e.V. slot above fan 3, "MEGA-KVM" under fan 2. |
+| `fan-gusset` | 90 x 36 | 4 | Stands on the carrier deck over each batten. |
+| `kvm-front` | 482.6 x 133.35 | 1 | 2 x 92 mm fans (left, above the deck), the 0050 display PCB from `mega-kvm-front/out/panel-holes.json` (top right, PCB 3 mm behind the panel), the input board's connectors from its KiCad file (below it), the rocker beside the input board, "MEGA-KVM", logo slots in the band in front of the deck. |
+| `kvm-deck` | 425 x 291 | 1 | Mimas, keyboard sub-board and shield support holes for both bays, power main board, GS105 tie slots, vents under the Mimas boards. |
+| `kvm-rear` | 425 x 132 | 1 | The two bay cut-outs (sub-SVGs `out/rack/fragments/bay1.svg`, `bay2.svg`), Ethernet bulkhead + 8 DUT power lead holes, keyboard feed-through, vent slots. |
+| `kvm-gusset` | 90 x 24 | 4 | Under the KVM deck, front and rear, against the battens' inner faces (moved inwards where a deck hole is in the way). |
+
+Not cut: 25 x 25 mm timber battens, 2 per shelf and 2 for the KVM. In notch
+mode the battens of the three non-carrier shelves of each group start 92 mm
+behind the deck front (cut them shorter), so that the carrier's gussets fit
+under their decks. Drawings: `out/rack/rack-elevation.svg/.png` (front and side
+view, cable-loop zone), `out/rack/kvm-topview.svg/.png`, and
+`out/rack/preview/*.png` (renders with the reference layer visible).
+
+### Data sources
+
+* `mega65_footprint.py` is the replaceable table of MEGA65 board, floppy,
+  Cart64out and expansion holes, each with its source. MEGA65 r6 board
+  214 x 118 mm with 6 holes, from the Trenz drawing
+  `mega65r6/DIM-TE0765-06.PDF`, cross-checked against
+  `mega65-rugged-case/lower-deck3` (within 0.8 mm). Floppy: 70 x 94 mm hole
+  pattern from `lower-deck2` (offset from the bezel assumed 30 mm). Cart64out
+  Rev.1: Eagle board = DXF, holes Ø3.3 at (16,4) (16,58) (71,4) (71,58).
+  Its insertion depth comes from the rugged case's breakout support hole.
+  Official expansions: no data, so nothing is cut.
+* `logos/`: `mega65.svg` (= `assets/mega65.svg`), etched as one colour (the
+  dark pill only, letters bare). Drop `mega-ev.svg` there for the M.E.G.A.
+  e.V. slot (currently a reference-layer placeholder: nothing is etched).
+
+### Parameters (`config.py`, rack block)
+
+`PLY_T`, `RACK_KERF`, `RACK_SHEETS`; `RACK` (layout list bottom-to-top,
+group size, post opening, face width, rack depth for the drawing); `SHELF`
+(deck width, batten, front allowance, rear space, `fan_clearance` =
+`notch` or `setback` with `setback`, notch clearances, cable slots, tie
+slots, strain bar, MEGA65 x position, floppy side); `FANS` (120/92/80 mm
+hole pitch and bore); `FAN_PLATE` (RU, fan size/count/gap, stagger, guard,
+screws, gusset, logo slots, text); `KVM` (RU, fan size/count, margins,
+rocker position, gussets, logos); `LOGOS`; `FOOTPRINT`.
+
+### Fit results (2026-11-27)
+
+* No conflicts in the default configuration.
+* Heights: deck top to next deck 38.45 mm, to the next battens 13.45 mm.
+  MEGA65 on 6.3 mm hexes + tallest part (assumed 15 mm) = 22.9 mm; floppy on
+  5 mm spacers 30.4 mm; gussets 36 mm (all under 37.45).
+* Widths: deck 425, 375 between the battens; board + 10 + floppy = 325.6 mm.
+  Fans span x 27.5-397.5: 2.5 mm from the battens of the shelves above.
+* **KVM fans:** the owner's 2 x 120 mm do not fit beside the 227 mm display
+  PCB and the 197 mm input board (about 480 mm needed behind a 425 mm deck).
+  The default is 2 x 92 mm (424 of 425 mm). Setting `KVM['fan']=120,
+  'fan_count'=1` also fits (that fan then crosses the deck, which gets a notch).
+* KVM rear: the bays (381.2 mm) and the bulkhead/DUT power column leave 3.8 mm.
+
+# Options A and B (issue 0048, no longer developed)
+
+Status: **generator v0.1 (2026-11-27)**. Their report is
+`out/fit-report-options-AB.md`. Option A (stand-alone laser-cut
 1RU box) is complete apart from one open hardware item (the 40 mm input
 board). Option B (gutted Cisco Catalyst 3560G-48TS) generates, but the
 front panel is too narrow for everything (see "Fit results"), and every
@@ -153,7 +228,7 @@ Carcass 444.5 x 409 x 43.9 mm (Cisco hardware installation guide:
   cable-tie slots, carcass standoffs (`S`). Also emitted as DXF and as
   a KiCad board with Edge.Cuts only.
 
-## Fit results (generated 2026-11-27, `out/fit-report.md`)
+## Fit results (generated 2026-11-27, `out/fit-report-options-AB.md`)
 
 | Variant (2 bays) | Bay | A rear: also fits | B front: also fits | 1RU height |
 |---|---|---|---|---|
