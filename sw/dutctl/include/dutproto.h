@@ -63,6 +63,9 @@ enum dp_key {
                                 2 DUT1, 3 none (issue 0060) */
   DP_K_RELAY_VIEW = 0x0045,  /* relayed full view: 0 complete pictures (triple buffered),
                                 1 live line by line (default), issue 0060 */
+  DP_K_HOST_VLAN = 0x0046,   /* host VLAN ID u16 0..4094 (default 0 = untagged): all host traffic
+                                tagged with it, host frames accepted only on it (untagged: ARP,
+                                ICMP, MGMT still answered), issue 0062 */
   DP_K_HB_PERIOD = 0x0050,
   DP_K_OUT_POLICY = 0x0060, /* 0 auto (sense), 1 UART/KIO10 forced on (JTAG follows the
                                sense), 2 all outputs off, JTAG included (issue 0056) */
@@ -203,6 +206,11 @@ typedef struct {
   uint16_t rl_mem_wait;    /* words offered, memory port busy, 2.048 us units, wraps */
   uint8_t rl_wf_hwm;       /* word FIFO peak fill / 2 in the last second (of 256) */
   uint8_t rl_fifo_aw;      /* log2 of the receive FIFO's entries */
+  /* network block (bytes 196..199, issue 0062); valid only when has_net
+     (payload >= 192) */
+  uint8_t has_net;
+  uint16_t host_vlan;       /* key 0x0046: host traffic VLAN ID, 0 = untagged */
+  uint16_t host_vlan_drops; /* frames for the host path dropped for their VLAN (wrapping) */
 } dp_heartbeat_t;
 
 /* heartbeat relay_flags (byte 184, ADR 0005 section 3d, issue 0061) */
@@ -345,6 +353,7 @@ enum { DP_TH_SCALE_HALF = 1, DP_TH_SCALE_QUARTER = 2, DP_TH_SCALE_FULL = 3 /* 1/
 /* request byte 6 flags (issue 0060): b0 targeted (byte 7 = machine), b1 priority */
 enum { DP_TH_RF_TARGETED = 1, DP_TH_RF_PRIORITY = 2 };
 #define DP_VLAN_DEFAULT 1650 /* inter-board VLAN (key 0x0043) */
+#define DP_HOST_VLAN_DEFAULT 0 /* host VLAN (key 0x0046): untagged */
 enum { DP_TH_FLAG_PRESENT = 1, DP_TH_FLAG_LAST = 2 };
 
 typedef struct {

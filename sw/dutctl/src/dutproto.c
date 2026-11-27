@@ -219,6 +219,13 @@ int dp_decode_heartbeat(const uint8_t *p, size_t len, dp_heartbeat_t *hb)
     hb->rl_fifo_hwm = hb->rl_wr_stall = hb->rl_mem_wait = 0;
     hb->rl_wf_hwm = hb->rl_fifo_aw = 0;
   }
+  hb->has_net = len >= 192;
+  if (hb->has_net) {
+    hb->host_vlan = dp_get16(p + 188);
+    hb->host_vlan_drops = dp_get16(p + 190);
+  } else {
+    hb->host_vlan = hb->host_vlan_drops = 0;
+  }
   return 0;
 }
 

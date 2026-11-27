@@ -54,6 +54,9 @@ def vectors():
     hbx = dict(hbr, rl_flags=P.RLF_FULL_WANT | P.RLF_FULL_FRESH | P.RLF_LIVE, rl_fifo_hwm=0x3FFC,
                rl_wr_stall=0x0102, rl_mem_wait=0xFEDC, rl_wf_hwm=0x7F, rl_fifo_aw=14)
     v.append(("heartbeat_rxload", P.encode_heartbeat(1, hbx)))
+    hbn = dict(hbx, host_vlan=1650, host_vlan_drops=0xFFFE)   # network block (issue 0062)
+    v.append(("heartbeat_net", P.encode_heartbeat(0, hbn)))
+    v.append(("mgmt_host_vlan", P.mgmt_set(1, 0x0062, P.K_HOST_VLAN, b"\x06\x72")))
     v.append(("mgmt_relay_view", P.mgmt_set(0, 0x0045, P.K_RELAY_VIEW, b"\x00")))
     v.append(("mgmt_pwr_ctl", P.mgmt_set(1, 0x0BAD, P.K_PWR_CTL, b"\xa5")))
     # raster: 720-px active line, pixel x = (x & 0xFF, (x >> 8) ^ line, (3 * x) & 0xFF)

@@ -31,6 +31,8 @@ K_RELAY_VIEW = 0x0045  # relayed full view: 0 complete pictures (triple buffered
 RELAY_VIEW_COMPLETE, RELAY_VIEW_LIVE = 0, 1
 HDMI_OWNER_FOLLOW, HDMI_OWNER_DUT0, HDMI_OWNER_DUT1, HDMI_OWNER_NONE = 0, 1, 2, 3
 VLAN_DEFAULT = 1650
+K_HOST_VLAN = 0x0046  # host VLAN ID u16 (0..4094, default 0 = untagged), issue 0062
+HOST_VLAN_DEFAULT = 0
 # JTAG_REQ flags (offset 18): b0 abort/reset session, b1 target = physical
 # keyboard CPLD (ADR 0014); JTAG_RESP byte 17 = target (0 DUT, 1 keyboard)
 JF_ABORT, JF_KBD = 0x0001, 0x0002
@@ -210,6 +212,8 @@ def decode_heartbeat(b):
         f.update(zip(RELAY_FIELDS, vals))
     if len(b) >= 188:  # relay receive load (ADR 0005 section 3d), bytes 188..195 of the datagram
         f.update(zip(RXLOAD_FIELDS, struct.unpack(">HHHBB", b[180:188])))
+    if len(b) >= 192:  # network block (ADR 0005 section 3e), bytes 196..199 of the datagram
+        f.update(zip(NET_FIELDS, struct.unpack(">HH", b[188:192])))
     return f
 
 
@@ -232,6 +236,9 @@ RLF_LIVE = 0x40
 # receive FIFO peak fill in the last second (entries), writer stalls and memory
 # waits (wrapping, 2.048 us units), word FIFO peak / 2, log2 receive FIFO entries
 RXLOAD_FIELDS = ("rl_fifo_hwm", "rl_wr_stall", "rl_mem_wait", "rl_wf_hwm", "rl_fifo_aw")
+# network block (ADR 0005 section 3e, bytes 196..199; issue 0062): host VLAN
+# (key 0x0046, 0 = untagged) and frames dropped for their VLAN (wrapping)
+NET_FIELDS = ("host_vlan", "host_vlan_drops")
 
 
 MEM_FIELDS = ("mem_flags", "mem_errors", "mem_dq_fail", "mem_test_kib", "mem_first_err")
@@ -368,6 +375,9 @@ def encode_heartbeat(dut, f):
     if "rl_fifo_hwm" in f:  # relay receive load (needs the relay block) -> 188-byte payload
         assert len(b) == 180
         b += struct.pack(">HHHBB", *(f[k] for k in RXLOAD_FIELDS))
+    if "host_vlan" in f:  # network block (needs the receive load) -> 192-byte payload
+        assert len(b) == 188
+        b += struct.pack(">HH", *(f[k] for k in NET_FIELDS))
     return custom(T_HEARTBEAT, dut, b)
 
 
@@ -630,6 +640,17 @@ def selftest():
         errors.append("relay receive load layout %s" % p[188:].hex(" "))
     elif any(decode_heartbeat(p[8:])[k] != v for k, v in dict(rl, **rx).items()):
         errors.append("relay receive load round trip")
+    # network block (issue 0062): offsets 196..199
+    nb = dict(host_vlan=1650, host_vlan_drops=0x0102)
+    p = encode_heartbeat(0, dict(hb, **rl, **rx, **nb))
+    if len(p) != 200 or p[196:200] != bytes([0x06, 0x72, 0x01, 0x02]):
+        errors.append("network block layout %s" % p[196:].hex(" "))
+    elif any(decode_heartbeat(p[8:])[k] != v for k, v in nb.items()):
+        errors.append("network block round trip")
+    # host VLAN tag on a heartbeat (issue 0062): TPID 0x8100, PCP 0, VID
+    t = vlan_tag(eth(BCAST_MAC, BCAST_MAC, 0x0800, bytes(46)), 1650)
+    if t[12:16] != bytes([0x81, 0x00, 0x06, 0x72]) or vlan_untag(t)[0] != 1650:
+        errors.append("host VLAN tag %s" % t[12:16].hex())
     for e in errors:
         print("ERROR:", e)
     print("netproto selftest", "FAILED" if errors else "PASSED")

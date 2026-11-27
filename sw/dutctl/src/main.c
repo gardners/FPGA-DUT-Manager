@@ -210,6 +210,9 @@ static int cmd_set(int argc, char **argv)
             "                         2 keyboard scan stopped; needs kbd-jtag 1)\n"
             "         jtag-tdo-vote (TDO sampling: 0 single, 1 majority of 3, 2 majority of 5)\n"
             "         vlan (inter-board relay VLAN ID, default 1650, 0 = untagged)\n"
+            "         host-vlan (VLAN ID of all host traffic, default 0 = untagged; 1..4094 tags it\n"
+            "                    and accepts host frames only on it (untagged: ARP, ping, MGMT);\n"
+            "                    DHCP leases are dropped and renewed on the new VLAN)\n"
             "         hdmi-owner (DUT on the HDMI IN: 0 the video target's (default), 1 DUT0, 2 DUT1,\n"
             "                     3 none; the others show relayed video, full-screen when selected)\n"
             "         relay-view (relayed full-screen view: 0 complete pictures only, 1 live line by\n"
@@ -236,7 +239,7 @@ static int cmd_set(int argc, char **argv)
     {"kbd-leds", DP_K_PK_LED_MODE, 1}, {"console-screen", DP_K_CON_SCREEN, 1},
     {"kbd-jtag", DP_K_PK_JTAG, 1}, {"power-ctl", DP_K_PWR_CTL, 1},
     {"kbd-jtag-quiet", DP_K_KJ_QUIET, 1}, {"jtag-tdo-vote", DP_K_TDO_VOTE, 1},
-    {"vlan", DP_K_VLAN, 2}, {"hdmi-owner", DP_K_HDMI_OWNER, 1},
+    {"vlan", DP_K_VLAN, 2}, {"hdmi-owner", DP_K_HDMI_OWNER, 1}, {"host-vlan", DP_K_HOST_VLAN, 2},
     {"relay-view", DP_K_RELAY_VIEW, 1},
   };
   if (!strcmp(name, "kbd-led-rgb")) {
@@ -407,6 +410,9 @@ static void print_hb_kv(const char *ip, const dp_hdr_t *h, const dp_heartbeat_t 
   if (hb->has_rxload)
     printf(" rl_fifo_hwm=%u rl_wr_stall=%u rl_mem_wait=%u rl_wf_hwm=%u rl_fifo_aw=%u", hb->rl_fifo_hwm,
            hb->rl_wr_stall, hb->rl_mem_wait, hb->rl_wf_hwm, hb->rl_fifo_aw);
+  printf(" has_net=%u", hb->has_net);
+  if (hb->has_net)
+    printf(" host_vlan=%u host_vlan_drops=%u", hb->host_vlan, hb->host_vlan_drops);
   printf("\n");
   fflush(stdout);
 }
@@ -509,6 +515,8 @@ static int cmd_listen(int argc, char **argv)
         printf("  rx fifo peak %u/%u wf peak %u stall %u wait %u", hb.rl_fifo_hwm, 1u << hb.rl_fifo_aw,
                2u * hb.rl_wf_hwm, hb.rl_wr_stall, hb.rl_mem_wait);
     }
+    if (hb.has_net && (hb.host_vlan || hb.host_vlan_drops))
+      printf("  host-vlan %u (vlan drops %u)", hb.host_vlan, hb.host_vlan_drops);
     if (hb.phys_type) {
       printf("  phys");
       for (int k = 0; k < 80; k++)
@@ -1956,7 +1964,10 @@ static int cmd_thumbs(int argc, char **argv)
                            "  complete thumbnail; --request broadcasts requests every 250 ms, --force IP\n"
                            "  points that board's relay at this interface (key 0x0041). Needs CAP_NET_RAW.\n"
                            "  Boards answer requests only on their relay VLAN (key 0x0043, default 1650):\n"
-                           "  --vlan VID tags the requests (0 = untagged); --force needs no VLAN.\n"),
+                           "  --vlan VID tags the requests (0 = untagged); --force needs no VLAN.\n"
+                           "  With a host VLAN (key 0x0046, issue 0062) use the VLAN interface (e.g.\n"
+                           "  eno2.1650): the kernel removes/adds the tag, so --vlan is then only for\n"
+                           "  a relay VLAN other than the interface's.\n"),
            2;
   const char *ifname = argv[0], *prefix = "thumb", *force_ip = NULL;
   long want = 0, timeout_s = 10;

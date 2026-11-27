@@ -93,6 +93,8 @@ static void test_encoders(void)
   check_bytes("mgmt_pwr_ctl", b, dp_encode_mgmt_set(b, 1, 0x0BAD, DP_K_PWR_CTL, &pw, 1));
   uint8_t rv = 0;
   check_bytes("mgmt_relay_view", b, dp_encode_mgmt_set(b, 0, 0x0045, DP_K_RELAY_VIEW, &rv, 1));
+  uint8_t hv[2] = {0x06, 0x72}; /* host VLAN 1650 (issue 0062) */
+  check_bytes("mgmt_host_vlan", b, dp_encode_mgmt_set(b, 1, 0x0062, DP_K_HOST_VLAN, hv, 2));
   uint8_t bm[10] = {0};
   bm[10 / 8] |= 1 << (10 % 8);
   bm[63 / 8] |= 1 << (63 % 8);
@@ -191,6 +193,13 @@ static void test_decoders(void)
   CHECK(hb.rl_flags == (DP_RLF_FULL_WANT | DP_RLF_FULL_FRESH | DP_RLF_LIVE));
   CHECK(hb.rl_fifo_hwm == 0x3FFC && hb.rl_wr_stall == 0x0102 && hb.rl_mem_wait == 0xFEDC);
   CHECK(hb.rl_wf_hwm == 0x7F && hb.rl_fifo_aw == 14);
+  CHECK(!hb.has_net && hb.host_vlan == 0);
+
+  v = vec("heartbeat_net");
+  CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && h.length == 192 && h.dut == 0);
+  CHECK(dp_decode_heartbeat(v->data + 8, h.length, &hb) == 0);
+  CHECK(hb.has_rxload && hb.rl_fifo_aw == 14 && hb.has_net);
+  CHECK(hb.host_vlan == 1650 && hb.host_vlan_drops == 0xFFFE);
 
   v = vec("snapshot");
   CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && h.type == DP_T_UART_SNAP);
