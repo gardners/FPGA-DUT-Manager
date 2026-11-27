@@ -209,6 +209,12 @@ architecture rtl of supervisor_core is
   signal tp_rdata : std_logic_vector(7 downto 0);
   signal tq_sc, tq_dv : std_logic_vector(7 downto 0);
   signal selecting : std_logic := '0';
+  -- relay counters (issue 0061, heartbeat relay block)
+  signal rl_req_sent, rl_req_full, rl_swaps : unsigned(15 downto 0) := (others => '0');
+  signal rl_shown_d : unsigned(1 downto 0) := "00";
+  signal rl_lv, rl_lns, th_streaming : std_logic;
+  signal rl_lm : unsigned(4 downto 0);
+  signal rl_lsc : std_logic_vector(7 downto 0);
 
   -- dispatcher <-> builder
   signal cfg   : dut_cfg_arr_t;
@@ -826,7 +832,12 @@ begin
               sclk => clk_sys, f_valid => tf_valid, f_dout => tf_dout, f_pop => tf_pop,
               req_stb => trq_stb, req_mac => trq_mac, req_scale => trq_sc, req_div => trq_dv,
               req_flags => trq_fl, req_target => trq_tg,
-              frames => open);
+              frames => open,
+              c_req => bstat.relay.rx_req, c_lines => bstat.relay.rx_lines,
+              c_bad => bstat.relay.rx_bad, c_ovf => bstat.relay.rx_ovf,
+              c_nosrc => bstat.relay.rx_nosrc, c_vlan => bstat.relay.rx_vlan,
+              c_long => bstat.relay.rx_long,
+              last_valid => rl_lv, last_nosrc => rl_lns, last_m => rl_lm, last_scale => rl_lsc);
   trw : entity work.thumb_rx_writer
     port map (clk => clk_sys, f_valid => tf_valid, f_dout => tf_dout, f_pop => tf_pop,
               local0 => m0, local1 => m1, relay0 => not own(0), relay1 => not own(1), cur => th_cur,
@@ -835,7 +846,8 @@ begin
               seen_ev => tr_sev, seen_machine => tr_sm, pictures => open,
               full_en => full_want, full_m => full_m, full_shown => full_shown,
               full_ev => full_ev, full_buf => full_buf, full_width => full_width,
-              full_height => full_height, full_pics => open);
+              full_height => full_height, full_pics => bstat.relay.full_pics,
+              foreign => bstat.relay.rx_foreign);
   full_on <= full_fresh;
   ttx : entity work.thumb_tx
     generic map (MS_PER_S => THUMB_MS_PER_S)
@@ -853,7 +865,29 @@ begin
               pb_raddr => tp_raddr, pb_rdata => tp_rdata,
               treq_valid => tq_valid, treq_scale => tq_sc, treq_div => tq_dv,
               treq_flags => tq_fl, treq_target => tq_tg, treq_taken => tq_taken,
-              streaming => open, pictures => open);
+              streaming => th_streaming, pictures => open);
+
+  -- relay counters (issue 0061, ADR 0005 s3d): requests handed to net_tx,
+  -- full_display buffer changes, full view state
+  process (clk_sys)
+  begin
+    if rising_edge(clk_sys) then
+      if tq_taken = '1' then
+        rl_req_sent <= rl_req_sent + 1;
+        if tq_fl(0) = '1' and tq_sc = x"03" then rl_req_full <= rl_req_full + 1; end if;
+      end if;
+      rl_shown_d <= full_shown;
+      if full_shown /= rl_shown_d then rl_swaps <= rl_swaps + 1; end if;
+    end if;
+  end process;
+  bstat.relay.req_sent   <= rl_req_sent;
+  bstat.relay.req_full   <= rl_req_full;
+  bstat.relay.full_swaps <= rl_swaps;
+  bstat.relay.flags      <= "00" & th_streaming & rl_lns & rl_lv & (full_want and not full_fresh) &
+                            full_fresh & full_want;
+  bstat.relay.last_m     <= "000" & std_logic_vector(rl_lm) when rl_lv = '1' else x"FF";
+  bstat.relay.last_scale <= rl_lsc when rl_lv = '1' else x"00";
+  bstat.relay.full_age   <= std_logic_vector(full_age(10 downto 3));
 
   ---------------------------------------------------------------- physical keyboard
   -- power LED colour = machine number k = 2 * DUT-ID nibble + half (P12 0,

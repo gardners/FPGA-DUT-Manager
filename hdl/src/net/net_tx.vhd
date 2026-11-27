@@ -130,7 +130,7 @@ architecture rtl of net_tx is
   type state_t is (S_IDLE, S_DISCARD, S_LATCH, S_HIST, S_PREP, S_CSUM, S_START, S_WRITE, S_WAIT_MAC);
   signal state : state_t := S_IDLE;
 
-  constant PF_MAX : natural := 160;   -- heartbeat: 8 + 152
+  constant PF_MAX : natural := 188;   -- heartbeat: 8 + 180
   type pf_t is array (0 to PF_MAX - 1) of byte_t;
   type hdr_t is array (0 to 41) of byte_t;
   signal hdr   : hdr_t := (others => (others => '0'));
@@ -591,6 +591,23 @@ begin
               pf(154) <= bstat.shd.features; pf(155) <= bstat.shd.sense;
               pf(156) <= bstat.shd.hdmi;     pf(157) <= bstat.shd.pwr;
               pf(158) <= bu(bstat.shd.errors, 0); pf(159) <= bu(bstat.shd.errors, 1);
+              -- 160..187 relay block (ADR 0005 s3d, issue 0061)
+              for i in 0 to 1 loop
+                pf(160 + i) <= bu(bstat.relay.req_sent, i);
+                pf(162 + i) <= bu(bstat.relay.req_full, i);
+                pf(164 + i) <= bu(bstat.relay.rx_req, i);
+                pf(166 + i) <= bu(bstat.relay.rx_lines, i);
+                pf(168 + i) <= bu(bstat.relay.rx_bad, i);
+                pf(170 + i) <= bu(bstat.relay.rx_ovf, i);
+                pf(172 + i) <= bu(bstat.relay.rx_nosrc, i);
+                pf(174 + i) <= bu(bstat.relay.rx_vlan, i);
+                pf(176 + i) <= bu(bstat.relay.rx_long, i);
+                pf(178 + i) <= bu(bstat.relay.rx_foreign, i);
+                pf(180 + i) <= bu(bstat.relay.full_pics, i);
+                pf(182 + i) <= bu(bstat.relay.full_swaps, i);
+              end loop;
+              pf(184) <= bstat.relay.flags;      pf(185) <= bstat.relay.last_m;
+              pf(186) <= bstat.relay.last_scale; pf(187) <= bstat.relay.full_age;
             when others => null;
           end case;
 

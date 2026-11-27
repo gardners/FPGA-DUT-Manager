@@ -57,7 +57,11 @@ entity thumb_rx_writer is
     full_buf    : out unsigned(1 downto 0);
     full_width  : out unsigned(10 downto 0);
     full_height : out unsigned(9 downto 0);
-    full_pics   : out unsigned(15 downto 0)
+    full_pics   : out unsigned(15 downto 0);
+    -- good lines frames none of whose lines were taken (a machine this
+    -- board does not accept: its own with local video, or a 1/1 frame not
+    -- for the full view; issue 0061)
+    foreign     : out unsigned(15 downto 0)
   );
 end entity;
 
@@ -98,6 +102,7 @@ architecture rtl of thumb_rx_writer is
   signal fr_height : unsigned(9 downto 0) := (others => '0');
   signal fr_ev : std_logic := '0';
   signal fr_pics : unsigned(15 downto 0) := (others => '0');
+  signal nforeign : unsigned(15 downto 0) := (others => '0');
   -- one-entry input register between the FIFO (block RAM output) and the
   -- decode (timing): e_v/e_d hold the next entry; it is refilled in the
   -- cycle it is consumed, so throughput stays one entry per cycle
@@ -139,6 +144,7 @@ begin
   full_width <= fr_width;
   full_height <= fr_height;
   full_pics <= fr_pics;
+  foreign <= nforeign;
 
   process (clk)
     variable m : unsigned(4 downto 0);
@@ -283,6 +289,7 @@ begin
                 fin_rows <= resize(rrows(to_integer(pm)), 10) + plines;
               end if;
             end if;
+            if pk = '0' and e_d(0) = '1' then nforeign <= nforeign + 1; end if;
             pk <= '0';
             ign <= '1';
           when others =>                                  -- SEEN

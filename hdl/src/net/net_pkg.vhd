@@ -92,6 +92,27 @@ package net_pkg is
   constant SHD_STATUS_NONE : shd_status_t :=
     (x"00", x"00", x"00", x"00", x"00", x"00", (others => '0'));
 
+  -- thumbnail relay counters (issue 0061; ADR 0005 section 3d), board-wide,
+  -- all wrapping
+  type relay_status_t is record
+    req_sent   : unsigned(15 downto 0);   -- requests sent (any scale)
+    req_full   : unsigned(15 downto 0);   -- of which targeted scale 3 (full view)
+    rx_req     : unsigned(15 downto 0);   -- requests heard (good FCS, our VLAN)
+    rx_lines   : unsigned(15 downto 0);   -- lines frames for us, complete and good
+    rx_bad     : unsigned(15 downto 0);   -- lines frames for us, not good
+    rx_ovf     : unsigned(15 downto 0);   -- ... of which the tap FIFO overflowed
+    rx_nosrc   : unsigned(15 downto 0);   -- "present, no source" frames for us
+    rx_vlan    : unsigned(15 downto 0);   -- relay frames for us dropped: wrong VLAN / untagged
+    rx_long    : unsigned(15 downto 0);   -- relay frames for us > 2047 bytes (MAC slot size)
+    rx_foreign : unsigned(15 downto 0);   -- good lines frames for a machine not taken
+    full_pics  : unsigned(15 downto 0);   -- full pictures completed into the triple buffer
+    full_swaps : unsigned(15 downto 0);   -- full_display buffer changes (pictures shown)
+    flags      : std_logic_vector(7 downto 0);
+    last_m     : std_logic_vector(7 downto 0);   -- last relay frame's machine, 0xFF none
+    last_scale : std_logic_vector(7 downto 0);
+    full_age   : std_logic_vector(7 downto 0);   -- ms / 8 since the last full picture, saturating
+  end record;
+
   -- per-DUT live status for heartbeats
   type dut_status_t is record
     target_flags  : std_logic_vector(7 downto 0);
@@ -137,6 +158,8 @@ package net_pkg is
     mem         : mem_status_t;
     -- shield (issue 0049), heartbeat shield block
     shd         : shd_status_t;
+    -- thumbnail relay (issue 0061), heartbeat relay block
+    relay       : relay_status_t;
   end record;
 
   -- UART snapshot counters (latched by uart_bridge on snap_ack)
