@@ -21,6 +21,11 @@
 -- word 19 arrives and all of words 1..19 were received since the last
 -- publication. `present` = a frame was published within LOSS_CYCLES.
 --
+-- hold (key 0x0063, issue 0054): the transmitter finishes the current pair
+-- and then keeps txd idle (high); held = no pair in progress (or disabled).
+-- The receiver keeps running but the loss timer stands still, so present
+-- is kept. The keyboard leaves type 3 100 ms after the last pair it got.
+--
 -- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.
 library ieee;
 use ieee.std_logic_1164.all;
@@ -45,7 +50,9 @@ entity kbd_t3_host is
     kbd_date   : out std_logic_vector(13 downto 0);
     locks      : out std_logic_vector(3 downto 0);   -- word 20 from the keyboard
     version    : out std_logic_vector(6 downto 0);   -- word 21 from the keyboard
-    rx_errors  : out unsigned(15 downto 0)           -- framing errors, orphan data bytes
+    rx_errors  : out unsigned(15 downto 0);          -- framing errors, orphan data bytes
+    hold       : in  std_logic := '0';
+    held       : out std_logic
   );
 end entity;
 
@@ -80,6 +87,7 @@ begin
   locks     <= locks_r;
   version   <= version_r;
   rx_errors <= errs;
+  held      <= hold when enable = '0' or (tbit = 19 and tdiv = BIT_CYCLES - 1) else '0';
 
   process (clk)
     variable c    : std_logic_vector(127 downto 0);
@@ -98,6 +106,8 @@ begin
         tslot <= "00";
       elsif tdiv /= BIT_CYCLES - 1 then
         tdiv <= tdiv + 1;
+      elsif tbit = 19 and hold = '1' then
+        null;                                 -- held: stop bit / idle high
       else
         tdiv <= 0;
         if tbit /= 19 then
@@ -142,7 +152,7 @@ begin
 
       ---------------------------------------------------------- receiver
       rs <= rs(1 downto 0) & rxd;
-      if loss /= LOSS_CYCLES then
+      if loss /= LOSS_CYCLES and hold = '0' then
         loss <= loss + 1;
       end if;
       if enable = '0' then

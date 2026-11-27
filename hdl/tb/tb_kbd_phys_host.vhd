@@ -11,6 +11,10 @@
 --     re-probe; keys, commit id and LEDs over type 3.
 --  4. Unplugged: type 3 lost -> probe -> legacy -> none.
 --  5. MK-II again.
+-- Pause / stop (key 0x0063, issue 0054) in each mode: `paused` within a
+-- bounded time, then static pins, no strobe, type and keys kept; a clean
+-- resume (MK-I keys changed during the pause appear only afterwards; no I2C
+-- errors for MK-II). stop: type 0, keys released, re-detection afterwards.
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -53,6 +57,8 @@ architecture tb of tb_kbd_phys_host is
   signal probe_conds, probes : natural := 0;
   signal watch   : std_logic_vector(79 downto 0) := (others => '0');
   signal watch_on : boolean := false;
+  signal pause, stop, paused : std_logic := '0';
+  signal pin_moves, pause_strobes : natural := 0;
 begin
   clk <= not clk after 4 ns when not done;
 
@@ -72,7 +78,21 @@ begin
     port map (clk => clk, kio8_o => k8o, kio8_oe => k8oe, kio8_i => to_X01(pin8),
               kio9_o => k9o, kio9_oe => k9oe, kio10 => to_X01(pin10), leds => leds,
               pressed => pressed, strobe => strobe, kbd_type => ktype,
-              kbd_commit => commit, probing => probing);
+              kbd_commit => commit, probing => probing,
+              pause => pause, stop => stop, paused => paused);
+
+  -- while paused: no pin change towards the keyboard, no published frame
+  pause_mon : process (pin8, pin9, clk)
+  begin
+    if paused = '1' and (pause = '1' or stop = '1') then
+      if pin8'event or pin9'event then
+        pin_moves <= pin_moves + 1;
+      end if;
+      if rising_edge(clk) and strobe = '1' then
+        pause_strobes <= pause_strobes + 1;
+      end if;
+    end if;
+  end process;
 
   mk1dev : entity work.kbd_mk1_device
     port map (clk => clk, keys_pressed => dev_keys, kio8_in => to_X01(pin8),
@@ -122,7 +142,7 @@ begin
 
   process
     variable want : std_logic_vector(79 downto 0);
-    variable p0 : natural;
+    variable p0, pm0, ps0 : natural;
     procedure scans(n : natural) is
     begin
       for i in 1 to n loop wait until rising_edge(clk) and strobe = '1'; end loop;
@@ -140,6 +160,27 @@ begin
       end loop;
       assert probe_conds = 0 report msg & ": START/STOP during a type-3 probe" severity failure;
     end procedure;
+    -- pause for `dur`: paused within 600 us (an MK-I frame is 451 us), then
+    -- nothing moves; type and keys kept
+    procedure pause_for(dur : time; msg : string) is
+      variable t0 : std_logic_vector(1 downto 0);
+      variable k0 : std_logic_vector(79 downto 0);
+    begin
+      wait until rising_edge(clk);
+      t0 := ktype; k0 := pressed;
+      pm0 := pin_moves; ps0 := pause_strobes;
+      pause <= '1';
+      wait until paused = '1' for 600 us;
+      assert paused = '1' report msg & ": not paused in time" severity failure;
+      wait for dur;
+      assert pin_moves = pm0 report msg & ": pins moved while paused" severity failure;
+      assert pause_strobes = ps0 report msg & ": frame published while paused" severity failure;
+      assert ktype = t0 report msg & ": type changed while paused" severity failure;
+      assert pressed = k0 report msg & ": keys changed while paused" severity failure;
+      assert paused = '1' report msg & ": pause not kept" severity failure;
+      pause <= '0';
+      wait until rising_edge(clk);
+    end procedure;
   begin
     -- 1. MK-II from power-up: probe first, then MK-II
     pins(3)(0) <= '0';                     -- HELP (67)
@@ -152,6 +193,12 @@ begin
     assert pressed = want report "MK-II keys " & to_hstring(pressed) severity failure;
     assert commit = x"4D4B4949" report "MK-II commit id" severity failure;
     no_i2c_errors("MK-II after the probe");
+    pause_for(500 us, "MK-II pause");
+    pause_for(1 us, "MK-II short pause");
+    scans(2);
+    check_type("10", "MK-II after pauses");
+    assert pressed = want report "MK-II keys after pauses " & to_hstring(pressed) severity failure;
+    no_i2c_errors("MK-II after pauses");
     p0 := probes;
     wait for 4 ms;                         -- > REPROBE: never re-probed with an MK-II
     assert probes = p0 report "re-probed while an MK-II answers" severity failure;
@@ -169,6 +216,39 @@ begin
     for i in 0 to 95 loop
       assert dev_leds(i) = leds(95 - i) report "MK-I LED bit " & integer'image(i) severity failure;
     end loop;
+    -- pause with the keys changed meanwhile: only seen after the resume
+    dev_keys <= (5 => '1', 60 => '1', 0 => '1', others => '0');
+    pause <= '1';
+    wait until paused = '1' for 600 us;
+    assert paused = '1' and k8o = '1' and k8oe = '1' report "MK-I not paused with KIO8 high" severity failure;
+    pm0 := pin_moves; ps0 := pause_strobes;
+    dev_keys <= (7 => '1', others => '0');
+    wait for 1 ms;
+    assert pin_moves = pm0 report "MK-I pins moved while paused " & integer'image(pin_moves - pm0) severity failure;
+    assert pause_strobes = ps0 report "MK-I published while paused" severity failure;
+    assert pressed = want report "MK-I keys changed while paused" severity failure;
+    check_type("01", "MK-I paused");
+    pause <= '0';
+    scans(1);
+    assert pressed = (79 downto 8 => '0') & '1' & (6 downto 0 => '0') report "MK-I keys after the pause " & to_hstring(pressed) severity failure;
+    dev_keys <= (5 => '1', 60 => '1', 0 => '1', others => '0');
+    scans(2);
+    assert pressed = want report "MK-I keys after the pause (2) " & to_hstring(pressed) severity failure;
+    pause_for(10 us, "MK-I short pause");
+    -- stop: no keyboard reported, then detected again
+    stop <= '1';
+    wait until paused = '1' for 600 us;
+    wait until rising_edge(clk);
+    check_type("00", "MK-I stopped");
+    assert pressed = (79 downto 0 => '0') report "keys while stopped" severity failure;
+    pm0 := pin_moves;
+    wait for 500 us;
+    assert pin_moves = pm0 report "pins moved while stopped" severity failure;
+    stop <= '0';
+    wait until ktype = "01" for 3 ms;
+    check_type("01", "MK-I after the stop");
+    scans(2);
+    assert pressed = want report "MK-I keys after the stop " & to_hstring(pressed) severity failure;
     -- the re-probe (MK-I does not answer) must not disturb the keys
     watch <= want; watch_on <= true;
     p0 := probes;
@@ -191,6 +271,10 @@ begin
     assert commit = x"2ed09bd3" report "type-3 commit id " & to_hstring(commit) severity failure;
     assert k8oe = '1' and k8o = '0' report "KIO8 not held low in type 3" severity failure;
     check_type("11", "type 3 kept");
+    pause_for(300 us, "type-3 pause");
+    scans(2);
+    check_type("11", "type 3 after the pause");
+    assert pressed = want report "type-3 keys after the pause " & to_hstring(pressed) severity failure;
 
     -- 4. unplugged: lost -> probe -> legacy -> none
     attached <= NONE;

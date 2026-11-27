@@ -24,6 +24,10 @@
 -- SCL = clk / (4 * QUARTER_CYCLES): 250 kHz at 125 MHz with the default
 -- (QUARTER_CYCLES >= 4). A scan is ~280 SCL periods (~1.1 ms at 250 kHz).
 --
+-- hold (key 0x0063, issue 0054): no new transaction is started; held = the
+-- bus is idle between transactions (after a STOP, both lines released), or
+-- the block is disabled. I2C is static, so the scan resumes where it stopped.
+--
 -- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.
 library ieee;
 use ieee.std_logic_1164.all;
@@ -48,7 +52,9 @@ entity kbd_mk2_host is
     pressed    : out std_logic_vector(79 downto 0);
     strobe     : out std_logic;           -- once per complete scan
     present    : out std_logic;           -- an expander ACKed in the last scan
-    kbd_commit : out std_logic_vector(31 downto 0)
+    kbd_commit : out std_logic_vector(31 downto 0);
+    hold       : in  std_logic := '0';
+    held       : out std_logic
   );
 end entity;
 
@@ -118,6 +124,8 @@ begin
   sda_low    <= sda_r;
   scl_low    <= scl_r;
   present    <= present_r;
+  held       <= hold when enable = '0' or (st = S_NEXT and busy = '0' and step = 0 and
+                                            pub_stb = '0' and map_stb = '0') else '0';
   kbd_commit <= x"4D4B4949";              -- "MKII", as mk2_to_mk1 reports
 
   process (clk)
@@ -171,7 +179,7 @@ begin
               else
                 step <= step + 1;
               end if;
-            elsif pub_stb = '0' and map_stb = '0' then
+            elsif pub_stb = '0' and map_stb = '0' and not (hold = '1' and step = 0) then
               busy <= '1'; q <= "00"; bitn <= 0;
               if step = 0 or (xact /= 0 and step = 3) then
                 st <= S_START;

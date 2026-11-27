@@ -26,6 +26,17 @@
 -- level turns o/oe into tri-state buffers. All pin outputs and results are
 -- registered here.
 --
+-- pause / stop (MGMT key 0x0063, issue 0054: less cross-talk while the
+-- keyboard CPLD's JTAG runs on the same ribbon). pause: the active protocol
+-- runs on to a clean point and stops there with static lines (MK-I: in the
+-- sync phase, KIO8 high; MK-II: between I2C transactions, bus released;
+-- type 3: between pairs, KIO9 idle high; enter/leave steps: at once);
+-- `paused` = stopped. Detection and the re-probe timer stand still, so
+-- kbd_type is kept, and `pressed` is frozen (no strobe) until one complete
+-- frame after the resume. stop: the same, but kbd_type reads 0 and
+-- `pressed` all released; at release detection starts again (type 3 probe).
+-- A type-3 keyboard keeps sending on KIO10 for 100 ms after our last pair.
+--
 -- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.
 library ieee;
 use ieee.std_logic_1164.all;
@@ -59,7 +70,10 @@ entity kbd_phys_host is
     -- 0 none, 1 MK-I, 2 MK-II, 3 type 3
     kbd_type   : out std_logic_vector(1 downto 0);
     kbd_commit : out std_logic_vector(31 downto 0) := (others => '0');
-    probing    : out std_logic := '0'       -- type-3 probe/session owns the pins
+    probing    : out std_logic := '0';      -- type-3 probe/session owns the pins
+    pause      : in  std_logic := '0';
+    stop       : in  std_logic := '0';
+    paused     : out std_logic := '0'
   );
 end entity;
 
@@ -84,6 +98,9 @@ architecture rtl of kbd_phys_host is
   signal sda_low, scl_low : std_logic;
   signal type_r    : std_logic_vector(1 downto 0) := "00";
   signal was_t3    : std_logic := '0';
+  signal hreq, stop_r, paused_p : std_logic := '0';
+  signal m1_held, m2_held, t3_held : std_logic;
+  signal rskip     : std_logic := '0';    -- drop the next sub-host frame
 begin
   kbd_type <= type_r;
 
@@ -91,30 +108,59 @@ begin
     generic map (HALF_CYCLES => MK1_HALF_CYCLES)
     port map (clk => clk, kio8 => m1_kio8, kio9 => m1_kio9, kio10 => kio10,
               leds => leds, pressed => m1_pressed, strobe => m1_stb,
-              present => open, kbd_commit => m1_commit);
+              present => open, kbd_commit => m1_commit, hold => hreq, held => m1_held);
 
   mk2 : entity work.kbd_mk2_host
     generic map (QUARTER_CYCLES => MK2_QUARTER_CYCLES, REINIT_LOG2 => MK2_REINIT_LOG2,
                  CAPS_HOLD => MK2_CAPS_HOLD)
     port map (clk => clk, enable => mk2_en, sda_in => kio8_i, sda_low => sda_low,
               scl_low => scl_low, leds => leds, pressed => m2_pressed, strobe => m2_stb,
-              present => m2_present, kbd_commit => m2_commit);
+              present => m2_present, kbd_commit => m2_commit, hold => hreq, held => m2_held);
 
   t3 : entity work.kbd_t3_host
     generic map (BIT_CYCLES => T3_BIT_CYCLES, LOSS_CYCLES => T3_LOSS_CYCLES)
     port map (clk => clk, enable => t3_en, txd => t3_txd, rxd => kio10, leds => leds,
               lock_ovr => "0000", pressed => t3_pressed, strobe => t3_stb,
               present => t3_present, kbd_commit => t3_commit, kbd_date => open,
-              locks => open, version => open, rx_errors => open);
+              locks => open, version => open, rx_errors => open, hold => hreq, held => t3_held);
 
   process (clk)
+    -- a sub-host frame: published unless paused or just resumed
+    procedure publish(p : std_logic_vector(79 downto 0); c : std_logic_vector(31 downto 0)) is
+    begin
+      if hreq = '1' then
+        null;
+      elsif rskip = '1' then
+        rskip <= '0';
+      else
+        pressed    <= p;
+        kbd_commit <= c;
+        strobe     <= '1';
+      end if;
+    end procedure;
   begin
     if rising_edge(clk) then
       if ps = P_LEGACY then probing <= '0'; else probing <= '1'; end if;
       k10_s  <= k10_s(0) & kio10;
       strobe <= '0';
-      if pcnt /= REPROBE_CYCLES then
+      hreq   <= pause or stop;
+      stop_r <= stop;
+      if hreq = '1' and (pause or stop) = '0' then
+        rskip <= '1';                   -- the frame in flight spans the pause
+      end if;
+      if pcnt /= REPROBE_CYCLES and hreq = '0' then
         pcnt <= pcnt + 1;
+      end if;
+      -- the pins follow the sub-hosts one cycle later: report one more late
+      paused   <= paused_p and hreq;
+      paused_p <= '0';
+      if hreq = '1' then
+        case ps is
+          when P_ENTER | P_LEAVE => paused_p <= '1';
+          when P_PROBE | P_T3    => paused_p <= t3_held;
+          when P_LEGACY =>
+            if mk1_mode = '1' then paused_p <= m1_held; else paused_p <= m2_held; end if;
+        end case;
       end if;
 
       case ps is
@@ -125,7 +171,7 @@ begin
           if step = '1' then
             kio8_o <= '0'; kio8_oe <= '1';
           end if;
-          if pcnt = PIN_STEP_CYCLES then
+          if pcnt = PIN_STEP_CYCLES and hreq = '0' then
             pcnt <= 0;
             if step = '0' then
               step <= '1';
@@ -144,11 +190,9 @@ begin
             pcnt <= 0;
             type_r <= "11";
             if t3_stb = '1' then
-              pressed    <= t3_pressed;
-              kbd_commit <= t3_commit;
-              strobe     <= '1';
+              publish(t3_pressed, t3_commit);
             end if;
-          elsif ps = P_T3 or pcnt = T3_PROBE_CYCLES then
+          elsif hreq = '0' and (ps = P_T3 or pcnt = T3_PROBE_CYCLES) then
             -- lost (probe again) / no answer (legacy detection)
             was_t3 <= '0';
             if ps = P_T3 then
@@ -167,7 +211,7 @@ begin
           if step = '1' then
             kio8_oe <= '0';
           end if;
-          if pcnt = PIN_STEP_CYCLES then
+          if pcnt = PIN_STEP_CYCLES and hreq = '0' then
             pcnt <= 0;
             if step = '0' then
               step <= '1';
@@ -185,7 +229,9 @@ begin
           end if;
 
         when P_LEGACY =>
-          if k10_s(1) = '1' then
+          if hreq = '1' then
+            null;                       -- paused: detection stands still
+          elsif k10_s(1) = '1' then
             det_cnt  <= 0;
             mk1_mode <= '1';
           elsif det_cnt /= MK2_DETECT_CYCLES then
@@ -193,7 +239,9 @@ begin
           else
             mk1_mode <= '0';
           end if;
-          mk2_en <= not mk1_mode;
+          if hreq = '0' then
+            mk2_en <= not mk1_mode;
+          end if;
 
           if mk1_mode = '1' then
             kio8_o <= m1_kio8; kio8_oe <= '1';
@@ -203,9 +251,7 @@ begin
               if skip /= 0 then
                 skip <= skip - 1;
               else
-                pressed    <= m1_pressed;
-                kbd_commit <= m1_commit;
-                strobe     <= '1';
+                publish(m1_pressed, m1_commit);
               end if;
             end if;
           else
@@ -214,9 +260,7 @@ begin
             skip   <= MK1_SKIP_FRAMES;
             type_r <= m2_present & '0';
             if m2_stb = '1' then
-              pressed    <= m2_pressed;
-              kbd_commit <= m2_commit;
-              strobe     <= '1';
+              publish(m2_pressed, m2_commit);
             end if;
             if m2_present = '0' then
               pressed <= (others => '0');
@@ -226,12 +270,28 @@ begin
           -- probe type 3 again: no keyboard or an MK-I, never an MK-II
           if m2_present = '1' and mk1_mode = '0' then
             pcnt <= 0;
-          elsif pcnt = REPROBE_CYCLES then
+          elsif pcnt = REPROBE_CYCLES and hreq = '0' then
             pcnt   <= 0;
             mk2_en <= '0';
             ps     <= P_ENTER;
           end if;
       end case;
+
+      -- stopped (key 0x0063 = 2): no keyboard reported; detection restarts
+      -- (type-3 probe first) when the stop ends
+      if stop_r = '1' then
+        type_r  <= "00";
+        pressed <= (others => '0');
+        strobe  <= '0';
+        if stop = '0' then
+          ps     <= P_ENTER;
+          step   <= '0';
+          pcnt   <= 0;
+          mk2_en <= '0';
+          t3_en  <= '0';
+          was_t3 <= '0';
+        end if;
+      end if;
     end if;
   end process;
 end architecture;
