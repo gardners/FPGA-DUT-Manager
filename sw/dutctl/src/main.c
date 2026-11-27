@@ -815,7 +815,11 @@ static int jtag_txn(jtag_ctx_t *j, uint32_t bits, const uint8_t *tms, const uint
       return -1;
     }
   }
-  fprintf(stderr, "jtag: no response\n");
+  if (j->dut != DP_DUT_ANY)
+    fprintf(stderr, "jtag: no response (is %s really endpoint dut%u? a wrong index is dropped)\n",
+            inet_ntoa(j->t.sin_addr), j->dut);
+  else
+    fprintf(stderr, "jtag: no response\n");
   return -1;
 }
 

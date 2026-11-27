@@ -109,7 +109,9 @@ for its options.
 | `set IP NAME VALUE`, `mgmt IP KEY [HEX]` | management keys (named / raw) |
 | `kbd IP [KEY ...]` | hold MEGA65 keys on a DUT |
 | `uart IP` | interactive UART bridge |
-| `jtag-idcode IP`, `xvc IP` | JTAG over UDP, XVC server for Vivado |
+| `jtag-idcode IP [DUT]\|NAME`, `xvc IP [DUT]\|NAME` | JTAG over UDP, XVC server for Vivado; a configured USB-JTAG DUT prints (or `--exec`s) the openFPGALoader command |
+| `jtag-speed IP [DUT]\|NAME [--kbd] [--save]` | maximum safe octopus TCK (issue 0054) |
+| `duts`, `jtag-discover` | per-DUT configuration, USB JTAG adaptor discovery (issue 0053) |
 | `relay TTY COMMAND...` | Arduino relay controller (DUT power) |
 | `text IP ...` | write the HDMI console text screens |
 | `video IP [--enable]` | raw raster capture to PPM frames |
@@ -131,6 +133,61 @@ console screen, also on errors and Ctrl-C. The default file is
 `mega65-screenshot-NNNNNN.png`, the lowest free number in the current
 directory (never overwritten). PNGs are uncompressed (stored deflate), about
 1 MB at 720x480.
+
+**Per-DUT JTAG setup** (issue 0053): `~/.config/dutctl/duts.conf` (or
+`$DUTCTL_CONF`, or the global `--conf FILE`) has one `[name]` section per
+DUT; `dutctl duts --help` lists the keys:
+
+```ini
+[m65-r6]
+ip = 192.168.1.50        # supervisor endpoint (octopus JTAG)
+dut = 0                  # endpoint index (optional)
+jtag = octopus           # or usb
+tck_half = 12            # from dutctl jtag-speed --save
+kbd_tck_half = 20        # keyboard CPLD, jtag-speed --kbd --save
+relay = /dev/ttyACM0 3   # power path (relay controller tty, channel)
+
+[nexys]
+jtag = usb
+usb_vid = 0403
+usb_pid = 6010
+usb_serial = 251633000123
+ftdi_channel = 0
+tty = /dev/ttyUSB5       # the adaptor's UART to the DUT (TE0790)
+```
+
+The JTAG commands take a DUT name instead of `IP [DUT]`. For `jtag = octopus`
+they use the configured `tck_half` (`xvc`: as the fastest TCK that XVC
+`settck` may select); for `jtag = usb` they print the openFPGALoader line
+(`--detect` / `--xvc --port N`, chosen by `--ftdi-serial`) plus m65's
+`-f SERIAL -l TTY`, or run it with `--exec`. `dutctl duts` lists the DUTs.
+The writer edits the file in place, so comments survive.
+
+`dutctl jtag-discover` lists USB JTAG adaptors from sysfs (FTDI
+0403:6010/6011/6014/6001, TE0790, Digilent; the Mimas boards 2a19:1009 are
+excluded) with their serials and ttys. `--scan` reads each chain with
+openFPGALoader `--detect` (FTDI channel 0 by default; libftdi detaches that
+channel's ttyUSB; FT232R only with `--all`; adaptors carrying a configured
+relay tty are never touched). `--power-cycle --yes` switches each DUT with a
+`relay =` power path off, waits (`--wait S`, default 3), rescans, sees whose
+chain disappeared, switches the DUT back on, proposes the mapping and
+writes it after confirmation (or with `--write`). Without openFPGALoader
+there is no chain scan: map by hand or unplug adaptors one at a time.
+Adaptors without a USB serial are recorded by port (`usb_path`) and
+addressed by bus/device number; replugging can renumber them.
+
+**JTAG speed probe** (issue 0054): `dutctl jtag-speed IP|NAME [--kbd]
+[--reps N] [--save]` sweeps the TCK half period from 50 (1.25 MHz) down to
+2 (31.25 MHz). Each of the N probes per step (default 200) is one shift:
+Test-Logic-Reset and the IDCODE window (compared with the slow reading),
+then all IRs to BYPASS and a 2048-bit random, 512 all-0 and 512 all-1 DR
+pattern checked after the chain's length. Only IDCODE and BYPASS are used,
+so it is safe on a running DUT. The fastest step reached without a failure
+is f_max; the recommendation is f_max / 2 (the next swept step at least
+twice as slow), which `--save` writes as `tck_half` (`kbd_tck_half` with
+`--kbd`). `-v` shows the wrong bits; `--tolerate N` lets a step pass with N
+failing probes (for a link with a speed-independent error floor);
+`--from` / `--to` limit the sweep.
 
 Hardware notes: power the Mimas from its DC jack (USB power alone is not
 enough for the full design); install the udev rule with
