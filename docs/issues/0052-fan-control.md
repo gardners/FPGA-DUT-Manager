@@ -61,3 +61,12 @@ fans go off with everything else.
 * PTC per header (recommended) or eFuse per header?
 * Are all 8 fans on the KVM power board, or do some go to shelves on longer
   leads (0051 Q3)?
+
+## 2026-11-27 owner answers (round 10)
+
+* Fan protection: **eFuses if they are cheap** (and pad-free, JLC-stocked),
+  otherwise resettable fuses. Agent to search; PTC is the fallback.
+* 8 fans: 2 on the KVM front panel, and 3 on each of two shelf fan plates on
+  long leads (0051). All 120 mm, 12 V, 4-pin PWM preferred.
+* With two fan groups in different places, at least three PWM channels are
+  useful (KVM pair, shelf group A, shelf group B), with tach read on every fan.

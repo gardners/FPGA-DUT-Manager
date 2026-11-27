@@ -144,3 +144,64 @@ everything.
   but no longer develop them.
 * The KVM unit reuses the shield, keyboard sub-boards, power boards and front
   panel unchanged.
+
+## 2026-11-27 owner answers (round 10)
+
+* **Cartridges:** the MEGA65 cartridge port is **horizontal**, so cartridges
+  and the Cart64out lie flat in the 100 mm rear space. 1RU is the normal
+  pitch; taller gaps are a rack re-arrangement only. No pitch parameter
+  needed beyond the 1RU default.
+* **Cables:** **cable loops** with enough length for full extension (the
+  owner's default). Simple mitigations are welcome: a rear strain-relief bar
+  or tie point per shelf.
+* **Deck: 6 mm ply**, 1RU pitch. **Edges: 25 x 25 mm timber battens** down
+  both sides, which the slider rails screw to (the rails are a hodge-podge,
+  so no rail-specific hole patterns).
+* **Shelf cooling:** MEGA65s make very little heat (no FPGA heatsink). Later.
+* **USB hub:** outside this project's scope, but agreed it is needed.
+* **KVM unit: 3RU, on slide rails** (no ply rack ears). A **vertical 3RU front
+  panel** carries the LCD and front-panel PCB, **two 120 mm fans**, the power
+  input board and the rocker. It is the part that holds the front together.
+  Etched artwork: the MEGA65 and M.E.G.A. e.V. logos plus the MEGA-KVM
+  marking.
+* **Shelf fan plates:** a MEGA65 shelf can carry a **1RU-4RU tall front plate**
+  with fan holes. In practice one shelf in each group of 4 carries a 4RU
+  plate with **3 x 120 mm fans, staggered in height** (a 120 mm fan is less
+  than 4RU = 177.8 mm, so staggering spreads the airflow over all four
+  shelves). To reach the other three shelves of the group, pull that drawer
+  out first. The plate also gives the rack a front.
+* Fan count: 2 (KVM) + 2 x 3 (two shelf groups) = **8**, matching the 8
+  headers in 0052. The shelf fans run on leads through the cable loops.
+
+### Consequences (lead)
+
+* **Height budget:** next deck bottom is 44.45 - 6 = **38.45 mm** above this
+  deck's top in the middle. Along each edge the next shelf's battens take
+  25 mm, leaving ~13 mm. Tall parts (floppy drive ~26 mm, DB9 stacks) keep
+  clear of the 25 mm edge strips.
+* **Width budget:** ~450 mm between the rack posts, minus ~12-13 mm per slide,
+  gives a ~425 mm deck. Full height (38 mm) is only available **between the
+  battens: ~375 mm**. Whether the MEGA65 board and the floppy fit side by
+  side in that width depends on the MEGA65 drawings. If not, the floppy goes
+  in front of or behind the board.
+* **Fan plate geometry:** the plate is 6 mm ply, bolted to the front edge of
+  its shelf with two gussets (it is a cantilever 4RU tall carrying ~0.5 kg of
+  fans). It can be **482.6 mm wide** (full 19 inch face, sitting in front of
+  the rack posts, which also acts as the drawer stop). The other three shelves
+  of the group stop ~35 mm short at the front (6 mm plate + 25 mm fan +
+  clearance), so the plate clears them. Fan holes: 3 x 120 mm on 105 mm
+  hole spacing, ~390 mm total width, alternating high/low (for example
+  centres at 1.3RU and 2.7RU from the plate bottom). Finger guards are
+  etched/cut grilles in the ply, or wire guards.
+* **KVM front panel:** 3RU x 482.6 mm, carrying:
+  * the display group (LCD, LEDs, buttons, rocker);
+  * the 197 x 34 mm input board;
+  * 2 x 120 mm fan cut-outs;
+  * the logos.
+
+  The KVM's other parts are the 6 mm deck with battens, the Mimas/shield
+  bays, the power main board and the GS105, plus a rear plate for HDMI, DUT
+  ribbons and Ethernet.
+* **Logos:** official vector artwork is needed (not redrawn from memory). The
+  owner supplies SVGs of the MEGA65 and M.E.G.A. e.V. logos. They are
+  converted to single-colour etch layers (black) by the generator.
