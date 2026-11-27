@@ -25,14 +25,13 @@ MM = pcbnew.FromMM
 
 # ---------------------------------------------------------------- geometry
 MIMAS_W, MIMAS_H = 120.0, 90.0
-ROW1_X = 9.14 + 1.27                  # header row 1 centre (body starts 9.14)
-P12_A_Y, P13_A_Y = 90 - 3.81, 1.27    # column A centre lines; column B = A + 2.54
-MIMAS_HOLES = [(5.00, 84.86), (115.0, 85.0), (4.83, 5.0), (115.0, 5.0)]
 HOLE_KEEPOUT = 3.8                    # screw head radius + clearance along the edge
-NOTCH = (0.0, 12.4, 18.0, 77.6)       # RJ45, USB-B, S12, P2, DC jack cut-out
 REAR = MIMAS_W                        # rear edge = Mimas HDMI edge
 
+# Mimas pin grid, holes and front cut-out (RJ45, USB-B, S12, P2, DC jack):
+# geometry.py, checked against the vendor STEP
 from geometry import SLOTS, Y_TOP, Y_BOT, KBD_DY, KBD_B2B  # noqa: E402
+from geometry import ROW1_X, P12_A_Y, P13_A_Y, MIMAS_HOLES, NOTCHES, MIMAS_TALL  # noqa: E402
 
 
 def K(mx, my):
@@ -286,8 +285,9 @@ def free(c):
     mx1, my0 = c[2] - X0, Y0 - c[3]
     if mx0 < 0.5 or mx1 > REAR - 0.5 or my1 > Y_TOP - 0.5 or my0 < Y_BOT + 0.5:
         return False
-    if mx0 < NOTCH[2] + 0.5 and my1 > NOTCH[1] - 0.5 and my0 < NOTCH[3] + 0.5:
-        return False
+    for (_, ny0, nx1, ny1) in NOTCHES:
+        if mx0 < nx1 + 0.5 and my1 > ny0 - 0.5 and my0 < ny1 + 0.5:
+            return False
     for hx, hy in MIMAS_HOLES + support:
         if mx0 < hx + 3.5 and mx1 > hx - 3.5 and my0 < hy + 3.5 and my1 > hy - 3.5:
             return False
@@ -346,20 +346,22 @@ pack('LINK', (30.0, Y_BOT + 1, 60.0, Y_BOT + 20))
 pack('MISC', (22.0, 20.0, 70.0, 40.0))
 
 # ---------------------------------------------------------------- outline
-outline = [(0, Y_TOP), (REAR, Y_TOP), (REAR, Y_BOT), (0, Y_BOT), (0, NOTCH[1]),
-           (NOTCH[2], NOTCH[1]), (NOTCH[2], NOTCH[3]), (0, NOTCH[3])]
+(_, N0Y0, N0X1, N0Y1), (_, N1Y0, N1X1, N1Y1) = NOTCHES
+assert N0Y0 < N1Y0 < N1Y1 == N0Y1 and N1X1 > N0X1    # main cut-out + RJ45 step at its P12 end
+outline = [(0, Y_TOP), (REAR, Y_TOP), (REAR, Y_BOT), (0, Y_BOT), (0, N0Y0),
+           (N0X1, N0Y0), (N0X1, N1Y0), (N1X1, N1Y0), (N1X1, N1Y1), (0, N1Y1)]
 seg(pcbnew.Edge_Cuts, outline, 0.1, closed=True)
 
 # Mimas outline and its edge connectors on User.Drawings (reference only)
 U = pcbnew.Dwgs_User
 rect_m(U, 0, 0, MIMAS_W, MIMAS_H, 0.15)
-for (x0, y0, x1, y1, t) in [(-2, 60.81, 13.6, 76.57, 'Mimas RJ45'), (0, 40.77, 16, 52.76, 'USB-B'),
-                            (0, 30.56, 8, 37.16, 'S12'), (4.83, 25.17, 12.45, 27.71, 'P2'),
-                            (-1, 13.38, 13, 22.38, 'DC jack'),
-                            (108, 63.8, 121, 78.8, 'Mimas HDMI IN (DUT0)'),
-                            (108, 42.39, 121, 57.39, 'Mimas HDMI OUT'),
-                            (110, 25.94, 121, 37.31, 'mDP OUT'), (110, 9.61, 121, 21.01, 'mDP IN'),
-                            (74, 15, 97, 40, 'Mimas SW1 + LD0-7'), (35, 66, 62, 78, '7-seg')]:
+# (vendor STEP vertex bounding boxes, 2026-11-27; the HDMIs are flush with x = 120 there)
+tall = [MIMAS_TALL[k][:4] + ('Mimas ' + k if k == 'RJ45' else k,) for k in ('RJ45', 'USB-B', 'S12', 'DC jack')]
+for (x0, y0, x1, y1, t) in tall + [(4.83, 24.81, 12.45, 28.06, 'P2'),
+                            (110.8, 63.2, 120.0, 79.4, 'Mimas HDMI IN (DUT0)'),
+                            (110.8, 41.8, 120.0, 58.0, 'Mimas HDMI OUT'),
+                            (107.3, 25.94, 119.94, 37.34, 'mDP OUT'), (107.3, 9.61, 119.94, 21.01, 'mDP IN'),
+                            (74, 15, 97, 44.1, 'Mimas SW1 + LD0-7'), (35.86, 64.24, 65.86, 78.25, '7-seg')]:
     rect_m(U, x0, y0, x1, y1, 0.1)
     add_text(t, (x0 + x1) / 2, (y0 + y1) / 2, 1.0, 0, U, False)
 add_text('Mimas A7 V3 outline (User.Drawings)', 60, 45, 1.5, 0, U, False)
@@ -439,7 +441,9 @@ track(padpos(p13, 'A1'), padpos(p13, 'B1'), '+12V', 1.0)
 track(padpos(p13, 'B1'), padpos(p13, 'B2'), '+12V', 1.0)
 track(padpos(p13, 'A2'), padpos(p13, 'B2'), '+12V', 1.0)
 # P12 VIN: up behind the cut-out on the bottom layer
-route = [(ROW1_X, 9.0), (NOTCH[2] + 3.0, 9.0), (NOTCH[2] + 3.0, 81.0), (ROW1_X, 81.0)]
+# (it steps out around the RJ45 part of the cut-out: >= 3 mm from every cut edge)
+route = [(ROW1_X, 9.0), (N0X1 + 3.0, 9.0), (N0X1 + 3.0, N1Y0 - 3.0), (N1X1 + 3.0, N1Y0 - 3.0),
+         (N1X1 + 3.0, 81.0), (ROW1_X, 81.0)]
 track(padpos(p13, 'B1'), K(*route[0]), '+12V', 1.5, pcbnew.B_Cu)
 for u, v in zip(route, route[1:]):
     track(K(*u), K(*v), '+12V', 1.5, pcbnew.B_Cu)
