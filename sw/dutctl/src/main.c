@@ -8,10 +8,17 @@
  *   dutctl kbd IP [KEY ...]                    hold keys (none = all up)
  *   dutctl uart IP [--baud N] [--clear] [--from-start]
  *                                              interactive UART bridge
- *   dutctl jtag-idcode IP [--kbd]              read JTAG IDCODE over UDP
- *   dutctl xvc IP [--port 2542] [--kbd]        XVC 1.0 server for Vivado
+ *   dutctl jtag-idcode IP [DUT]|NAME [--kbd]   read JTAG IDCODE over UDP
+ *   dutctl xvc IP [DUT]|NAME [--port 2542] [--kbd]
+ *                                              XVC 1.0 server for Vivado
  *                                              (--kbd: the physical keyboard's
  *                                              CPLD instead of the DUT, ADR 0014)
+ *   dutctl jtag-speed IP [DUT]|NAME [--kbd] [--reps N] [--save]
+ *                                              max safe octopus TCK (issue 0054)
+ *   dutctl duts                                configured DUTs (issue 0053)
+ *   dutctl jtag-discover [--scan] [--power-cycle --yes] [--write]
+ *                                              USB JTAG adaptors -> DUTs
+ *   (global: --conf FILE, else $DUTCTL_CONF, else ~/.config/dutctl/duts.conf)
  *   dutctl relay TTY COMMAND...                Arduino relay controller
  *   dutctl thumbs IFACE [--request] [--force IP] thumbnail relay -> PPM (AF_PACKET)
  *   dutctl screenshot [TARGET] [-o FILE]        one frame -> PNG/PPM (alias -S)
@@ -37,11 +44,15 @@
 #include <strings.h>
 #include <sys/socket.h>
 #include <sys/time.h>
+#include <sys/wait.h>
 #include <termios.h>
 #include <time.h>
 #include <unistd.h>
 
+#include "dutconf.h"
 #include "dutproto.h"
+#include "jtagdisc.h"
+#include "jtagspeed.h"
 #include "pngwrite.h"
 #include "rasterframe.h"
 #include "screenshot.h"
@@ -192,6 +203,7 @@ static int cmd_set(int argc, char **argv)
             "         kbd-leds (physical keyboard LEDs: 0 status colour, 1 DUT's, 2 host)\n"
             "         console-screen (0 auto incl. passthrough, 1 editable, 2 no video, 3 select)\n"
             "         kbd-jtag (keyboard CPLD JTAG: 0 auto, 1 on, 2 off, 3 on with JTAGEN low)\n"
+            "         power-ctl (shield power outputs CTRL0..7 bitmask, e.g. 0x05)\n"
             "         kbd-led-rgb RRGGBB,RRGGBB,RRGGBB,RRGGBB (LED0..3 for kbd-leds 2;\n"
             "                     LED0/1 = drive LED, LED2/3 = power LED)\n");
     return 2;
@@ -212,7 +224,7 @@ static int cmd_set(int argc, char **argv)
     {"coupled", DP_K_COUPLED, 1}, {"capture", DP_K_CAPTURE_EN, 1},
     {"hb-period-ms", DP_K_HB_PERIOD, 2}, {"out-policy", DP_K_OUT_POLICY, 1},
     {"kbd-leds", DP_K_PK_LED_MODE, 1}, {"console-screen", DP_K_CON_SCREEN, 1},
-    {"kbd-jtag", DP_K_PK_JTAG, 1},
+    {"kbd-jtag", DP_K_PK_JTAG, 1}, {"power-ctl", DP_K_PWR_CTL, 1},
   };
   if (!strcmp(name, "kbd-led-rgb")) {
     unsigned c[4];
@@ -363,6 +375,12 @@ static void print_hb_kv(const char *ip, const dp_hdr_t *h, const dp_heartbeat_t 
   if (hb->has_mem)
     printf(" mem_flags=%u mem_errors=%u mem_dq_fail=%u mem_test_kib=%u mem_first_err=%u",
            hb->mem_flags, hb->mem_errors, hb->mem_dq_fail, hb->mem_test_kib, hb->mem_first_err);
+  printf(" has_shield=%u", hb->has_shield);
+  if (hb->has_shield)
+    printf(" shd_flags=%u shd_revision=%u shd_features=%u shd_sense=%u shd_hdmi=%u shd_pwr=%u "
+           "shd_i2c_errors=%u",
+           hb->shd_flags, hb->shd_revision, hb->shd_features, hb->shd_sense, hb->shd_hdmi,
+           hb->shd_pwr, hb->shd_i2c_errors);
   printf("\n");
   fflush(stdout);
 }
@@ -579,12 +597,181 @@ static int cmd_uart(int argc, char **argv)
   return 0;
 }
 
+/* ------------------------------------------------------------- per-DUT config */
+/* Issue 0053: ~/.config/dutctl/duts.conf (or $DUTCTL_CONF, or --conf FILE). */
+static const char *g_conf_arg;
+static char g_conf_path[1024];
+static dc_conf_t g_conf;
+static int g_conf_loaded;
+
+static const char *conf_path(void)
+{
+  if (!g_conf_path[0]) {
+    if (g_conf_arg)
+      snprintf(g_conf_path, sizeof g_conf_path, "%s", g_conf_arg);
+    else if (getenv("DUTCTL_CONF") && *getenv("DUTCTL_CONF"))
+      snprintf(g_conf_path, sizeof g_conf_path, "%s", getenv("DUTCTL_CONF"));
+    else
+      dc_default_path(g_conf_path, sizeof g_conf_path);
+  }
+  return g_conf_path;
+}
+
+static const dc_conf_t *conf(void)
+{
+  if (!g_conf_loaded) {
+    static char err[4096];
+    int missing;
+    int r = dc_load(conf_path(), &g_conf, err, sizeof err, &missing);
+    if (r < 0)
+      fprintf(stderr, "dutctl: cannot read %s: %s\n", conf_path(), strerror(errno));
+    else if (r > 0)
+      fprintf(stderr, "dutctl: %s:\n%s", conf_path(), err);
+    if (g_conf_arg && missing)
+      fprintf(stderr, "dutctl: note: %s does not exist (empty configuration)\n", conf_path());
+    g_conf_loaded = 1;
+  }
+  return &g_conf;
+}
+
+/* A JTAG target on the command line: "IP [DUT]" or a configured DUT name. */
+typedef struct {
+  char ip[64];
+  int dut;              /* endpoint index, -1 = wildcard */
+  const dc_dut_t *cfg;  /* NULL if not configured */
+} target_t;
+
+static int is_index(const char *s)
+{
+  return *s && strspn(s, "0123456789") == strlen(s) && strlen(s) <= 3;
+}
+
+/* Consumes argv[0] (and argv[1] if it is a DUT index); returns the number
+ * of arguments used, -1 on error (message printed). */
+static int resolve_target(const char *cmd, int argc, char **argv, target_t *t)
+{
+  memset(t, 0, sizeof *t);
+  t->dut = -1;
+  if (argc < 1)
+    return -1;
+  int used = 1;
+  if (argc > 1 && is_index(argv[1])) {
+    t->dut = atoi(argv[1]);
+    used = 2;
+  }
+  struct in_addr a;
+  if (inet_pton(AF_INET, argv[0], &a) == 1) {
+    snprintf(t->ip, sizeof t->ip, "%s", argv[0]);
+    t->cfg = dc_find_ip(conf(), t->ip, t->dut);
+    return used;
+  }
+  t->cfg = dc_find_name(conf(), argv[0]);
+  if (!t->cfg) {
+    fprintf(stderr, "dutctl %s: '%s' is neither an IPv4 address nor a DUT in %s (see dutctl duts)\n", cmd,
+            argv[0], conf_path());
+    return -1;
+  }
+  if (t->cfg->jtag == DC_JTAG_OCTOPUS && !t->cfg->ip[0]) {
+    fprintf(stderr, "dutctl %s: DUT %s has no ip = (octopus JTAG needs the supervisor endpoint)\n", cmd,
+            t->cfg->name);
+    return -1;
+  }
+  snprintf(t->ip, sizeof t->ip, "%s", t->cfg->ip);
+  if (t->dut < 0)
+    t->dut = t->cfg->dut;
+  return used;
+}
+
+/* TCK half period for an octopus target: --half, else the configured value,
+ * else the built-in default (~10.4 MHz to a DUT, ~2 MHz to the keyboard). */
+static uint32_t target_half(const target_t *t, int kbd, long override)
+{
+  if (override >= 2)
+    return (uint32_t)override;
+  if (t->cfg && (kbd ? t->cfg->kbd_tck_half : t->cfg->tck_half) >= 2)
+    return (uint32_t)(kbd ? t->cfg->kbd_tck_half : t->cfg->tck_half);
+  return kbd ? 32 : 6;
+}
+
+/* ------------------------------------------------------------- USB JTAG */
+static int is_exec(const char *p)
+{
+  return p && *p && access(p, X_OK) == 0;
+}
+
+/* openFPGALoader: $DUTCTL_OPENFPGALOADER, $PATH, then this repo's tools/. */
+static const char *find_ofl(void)
+{
+  static char buf[1024];
+  const char *e = getenv("DUTCTL_OPENFPGALOADER");
+  if (e && *e)
+    return is_exec(e) ? e : NULL;
+  const char *path = getenv("PATH");
+  if (path) {
+    const char *p = path;
+    while (*p) {
+      size_t l = strcspn(p, ":");
+      snprintf(buf, sizeof buf, "%.*s/openFPGALoader", (int)l, p);
+      if (l && is_exec(buf))
+        return buf;
+      p += l + (p[l] == ':');
+    }
+  }
+#ifdef DUTCTL_REPO_OFL
+  if (is_exec(DUTCTL_REPO_OFL))
+    return DUTCTL_REPO_OFL;
+#endif
+  return NULL;
+}
+
+static int usb_cmd_for(const dc_dut_t *d, const char *mode, int port, jd_cmd_t *c)
+{
+  const char *ofl = find_ofl();
+  const char *cable = d->cable[0] ? d->cable : dc_default_cable(d->usb_vid, d->usb_pid);
+  if (jd_ofl_cmd(c, ofl ? ofl : "openFPGALoader", cable, d->usb_vid, d->usb_pid, d->usb_serial,
+                 NULL, d->ftdi_channel, d->usb_freq, mode, port) < 0) {
+    fprintf(stderr, "dutctl: DUT %s: no openFPGALoader cable known for %04x:%04x (set cable = ...)\n",
+            d->name, d->usb_vid, d->usb_pid);
+    return -1;
+  }
+  return 0;
+}
+
+/* jtag = usb: print the command (and tool hints), or exec it with --exec. */
+static int usb_jtag(const dc_dut_t *d, const char *mode, int port, int exec)
+{
+  jd_cmd_t c;
+  if (usb_cmd_for(d, mode, port, &c) < 0)
+    return 1;
+  if (!d->usb_serial[0])
+    fprintf(stderr, "dutctl: warning: DUT %s has no usb_serial; the first %04x:%04x adaptor is used "
+                    "(recorded USB port: %s)\n", d->name, d->usb_vid, d->usb_pid,
+            d->usb_path[0] ? d->usb_path : "none");
+  if (exec) {
+    if (!find_ofl())
+      return fprintf(stderr, "dutctl: openFPGALoader not found (PATH, $DUTCTL_OPENFPGALOADER)\n"), 1;
+    fflush(stdout);
+    execv(c.argv[0], c.argv);
+    perror(c.argv[0]);
+    return 1;
+  }
+  char line[2048];
+  jd_cmd_str(&c, line, sizeof line);
+  printf("%s\n", line);
+  fprintf(stderr, "# DUT %s uses USB JTAG; run the line above, or add --exec.\n", d->name);
+  if (d->usb_serial[0] || d->tty[0])
+    fprintf(stderr, "# m65:%s%s%s%s\n", d->usb_serial[0] ? " -f " : "", d->usb_serial,
+            d->tty[0] ? " -l " : "", d->tty);
+  return 0;
+}
+
 /* ------------------------------------------------------------- JTAG */
 typedef struct {
   int fd;
   struct sockaddr_in t;
   uint32_t seq;
   uint32_t half;
+  uint8_t dut;     /* header dut field: endpoint index or DP_DUT_ANY */
   uint16_t target; /* 0 = the DUT, DP_JF_KBD = the physical keyboard's CPLD */
 } jtag_ctx_t;
 
@@ -592,7 +779,7 @@ static int jtag_txn(jtag_ctx_t *j, uint32_t bits, const uint8_t *tms, const uint
                     uint16_t flags)
 {
   uint8_t pkt[DP_MAX_PACKET], rx[DP_MAX_PACKET];
-  size_t n = dp_encode_jtag_req(pkt, DP_DUT_ANY, j->seq, j->half, 0, (uint16_t)(flags | j->target),
+  size_t n = dp_encode_jtag_req(pkt, j->dut, j->seq, j->half, 0, (uint16_t)(flags | j->target),
                                 bits, tms, tdi);
   uint8_t want_target = j->target ? DP_JT_KBD : DP_JT_DUT;
   if (!n)
@@ -635,17 +822,21 @@ static int jtag_txn(jtag_ctx_t *j, uint32_t bits, const uint8_t *tms, const uint
       return -1;
     }
   }
-  fprintf(stderr, "jtag: no response\n");
+  if (j->dut != DP_DUT_ANY)
+    fprintf(stderr, "jtag: no response (is %s really endpoint dut%u? a wrong index is dropped)\n",
+            inet_ntoa(j->t.sin_addr), j->dut);
+  else
+    fprintf(stderr, "jtag: no response\n");
   return -1;
 }
 
-static int jtag_open(jtag_ctx_t *j, const char *ip, int kbd)
+static int jtag_open(jtag_ctx_t *j, const target_t *t, int kbd, uint32_t half)
 {
   j->fd = udp_bind(0);
-  j->t = parse_target(ip, DP_PORT_JTAG);
+  j->t = parse_target(t->ip, DP_PORT_JTAG);
   j->target = kbd ? DP_JF_KBD : 0;
-  /* ~10.4 MHz to a DUT; ~2 MHz over the keyboard cable (jumper strips) */
-  j->half = kbd ? 32 : 6;
+  j->dut = t->dut >= 0 ? (uint8_t)t->dut : DP_DUT_ANY;
+  j->half = half;
   srand((unsigned)(time(NULL) ^ getpid()));
   j->seq = (uint32_t)rand();
   uint8_t z = 0;
@@ -672,17 +863,31 @@ static int jtag_shift(jtag_ctx_t *j, uint32_t bits, const uint8_t *tms, const ui
 
 static int cmd_jtag_idcode(int argc, char **argv)
 {
-  if (argc < 1)
-    return fprintf(stderr, "usage: dutctl jtag-idcode IP [--kbd]\n"), 2;
-  int kbd = 0;
-  for (int i = 1; i < argc; i++) {
+  static const char *const use = "usage: dutctl jtag-idcode IP [DUT] | NAME  [--kbd] [--half N] [--exec]\n"
+                                 "  NAME: a DUT from the configuration (dutctl duts); jtag = usb prints the\n"
+                                 "  openFPGALoader command (--exec runs it). --half: TCK half period override\n";
+  target_t t;
+  int used = resolve_target("jtag-idcode", argc, argv, &t);
+  if (used < 0)
+    return fputs(argc < 1 ? use : "", stderr), 2;
+  int kbd = 0, exec = 0;
+  long half = 0;
+  for (int i = used; i < argc; i++) {
     if (!strcmp(argv[i], "--kbd"))
       kbd = 1;
+    else if (!strcmp(argv[i], "--exec"))
+      exec = 1;
+    else if (!strcmp(argv[i], "--half") && i + 1 < argc)
+      half = strtol(argv[++i], NULL, 0);
     else
-      return fprintf(stderr, "dutctl jtag-idcode: unknown option %s\n", argv[i]), 2;
+      return fprintf(stderr, "dutctl jtag-idcode: unknown option %s\n%s", argv[i], use), 2;
   }
+  if (t.cfg && t.cfg->jtag == DC_JTAG_USB && !kbd)
+    return usb_jtag(t.cfg, "detect", 0, exec);
+  if (!t.ip[0])
+    return fprintf(stderr, "dutctl jtag-idcode: no supervisor ip for %s\n", argv[0]), 2;
   jtag_ctx_t j;
-  if (jtag_open(&j, argv[0], kbd) < 0)
+  if (jtag_open(&j, &t, kbd, target_half(&t, kbd, half)) < 0)
     return 1;
   /* TLR (5x TMS=1), RTI, SELDR, CAPDR, SHDR, then 32 bits, exit on last */
   uint8_t tms[6] = {0}, tdi[6] = {0}, tdo[6];
@@ -702,25 +907,39 @@ static int cmd_jtag_idcode(int argc, char **argv)
 
 static int cmd_xvc(int argc, char **argv)
 {
-  if (argc < 1)
-    return fprintf(stderr, "usage: dutctl xvc IP [--port 2542] [--kbd]\n"), 2;
-  int port = 2542, kbd = 0;
-  for (int i = 1; i < argc; i++) {
+  static const char *const use = "usage: dutctl xvc IP [DUT] | NAME  [--port 2542] [--kbd] [--half N] [--exec]\n"
+                                 "  the configured / --half TCK is the fastest XVC settck may select\n";
+  target_t t;
+  int used = resolve_target("xvc", argc, argv, &t);
+  if (used < 0)
+    return fputs(argc < 1 ? use : "", stderr), 2;
+  int port = 2542, kbd = 0, exec = 0;
+  long half_arg = 0;
+  for (int i = used; i < argc; i++) {
     if (!strcmp(argv[i], "--port") && i + 1 < argc)
       port = atoi(argv[++i]);
     else if (!strcmp(argv[i], "--kbd"))
       kbd = 1;
+    else if (!strcmp(argv[i], "--exec"))
+      exec = 1;
+    else if (!strcmp(argv[i], "--half") && i + 1 < argc)
+      half_arg = strtol(argv[++i], NULL, 0);
     else
-      return fprintf(stderr, "dutctl xvc: unknown option %s\n", argv[i]), 2;
+      return fprintf(stderr, "dutctl xvc: unknown option %s\n%s", argv[i], use), 2;
   }
+  if (t.cfg && t.cfg->jtag == DC_JTAG_USB && !kbd)
+    return usb_jtag(t.cfg, "xvc", port, exec);
+  if (!t.ip[0])
+    return fprintf(stderr, "dutctl xvc: no supervisor ip for %s\n", argv[0]), 2;
+  uint32_t min_half = target_half(&t, kbd, half_arg);
   int ls = socket(AF_INET, SOCK_STREAM, 0);
   int one = 1;
   setsockopt(ls, SOL_SOCKET, SO_REUSEADDR, &one, sizeof one);
   struct sockaddr_in a = {.sin_family = AF_INET, .sin_port = htons((uint16_t)port), .sin_addr.s_addr = INADDR_ANY};
   if (bind(ls, (struct sockaddr *)&a, sizeof a) < 0 || listen(ls, 1) < 0)
     die("xvc listen");
-  fprintf(stderr, "XVC server for %s%s on port %d (max %d bits per UDP shift)\n", argv[0],
-          kbd ? " keyboard CPLD" : "", port, DP_JTAG_MAX_BITS);
+  fprintf(stderr, "XVC server for %s%s on port %d (max %d bits per UDP shift, TCK <= %.2f MHz)\n", t.ip,
+          kbd ? " keyboard CPLD" : "", port, DP_JTAG_MAX_BITS, js_freq_hz((int)min_half) / 1e6);
   signal(SIGPIPE, SIG_IGN);
   static xvc_parser_t xp;
   static uint8_t tdo[XVC_MAX_BYTES];
@@ -730,7 +949,7 @@ static int cmd_xvc(int argc, char **argv)
       continue;
     setsockopt(c, IPPROTO_TCP, TCP_NODELAY, &one, sizeof one);
     jtag_ctx_t j;
-    if (jtag_open(&j, argv[0], kbd) < 0) { /* exclusive session per connection */
+    if (jtag_open(&j, &t, kbd, min_half) < 0) { /* exclusive session per connection */
       close(c);
       continue;
     }
@@ -750,8 +969,8 @@ static int cmd_xvc(int argc, char **argv)
           send(c, info, (size_t)l, 0);
         } else if (cmd == XVC_SETTCK) {
           uint32_t half = (xp.settck_period_ns + 8) / 16; /* ns -> half periods of 8 ns */
-          if (half < 2)
-            half = 2;
+          if (half < min_half)
+            half = min_half; /* never faster than the configured safe TCK (issue 0054) */
           j.half = half;
           uint32_t actual = half * 16;
           uint8_t r[4] = {(uint8_t)actual, (uint8_t)(actual >> 8), (uint8_t)(actual >> 16), (uint8_t)(actual >> 24)};
@@ -778,14 +997,218 @@ static int cmd_xvc(int argc, char **argv)
   return 0;
 }
 
-/* ------------------------------------------------------------- relays */
-static int cmd_relay(int argc, char **argv)
+/* ------------------------------------------------------------- JTAG speed */
+/* dutctl jtag-speed (issue 0054): sweep the octopus TCK from slow to the
+ * minimum half period of 2 with read-only probes (IDCODE after reset, BYPASS
+ * random / all-0 / all-1 DR shifts) and recommend half of the fastest
+ * error-free frequency. */
+static int cmd_jtag_speed(int argc, char **argv)
 {
-  if (argc < 2)
-    return fprintf(stderr, "usage: dutctl relay TTY COMMAND...  (e.g. STATUS, STATUS 3, POWER 3 ON, POWER 1 2 OFF, CYCLE 2 3000, ALL OFF)\n"), 2;
-  int fd = open(argv[0], O_RDWR | O_NOCTTY);
-  if (fd < 0)
-    die(argv[0]);
+  static const char *const use =
+      "usage: dutctl jtag-speed IP [DUT] | NAME  [--kbd] [--reps N] [--save] [--from HALF] [--to HALF]\n"
+      "                        [--tolerate N] [-v]\n"
+      "  sweeps the TCK half period (clk_sys cycles of 8 ns) from HALF (default 50, 1.25 MHz) down\n"
+      "  to --to (default 2, 31.25 MHz); each step runs N probes (default 200): TAP reset + IDCODE\n"
+      "  compare, BYPASS random-pattern / all-0 / all-1 DR shifts checked against the chain length.\n"
+      "  Read-only (IDCODE and BYPASS only). Recommends f_max / 2; --save stores it as tck_half\n"
+      "  (kbd_tck_half with --kbd) in the per-DUT configuration. --tolerate N: a step passes with\n"
+      "  up to N failing probes (default 0). -v: positions of the wrong bits\n"
+      "  (id+N / dr+N = bit N of the IDCODE window / DR shift, (received value)).\n";
+  target_t t;
+  int used = resolve_target("jtag-speed", argc, argv, &t);
+  if (used < 0)
+    return fputs(argc < 1 ? use : "", stderr), 2;
+  int kbd = 0, save = 0, verbose = 0;
+  long reps = 200, from = js_steps[0], to = 2, tolerate = 0;
+  for (int i = used; i < argc; i++) {
+    if (!strcmp(argv[i], "--kbd")) kbd = 1;
+    else if (!strcmp(argv[i], "--save")) save = 1;
+    else if (!strcmp(argv[i], "-v") || !strcmp(argv[i], "--verbose")) verbose = 1;
+    else if (!strcmp(argv[i], "--reps") && i + 1 < argc) reps = strtol(argv[++i], NULL, 0);
+    else if (!strcmp(argv[i], "--tolerate") && i + 1 < argc) tolerate = strtol(argv[++i], NULL, 0);
+    else if (!strcmp(argv[i], "--from") && i + 1 < argc) from = strtol(argv[++i], NULL, 0);
+    else if (!strcmp(argv[i], "--to") && i + 1 < argc) to = strtol(argv[++i], NULL, 0);
+    else return fprintf(stderr, "dutctl jtag-speed: unknown option %s\n%s", argv[i], use), 2;
+  }
+  if (reps < 1 || from < 2 || to < 2 || to > from || tolerate < 0)
+    return fprintf(stderr, "dutctl jtag-speed: need --reps >= 1 and 2 <= --to <= --from\n"), 2;
+  if (!t.ip[0])
+    return fprintf(stderr, "dutctl jtag-speed: no supervisor ip for %s\n", argv[0]), 2;
+  if (t.cfg && t.cfg->jtag == DC_JTAG_USB && !kbd)
+    return fprintf(stderr, "dutctl jtag-speed: DUT %s uses USB JTAG; the probe measures the octopus path "
+                           "(set usb_freq for the adaptor instead)\n", t.cfg->name), 2;
+  /* steps: --from, then the standard steps strictly between, down to --to */
+  int steps[64], nsteps = 0;
+  steps[nsteps++] = (int)from;
+  for (int i = 0; i < js_nsteps; i++)
+    if (js_steps[i] < from && js_steps[i] >= to)
+      steps[nsteps++] = js_steps[i];
+
+  jtag_ctx_t j;
+  if (jtag_open(&j, &t, kbd, (uint32_t)steps[0]) < 0)
+    return 1;
+  static js_probe_t p;
+  static uint8_t ref[JS_MAX_BITS / 8], tdo[JS_MAX_BITS / 8];
+  uint32_t seed = (uint32_t)rand() | 1;
+  const char *what = kbd ? "keyboard CPLD" : "DUT";
+
+  /* 1. reference at the slowest step, repeated to make sure it is stable */
+  js_build(&p, seed++);
+  if (jtag_shift(&j, p.bits, p.tms, p.tdi, ref) < 0)
+    return 1;
+  int n = js_chain_len(&p, ref, JS_MAX_CHAIN);
+  uint32_t ids[16];
+  int nid = js_idcodes(&p, ref, ids, 16);
+  if (n < 0) {
+    int ones = 0;
+    for (uint32_t i = 0; i < p.dr_bits; i++)
+      ones += (ref[(p.dr_at + i) / 8] >> ((p.dr_at + i) % 8)) & 1;
+    fprintf(stderr, "dutctl jtag-speed: no working chain to the %s at %.2f MHz: the BYPASS pattern did "
+                    "not come back (TDO %s)\n", what, js_freq_hz(steps[0]) / 1e6,
+            ones == 0 ? "stuck at 0" : ones == (int)p.dr_bits ? "stuck at 1" : "noisy");
+    return 1;
+  }
+  if (n == 0 || nid == 0)
+    return fprintf(stderr, "dutctl jtag-speed: TDO follows TDI with no delay: no device on the chain\n"), 1;
+  printf("%s %s%s%s%s: %d device%s in the chain, IDCODE", what, t.ip, t.cfg ? " (" : "",
+         t.cfg ? t.cfg->name : "", t.cfg ? ")" : "", n, n == 1 ? "" : "s");
+  for (int i = 0; i < nid; i++)
+    printf(ids[i] ? " 0x%08x" : " (bypass-only)", ids[i]);
+  printf("  (reference at half %d, %.2f MHz)\n", steps[0], js_freq_hz(steps[0]) / 1e6);
+  for (int r = 0; r < 4; r++) {
+    js_errs_t e;
+    js_build(&p, seed++);
+    if (jtag_shift(&j, p.bits, p.tms, p.tdi, tdo) < 0)
+      return 1;
+    if (js_check(&p, tdo, ref, n, &e))
+      return fprintf(stderr, "dutctl jtag-speed: the chain is not stable even at the slowest step "
+                             "(half %d); check the cabling\n", steps[0]), 1;
+  }
+
+  /* 2. sweep */
+  int pass[64];
+  printf("  half   TCK MHz   result (%ld probes of %u bits each)\n", reps, p.bits);
+  for (int s = 0; s < nsteps && !g_stop; s++) {
+    j.half = (uint32_t)steps[s];
+    long bad = 0;
+    js_errs_t tot = {0};
+    for (long r = 0; r < reps && !g_stop; r++) {
+      js_errs_t e;
+      js_build(&p, seed++);
+      if (jtag_shift(&j, p.bits, p.tms, p.tdi, tdo) < 0)
+        return 1;
+      if (js_check(&p, tdo, ref, n, &e)) {
+        bad++;
+        if (verbose) {
+          uint32_t pos[8];
+          int k = js_errpos(&p, tdo, ref, n, pos, 8);
+          printf("        probe %ld: %u wrong bit%s, at", r, e.id_err + e.rand_err + e.zero_err + e.one_err,
+                 e.id_err + e.rand_err + e.zero_err + e.one_err == 1 ? "" : "s");
+          for (int q = 0; q < k; q++) {
+            uint32_t b = pos[q];
+            int got = (tdo[b / 8] >> (b % 8)) & 1;
+            if (b < p.dr_at)
+              printf(" id+%u(%d)", b - p.id_at, got);
+            else {
+              /* expected / received around the bit, oldest first */
+              char ex[12], rx[12];
+              int m = 0;
+              for (int o = -4; o <= 4; o++, m++) {
+                uint32_t q2 = b + (uint32_t)o, src = q2 - (uint32_t)n;
+                ex[m] = (char)('0' + ((p.tdi[src / 8] >> (src % 8)) & 1));
+                rx[m] = (char)('0' + ((tdo[q2 / 8] >> (q2 % 8)) & 1));
+              }
+              ex[m] = rx[m] = 0;
+              printf(" dr+%u(%d; expected %s got %s)", b - p.dr_at, got, ex, rx);
+            }
+          }
+          printf("\n");
+        }
+        tot.id_err += e.id_err;
+        tot.rand_err += e.rand_err;
+        tot.zero_err += e.zero_err;
+        tot.one_err += e.one_err;
+      }
+    }
+    pass[s] = bad <= tolerate;
+    printf("  %4d  %8.3f   ", steps[s], js_freq_hz(steps[s]) / 1e6);
+    if (!bad)
+      printf("ok\n");
+    else if (pass[s])
+      printf("ok within --tolerate: %ld/%ld probes (bit errors: idcode %u, random %u, all-0 %u, all-1 %u)\n",
+             bad, reps, tot.id_err, tot.rand_err, tot.zero_err, tot.one_err);
+    else
+      printf("FAIL %ld/%ld probes (bit errors: idcode %u, random %u, all-0 %u, all-1 %u)\n", bad, reps,
+             tot.id_err, tot.rand_err, tot.zero_err, tot.one_err);
+    fflush(stdout);
+  }
+  if (g_stop)
+    return 130;
+
+  /* 3. recommendation, with the steps of this sweep */
+  int fmax;
+  int rec = js_recommend(steps, pass, nsteps, &fmax);
+  if (fmax < 0) {
+    fprintf(stderr, "dutctl jtag-speed: even half %d failed; nothing recommended.\n", steps[0]);
+    int later = 0;
+    for (int s = 1; s < nsteps; s++)
+      later += pass[s];
+    if (later)
+      fprintf(stderr, "  Faster steps passed too, so the errors do not depend on TCK: a noise / signal\n"
+                      "  integrity problem rather than a speed limit (-v shows the wrong bits). The\n"
+                      "  fastest clean step bounds the timing; --tolerate N accepts N failing probes\n"
+                      "  per step to get a recommendation regardless.\n");
+    return 1;
+  }
+  int first_fail = fmax + 1 < nsteps ? steps[fmax + 1] : 0;
+  printf("f_max: half %d = %.3f MHz (%s)\n", steps[fmax], js_freq_hz(steps[fmax]) / 1e6,
+         first_fail ? "the next step failed" : "the fastest step tested; the real limit may be higher");
+  printf("recommended: tck_half %d = %.3f MHz (margin %.1fx below f_max)\n", rec, js_freq_hz(rec) / 1e6,
+         (double)rec / steps[fmax]);
+
+  /* 4. IDCODE at the recommended speed */
+  j.half = (uint32_t)rec;
+  js_build(&p, seed++);
+  js_errs_t e;
+  if (jtag_shift(&j, p.bits, p.tms, p.tdi, tdo) < 0)
+    return 1;
+  uint32_t idr[16];
+  int nr = js_idcodes(&p, tdo, idr, 16);
+  int ok = js_check(&p, tdo, ref, n, &e) == 0;
+  printf("check at half %d: %s, IDCODE 0x%08x\n", rec, ok ? "ok" : "FAILED", nr ? idr[0] : 0);
+  if (!ok)
+    return 1;
+
+  if (save) {
+    char sec[96];
+    if (t.cfg)
+      snprintf(sec, sizeof sec, "%s", t.cfg->name);
+    else
+      dc_auto_name(sec, sizeof sec, t.ip, t.dut);
+    char hv[16], dv[16];
+    snprintf(hv, sizeof hv, "%d", rec);
+    snprintf(dv, sizeof dv, "%d", t.dut);
+    const char *secs[3] = {sec, sec, sec};
+    const char *keys[3] = {kbd ? "kbd_tck_half" : "tck_half", "ip", "dut"};
+    const char *vals[3] = {hv, t.ip, dv};
+    int ne = t.cfg ? 1 : (t.dut >= 0 ? 3 : 2); /* new section: record where it is */
+    if (dc_update_file(conf_path(), ne, secs, keys, vals) < 0)
+      return fprintf(stderr, "dutctl jtag-speed: writing %s failed: %s\n", conf_path(), strerror(errno)), 1;
+    printf("saved [%s] %s = %d in %s\n", sec, keys[0], rec, conf_path());
+  }
+  return 0;
+}
+
+/* ------------------------------------------------------------- relays */
+/* One relay controller command; prints the reply unless quiet. Returns 0
+ * when the controller answered OK. */
+static int relay_run(const char *tty, int argc, char **argv, int quiet)
+{
+  int fd = open(tty, O_RDWR | O_NOCTTY);
+  if (fd < 0) {
+    perror(tty);
+    return 1;
+  }
   struct termios tio;
   tcgetattr(fd, &tio);
   cfmakeraw(&tio);
@@ -798,10 +1221,11 @@ static int cmd_relay(int argc, char **argv)
    * or the controller answers from its duplicate cache (ADR 0009) */
   struct timeval tv;
   gettimeofday(&tv, NULL);
+  static int bump;
   int id = (int)(((unsigned long)tv.tv_sec * 1000003UL + (unsigned long)tv.tv_usec * 7919UL +
-                  (unsigned long)getpid() * 104729UL) % 99999UL) + 1;
+                  (unsigned long)getpid() * 104729UL + (unsigned long)bump++ * 31UL) % 99999UL) + 1;
   int l = snprintf(line, sizeof line, "#%d", id);
-  for (int i = 1; i < argc; i++)
+  for (int i = 0; i < argc; i++)
     l += snprintf(line + l, sizeof line - (size_t)l, " %s", argv[i]);
   line[l++] = '\n';
   /* An Uno resets when the port is first opened (DTR) and drops what
@@ -837,8 +1261,9 @@ static int cmd_relay(int argc, char **argv)
       if (!strncmp(resp, "EVENT BOOT", 10))
         resend = now_s() + 0.05;   /* just booted: resend now */
       if (!strncmp(resp, tag, strlen(tag))) {
-        printf("%s\n", resp + strlen(tag));
         rc = strncmp(resp + strlen(tag), "OK", 2) ? 1 : 0;
+        if (!quiet || rc)
+          printf("%s\n", resp + strlen(tag));
         end = 0;
       }
       memmove(resp, nl + 1, strlen(nl + 1) + 1);
@@ -849,6 +1274,353 @@ static int cmd_relay(int argc, char **argv)
   if (end != 0)
     fprintf(stderr, "relay: no reply\n");
   return rc;
+}
+
+static int cmd_relay(int argc, char **argv)
+{
+  if (argc < 2)
+    return fprintf(stderr, "usage: dutctl relay TTY COMMAND...  (e.g. STATUS, STATUS 3, POWER 3 ON, POWER 1 2 OFF, CYCLE 2 3000, ALL OFF)\n"), 2;
+  return relay_run(argv[0], argc - 1, argv + 1, 0);
+}
+
+/* ------------------------------------------------------------- duts */
+static int cmd_duts(int argc, char **argv)
+{
+  if (argc > 0) {
+    fprintf(stderr,
+            "usage: dutctl [--conf FILE] duts       list the configured DUTs\n"
+            "  file: --conf FILE, $DUTCTL_CONF, else $XDG_CONFIG_HOME/dutctl/duts.conf\n"
+            "  (~/.config/dutctl/duts.conf). One [name] section per DUT:\n"
+            "    ip = A.B.C.D        supervisor endpoint (octopus JTAG)\n"
+            "    dut = 0|1           endpoint index (optional)\n"
+            "    jtag = octopus|usb\n"
+            "    tck_half = N        octopus TCK half period (dutctl jtag-speed --save)\n"
+            "    kbd_tck_half = N    keyboard CPLD (jtag-speed --kbd --save)\n"
+            "    usb_vid = 0403  usb_pid = 6010  usb_serial = S  ftdi_channel = 0\n"
+            "    usb_path = 1-2.3  tty = /dev/ttyUSB3  cable = ft2232  usb_freq = HZ\n"
+            "    relay = /dev/ttyACM0 3   power path (relay controller tty and channel)\n"
+            "  `dutctl jtag-discover` proposes the usb_* keys.\n");
+    return argc == 1 && (!strcmp(argv[0], "-h") || !strcmp(argv[0], "--help")) ? 0 : 2;
+  }
+  const dc_conf_t *c = conf();
+  if (c->n == 0) {
+    printf("no DUTs configured in %s (dutctl duts --help)\n", conf_path());
+    return 0;
+  }
+  printf("%s:\n", conf_path());
+  printf("%-16s %-7s %-18s %-14s %s\n", "name", "jtag", "endpoint", "TCK", "adaptor / power");
+  for (int i = 0; i < c->n; i++) {
+    const dc_dut_t *d = &c->d[i];
+    char ep[80], tck[40], extra[400];
+    if (d->ip[0])
+      snprintf(ep, sizeof ep, d->dut >= 0 ? "%s/%d" : "%s", d->ip, d->dut);
+    else
+      snprintf(ep, sizeof ep, "-");
+    if (d->jtag == DC_JTAG_USB)
+      snprintf(tck, sizeof tck, d->usb_freq ? "%.2f MHz" : "default", d->usb_freq / 1e6);
+    else if (d->tck_half)
+      snprintf(tck, sizeof tck, "%.2f MHz", js_freq_hz(d->tck_half) / 1e6);
+    else
+      snprintf(tck, sizeof tck, "10.42 MHz dflt");
+    extra[0] = 0;
+    size_t l = 0;
+    if (d->jtag == DC_JTAG_USB)
+      l += (size_t)snprintf(extra + l, sizeof extra - l, "%04x:%04x serial %s ch %d%s%s%s%s", d->usb_vid,
+                            d->usb_pid, d->usb_serial[0] ? d->usb_serial : "(none)",
+                            d->ftdi_channel < 0 ? 0 : d->ftdi_channel, d->tty[0] ? " tty " : "", d->tty,
+                            d->usb_path[0] ? " port " : "", d->usb_path);
+    if (d->kbd_tck_half && l < sizeof extra)
+      l += (size_t)snprintf(extra + l, sizeof extra - l, "%skbd %.2f MHz", l ? "  " : "",
+                            js_freq_hz(d->kbd_tck_half) / 1e6);
+    if (d->relay_tty[0] && l < sizeof extra)
+      snprintf(extra + l, sizeof extra - l, "%srelay %s %d", l ? "  " : "", d->relay_tty, d->relay_ch);
+    printf("%-16s %-7s %-18s %-14s %s\n", d->name, d->jtag == DC_JTAG_USB ? "usb" : "octopus", ep, tck,
+           extra);
+  }
+  return 0;
+}
+
+/* ------------------------------------------------------------- jtag-discover */
+/* Run openFPGALoader --detect on one adaptor; fills ids, returns the count
+ * (0 = no chain), -1 if it could not be run. */
+static int ofl_detect(const char *ofl, const jd_adaptor_t *a, int channel, uint32_t *ids, int max,
+                      int verbose)
+{
+  jd_cmd_t c;
+  char bd[32];
+  snprintf(bd, sizeof bd, "%03d:%03d", a->busnum, a->devnum); /* serial-less adaptors */
+  if (jd_ofl_cmd(&c, ofl, a->cable, a->vid, a->pid, a->serial, bd, channel, 1000000, "detect", 0) < 0)
+    return -1;
+  if (verbose) {
+    char line[1024];
+    jd_cmd_str(&c, line, sizeof line);
+    fprintf(stderr, "  $ %s\n", line);
+  }
+  int pfd[2];
+  if (pipe(pfd) < 0)
+    return -1;
+  fflush(stdout);
+  pid_t pid = fork();
+  if (pid < 0)
+    return -1;
+  if (pid == 0) {
+    dup2(pfd[1], 1);
+    dup2(pfd[1], 2);
+    close(pfd[0]);
+    close(pfd[1]);
+    alarm(20);
+    execv(c.argv[0], c.argv);
+    _exit(127);
+  }
+  close(pfd[1]);
+  static char out[16384];
+  size_t ol = 0;
+  ssize_t r;
+  while ((r = read(pfd[0], out + ol, sizeof out - 1 - ol)) > 0)
+    ol += (size_t)r;
+  out[ol] = 0;
+  close(pfd[0]);
+  int st;
+  waitpid(pid, &st, 0);
+  if (WIFEXITED(st) && WEXITSTATUS(st) == 127)
+    return -1;
+  return jd_parse_detect(out, ids, max);
+}
+
+static void ids_str(const uint32_t *ids, int n, char *buf, size_t cap)
+{
+  size_t l = 0;
+  buf[0] = 0;
+  if (n <= 0)
+    snprintf(buf, cap, n < 0 ? "(not scanned)" : "no chain");
+  for (int i = 0; i < n && l < cap; i++)
+    l += (size_t)snprintf(buf + l, cap - l, "%s0x%08x", i ? " " : "", ids[i]);
+}
+
+static int cmd_jtag_discover(int argc, char **argv)
+{
+  static const char *const use =
+      "usage: dutctl jtag-discover [--scan] [--all] [--channel N]\n"
+      "       dutctl jtag-discover --power-cycle --yes [--dut NAME]... [--wait S] [--write]\n"
+      "  lists USB JTAG adaptors (FTDI 0403:6010/6011/6014/6001 incl. TE0790 and Digilent;\n"
+      "  the Mimas supervisors 2a19:1009 are excluded) and their ttys from sysfs.\n"
+      "  --scan: also read each adaptor's chain with openFPGALoader --detect (FTDI channel\n"
+      "  --channel, default 0; libftdi detaches that channel's ttyUSB). FT232R (0403:6001) is\n"
+      "  usually a plain serial port (e.g. an Arduino) and is only scanned with --all.\n"
+      "  --power-cycle: for each configured DUT with a relay = power path (or each --dut), switch\n"
+      "  its power off, wait S seconds (default 3), rescan, and see whose chain disappeared;\n"
+      "  then power it back on. Interrupts work on the DUTs, so it needs --yes. The mapping is\n"
+      "  written to the configuration after confirmation, or at once with --write.\n";
+  int scan = 0, all = 0, pc = 0, yes = 0, write = 0, channel = 0;
+  double wait_s = 3;
+  const char *only[DC_MAX_DUTS];
+  int nonly = 0;
+  for (int i = 0; i < argc; i++) {
+    if (!strcmp(argv[i], "--scan")) scan = 1;
+    else if (!strcmp(argv[i], "--all")) all = 1;
+    else if (!strcmp(argv[i], "--power-cycle")) pc = scan = 1;
+    else if (!strcmp(argv[i], "--yes")) yes = 1;
+    else if (!strcmp(argv[i], "--write")) write = 1;
+    else if (!strcmp(argv[i], "--channel") && i + 1 < argc) channel = atoi(argv[++i]);
+    else if (!strcmp(argv[i], "--wait") && i + 1 < argc) wait_s = atof(argv[++i]);
+    else if (!strcmp(argv[i], "--dut") && i + 1 < argc && nonly < DC_MAX_DUTS) only[nonly++] = argv[++i];
+    else if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) return fputs(use, stderr), 0;
+    else return fprintf(stderr, "dutctl jtag-discover: unknown option %s\n%s", argv[i], use), 2;
+  }
+  if (channel < 0 || channel > 3)
+    return fprintf(stderr, "dutctl jtag-discover: --channel 0..3\n"), 2;
+  if (pc && !yes)
+    return fprintf(stderr, "dutctl jtag-discover: --power-cycle switches DUTs off and on (interrupting "
+                           "their work); add --yes to confirm\n"), 2;
+  const char *root = getenv("DUTCTL_SYSFS_USB");
+  if (!root || !*root)
+    root = "/sys/bus/usb/devices";
+  static jd_adaptor_t ad[JD_MAX_ADAPTORS];
+  int na = jd_scan(root, ad, JD_MAX_ADAPTORS);
+  if (na < 0)
+    return fprintf(stderr, "dutctl jtag-discover: cannot read %s\n", root), 1;
+  const dc_conf_t *c = conf();
+  /* adaptors carrying a configured relay controller are never scanned */
+  int skip[JD_MAX_ADAPTORS] = {0};
+  for (int i = 0; i < na; i++) {
+    for (int k = 0; k < ad[i].nif; k++)
+      for (int d = 0; d < c->n; d++) {
+        const char *rt = c->d[d].relay_tty;
+        const char *b = strrchr(rt, '/');
+        if (ad[i].ifs[k].tty[0] && !strcmp(b ? b + 1 : rt, ad[i].ifs[k].tty))
+          skip[i] = 1;
+      }
+    if (!ad[i].cable || (ad[i].pid == 0x6001 && !all))
+      skip[i] = skip[i] ? skip[i] : 2;
+  }
+  printf("%d USB JTAG adaptor%s (%s):\n", na, na == 1 ? "" : "s", root);
+  for (int i = 0; i < na; i++) {
+    jd_adaptor_t *a = &ad[i];
+    printf("  %-10s %04x:%04x  %-32s serial %-14s", a->path, a->vid, a->pid, a->kind,
+           a->serial[0] ? a->serial : "(none!)");
+    for (int k = 0; k < a->nif; k++)
+      printf("  if%d %s%s%s", a->ifs[k].num, a->ifs[k].tty[0] ? "/dev/" : "",
+             a->ifs[k].tty[0] ? a->ifs[k].tty : (a->ifs[k].driver[0] ? a->ifs[k].driver : "-"),
+             "");
+    if (skip[i] == 1)
+      printf("  [relay controller: not scanned]");
+    printf("\n");
+    for (int d = 0; d < c->n; d++)
+      if (c->d[d].jtag == DC_JTAG_USB &&
+          ((a->serial[0] && !strcmp(c->d[d].usb_serial, a->serial)) ||
+           (!a->serial[0] && c->d[d].usb_path[0] && !strcmp(c->d[d].usb_path, a->path))))
+        printf("             configured for DUT %s\n", c->d[d].name);
+    if (!a->serial[0])
+      printf("             warning: no USB serial; it can only be told apart by its USB port (%s)\n", a->path);
+  }
+  if (!scan)
+    return 0;
+
+  const char *ofl = find_ofl();
+  if (!ofl)
+    return fprintf(stderr, "dutctl jtag-discover: openFPGALoader not found (PATH, $DUTCTL_OPENFPGALOADER): "
+                           "chains cannot be scanned. Without it, map adaptors by hand (dutctl duts --help) "
+                           "or unplug them one at a time and compare this listing.\n"), 1;
+  static uint32_t base[JD_MAX_ADAPTORS][8];
+  int nbase[JD_MAX_ADAPTORS];
+  printf("chains (openFPGALoader --detect, FTDI channel %d):\n", channel);
+  for (int i = 0; i < na; i++) {
+    nbase[i] = skip[i] ? -1 : ofl_detect(ofl, &ad[i], channel, base[i], 8, 0);
+    char s[160];
+    ids_str(base[i], nbase[i], s, sizeof s);
+    printf("  %-10s %s\n", ad[i].path, skip[i] == 2 ? "(skipped: no openFPGALoader cable, or an FT232R without --all)" : s);
+  }
+  if (!pc)
+    return 0;
+
+  /* DUTs to cycle */
+  int sel[DC_MAX_DUTS], ns = 0;
+  for (int d = 0; d < c->n; d++) {
+    int want = nonly == 0;
+    for (int k = 0; k < nonly; k++)
+      want |= !strcmp(only[k], c->d[d].name);
+    if (!want)
+      continue;
+    if (!c->d[d].relay_tty[0]) {
+      if (nonly)
+        fprintf(stderr, "dutctl jtag-discover: DUT %s has no relay = TTY CHANNEL power path; skipped\n",
+                c->d[d].name);
+      continue;
+    }
+    sel[ns++] = d;
+  }
+  for (int k = 0; k < nonly; k++)
+    if (!dc_find_name(c, only[k]))
+      fprintf(stderr, "dutctl jtag-discover: no DUT %s in %s\n", only[k], conf_path());
+  if (!ns)
+    return fprintf(stderr, "dutctl jtag-discover: no DUT with a power path (relay = TTY CHANNEL) to "
+                           "cycle\n"), 1;
+  int map[DC_MAX_DUTS];
+  for (int s = 0; s < ns && !g_stop; s++) {
+    const dc_dut_t *d = &c->d[sel[s]];
+    char ch[16];
+    snprintf(ch, sizeof ch, "%d", d->relay_ch);
+    char *off[] = {"POWER", ch, "OFF"}, *on[] = {"POWER", ch, "ON"};
+    map[s] = -1;
+    printf("DUT %s: power off (relay %s %d)\n", d->name, d->relay_tty, d->relay_ch);
+    fflush(stdout);
+    if (relay_run(d->relay_tty, 3, off, 1)) {
+      fprintf(stderr, "  power off failed; skipped\n");
+      continue;
+    }
+    usleep((useconds_t)(wait_s * 1e6));
+    int gone[JD_MAX_ADAPTORS], ngone = 0;
+    for (int i = 0; i < na; i++) {
+      gone[i] = 0;
+      if (nbase[i] <= 0)
+        continue;
+      uint32_t ids[8];
+      int r = ofl_detect(ofl, &ad[i], channel, ids, 8, 0);
+      if (r == 0 || (r > 0 && (r != nbase[i] || memcmp(ids, base[i], sizeof ids[0] * (size_t)r)))) {
+        gone[i] = 1;
+        ngone++;
+      }
+    }
+    printf("DUT %s: power on\n", d->name);
+    fflush(stdout);
+    if (relay_run(d->relay_tty, 3, on, 1))
+      fprintf(stderr, "  WARNING: power on failed: dutctl relay %s POWER %d ON\n", d->relay_tty, d->relay_ch);
+    usleep((useconds_t)(wait_s * 1e6));
+    for (int i = 0; i < na; i++)
+      if (gone[i]) {
+        uint32_t ids[8];
+        int r = ofl_detect(ofl, &ad[i], channel, ids, 8, 0);
+        printf("  adaptor %s: chain went away%s\n", ad[i].path, r == nbase[i] ? " and came back" : ", NOT back yet");
+        if (ngone == 1)
+          map[s] = i;
+      }
+    if (ngone == 0)
+      printf("  no adaptor's chain changed (the DUT is on the octopus, unpowered already, or its adaptor "
+             "is powered by the target)\n");
+    else if (ngone > 1)
+      printf("  %d adaptors changed: ambiguous, not mapped\n", ngone);
+  }
+  /* proposal */
+  int nmap = 0;
+  printf("proposed mapping:\n");
+  for (int s = 0; s < ns; s++) {
+    if (map[s] < 0)
+      continue;
+    const jd_adaptor_t *a = &ad[map[s]];
+    const char *tty = "";
+    for (int k = 0; k < a->nif; k++)
+      if (a->ifs[k].num != channel && a->ifs[k].tty[0])
+        tty = a->ifs[k].tty; /* the adaptor's other channel = the DUT's UART (TE0790) */
+    printf("  [%s] jtag = usb, %04x:%04x serial %s channel %d port %s%s%s\n", c->d[sel[s]].name, a->vid,
+           a->pid, a->serial[0] ? a->serial : "(none)", channel, a->path, tty[0] ? " tty /dev/" : "", tty);
+    nmap++;
+  }
+  if (!nmap)
+    return printf("  (none)\n"), 1;
+  if (!write) {
+    if (!isatty(0))
+      return printf("not written (rerun with --write, or interactively)\n"), 0;
+    printf("write %d mapping%s to %s? [y/N] ", nmap, nmap == 1 ? "" : "s", conf_path());
+    fflush(stdout);
+    char ans[16] = "";
+    if (!fgets(ans, sizeof ans, stdin) || (ans[0] != 'y' && ans[0] != 'Y'))
+      return printf("not written\n"), 0;
+  }
+  static const char *secs[DC_MAX_DUTS * 9], *keys[DC_MAX_DUTS * 9], *vals[DC_MAX_DUTS * 9];
+  static char vbuf[DC_MAX_DUTS * 9][160];
+  int ne = 0;
+  for (int s = 0; s < ns; s++) {
+    if (map[s] < 0)
+      continue;
+    const jd_adaptor_t *a = &ad[map[s]];
+    const char *tty = "";
+    for (int k = 0; k < a->nif; k++)
+      if (a->ifs[k].num != channel && a->ifs[k].tty[0])
+        tty = a->ifs[k].tty;
+#define KV(K, ...)                                                                                     \
+  do {                                                                                                 \
+    secs[ne] = c->d[sel[s]].name;                                                                      \
+    keys[ne] = K;                                                                                      \
+    snprintf(vbuf[ne], sizeof vbuf[0], __VA_ARGS__);                                                   \
+    vals[ne] = vbuf[ne];                                                                               \
+    ne++;                                                                                              \
+  } while (0)
+    KV("jtag", "usb");
+    KV("usb_vid", "%04x", a->vid);
+    KV("usb_pid", "%04x", a->pid);
+    if (a->serial[0])
+      KV("usb_serial", "%s", a->serial);
+    KV("ftdi_channel", "%d", channel);
+    KV("usb_path", "%s", a->path);
+    KV("cable", "%s", a->cable);
+    if (tty[0])
+      KV("tty", "/dev/%s", tty);
+#undef KV
+  }
+  if (dc_update_file(conf_path(), ne, secs, keys, vals) < 0)
+    return fprintf(stderr, "dutctl jtag-discover: writing %s failed: %s\n", conf_path(), strerror(errno)), 1;
+  printf("written to %s\n", conf_path());
+  return 0;
 }
 
 /* ------------------------------------------------------------- text display */
@@ -927,14 +1699,19 @@ static void usage(void)
           "  dutctl mgmt IP KEY [HEXVALUE] [--cmd-id N] [--dut N]   raw MGMT_SET\n"
           "  dutctl kbd IP [KEY ...]           keys by name (A, RETURN, F1...) or matrix number\n"
           "  dutctl uart IP [--baud N] [--clear] [--from-start]\n"
-          "  dutctl jtag-idcode IP [--kbd]     (--kbd: the physical keyboard's CPLD)\n"
-          "  dutctl xvc IP [--port 2542] [--kbd]\n"
+          "  dutctl jtag-idcode IP [DUT] | NAME [--kbd] [--half N] [--exec]\n"
+          "                                    (--kbd: the physical keyboard's CPLD)\n"
+          "  dutctl xvc IP [DUT] | NAME [--port 2542] [--kbd] [--half N] [--exec]\n"
+          "  dutctl jtag-speed IP [DUT] | NAME [--kbd] [--reps N] [--save] [--from H] [--to H]\n"
+          "  dutctl duts [--help]              configured DUTs (per-DUT JTAG setup)\n"
+          "  dutctl jtag-discover [--scan] [--all] [--power-cycle --yes [--dut NAME]... [--write]]\n"
           "  dutctl relay TTY COMMAND...\n"
           "  dutctl text IP [--screen N] [--fg N] [--bg N] [--force] [--jumbo] [--file F | LINE ...]\n"
           "  dutctl video IP [--frames N] [--out PREFIX] [--enable] [--require-complete]\n"
           "  dutctl thumbs IFACE [--out PREFIX] [--pictures N] [--request] [--force IP] [--scale 1|2]\n"
           "  dutctl screenshot [IP|DIGIT] [-o FILE.png|.ppm] [--screen auto|editable|novideo|select]\n"
-          "                    [--timeout S]     one frame from a video target (alias: dutctl -S)\n");
+          "                    [--timeout S]     one frame from a video target (alias: dutctl -S)\n"
+          "  global option: --conf FILE  (default $DUTCTL_CONF, else ~/.config/dutctl/duts.conf)\n");
 }
 
 
@@ -1523,6 +2300,14 @@ out:
 
 int main(int argc, char **argv)
 {
+  /* global --conf FILE, anywhere on the line */
+  for (int i = 1; i < argc; i++)
+    if (!strcmp(argv[i], "--conf") && i + 1 < argc) {
+      g_conf_arg = argv[i + 1];
+      memmove(argv + i, argv + i + 2, sizeof argv[0] * (size_t)(argc - i - 1)); /* incl. NULL */
+      argc -= 2;
+      i--;
+    }
   if (argc < 2) {
     usage();
     return 2;
@@ -1537,6 +2322,9 @@ int main(int argc, char **argv)
   if (!strcmp(c, "uart")) return cmd_uart(argc, argv);
   if (!strcmp(c, "jtag-idcode")) return cmd_jtag_idcode(argc, argv);
   if (!strcmp(c, "xvc")) return cmd_xvc(argc, argv);
+  if (!strcmp(c, "jtag-speed")) return cmd_jtag_speed(argc, argv);
+  if (!strcmp(c, "jtag-discover")) return cmd_jtag_discover(argc, argv);
+  if (!strcmp(c, "duts")) return cmd_duts(argc, argv);
   if (!strcmp(c, "relay")) return cmd_relay(argc, argv);
   if (!strcmp(c, "text")) return cmd_text(argc, argv);
   if (!strcmp(c, "video")) return cmd_video(argc, argv);

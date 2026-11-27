@@ -1,7 +1,15 @@
-/* Unit tests for dutctl: protocol vectors, UART merging, XVC parsing. */
+/* Unit tests for dutctl: protocol vectors, UART merging, XVC parsing, per-DUT
+ * config, JTAG speed probe (on a simulated chain) and USB adaptor discovery
+ * (on a fake sysfs tree). */
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+#include <ftw.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "dutproto.h"
 #include "uartstream.h"
@@ -9,6 +17,9 @@
 #include "rasterframe.h"
 #include "pngwrite.h"
 #include "screenshot.h"
+#include "dutconf.h"
+#include "jtagdisc.h"
+#include "jtagspeed.h"
 
 static int failures, checks;
 #define CHECK(c)                                                                   \
@@ -77,6 +88,8 @@ static void test_encoders(void)
   check_bytes("mgmt_baud", b, dp_encode_mgmt_set(b, 0, 0x1234, DP_K_UART_BAUD, v, 4));
   uint8_t ip[4] = {10, 1, 2, 3};
   check_bytes("mgmt_ip", b, dp_encode_mgmt_set(b, DP_DUT_ANY, 7, DP_K_IP, ip, 4));
+  uint8_t pw = 0xA5;
+  check_bytes("mgmt_pwr_ctl", b, dp_encode_mgmt_set(b, 1, 0x0BAD, DP_K_PWR_CTL, &pw, 1));
   uint8_t bm[10] = {0};
   bm[10 / 8] |= 1 << (10 % 8);
   bm[63 / 8] |= 1 << (63 % 8);
@@ -145,6 +158,15 @@ static void test_decoders(void)
   CHECK(hb.has_link && hb.rx_bad_frames == 300 && hb.has_mem);
   CHECK(hb.mem_flags == (DP_MEM_CALIBRATED | DP_MEM_ST_DONE) && hb.mem_errors == 513);
   CHECK(hb.mem_dq_fail == 0x8001 && hb.mem_test_kib == 1024 && hb.mem_first_err == 0x00ABCDEF);
+  CHECK(!hb.has_shield);
+
+  v = vec("heartbeat_shield");
+  CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && h.length == 152 && h.dut == 1);
+  CHECK(dp_decode_heartbeat(v->data + 8, h.length, &hb) == 0);
+  CHECK(hb.has_mem && hb.mem_first_err == 0x00ABCDEF && hb.has_shield);
+  CHECK(hb.shd_flags == (DP_SF_BUILD | DP_SF_PROBED | DP_SF_PRESENT | DP_SF_SENSE | DP_SF_PWRB));
+  CHECK(hb.shd_revision == 1 && hb.shd_features == 0x7F && hb.shd_sense == 0x31);
+  CHECK(hb.shd_hdmi == 0x5D && hb.shd_pwr == 0xA5 && hb.shd_i2c_errors == 0x0102);
 
   v = vec("snapshot");
   CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && h.type == DP_T_UART_SNAP);
@@ -612,6 +634,408 @@ static void test_screenshot_targets(void)
   CHECK(ss_board_video_target(&eps[2]) == -1 && ss_capturable(eps, 4, idx, 4) == 0);
 }
 
+/* ------------------------------------------------------------ per-DUT config (0053) */
+static void test_dutconf(void)
+{
+  static const char *text =
+      "# comment\n"
+      "; another\n"
+      "[m65-r6]\n"
+      "ip = 192.168.1.50\n"
+      "dut = 1\n"
+      "jtag = octopus\n"
+      "tck_half = 12\n"
+      "kbd_tck_half = 64\n"
+      "relay = /dev/ttyACM0 3\n"
+      "\n"
+      "[nexys]   \n"
+      "  jtag=usb\n"
+      "usb_vid = 0x0403\n"
+      "usb_pid = 6010\n"
+      "usb_serial = FT12 AB\n"
+      "ftdi_channel = 1\n"
+      "usb_path = 1-2.3\n"
+      "tty = /dev/ttyUSB3\n"
+      "usb_freq = 6000000\n"
+      "[other]\n"
+      "ip = 192.168.1.50\n"
+      "[wild]\n"
+      "ip = 10.0.0.9\n";
+  static dc_conf_t c;
+  char err[1024];
+  CHECK(dc_parse(text, &c, err, sizeof err) == 0);
+  CHECK(err[0] == 0);
+  CHECK(c.n == 4);
+  const dc_dut_t *a = dc_find_name(&c, "m65-r6"), *b = dc_find_name(&c, "nexys");
+  CHECK(a && b && !dc_find_name(&c, "nope"));
+  if (!a || !b)
+    return;
+  CHECK(!strcmp(a->ip, "192.168.1.50") && a->dut == 1 && a->jtag == DC_JTAG_OCTOPUS);
+  CHECK(a->tck_half == 12 && a->kbd_tck_half == 64 && a->ftdi_channel == -1);
+  CHECK(!strcmp(a->relay_tty, "/dev/ttyACM0") && a->relay_ch == 3 && a->line == 3);
+  CHECK(b->jtag == DC_JTAG_USB && b->usb_vid == 0x0403 && b->usb_pid == 0x6010);
+  CHECK(!strcmp(b->usb_serial, "FT12 AB") && b->ftdi_channel == 1 && !strcmp(b->usb_path, "1-2.3"));
+  CHECK(!strcmp(b->tty, "/dev/ttyUSB3") && b->usb_freq == 6000000 && b->dut == -1 && b->tck_half == 0);
+  /* lookup by endpoint: exact index wins over a wildcard entry */
+  CHECK(dc_find_ip(&c, "192.168.1.50", 1) == a);
+  CHECK(dc_find_ip(&c, "192.168.1.50", 0) == dc_find_name(&c, "other"));
+  CHECK(dc_find_ip(&c, "192.168.1.50", -1) == a);
+  CHECK(dc_find_ip(&c, "10.0.0.9", 0) == dc_find_name(&c, "wild"));
+  CHECK(dc_find_ip(&c, "10.0.0.8", -1) == NULL);
+
+  /* problems are reported with line numbers, good keys still kept */
+  CHECK(dc_parse("x = 1\n[a]\njtag = jtagger\ntck_half = 1\nfoo = bar\nnovalue\n[a]\n[b c]\n[ok]\nip = 1.2.3.4\n",
+                 &c, err, sizeof err) == 7);
+  CHECK(strstr(err, "1: key 'x' outside") && strstr(err, "3: bad value for jtag") &&
+        strstr(err, "4: bad value for tck_half") && strstr(err, "5: unknown key 'foo'") &&
+        strstr(err, "6: expected key") && strstr(err, "7: duplicate section") && strstr(err, "8: bad section"));
+  CHECK(c.n == 2 && dc_find_name(&c, "ok") && !strcmp(dc_find_name(&c, "ok")->ip, "1.2.3.4"));
+  CHECK(dc_parse("[r]\nrelay = /dev/ttyACM0\n", &c, NULL, 0) == 1);
+  CHECK(dc_parse("", &c, NULL, 0) == 0 && c.n == 0);
+
+  /* writer: replace in place, insert after the last key, new section, remove */
+  char *t = dc_text_set(text, "m65-r6", "tck_half", "24");
+  CHECK(t && strstr(t, "kbd_tck_half = 64\n") && strstr(t, "\ntck_half = 24\nkbd_tck_half"));
+  CHECK(t && !strstr(t, "tck_half = 12"));
+  char *t2 = dc_text_set(t, "nexys", "cable", "ft2232");
+  CHECK(t2 && strstr(t2, "usb_freq = 6000000\ncable = ft2232\n[other]"));
+  char *t3 = dc_text_set(t2, "new/0", "ip", "1.1.1.1");
+  CHECK(t3 && strstr(t3, "ip = 10.0.0.9\n\n[new/0]\nip = 1.1.1.1\n"));
+  char *t4 = dc_text_set(t3, "m65-r6", "relay", NULL);
+  CHECK(t4 && !strstr(t4, "relay"));
+  char *t5 = dc_text_set(t4, "m65-r6", "dut", "0"); /* section followed by a blank line */
+  CHECK(t5 && strstr(t5, "kbd_tck_half = 64\n\n[nexys]") && strstr(t5, "dut = 0\njtag"));
+  char *t6 = dc_text_set(t5, "wild", "dut", "1"); /* last section, file ends with a key */
+  CHECK(t6 && strstr(t6, "[wild]\nip = 10.0.0.9\ndut = 1\n\n[new/0]"));
+  CHECK(dc_parse(t6, &c, err, sizeof err) == 0 && c.n == 5);
+  CHECK(dc_find_name(&c, "m65-r6")->tck_half == 24 && dc_find_name(&c, "m65-r6")->relay_ch == -1);
+  CHECK(dc_find_name(&c, "m65-r6")->dut == 0 && dc_find_name(&c, "wild")->dut == 1);
+  CHECK(!strcmp(dc_find_name(&c, "nexys")->cable, "ft2232") && strstr(t6, "# comment\n; another\n[m65-r6]"));
+  char *t7 = dc_text_set("", "a", "k", "v");
+  CHECK(t7 && !strcmp(t7, "[a]\nk = v\n"));
+  char *t8 = dc_text_set("[a]\nk = v", "a", "k", "w"); /* no final newline */
+  CHECK(t8 && !strcmp(t8, "[a]\nk = w\n"));
+  char *t9 = dc_text_set("[a]\nk = v\n", "b", "k", NULL); /* remove from a missing section: no-op */
+  CHECK(t9 && !strcmp(t9, "[a]\nk = v\n"));
+  free(t), free(t2), free(t3), free(t4), free(t5), free(t6), free(t7), free(t8), free(t9);
+
+  char nm[64];
+  dc_auto_name(nm, sizeof nm, "10.1.2.3", 1);
+  CHECK(!strcmp(nm, "10.1.2.3/1"));
+  dc_auto_name(nm, sizeof nm, "10.1.2.3", -1);
+  CHECK(!strcmp(nm, "10.1.2.3"));
+  CHECK(!strcmp(dc_default_cable(0x0403, 0x6010), "ft2232") && dc_default_cable(0x2a19, 0x1009) == NULL);
+}
+
+/* file round trip in a scratch directory (created by test_dirs) */
+static char g_tmp[256];
+
+static int rm_cb(const char *p, const struct stat *sb, int flag, struct FTW *f)
+{
+  (void)sb, (void)flag, (void)f;
+  return remove(p);
+}
+
+static void test_dutconf_file(void)
+{
+  char path[512];
+  snprintf(path, sizeof path, "%s/cfg/sub/duts.conf", g_tmp);
+  static dc_conf_t c;
+  int missing = 0;
+  CHECK(dc_load(path, &c, NULL, 0, &missing) == 0 && missing && c.n == 0);
+  const char *s[3] = {"a", "a", "10.0.0.1/0"}, *k[3] = {"ip", "tck_half", "tck_half"},
+             *v[3] = {"10.0.0.1", "8", "16"};
+  CHECK(dc_update_file(path, 3, s, k, v) == 0);
+  CHECK(dc_load(path, &c, NULL, 0, &missing) == 0 && !missing && c.n == 2);
+  CHECK(dc_find_name(&c, "a") && dc_find_name(&c, "a")->tck_half == 8);
+  CHECK(dc_find_name(&c, "10.0.0.1/0") && dc_find_name(&c, "10.0.0.1/0")->tck_half == 16);
+  const char *k2[1] = {"tck_half"}, *v2[1] = {"10"};
+  CHECK(dc_update_file(path, 1, s, k2, v2) == 0);
+  CHECK(dc_load(path, &c, NULL, 0, &missing) == 0 && dc_find_name(&c, "a")->tck_half == 10);
+  FILE *f = fopen(path, "r");
+  char buf[512] = "";
+  if (f) {
+    size_t n = fread(buf, 1, sizeof buf - 1, f);
+    buf[n] = 0;
+    fclose(f);
+  }
+  CHECK(!strncmp(buf, "# dutctl per-DUT configuration", 30) && strstr(buf, "[a]\nip = 10.0.0.1\ntck_half = 10\n"));
+}
+
+/* ------------------------------------------------------------ JTAG speed probe (0054) */
+/* A JTAG chain simulator: IEEE 1149.1 TAP per device, IR all ones = BYPASS,
+ * IR after reset = IDCODE (or BYPASS for devices without one). */
+enum { S_TLR, S_RTI, S_SDR, S_CDR, S_SHDR, S_E1DR, S_PDR, S_E2DR, S_UDR, S_SIR, S_CIR, S_SHIR, S_E1IR, S_PIR,
+       S_E2IR, S_UIR };
+static const uint8_t tap_next[16][2] = {
+  [S_TLR] = {S_RTI, S_TLR},   [S_RTI] = {S_RTI, S_SDR},   [S_SDR] = {S_CDR, S_SIR},  [S_CDR] = {S_SHDR, S_E1DR},
+  [S_SHDR] = {S_SHDR, S_E1DR}, [S_E1DR] = {S_PDR, S_UDR}, [S_PDR] = {S_PDR, S_E2DR}, [S_E2DR] = {S_SHDR, S_UDR},
+  [S_UDR] = {S_RTI, S_SDR},   [S_SIR] = {S_CIR, S_TLR},   [S_CIR] = {S_SHIR, S_E1IR}, [S_SHIR] = {S_SHIR, S_E1IR},
+  [S_E1IR] = {S_PIR, S_UIR},  [S_PIR] = {S_PIR, S_E2IR},  [S_E2IR] = {S_SHIR, S_UIR}, [S_UIR] = {S_RTI, S_SDR},
+};
+typedef struct {
+  int irlen;
+  uint32_t idcode; /* 0 = no IDCODE register */
+  uint32_t idcode_ir;
+  uint32_t ir;
+  uint64_t sr;
+  int srlen;
+} sim_dev_t;
+
+static void sim_reset_ir(sim_dev_t *d, int n)
+{
+  for (int k = 0; k < n; k++)
+    d[k].ir = d[k].idcode ? d[k].idcode_ir : (1u << d[k].irlen) - 1;
+}
+
+static void sim_run(sim_dev_t *d, int n, const js_probe_t *p, uint8_t *tdo, int delay)
+{
+  int st = S_TLR;
+  static uint8_t raw[JS_MAX_BITS / 8];
+  memset(raw, 0, sizeof raw);
+  sim_reset_ir(d, n);
+  for (uint32_t i = 0; i < p->bits; i++) {
+    int tms = (p->tms[i / 8] >> (i % 8)) & 1, tdi = (p->tdi[i / 8] >> (i % 8)) & 1;
+    int out = 1; /* TDO tri-stated outside the shift states: pull-up */
+    if (st == S_SHDR || st == S_SHIR)
+      out = (int)(d[n - 1].sr & 1);
+    if (out)
+      raw[i / 8] |= (uint8_t)(1u << (i % 8));
+    if (st == S_CDR || st == S_CIR)
+      for (int k = 0; k < n; k++) {
+        int idr = st == S_CDR && d[k].idcode && d[k].ir == d[k].idcode_ir;
+        d[k].srlen = st == S_CIR ? d[k].irlen : idr ? 32 : 1;
+        d[k].sr = st == S_CIR ? 1 : idr ? d[k].idcode : 0;
+      }
+    if (st == S_SHDR || st == S_SHIR) {
+      int in = tdi;
+      for (int k = 0; k < n; k++) {
+        int o = (int)(d[k].sr & 1);
+        d[k].sr = (d[k].sr >> 1) | ((uint64_t)in << (d[k].srlen - 1));
+        in = o;
+      }
+    }
+    st = tap_next[st][tms];
+    if (st == S_UIR)
+      for (int k = 0; k < n; k++)
+        d[k].ir = (uint32_t)d[k].sr;
+    if (st == S_TLR)
+      sim_reset_ir(d, n);
+  }
+  /* delay > 0: TDO sampled `delay` pulses late (a long cable at too high a TCK) */
+  memset(tdo, 0, JS_MAX_BITS / 8);
+  for (uint32_t i = 0; i < p->bits; i++) {
+    int b = i >= (uint32_t)delay ? (raw[(i - delay) / 8] >> ((i - delay) % 8)) & 1 : 1;
+    if (b)
+      tdo[i / 8] |= (uint8_t)(1u << (i % 8));
+  }
+}
+
+static void test_jtagspeed(void)
+{
+  static js_probe_t p, p2;
+  static uint8_t ref[JS_MAX_BITS / 8], tdo[JS_MAX_BITS / 8];
+  js_build(&p, 1);
+  CHECK(p.bits <= JS_MAX_BITS && p.bits == 9 + JS_ID_BITS + 5 + JS_IR_BITS + 4 + p.dr_bits + 6);
+  CHECK(p.id_at == 9 && p.dr_at == 9 + JS_ID_BITS + 5 + JS_IR_BITS + 4);
+  js_build(&p2, 2);
+  CHECK(memcmp(p.tdi, p2.tdi, sizeof p.tdi) != 0); /* seed changes the pattern */
+  CHECK(!memcmp(p.tms, p2.tms, sizeof p.tms));    /* but not the TAP walk */
+
+  /* the keyboard CPLD alone (XC2C64A-like, 8-bit IR) */
+  sim_dev_t one[1] = {{.irlen = 8, .idcode = 0x012ba043, .idcode_ir = 0x01}};
+  sim_run(one, 1, &p, ref, 0);
+  CHECK(js_chain_len(&p, ref, JS_MAX_CHAIN) == 1);
+  uint32_t ids[8];
+  CHECK(js_idcodes(&p, ref, ids, 8) == 1 && ids[0] == 0x012ba043);
+  js_errs_t e;
+  sim_run(one, 1, &p2, tdo, 0);
+  CHECK(js_check(&p2, tdo, ref, 1, &e) == 0);
+
+  /* a chain: FPGA (IDCODE), a bypass-only device, a second IDCODE device */
+  sim_dev_t three[3] = {{.irlen = 6, .idcode = 0x0362c093, .idcode_ir = 0x09},
+                        {.irlen = 4, .idcode = 0},
+                        {.irlen = 8, .idcode = 0x012ba043, .idcode_ir = 0x01}};
+  sim_run(three, 3, &p, ref, 0);
+  CHECK(js_chain_len(&p, ref, JS_MAX_CHAIN) == 3);
+  int nid = js_idcodes(&p, ref, ids, 8); /* nearest TDO first */
+  CHECK(nid == 3 && ids[0] == 0x012ba043 && ids[1] == 0 && ids[2] == 0x0362c093);
+  sim_run(three, 3, &p2, tdo, 0);
+  CHECK(js_check(&p2, tdo, ref, 3, &e) == 0);
+  /* TDO one pulse late: the IDCODE window and the BYPASS shift both break */
+  sim_run(three, 3, &p2, tdo, 1);
+  CHECK(js_check(&p2, tdo, ref, 3, &e) > 0 && e.id_err > 0 && e.rand_err > 0);
+  CHECK(e.zero_err <= 1 && e.one_err <= 1); /* constant runs only break at their edges */
+  /* single flipped bits are found in each segment */
+  sim_run(three, 3, &p2, tdo, 0);
+  uint32_t flips[4] = {p2.id_at + 40, p2.dr_at + 3 + 100, p2.dr_at + 3 + JS_RAND_BITS + 7,
+                       p2.dr_at + 3 + JS_RAND_BITS + JS_FILL_BITS + 9};
+  for (int f = 0; f < 4; f++)
+    tdo[flips[f] / 8] ^= (uint8_t)(1u << (flips[f] % 8));
+  CHECK(js_check(&p2, tdo, ref, 3, &e) == 4 && e.id_err == 1 && e.rand_err == 1 && e.zero_err == 1 &&
+        e.one_err == 1);
+  /* TDO stuck: no chain length */
+  memset(tdo, 0xFF, sizeof tdo);
+  CHECK(js_chain_len(&p2, tdo, JS_MAX_CHAIN) < 0 && js_idcodes(&p2, tdo, ids, 8) == 0);
+  memset(tdo, 0, sizeof tdo);
+  CHECK(js_chain_len(&p2, tdo, JS_MAX_CHAIN) < 0);
+  /* TDO wired to TDI: chain length 0 */
+  memcpy(tdo, p2.tdi, sizeof tdo);
+  CHECK(js_chain_len(&p2, tdo, JS_MAX_CHAIN) == 0);
+
+  /* recommendation */
+  CHECK(js_nsteps >= 10 && js_steps[0] == 50 && js_steps[js_nsteps - 1] == 2);
+  CHECK(js_freq_hz(6) > 10.41e6 && js_freq_hz(6) < 10.42e6 && js_freq_hz(2) == 31.25e6);
+  int pass[32], fm;
+  for (int i = 0; i < js_nsteps; i++)
+    pass[i] = 1;
+  CHECK(js_recommend(js_steps, pass, js_nsteps, &fm) == 4 && fm == js_nsteps - 1); /* all ok: 2 -> 4 */
+  for (int i = 0; i < js_nsteps; i++)
+    pass[i] = js_steps[i] >= 6; /* 6 is the fastest that passes */
+  CHECK(js_recommend(js_steps, pass, js_nsteps, &fm) == 12 && js_steps[fm] == 6);
+  for (int i = 0; i < js_nsteps; i++)
+    pass[i] = js_steps[i] >= 7; /* 2 * 7 = 14: next slower step on the list is 16 */
+  CHECK(js_recommend(js_steps, pass, js_nsteps, &fm) == 16 && js_steps[fm] == 7);
+  pass[3] = 0; /* a failure on the way (24) caps f_max even if faster steps pass */
+  for (int i = 4; i < js_nsteps; i++)
+    pass[i] = 1;
+  CHECK(js_recommend(js_steps, pass, js_nsteps, &fm) == 64 && js_steps[fm] == 32);
+  pass[0] = 0;
+  CHECK(js_recommend(js_steps, pass, js_nsteps, &fm) == 0 && fm == -1);
+  pass[0] = 1, pass[1] = 0;
+  CHECK(js_recommend(js_steps, pass, js_nsteps, &fm) == 100 && fm == 0);
+}
+
+/* ------------------------------------------------------------ USB adaptor discovery (0053) */
+static void mkf(const char *dir, const char *name, const char *val)
+{
+  char p[600];
+  snprintf(p, sizeof p, "%s/%s", dir, name);
+  FILE *f = fopen(p, "w");
+  if (f) {
+    fprintf(f, "%s\n", val);
+    fclose(f);
+  }
+}
+
+/* one USB device dir and its interface dirs (driver symlink, ttyUSB child) */
+static void mkdev(const char *root, const char *path, const char *vid, const char *pid, const char *serial,
+                  const char *mfr, const char *prod, int nif, const char *const *ttys)
+{
+  char d[600];
+  snprintf(d, sizeof d, "%s/%s", root, path);
+  mkdir(d, 0755);
+  mkf(d, "idVendor", vid);
+  mkf(d, "idProduct", pid);
+  if (serial)
+    mkf(d, "serial", serial);
+  mkf(d, "manufacturer", mfr);
+  mkf(d, "product", prod);
+  mkf(d, "busnum", "1");
+  mkf(d, "devnum", "7");
+  for (int i = 0; i < nif; i++) {
+    char ifd[700], num[8], t[800];
+    snprintf(ifd, sizeof ifd, "%s/%s:1.%d", root, path, i);
+    mkdir(ifd, 0755);
+    snprintf(num, sizeof num, "%02x", i);
+    mkf(ifd, "bInterfaceNumber", num);
+    if (ttys && ttys[i]) {
+      snprintf(t, sizeof t, "%s/%s", ifd, ttys[i]);
+      mkdir(t, 0755);
+      snprintf(t, sizeof t, "%s/driver", ifd);
+      if (symlink("../../../bus/usb-serial/drivers/ftdi_sio", t) < 0)
+        perror("symlink");
+    }
+  }
+}
+
+static void test_jtagdisc(void)
+{
+  const char *cable;
+  CHECK(jd_classify(0x2a19, 0x1009, "Numato", "Mimas", &cable) == NULL); /* the supervisors */
+  CHECK(jd_classify(0x1d6b, 0x0002, "Linux", "hub", &cable) == NULL);
+  CHECK(!strcmp(jd_classify(0x0403, 0x6010, "FTDI", "Dual RS232-HS", &cable), "FTDI FT2232H") &&
+        !strcmp(cable, "ft2232"));
+  CHECK(strstr(jd_classify(0x0403, 0x6010, "Trenz Electronic", "TE0790 JTAG", &cable), "TE0790") &&
+        !strcmp(cable, "ft2232"));
+  CHECK(strstr(jd_classify(0x0403, 0x6014, "Digilent", "Digilent USB Device", &cable), "HS2") &&
+        !strcmp(cable, "digilent_hs2"));
+  CHECK(jd_classify(0x1443, 0x0007, "Digilent", "", &cable) && cable == NULL);
+  CHECK(strstr(jd_classify(0x0403, 0x6010, "Arrow", "Arrow USB Blaster", &cable), "Arrow") && cable == NULL);
+  CHECK(jd_classify(0x0403, 0x6015, "FTDI", "FT-X", &cable) == NULL);
+
+  char root[300];
+  snprintf(root, sizeof root, "%s/sys", g_tmp);
+  mkdir(root, 0755);
+  static const char *const te[] = {"ttyUSB4", "ttyUSB5"}, *const mim[] = {"ttyUSB0", NULL},
+                           *const ard[] = {"ttyUSB9"};
+  mkdev(root, "usb1", "1d6b", "0002", "0000:00:14.0", "Linux", "xHCI Host Controller", 0, NULL);
+  mkdev(root, "1-2.10", "0403", "6010", "251633000123", "Trenz Electronic", "TE0790", 2, te);
+  mkdev(root, "1-2.9", "0403", "6014", "210249A1B2C3", "Digilent", "Digilent USB Device", 1, NULL);
+  mkdev(root, "1-3", "2a19", "1009", "A1B2", "Numato", "Mimas A7", 2, mim);
+  mkdev(root, "1-4", "0403", "6010", NULL, "FTDI", "Dual RS232-HS", 2, NULL);
+  mkdev(root, "1-5", "0403", "6001", "A9XYZ", "FTDI", "FT232R USB UART", 1, ard);
+  static jd_adaptor_t a[8];
+  int n = jd_scan(root, a, 8);
+  CHECK(n == 4);
+  if (n != 4)
+    return;
+  /* sorted by port path, version order (1-2.9 before 1-2.10) */
+  CHECK(!strcmp(a[0].path, "1-2.9") && !strcmp(a[1].path, "1-2.10") && !strcmp(a[2].path, "1-4") &&
+        !strcmp(a[3].path, "1-5"));
+  CHECK(a[1].vid == 0x0403 && a[1].pid == 0x6010 && !strcmp(a[1].serial, "251633000123"));
+  CHECK(strstr(a[1].kind, "TE0790") && a[1].nif == 2 && a[1].ifs[0].num == 0 && a[1].ifs[1].num == 1);
+  CHECK(!strcmp(a[1].ifs[0].tty, "ttyUSB4") && !strcmp(jd_tty(&a[1], 1), "ttyUSB5") &&
+        !strcmp(a[1].ifs[1].driver, "ftdi_sio"));
+  CHECK(!strcmp(a[0].cable, "digilent_hs2") && a[0].nif == 1 && a[0].ifs[0].tty[0] == 0 &&
+        a[0].ifs[0].driver[0] == 0);
+  CHECK(a[2].serial[0] == 0 && a[2].busnum == 1 && a[2].devnum == 7 && !strcmp(jd_tty(&a[2], 0), ""));
+  CHECK(!strcmp(a[3].cable, "ft232RL") && !strcmp(jd_tty(&a[3], 0), "ttyUSB9"));
+  CHECK(jd_scan("/nonexistent/sysfs", a, 8) < 0);
+  CHECK(jd_scan(root, a, 2) == 2);
+
+  /* openFPGALoader --detect output */
+  uint32_t ids[8];
+  const char *det = "empty\nJtag frequency : requested 1.00MHz  -> real 1.00MHz\nindex 0:\n"
+                    "\tidcode 0x362c093\n\tmanufacturer xilinx\n\tfamily artix a7 50t\nindex 1:\n"
+                    "\tidcode 0x12ba043\n";
+  CHECK(jd_parse_detect(det, ids, 8) == 2 && ids[0] == 0x0362c093 && ids[1] == 0x012ba043);
+  CHECK(jd_parse_detect("index 0:\n\tidcode 0xffffffff\n", ids, 8) == 0);
+  CHECK(jd_parse_detect("JTAG init failed with: no device found\n", ids, 8) == 0);
+  CHECK(jd_parse_detect(det, ids, 1) == 1);
+
+  /* command lines */
+  jd_cmd_t c;
+  char line[1024];
+  CHECK(jd_ofl_cmd(&c, "/opt/ofl", "ft2232", 0x0403, 0x6010, "2516", "001:007", 0, 6000000, "detect", 0) == 0);
+  jd_cmd_str(&c, line, sizeof line);
+  CHECK(!strcmp(line, "/opt/ofl -c ft2232 --ftdi-serial 2516 --ftdi-channel 0 --freq 6000000 --detect"));
+  CHECK(c.argc == 10 && c.argv[10] == NULL && !strcmp(c.argv[4], "2516"));
+  CHECK(jd_ofl_cmd(&c, "ofl", "ft2232", 0x0403, 0x6010, "", "001:007", -1, 0, "detect", 0) == 0);
+  jd_cmd_str(&c, line, sizeof line);
+  CHECK(!strcmp(line, "ofl -c ft2232 --busdev-num 001:007 --detect"));
+  CHECK(jd_ofl_cmd(&c, "ofl", "ft232", 0x0403, 0x6014, NULL, NULL, 1, 0, "xvc", 2543) == 0);
+  jd_cmd_str(&c, line, sizeof line);
+  CHECK(!strcmp(line, "ofl -c ft232 --vid 0x0403 --pid 0x6014 --ftdi-channel 1 --xvc --port 2543"));
+  CHECK(jd_ofl_cmd(&c, "ofl", NULL, 0x1443, 7, "x", NULL, 0, 0, "detect", 0) < 0);
+  CHECK(jd_ofl_cmd(&c, "my ofl", "ft2232", 0, 0, "it's", NULL, -1, 0, "detect", 0) == 0);
+  jd_cmd_str(&c, line, sizeof line);
+  CHECK(!strcmp(line, "'my ofl' -c ft2232 --ftdi-serial 'it'\\''s' --detect"));
+}
+
+static void test_dirs(void)
+{
+  const char *t = getenv("TMPDIR");
+  snprintf(g_tmp, sizeof g_tmp, "%s/dutctl-test-XXXXXX", t && *t ? t : "/tmp");
+  if (!mkdtemp(g_tmp)) {
+    perror("mkdtemp");
+    exit(1);
+  }
+  test_dutconf_file();
+  test_jtagdisc();
+  nftw(g_tmp, rm_cb, 16, FTW_DEPTH | FTW_PHYS);
+}
+
 int main(int argc, char **argv)
 {
   load_vectors(argc > 1 ? argv[1] : "vectors.txt");
@@ -623,6 +1047,9 @@ int main(int argc, char **argv)
   test_thumbs();
   test_png(argc > 2 ? argv[2] : NULL);
   test_screenshot_targets();
+  test_dutconf();
+  test_jtagspeed();
+  test_dirs();
   printf("dutctl tests: %d checks, %d failures\n", checks, failures);
   return failures ? 1 : 0;
 }

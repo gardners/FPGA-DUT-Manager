@@ -190,3 +190,103 @@ CASE_B = {
     'bay_gap': 2.0,
     'front_order': ['group', 'bulkhead', 'keyboard', 'dut_power'],
 }
+
+# ================================================================== RACK LAYOUT (issue 0051)
+# Options A and B above are kept buildable but are no longer developed. The rack
+# layout is the primary output (out/rack/, out/fit-report.md). Rack z is measured
+# up from the bottom of a unit's RU slot; deck x across from the deck's left edge
+# seen from the front; deck y from the deck's front edge towards the rear.
+
+PLY_T = 6.0             # decks, plates, gussets: 6 mm ply (owner round 10)
+RACK_KERF = KERF        # calibrate for the ply (20 mm test square)
+RACK_SHEETS = {'ply6': (900.0, 600.0)}   # owner's 600 x 900 sheets
+
+RACK = {
+    'ru': RU,
+    'post_opening': 450.0,      # between the rack posts (17.75 in)
+    'face_width': 482.6,        # full 19 inch face (fan plates, KVM front)
+    'post_flange': 15.9,        # face width of each post's front flange (for the drawings)
+    'layout': ['shelf'] * 4 + ['kvm'] + ['shelf'] * 4,   # bottom to top (owner round 11: KVM mid-stack)
+    'group': 4,                 # shelves per fan plate; the plate sits on the bottom shelf of each group
+    'depth_posts': 600.0,       # front post face -> rear post face, elevation drawing only (MEASURE)
+}
+
+SHELF = {
+    'deck_w': 425.0,            # 450 between posts - ~12.5 per slide (depends on the rails)
+    'batten': 25.0,             # 25 x 25 mm timber battens UNDER both deck edges (not cut: drill guide)
+    'front_allow': 35.0,        # deck front -> first MEGA65 part (>= fan notch depth + margin)
+    'rear_space': 100.0,        # free deck behind the MEGA65 board (cartridge / Cart64out), owner
+    'depth': None,              # None = front_allow + MEGA65 board depth + rear_space
+    'clear_top': 1.0,           # air gap kept under the next shelf
+    # Clearance for the fan bodies of a group's fan plate:
+    #  'notch'   every deck has front notches, all shelves of a group sit flush;
+    #            the other shelves' battens start behind the carrier's gussets.
+    #  'setback' the other shelves of a group are set back on their rails by
+    #            'setback' (None = the minimum); notches only where the carrier
+    #            shelf's own deck meets its fans.
+    'fan_clearance': 'notch',
+    'setback': None,
+    'notch_clear': 1.0,         # fan frame -> notch edge, sideways
+    'notch_extra': 3.0,         # notch depth = fan thickness + this
+    'min_tongue': 12.0,         # deck tongues narrower than this between notches are cut away
+    'screw_d': 3.5,             # deck -> batten wood screw holes (countersink by hand)
+    'screw_pitch': 80.0,
+    'cable_slots': [            # (x centre, y centre measured from the REAR edge, w, h): pass-throughs
+        (205.0, 45.0, 60.0, 18.0), (345.0, 45.0, 50.0, 18.0)],
+    'tie_slot': (2.5, 5.0, 8.0),   # cable-tie slot w x h, pair spacing
+    'strain_bar': {'h': 30.0, 'from_rear': 10.0, 'tab_w': 20.0, 'tab_u': 120.0, 'tie_pitch': 40.0},
+    'mega65_x': None,           # board left edge (deck x); None = centre board + floppy between the battens
+    'floppy': 'right',          # 'right' of the board, or None (no floppy)
+    'floppy_gap': 10.0,
+}
+
+FANS = {                        # standard PC fans: size -> screw hole pitch, hole, thickness, open bore
+    120: {'pitch': 105.0, 'hole_d': 4.3, 'thick': 25.0, 'bore': 116.0},
+    92: {'pitch': 82.5, 'hole_d': 4.3, 'thick': 25.0, 'bore': 89.0},
+    80: {'pitch': 71.5, 'hole_d': 4.3, 'thick': 25.0, 'bore': 77.0},
+}
+
+FAN_PLATE = {
+    'ru': 4,                    # 1-4 RU
+    'fan': 120, 'count': 3,
+    'gap': 5.0,                 # between fan frames (3 x 120 + 2 x 5 = 370 < 375 between battens)
+    'edge': 3.0,                # fan frame -> plate top/bottom edge
+    'stagger': ['low', 'high', 'low'],
+    'guard': 'grille',          # 'grille' (cut finger guard) or 'open' (plain bore for wire guards)
+    'grille_hole': 6.0, 'grille_pitch': 7.5,
+    'batten_screws': (8.0, 17.0),   # screw heights (above the slot bottom) into each batten's front end
+    'screw_d': 4.0,
+    'gusset': {'h': 36.0, 'l': 90.0, 'chamfer': 6.0},   # right triangle standing on the carrier deck over each batten
+    'logos': [('mega65', 0), ('mega_ev', 2)],           # logo slot above fan n (a 'low' fan)
+    'text': 'MEGA-KVM', 'text_size': 12.0,              # etched below the 'high' fan
+}
+
+KVM = {
+    'ru': 3,
+    # Owner round 10 asked for 2 x 120 mm fans. With the 227 mm display PCB and
+    # the 197 mm input board beside them that needs ~477 mm behind a 425 mm
+    # deck, so the default is 2 x 92 mm (fits). fan 120 / fan_count 1 also fits.
+    'fan': 92, 'fan_count': 2, 'fan_gap': 1.0, 'fan_edge': 3.0,
+    'guard': 'grille', 'grille_hole': 5.0, 'grille_pitch': 6.5,
+    'side_margin': 5.0,         # behind-panel parts -> deck edge
+    'pcb_top': 4.0,             # front-panel PCB top edge below the panel top
+    'input_above_deck': 4.0,    # input board bottom edge above the deck top
+    'rocker_pos': 'input_row',  # 'input_row' (right of the input board) or 'json' (panel-holes.json x/y)
+    'front_holes': '../mega-kvm-front/out/panel-holes.json',
+    'front_zone_extra': 4.0,
+    'gusset': {'h': 24.0, 'l': 90.0, 'chamfer': 6.0},   # under the deck, against the battens' inner faces
+    'rear_clear': 1.35,         # rear plate top below the unit's top
+    'gs105_x': 5.0, 'power_gap': 8.0,
+    'logos': [('mega65', 'left'), ('mega_ev', 'right')],   # in the band in front of the deck/battens
+    'text': 'MEGA-KVM', 'text_size': 10.0,
+}
+
+LOGOS = {                       # slot name -> file in logos/ and how to make it one colour
+    # logos/mega65.svg = assets/mega65.svg (owner). The dark pill (#3b3b3b) has the
+    # letters as holes: keep only it, as black, so the letters stay bare wood.
+    'mega65': {'file': 'mega65.svg', 'keep': ['#3b3b3b'], 'w': 110.0, 'h': 24.0, 'label': 'MEGA65'},
+    # M.E.G.A. e.V. logo: not found yet (owner to supply); keep=None = every fill -> black
+    'mega_ev': {'file': 'mega-ev.svg', 'keep': None, 'w': 110.0, 'h': 24.0, 'label': 'M.E.G.A. E.V.'},
+}
+
+FOOTPRINT = 'mega65_footprint.py'   # MEGA65 board / floppy / Cart64out table (replaceable, with sources)

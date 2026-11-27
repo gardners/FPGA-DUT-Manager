@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" width="38.000mm" height="136.000mm" viewBox="0 0 38.000 136.000" version="1.1">
+<title>Ethernet bulkhead + DUT power leads</title>
+<sodipodi:namedview inkscape:document-units="mm" pagecolor="#ffffff"/>
+
+<g inkscape:groupmode="layer" inkscape:label="cut (red hairline)" id="cut">
+<path d="M 11.8,86.825 L 26.2,86.825 A 0.725,0.725 0 0 1 26.925,87.55 L 26.925,99.45 A 0.725,0.725 0 0 1 26.2,100.175 L 11.8,100.175 A 0.725,0.725 0 0 1 11.075,99.45 L 11.075,87.55 A 0.725,0.725 0 0 1 11.8,86.825 Z" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
+<circle cx="6" cy="93.5" r="1.625" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
+<circle cx="32" cy="93.5" r="1.625" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
+<circle cx="7.75" cy="72" r="2.425" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
+<circle cx="15.25" cy="72" r="2.425" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
+<circle cx="22.75" cy="72" r="2.425" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
+<circle cx="30.25" cy="72" r="2.425" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
+<circle cx="7.75" cy="63.5" r="2.425" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
+<circle cx="15.25" cy="63.5" r="2.425" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
+<circle cx="22.75" cy="63.5" r="2.425" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
+<circle cx="30.25" cy="63.5" r="2.425" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
+</g>
+<g inkscape:groupmode="layer" inkscape:label="engrave (black)" id="engrave">
+<path d="M 16.3333,83.25 L 16.3333,85.25 L 17.6667,85.25" style="fill:none;stroke:#000000;stroke-width:0.2;stroke-linecap:round;stroke-linejoin:round"/>
+<path d="M 18.3333,85.25 L 18.3333,83.9167 L 19,83.25 L 19.6667,83.9167 L 19.6667,85.25" style="fill:none;stroke:#000000;stroke-width:0.2;stroke-linecap:round;stroke-linejoin:round"/>
+<path d="M 18.3333,84.25 L 19.6667,84.25" style="fill:none;stroke:#000000;stroke-width:0.2;stroke-linecap:round;stroke-linejoin:round"/>
+<path d="M 20.3333,85.25 L 20.3333,83.25 L 21.6667,85.25 L 21.6667,83.25" style="fill:none;stroke:#000000;stroke-width:0.2;stroke-linecap:round;stroke-linejoin:round"/>
+<path d="M 7.55,75.2 L 7.75,75 L 7.75,76.2" style="fill:none;stroke:#000000;stroke-width:0.2;stroke-linecap:round;stroke-linejoin:round"/>
+<path d="M 7.55,76.2 L 7.95,76.2" style="fill:none;stroke:#000000;stroke-width:0.2;stroke-linecap:round;stroke-linejoin:round"/>
+<path d="M 14.85,75.2 L 15.05,75 L 15.45,75 L 15.65,75.2 L 15.65,75.4 L 14.85,76.2 L 15.65,76.2" style="fill:none;stroke:#000000;stroke-width:0.2;stroke-linecap:round;stroke-linejoin:round"/>
+<path d="M 22.35,75.2 L 22.55,75 L 22.95,75 L 23.15,75.2 L 23.15,75.4 L 22.95,75.6 L 23.15,75.8 L 23.15,76 L 22.95,76.2 L 22.55,76.2 L 22.35,76" style="fill:none;stroke:#000000;stroke-width:0.2;stroke-linecap:round;stroke-linejoin:round"/>
+<path d="M 22.65,75.6 L 22.95,75.6" style="fill:none;stroke:#000000;stroke-width:0.2;stroke-linecap:round;stroke-linejoin:round"/>
+<path d="M 30.45,76.2 L 30.45,75 L 29.85,75.8 L 30.65,75.8" style="fill:none;stroke:#000000;stroke-width:0.2;stroke-linecap:round;stroke-linejoin:round"/>
+<path d="M 8.15,66.5 L 7.35,66.5 L 7.35,67 L 7.95,67 L 8.15,67.2 L 8.15,67.5 L 7.95,67.7 L 7.55,67.7 L 7.35,67.5" style="fill:none;stroke:#000000;stroke-width:0.2;stroke-linecap:round;stroke-linejoin:round"/>
+<path d="M 15.55,66.5 L 15.05,66.5 L 14.85,66.7 L 14.85,67.5 L 15.05,67.7 L 15.45,67.7 L 15.65,67.5 L 15.65,67.3 L 15.45,67.1 L 14.85,67.1" style="fill:none;stroke:#000000;stroke-width:0.2;stroke-linecap:round;stroke-linejoin:round"/>
+<path d="M 22.35,66.5 L 23.15,66.5 L 22.55,67.7" style="fill:none;stroke:#000000;stroke-width:0.2;stroke-linecap:round;stroke-linejoin:round"/>
+<path d="M 30.05,67.1 L 29.85,66.9 L 29.85,66.7 L 30.05,66.5 L 30.45,66.5 L 30.65,66.7 L 30.65,66.9 L 30.45,67.1 L 30.05,67.1 L 29.85,67.3 L 29.85,67.5 L 30.05,67.7 L 30.45,67.7 L 30.65,67.5 L 30.65,67.3 L 30.45,67.1" style="fill:none;stroke:#000000;stroke-width:0.2;stroke-linecap:round;stroke-linejoin:round"/>
+<path d="M 13.6667,60.2 L 13.6667,58.6 L 14.2,58.6 L 14.7333,59.1333 L 14.7333,59.6667 L 14.2,60.2 L 13.6667,60.2" style="fill:none;stroke:#000000;stroke-width:0.2;stroke-linecap:round;stroke-linejoin:round"/>
+<path d="M 15.2667,58.6 L 15.2667,59.9333 L 15.5333,60.2 L 16.0667,60.2 L 16.3333,59.9333 L 16.3333,58.6" style="fill:none;stroke:#000000;stroke-width:0.2;stroke-linecap:round;stroke-linejoin:round"/>
+<path d="M 16.8667,58.6 L 17.9333,58.6" style="fill:none;stroke:#000000;stroke-width:0.2;stroke-linecap:round;stroke-linejoin:round"/>
+<path d="M 17.4,58.6 L 17.4,60.2" style="fill:none;stroke:#000000;stroke-width:0.2;stroke-linecap:round;stroke-linejoin:round"/>
+<path d="M 20.3333,58.8667 L 20.6,58.6 L 20.6,60.2" style="fill:none;stroke:#000000;stroke-width:0.2;stroke-linecap:round;stroke-linejoin:round"/>
+<path d="M 20.3333,60.2 L 20.8667,60.2" style="fill:none;stroke:#000000;stroke-width:0.2;stroke-linecap:round;stroke-linejoin:round"/>
+<path d="M 21.6667,58.8667 L 21.9333,58.6 L 22.4667,58.6 L 22.7333,58.8667 L 22.7333,59.1333 L 21.6667,60.2 L 22.7333,60.2" style="fill:none;stroke:#000000;stroke-width:0.2;stroke-linecap:round;stroke-linejoin:round"/>
+<path d="M 23.2667,58.6 L 23.8,60.2 L 24.3333,58.6" style="fill:none;stroke:#000000;stroke-width:0.2;stroke-linecap:round;stroke-linejoin:round"/>
+</g>
+<g inkscape:groupmode="layer" inkscape:label="reference (hidden, do not cut)" id="ref" style="display:none">
+<path d="M 2,2 L 36,2 L 36,134 L 2,134 Z" style="fill:none;stroke:#0000ff;stroke-width:0.2;stroke-dasharray:1,1"/>
+</g>
+</svg>

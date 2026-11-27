@@ -50,9 +50,9 @@ package proto_pkg is
   constant PHYS_TYPE3 : std_logic_vector(7 downto 0) := x"03";
 
   -- payload lengths (after the 8-byte common header)
-  -- 100 fixed + 24 video block + 8 link block + 12 memory block
-  -- (ADR 0005 sections 3, 3a, 3b, 8)
-  constant HB_PAYLOAD_LEN   : natural := 144;
+  -- 100 fixed + 24 video block + 8 link block + 12 memory block + 8
+  -- shield block (ADR 0005 sections 3, 3a, 3b, 3c, 8)
+  constant HB_PAYLOAD_LEN   : natural := 152;
   constant ACK_PAYLOAD_LEN  : natural := 10;
   constant SNAP_PAYLOAD_LEN : natural := 680;
   constant JRESP_FIXED_LEN  : natural := 16;
@@ -86,6 +86,7 @@ package proto_pkg is
   constant K_HB_PERIOD    : natural := 16#0050#;
   constant K_OUT_POLICY   : natural := 16#0060#;
   constant K_PK_JTAG      : natural := 16#0061#;  -- physical kbd CPLD JTAG: 0 auto, 1 on, 2 off, 3 on + JTAGEN low (ADR 0014)
+  constant K_PWR_CTL      : natural := 16#0062#;  -- shield power CTRL0..7 bitmask (bit n = power-board output n), issue 0049
 
   -- MGMT_ACK status
   constant ST_OK        : std_logic_vector(7 downto 0) := x"00";
@@ -107,6 +108,14 @@ package proto_pkg is
   constant VF_CAPTURE : natural := 2;   -- capture enabled
   constant VF_HDMI    : natural := 3;   -- HDMI preambles seen (issue 0040)
   constant VF_ISLANDS : natural := 4;   -- data islands seen (issue 0040)
+
+  -- heartbeat byte 152, shield_flags bits (ADR 0005 section 3c, issue 0049)
+  constant SF_BUILD    : natural := 0;   -- bitstream has the shield I2C master
+  constant SF_PROBED   : natural := 1;   -- first probe of expander A finished
+  constant SF_PRESENT  : natural := 2;   -- expander A answered (revision/features valid)
+  constant SF_SENSE    : natural := 3;   -- last poll of expander B succeeded (sense valid)
+  constant SF_PWRB     : natural := 4;   -- power board PRESENT (valid with SF_SENSE)
+  constant SF_ADOPTED  : natural := 5;   -- CTRL state kept from before a reconfiguration
 
   -- defaults
   -- heartbeat byte 109, HDMI OUT shown: 0 editable, 1 no video, 2 select

@@ -151,7 +151,65 @@
   "grille_pitch": 4.8,
   "wall_gap": 2.0
  },
+ "FANS": {
+  "120": {
+   "pitch": 105.0,
+   "hole_d": 4.3,
+   "thick": 25.0,
+   "bore": 116.0
+  },
+  "92": {
+   "pitch": 82.5,
+   "hole_d": 4.3,
+   "thick": 25.0,
+   "bore": 89.0
+  },
+  "80": {
+   "pitch": 71.5,
+   "hole_d": 4.3,
+   "thick": 25.0,
+   "bore": 77.0
+  }
+ },
+ "FAN_PLATE": {
+  "ru": 4,
+  "fan": 120,
+  "count": 3,
+  "gap": 5.0,
+  "edge": 3.0,
+  "stagger": [
+   "low",
+   "high",
+   "low"
+  ],
+  "guard": "grille",
+  "grille_hole": 6.0,
+  "grille_pitch": 7.5,
+  "batten_screws": [
+   8.0,
+   17.0
+  ],
+  "screw_d": 4.0,
+  "gusset": {
+   "h": 36.0,
+   "l": 90.0,
+   "chamfer": 6.0
+  },
+  "logos": [
+   [
+    "mega65",
+    0
+   ],
+   [
+    "mega_ev",
+    2
+   ]
+  ],
+  "text": "MEGA-KVM",
+  "text_size": 12.0
+ },
  "FINGER_W": 10.0,
+ "FOOTPRINT": "mega65_footprint.py",
  "FRONT": {
   "lcd": {
    "window": [
@@ -223,6 +281,60 @@
   }
  },
  "KERF": 0.15,
+ "KVM": {
+  "ru": 3,
+  "fan": 92,
+  "fan_count": 2,
+  "fan_gap": 1.0,
+  "fan_edge": 3.0,
+  "guard": "grille",
+  "grille_hole": 5.0,
+  "grille_pitch": 6.5,
+  "side_margin": 5.0,
+  "pcb_top": 4.0,
+  "input_above_deck": 4.0,
+  "rocker_pos": "input_row",
+  "front_holes": "../mega-kvm-front/out/panel-holes.json",
+  "front_zone_extra": 4.0,
+  "gusset": {
+   "h": 24.0,
+   "l": 90.0,
+   "chamfer": 6.0
+  },
+  "rear_clear": 1.35,
+  "gs105_x": 5.0,
+  "power_gap": 8.0,
+  "logos": [
+   [
+    "mega65",
+    "left"
+   ],
+   [
+    "mega_ev",
+    "right"
+   ]
+  ],
+  "text": "MEGA-KVM",
+  "text_size": 10.0
+ },
+ "LOGOS": {
+  "mega65": {
+   "file": "mega65.svg",
+   "keep": [
+    "#3b3b3b"
+   ],
+   "w": 110.0,
+   "h": 24.0,
+   "label": "MEGA65"
+  },
+  "mega_ev": {
+   "file": "mega-ev.svg",
+   "keep": null,
+   "w": 110.0,
+   "h": 24.0,
+   "label": "M.E.G.A. E.V."
+  }
+ },
  "MEGA65_FOOTPRINT": null,
  "MIMAS": {
   "w": 90.0,
@@ -313,6 +425,7 @@
   ]
  },
  "NEST_GAP": 4.0,
+ "PLY_T": 6.0,
  "POWER_IN": {
   "pcb": "../mega-kvm-power/mega-kvm-power-inputs/mega-kvm-power-inputs.kicad_pcb",
   "w": 150.0,
@@ -332,7 +445,33 @@
   "tallest": 16.0,
   "rear_clear": 10.0
  },
+ "RACK": {
+  "ru": 44.45,
+  "post_opening": 450.0,
+  "face_width": 482.6,
+  "post_flange": 15.9,
+  "layout": [
+   "shelf",
+   "shelf",
+   "shelf",
+   "shelf",
+   "kvm",
+   "shelf",
+   "shelf",
+   "shelf",
+   "shelf"
+  ],
+  "group": 4,
+  "depth_posts": 600.0
+ },
+ "RACK_KERF": 0.15,
  "RACK_MAX_WIDTH": 445.0,
+ "RACK_SHEETS": {
+  "ply6": [
+   900.0,
+   600.0
+  ]
+ },
  "RU": 44.45,
  "SHEETS": {
   "mdf": [
@@ -345,6 +484,50 @@
   ]
  },
  "SHEET_MARGIN": 5.0,
+ "SHELF": {
+  "deck_w": 425.0,
+  "batten": 25.0,
+  "front_allow": 35.0,
+  "rear_space": 100.0,
+  "depth": null,
+  "clear_top": 1.0,
+  "fan_clearance": "notch",
+  "setback": null,
+  "notch_clear": 1.0,
+  "notch_extra": 3.0,
+  "min_tongue": 12.0,
+  "screw_d": 3.5,
+  "screw_pitch": 80.0,
+  "cable_slots": [
+   [
+    205.0,
+    45.0,
+    60.0,
+    18.0
+   ],
+   [
+    345.0,
+    45.0,
+    50.0,
+    18.0
+   ]
+  ],
+  "tie_slot": [
+   2.5,
+   5.0,
+   8.0
+  ],
+  "strain_bar": {
+   "h": 30.0,
+   "from_rear": 10.0,
+   "tab_w": 20.0,
+   "tab_u": 120.0,
+   "tie_pitch": 40.0
+  },
+  "mega65_x": null,
+  "floppy": "right",
+  "floppy_gap": 10.0
+ },
  "SHIELD": {
   "stack": 11.0,
   "pcb": 1.6,

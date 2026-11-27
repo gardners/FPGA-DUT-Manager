@@ -194,7 +194,7 @@ def recess(cfg, zc=13.0):
     return Item('recess', w, draw, r['depth'], (zc - r['h'] / 2, zc + r['h'] / 2), title='DC lead tuck-away pocket')
 
 
-def power_inputs(cfg, board, bottom_z=0.0):
+def power_inputs(cfg, board, bottom_z=0.0, title_z=None):
     """Rear-panel cut-outs for the vertical input board (0047), from its KiCad file.
     Board y (from its top edge) maps to height: z = bottom_z + h - y."""
     P = cfg.POWER_IN
@@ -228,7 +228,7 @@ def power_inputs(cfg, board, bottom_z=0.0):
             if ref in fp:
                 f = fp[ref]
                 p.cut(Circle(u0 + f['x'], V(zof(f['y'])), 1.7))
-        label(p, '12V IN  1 > 2 > 3', u0 + 45, V(zof(0) - 3.2), 1.8)
+        label(p, '12V IN  1 > 2 > 3', u0 + 45, V(zof(0) - 3.2 if title_z is None else title_z), 1.8)
     return Item('power_inputs', bw, draw, P['behind_panel'] + P['depth'], (bottom_z, bottom_z + bh),
                 title='rear power inputs (input board 0047)')
 

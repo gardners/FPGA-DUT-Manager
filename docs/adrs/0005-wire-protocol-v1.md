@@ -101,7 +101,8 @@ Sent per DUT at ~50 Hz (configurable period; 20 ms default), and expedited
 Total 108 bytes (header + 100). Since 2026-11-25 the supervisor always
 appends the video block (section 8; zeros until HDMI capture exists) and
 the link block (section 3a): 140 bytes on the wire (header + 132); with
-the memory block (section 3b, issue 0034) 152 bytes (header + 144).
+the memory block (section 3b, issue 0034) 152 bytes (header + 144); with
+the shield block (section 3c, issue 0049) 160 bytes (header + 152).
 Decoders must accept >= 100 and use the blocks only when present.
 
 ### 3a. Heartbeat link block (bytes 132..139; payload >= 132)
@@ -131,6 +132,28 @@ block only when the payload is >= 144.
 | 144 | 2 | mem_dq_fail: bit i = DDR3 data line DQ i returned a wrong bit at least once |
 | 146 | 2 | mem_test_kib: self-test region size in KiB (0 = no memory subsystem) |
 | 148 | 4 | mem_first_err: 16-byte word address of the first failing word (0xFFFFFFFF none) |
+
+### 3c. Heartbeat shield block (bytes 152..159; payload >= 152)
+
+Shield I2C status (issue 0049, `shield_io`; bit maps in
+`docs/hardware/shield-pinplan.md`). Appended 2026-11-27; all zero in a
+bitstream without the shield I2C master (normal build, `SHIELD_RX` = 0).
+Board-wide: the same in both endpoints' heartbeats.
+
+| Off | Size | Field |
+|---|---|---|
+| 152 | 1 | shd_flags: b0 bitstream has the shield I2C master, b1 first probe finished, b2 shield present (expander A answered; bytes 153/154 valid), b3 sense valid (the last poll of expander B succeeded; bytes 155/156 inputs valid), b4 power board PRESENT (expander B P0.7, valid with b3), b5 CTRL state kept from before an FPGA reconfiguration (the host has not set key 0x0062 since), b6-b7 0 |
+| 153 | 1 | shd_revision: expander A port 0 straps (shield v1 = 0x01) |
+| 154 | 1 | shd_features: expander A port 1 straps: b0 HDMI1 capture, b1 power header, b2 HDMI2, b3 HDMI3, b4 DUT2 ports, b5 DUT3 ports, b6 neighbour UART, b7 reserved |
+| 155 | 1 | shd_sense: b0-b3 VIO sense DUT0..DUT3, b4-b7 keyboard 3.3 V sense DUT0..DUT3 |
+| 156 | 1 | shd_hdmi: b0-b2 +5V sense HDMI1..HDMI3, b3 PK_JTAGEN driven high, b4-b6 HPD driven HDMI1..HDMI3, b7 0 |
+| 157 | 1 | shd_pwr: power CTRL0..CTRL7 (expander A port 2) as driven, bit n = power-board output n |
+| 158 | 2 | shd_i2c_errors: failed shield I2C transactions (NACK, stretch timeout, bus stuck), saturating |
+
+In the shield build the DUT0/DUT1 "powered" sense (target_flags, output
+gating) comes from bytes 155 b0/b1 and b4/b5 while b3 is set; with b2 set
+and b3 clear the DUTs count as unpowered; with no shield answering (b1 set,
+b2 clear) the J/K block sense pins are used as in the normal build.
 
 ## 4. Management (port 6500)
 
@@ -174,6 +197,7 @@ Keys (whole values, never toggles):
 | 0x0050 | 2 | heartbeat period ms |
 | 0x0060 | 1 | target output enable policy: 0 auto (sense), 1 force on, 2 force off |
 | 0x0061 | 1 | physical keyboard CPLD JTAG (section 7, ADR 0014): 0 auto (pins driven while a keyboard is detected and for 10 s after the last detection or keyboard JTAG transaction; default), 1 force on, 2 force off, 3 force on with KB_JTAGEN driven low (diagnostic: does J5 pin 3 gate the CPLD's JTAG port?). Board-wide |
+| 0x0062 | 1 | shield power outputs (issue 0049): bit n = CTRL n of the master shield's 1x11 power header = power-board output n (`docs/hardware/power-board.md`; the host maps outputs to machines, as for the relay channels of ADR 0009). Complete state, not a toggle. Default after configuration: what expander A already drives if the shield stayed powered (heartbeat shd_flags b5), else all off. Accepted on any board; it only has an effect where `shield_io` runs and the shield answers. Board-wide |
 
 ## 5. Keyboard (port 6502)
 

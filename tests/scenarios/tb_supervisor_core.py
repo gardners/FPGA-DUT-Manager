@@ -111,6 +111,9 @@ def scenario():
     # mode 3: engine on, JTAGEN low (the tb's TAP ignores JTAGEN): seq 1 works
     f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 17, P.K_PK_JTAG, b"\x03"))))
     f.append((5, udp_to(0, P.PORT_JTAG, P.jtag_req(0, 1, JTAG_TMS, JTAG_TDI, half=2, flags=P.JF_KBD))))
+    # shield power CTRL (key 0x0062, issue 0049): set, then a bad length
+    f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 18, P.K_PWR_CTL, b"\xa5"))))
+    f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 19, P.K_PWR_CTL, b"\xa5\x00"))))
     return f
 
 
@@ -190,12 +193,13 @@ def check(path):
             (4, P.K_PK_LED_MODE, 0), (5, P.K_PK_LED_MODE, 3), (6, P.K_PK_LED_HOST, 0),
             (7, P.K_PK_LED_HOST, 2), (10, 0x0004, 0), (11, 0x0003, 0), (8, K_CAPTURE_EN, 0),
             (13, K_THUMB_FORCE, 0), (14, K_THUMB_FORCE, 3), (12, P.K_CON_SCREEN, 0),
-            (15, P.K_PK_JTAG, 3), (16, P.K_PK_JTAG, 0), (17, P.K_PK_JTAG, 0)]
+            (15, P.K_PK_JTAG, 3), (16, P.K_PK_JTAG, 0), (17, P.K_PK_JTAG, 0),
+            (18, P.K_PWR_CTL, 0), (19, P.K_PWR_CTL, 2)]
     got = [(a["cmd_id"], a["key"], a["status"]) for a in acks]
     if got != want:
         err("MGMT acks %r != %r" % (got, want))
-    elif acks[-1]["cfg_gen"] != 12:  # baud, hb period, LED mode, LED vector, dest x2, capture,
-        err("cfg_gen %d != 12" % acks[-1]["cfg_gen"])  # thumb force, DUT1 hb period, console screen, kbd JTAG
+    elif acks[-1]["cfg_gen"] != 13:  # baud, hb period, LED mode, LED vector, dest x2, capture,
+        err("cfg_gen %d != 13" % acks[-1]["cfg_gen"])  # thumb force, DUT1 hb period, console screen, kbd JTAG x2, power
 
     jrall = [(d["dut"], P.decode_jtag_resp(d["body"])) for d in parsed
              if d.get("kind") == "udp" and d.get("ptype") == P.T_JTAG_RESP]
@@ -263,8 +267,12 @@ def check(path):
     if hb0 and (hb0[-1]["addr_src"] != 1 or hb0[-1]["dut_id"] != 0):
         err("DUT0 heartbeat addr_src/dut_id %r" % ((hb0[-1]["addr_src"], hb0[-1]["dut_id"]),))
     for d, h in hbs:
-        if "rx_hunts" not in h or "video_flags" not in h or "mem_flags" not in h:
-            err("heartbeat without video/link/memory block (expected 144-byte payload)")
+        if "rx_hunts" not in h or "video_flags" not in h or "mem_flags" not in h or "shd_flags" not in h:
+            err("heartbeat without video/link/memory/shield block (expected 152-byte payload)")
+            break
+        # testbench: no shield (status inputs at defaults): all-zero block
+        if any(h[k] for k in P.SHD_FIELDS):
+            err("shield block unexpected: %r" % ({k: h[k] for k in P.SHD_FIELDS},))
             break
         # testbench: no memory subsystem attached (status inputs at defaults)
         if (h["mem_flags"], h["mem_errors"], h["mem_dq_fail"], h["mem_first_err"]) != (0, 0, 0, 0xFFFFFFFF):
