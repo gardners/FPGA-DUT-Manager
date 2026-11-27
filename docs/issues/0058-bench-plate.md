@@ -28,3 +28,31 @@ Layout:
 
 The owner will cut two: one as the base, one on top as a cover against
 falling conductive bits. At first it lives under a MEGA65.
+
+## Progress
+
+### 2026-11-27: generator and first SVGs (branch feature/bench-plate)
+
+`hardware/bench-plate/` (`make` = `python3 build.py`) writes `out/base.svg`,
+`out/lid.svg`, the `-alt` pair, preview PNGs and `out/layout.md` (every
+board position and hole). Cut = red 0.01 mm hairlines, engrave = black
+(board outlines, names, RJ45 bodies with arrows to the front), units mm.
+All jack fronts on one line 50 mm behind the plate front; holes Ø3.2
+(M3 clearance for the owner's "3 mm").
+
+* **The owner's one-row layout is 517.1 x 238.6 mm: over the 400 mm
+  limit.** The boards alone span 477 mm with the requested 25 mm gaps
+  (relay gap 20, Arduino gap 15, side margins 20 chosen here).
+* Alternative (`base-alt.svg`/`lid-alt.svg`), **378.7 x 338.5 mm**: K325T,
+  Mimas #1, Mimas #2 in the front row (jacks aligned); relay board (long
+  side along X) and Arduino in a rear row behind the two Mimas, 45 mm
+  behind their HDMI edge. The Arduino's RJ45 still faces the front but is
+  165.5 mm further back: the one constraint it relaxes.
+* Sizes: Mimas from the vendor STEP (shield docs); QMTECH daughter board
+  108.71 x 134.62 mm (QMTECH XC7A100T starter-kit daughter-board manual);
+  Yun 73 x 53 mm; XC4418 135 x 50 mm (Jaycar datasheet). **ASSUMED** (no
+  vendor drawing found): daughter-board holes and RJ45 position (scaled from
+  the manual's photo), Yun holes (Uno R3 pattern) and RJ45 position, relay
+  holes (3 mm in from the corners). Measure these before cutting; they all
+  live in `hardware/bench-plate/boards.py`.
+* Open for the owner: which layout; MDF sheet size (both fit 600 x 900).
