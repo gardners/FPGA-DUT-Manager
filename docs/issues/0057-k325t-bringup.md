@@ -115,3 +115,7 @@ on the 3-digit 7-segment LED display.
   output, not from the K325T. **The K325T's VGA output is still
   unverified**, and the K325T's flash image is unknown (it is configured at
   power-on, status 0x401079fc).
+* Owner: SD card preparation (HewnWeb content partition on the 16 GB J9
+  card, key card on the 2 GB J11 card) is the HewnWeb session's job, not
+  ours. The lead sent the K325T facts (pin map, SD slots, UART, loading,
+  what's unverified) to the hardweb session (hardweb-95).
