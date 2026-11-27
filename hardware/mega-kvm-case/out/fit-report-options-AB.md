@@ -5,8 +5,8 @@ Shield numbers from: geometry.py + placement.json.
 
 ## Summary
 
-* **Option A**: 445.0 x 303.0 x 44.45 mm (W x D x H): fits.
-* **Option B**: 444.5 x 409.0 x 43.90 mm (W x D x H): 5 problem(s).
+* **Option A**: 445.0 x 272.0 x 44.45 mm (W x D x H): 2 problem(s).
+* **Option B**: 444.5 x 409.0 x 43.90 mm (W x D x H): 4 problem(s).
 
 ## DUT-face variants (2 bays), width and height budgets
 
@@ -25,14 +25,19 @@ Note: the 279.6 mm single-row shield does not fit twice in a 19-inch case (559 m
 ## Option A
 
 * rear panel: bays 381.2 mm (2 x 189.6 + gap); beside them Ethernet bulkhead + DUT power leads; 16.8 mm left over
-* rear panel: no room for rear power inputs (input board 0047) (197 mm) -> right side wall
+* rear panel: no room for rear power inputs (input board 0047) (126 mm) -> right side wall
 * rear panel: no room for physical keyboard feed-through (2x5) (36 mm) -> right side wall
 * rear panel: no room for DC lead tuck-away pocket (66 mm) -> right side wall
-* depth 303 mm: front zone 110 (GS105 100 deep, power board 80 behind the 27 mm front group) + RJ45 patch 35 + Mimas 120; side-wall items need 303
-* no room for the DC-lead recess on the right wall either (needs 66 mm, 0 left): not placed
+* depth 272 mm: front zone 110 (GS105 100 deep, power board 80 behind the 27 mm front group) + RJ45 patch 35 + Mimas 120; side-wall items need 232
+* no room for the DC-lead recess on the right wall either (needs 66 mm, 40 left): not placed
 * fans: 40 mm > 38.45 mm interior, so they sit in slots in the base and the lid (0.77 mm into each)
 * top of the Mimas/shield stack: 36.7 mm above the outer bottom; interior top 41.45 mm
 * sheets: mdf 900x600: 1 sheet(s); acrylic 600x400: 2 sheet(s)
+
+**Problems:**
+
+* A-right: a cut-out at u 120.4-128.6 v -18.1--9.9 is in or near the joint zone
+* input board (side) exceeds the interior: lid/top by 25.55
 
 | Part | nearest neighbour (same height band) | gap mm | headroom to lid mm |
 |---|---|---|---|
@@ -48,7 +53,7 @@ Note: the 279.6 mm single-row shield does not fit twice in a 19-inch case (559 m
 | GS105 | fan 1 | 3.0 | 11.5 |
 | power main board | front panel group | 3.0 | 15.9 |
 | front panel group | power main board | 3.0 | 1.2 |
-| input board (side) | bulkhead+dut_power | 3.0 | 4.5 |
+| input board (side) | bulkhead+dut_power | 3.0 | -25.5 |
 | keyboard (side) | input board (side) | 3.0 | 10.5 |
 | fan 1 | GS105 | 3.0 | -0.8 |
 | fan 2 | GS105 | 3.0 | -0.8 |
@@ -73,7 +78,6 @@ Note: the 279.6 mm single-row shield does not fit twice in a 19-inch case (559 m
 * front panel: NO ROOM for physical keyboard feed-through (2x5) (36 mm)
 * front panel: NO ROOM for DUT power leads (8) (34 mm)
 * IEC cover: the banana pair needs 29.2 mm, the opening is 28.0 mm wide
-* input board / leads exceeds the interior: right wall by 21.0
 
 | Part | nearest neighbour (same height band) | gap mm | headroom to lid mm |
 |---|---|---|---|

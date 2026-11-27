@@ -9,6 +9,8 @@
 <text x="280.7" y="153.7" style="font-family:sans-serif;font-size:1.8px;fill:#000;text-anchor:middle;font-weight:normal">RJ45 patch 1</text>
 <rect x="81.2" y="135.2" width="15.8" height="35" style="fill:#ffe0e0;fill-opacity:0.5;stroke:#c66;stroke-width:0.3;stroke-dasharray:2,1"/>
 <text x="89.1" y="153.7" style="font-family:sans-serif;font-size:1.8px;fill:#000;text-anchor:middle;font-weight:normal">RJ45 patch 2</text>
+<rect x="208" y="276" width="126" height="22" style="fill:#d08040;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
+<text x="271" y="288" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">input board</text>
 <rect x="20" y="170.4" width="94" height="100" style="fill:#8fa8d8;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
 <text x="67" y="221.4" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">GS105</text>
 <rect x="259.4" y="15.2" width="90" height="120" style="fill:#7fbf7f;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
@@ -23,16 +25,14 @@
 <text x="43.1" y="33.2" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">kbd sub 2A</text>
 <rect x="158.6" y="15.2" width="47.8" height="34" style="fill:#5faf9f;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
 <text x="182.5" y="33.2" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">kbd sub 2B</text>
-<rect x="208" y="276" width="197" height="22" style="fill:#d08040;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
-<text x="306.5" y="288" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">input board</text>
-<rect x="122" y="190.4" width="170" height="80" style="fill:#e0a060;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
-<text x="207" y="231.4" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">power main board</text>
+<rect x="122" y="190.4" width="230" height="80" style="fill:#e0a060;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
+<text x="237" y="231.4" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">power main board</text>
 <rect x="20" y="281" width="92" height="25" style="fill:#b0b0e0;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
 <text x="66" y="294.5" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">KVM fan 1</text>
 <rect x="113" y="281" width="92" height="25" style="fill:#b0b0e0;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
 <text x="159" y="294.5" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">KVM fan 2</text>
-<rect x="413" y="284" width="13" height="22" style="fill:#d8c070;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
-<text x="419.5" y="296" style="font-family:sans-serif;font-size:1.8px;fill:#000;text-anchor:middle;font-weight:normal">rocker</text>
+<rect x="342" y="284" width="13" height="22" style="fill:#d8c070;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
+<text x="348.5" y="296" style="font-family:sans-serif;font-size:1.8px;fill:#000;text-anchor:middle;font-weight:normal">rocker</text>
 <rect x="209.6" y="15.2" width="189.6" height="120" style="fill:#a0d0a0;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
 <text x="304.4" y="76.2" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">shield 1</text>
 <rect x="18" y="15.2" width="189.6" height="120" style="fill:#a0d0a0;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>

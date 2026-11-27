@@ -13,7 +13,7 @@ Options A and B (the single 1RU box) are in `fit-report-options-AB.md` and are n
 * **official expansions**: PLACEHOLDER (no data) (NOT cut: reference layer only).
 * Front-panel PCB: `../mega-kvm-front/out/panel-holes.json` (found).
 * Power boards: main = mega-kvm-power-main.kicad_pcb, inputs = mega-kvm-power-inputs.kicad_pcb.
-* Logos: mega65: logos/mega65.svg etched at 110.0 x 23.6 mm; mega_ev: placeholder box 110 x 24 (no logos/mega-ev.svg).
+* Logos: mega65: logos/mega65.svg etched at 110.0 x 23.6 mm; mega_ev: placeholder box 110 x 24 (no logos/mega-ev.svg); mega_ev: placeholder box 70 x 24 (no logos/mega-ev.svg).
 * Cross-checks: MEGA65 holes: Trenz DIM drawing vs the rugged case agree within 0.8 mm (rear-right hole y 93.8 vs 93.0; front row y 4.88 vs 5.0); the DIM values are used. Cart64out holes: Eagle .brd and DXF agree exactly (Ø3.302 at (16,4) (16,58) (71,4) (71,58)); the DXF outline is 97 x 62 including a 12 mm tongue (body 85 mm, not 86). The Cart64out insertion depth (tongue tip at board y 91.0) comes from the rugged case's single breakout support hole, which lands exactly on Cart64out hole (71, 58).
 
 ## Heights (1RU pitch)
@@ -72,20 +72,24 @@ Gussets: 36 mm tall x 90 mm long on the carrier deck over each batten.
 
 * Deck 425 x 291 mm; front zone 36 mm deep (fans, display PCB + LCD, input board).
 * Front panel width budget behind the face: fans 2 x 92 mm (x 5.0-190.0), display/input column 227.0 mm (x 193.0-420.0): needs 424.0 of 425.0 mm.
-* **2 x 120 mm fans do not fit** beside the 227 mm display PCB and the 197 mm input board: they need 480 mm (5 + 2 x 120 + 1 + 2 + 227 + 5) behind a 425 mm deck. Options: 2 x 92 mm (default, fits), 1 x 120 mm (fits), or move the input board to the rear plate and the display group onto a narrower PCB.
+* **2 x 120 mm fans still do not fit.** The input board (126 x 64) now stacks under the display PCB, so the limit is the 227 mm display PCB: 2 x 120 mm fans need 480 mm (5 + 2 x 120 + 1 + 2 + 227 + 5) behind a 425 mm deck. They would fit with a display PCB of at most 172 mm (the input board, 126 mm, already does). Options: 2 x 92 mm (default), 1 x 120 mm, or a narrower display board.
+* Right-hand column: display PCB z 94.4-130.4 (x 193.0-420.0); input board z 26.4-90.4 (x 193.0-319.0).
 * Fans clear the deck (top-aligned, no notch).
-* Rocker: input_row (deck x 404.5, z 52.0).
+* Rocker: input_row (deck x 333.5, z 58.4).
 * Rear plate 425 x 132.0 mm: bays 381.2 mm + bulkhead/DUT power column; 3.8 mm spare between them. The keyboard feed-through sits above the bulkhead; vent slots fill the upper part.
+* KVM front: the input board (126 x 64) sits at z 26.4-90.4, 4.6 mm below the deck top, in a 33 mm deep notch in the KVM deck
 * KVM rear gusset moved 6 mm inwards off the batten to clear deck holes
+* KVM front: input-board LEDs D7, D8, D9 leave less than a 1.5 mm web to the PCIe/Molex header cut-outs (3.2 mm holes), so they get no own light hole (they show at the cut-out edge). Moving them >= 3 mm further from the headers on the input board would give them separate windows
+* KVM front: MEGA-KVM etched beside the rocker (deck x 344-420), 9.5 mm letters
 * Gussets: 4 under the deck against the battens' inner faces (24 x 90 mm), front and rear.
 
 | Part | nearest neighbour (same height band) | gap mm | headroom to the unit top mm |
 |---|---|---|---|
 | KVM fan 1 | KVM fan 2 | 1.0 | 3.0 |
 | KVM fan 2 | KVM fan 1 | 1.0 | 3.0 |
-| front PCB + LCD | KVM fan 2 | 3.0 | 4.0 |
-| input board | KVM fan 2 | 3.0 | 64.4 |
-| rocker | input board | 8.0 | 71.8 |
+| front PCB + LCD | KVM fan 2 | 3.0 | 3.0 |
+| input board | KVM fan 2 | 3.0 | 43.0 |
+| rocker | input board | 8.0 | 65.4 |
 | GS105 | power main board | 8.0 | 75.4 |
 | power main board | input board | 5.6 | 79.8 |
 | Mimas 1 | kbd sub 1A | 0.8 | 84.2 |

@@ -252,3 +252,24 @@ everything.
 * MEGA65 logo etched from `assets/mega65.svg` (copied to
   `hardware/mega-kvm-case/logos/`); the M.E.G.A. e.V. slot is a placeholder in
   the hidden reference layer until `logos/mega-ev.svg` exists.
+
+## 2026-11-27 progress: KVM front for the 126 x 64 mm input board (agent, branch feature/rack-case-2)
+
+* On foundation, the v0.3 input board (126 x 64 mm, was 197 x 34) collided
+  with the display PCB. New KVM front layout: 2 x 92 mm fans on the left.
+  The right-hand 227 mm column has the display PCB at the top (z 94.4-130.4,
+  3 mm from the panel top) and the input board stacked under it (z
+  26.4-90.4, 4 mm gap). The input board drops 4.6 mm below the deck top into
+  a 33 mm deep notch in the KVM deck (x 191-321, between the under-deck
+  gussets). The rocker and the MEGA-KVM etch (9.5 mm letters) sit to its
+  right. The right-hand logo slot in the band below is shortened to clear
+  the input board. Fit report: 0 conflicts.
+* 2 x 120 mm fans: still no. The limit is now the 227 mm display PCB
+  (about 480 mm needed in a 425 mm deck). They would fit with a display
+  board of at most 172 mm wide, with the input board stacked under it as now.
+* Finding for the power board: LEDs D7-D9 on the input board are less than a
+  1.5 mm web from the PCIe/Molex panel cut-outs, so the panel gives them no
+  separate window (they show at the cut-out edges). Moving them about 3 mm
+  down would give them their own windows. The generator now also cuts the
+  board's third mounting hole (H3), and labels the stacked banana pair
+  under the 0V socket.
