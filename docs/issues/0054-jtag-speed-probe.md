@@ -202,3 +202,12 @@ the JTAG lines; voting does not help, so the corruption reaches the CPLD
 The keyboard is frozen for the length of each keyboard JTAG request (plus
 up to ~0.45 ms on MK-I to reach the sync phase), which is harmless. TDO
 voting stays available, default off.
+
+### 2026-11-27 lead: first DUT-port JTAG on hardware
+
+Owner wired a 6-pin JTAG lead (docs/cabling/dut-cable.md section 4) from P13
+rows 3-7 (DUT1) to an FPGA board on relay channel 5: `dutctl jtag-idcode
+203.28.176.87` read **IDCODE 0x13636093** (XC7A200T, rev 1). The board
+turned out to be an Artix-7 200T board, not the intended K325T, but this is
+the first IDCODE read through a DUT port (build 618e7266): the DUT1 path
+(TCK/TMS/TDI out, TDO in, power sense) works.
