@@ -8,8 +8,8 @@ docs/handover-2026-11-25.md. The memory index (~/.claude/projects/...
 
 * Branch `feature/foundation` (pushed) is the integration branch; agents
   branch from `origin/feature/foundation` in worktrees and the lead merges
-  with `--no-ff`. `main` = **b413b49**, known-good bitstream
-  **bits/supervisor-b413b496.bit** (`bits/known-good.bit`; bits/*.bit are
+  with `--no-ff`. `main` = **1fa1b80**, known-good bitstream
+  **bits/supervisor-1fa1b802.bit** (`bits/known-good.bit`; bits/*.bit are
   git-ignored, only README + symlink tracked). It is loaded on the board.
 * Bench: one Mimas A7 supervisor, endpoints **DUT0 = 203.28.176.86**
   (MEGA65, owner has it off the network for now) and **DUT1 =
@@ -20,7 +20,9 @@ docs/handover-2026-11-25.md. The memory index (~/.claude/projects/...
   `dutctl set 203.28.176.86 hdmi-owner 1` (lets DUT1's slot show relayed
   video). Relay VLAN key 0x0043 defaults to 1650, relay-view 0x0045
   defaults to 1 (live).
-* hwtest: `scripts/hwtest.sh` (67/0 on b413b496). It resets
+* hwtest: `scripts/hwtest.sh` (68/1 on 1fa1b802: raster capture fails since
+  bob rebooted, eno2 MTU 1500 < raster packet size; also fails on older
+  builds; owner to decide on the MTU or we split raster packets). It resets
   hdmi-owner to 0 at exit: set it back.
 * Relay controller `/dev/ttyACM0`; `~/.config/dutctl/duts.conf` maps
   `k325t` → 203.28.176.87 dut 1, relay `/dev/ttyACM0 5` (so `dutctl relay
@@ -58,13 +60,10 @@ docs/handover-2026-11-25.md. The memory index (~/.claude/projects/...
 
 ## In flight
 
-* **0063 (agent running, branch `feature/vlan-fixed-ip`)**: fixed IPs on
-  VLAN 1650, no DHCP: 10.231.50.0/24, .1 bob, .16+B supervisor board B,
-  .32+M machine M (K325T = .33). Supervisor answers ARP/ICMP on its VLAN
-  IP. When it reports: merge, load, hwtest, `ping 10.231.50.16` from bob
-  (eno2.1650 exists only while the owner's hardweb `scripts/lab_vlans.sh
-  up` is active), promote, tell hardweb-c3. The scheme was sent to the
-  hardweb session.
+* **0063 done** (build 1fa1b802): each supervisor board answers ARP/ping
+  on VLAN 1650 at 10.231.50.(16+B), key 0x0047 vlan-base; verified with
+  `ping -I eno2.1650 10.231.50.16`. Sources use .32+M (K325T = .33, the
+  hardweb session will configure it).
 * The hardweb session is chasing K325T gigabit link drops under TX load
   (not our relay; no 3V3 collapse seen by our 20 ms vio log; see 0057).
 
