@@ -61,3 +61,12 @@ Revised plan (lead), simpler than releasing the pins on a timer:
    the DUT mapped to relay channel N in duts.conf first, and `on` restores
    out-policy 0 after switching on.
 4. Applies to all three jtag_engines (DUT0, DUT1, keyboard CPLD).
+
+## 2026-11-27 implementation started (sub-agent, branch `feature/no-backfeed`)
+
+Scope: points 1-4 above: TMS/TDI parked low after every transaction in
+`jtag_engine` (all three engines), out-policy 2 also gates JTAG, a
+power-off hook on the shield CTRL bits (bit n -> DUT n, n = 0..1, matching
+the power board's "CTRLn = DUTn power on" labelling), and the `dutctl relay
+... power N on|off` hooks via duts.conf. Testbenches, ADR 0005 key text and
+`docs/cabling/dut-cable.md` follow.
