@@ -149,7 +149,7 @@ hardware (protocol rule: ADR 0005, proto_pkg, dutproto.h, netproto.py):
   fallbacks; start_ok wait), tb_kbd_phys_host (pause in MK-II, MK-I with
   keys changed during the pause, type 3; stop/restart), core scenario
   (bad values, keyboard IDCODE with quiet 1 + vote 2 and with quiet 2,
-  DUT0 IDCODE with vote 2 at half 6). `make test` green.
+  DUT0 IDCODE with vote 2 at half 6). `make test` green. Vivado build 921fed47: TIMING MET, WNS +0.105 ns, WHS +0.008 ns, 18505 LUTs; bitstream `build/bits/supervisor-921fed47.bit` in this worktree.
 
 **To run on hardware** (lead; IP = the master's endpoint):
 
