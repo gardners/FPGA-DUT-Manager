@@ -31,3 +31,28 @@ say when it is there.
 On hold: the HWVS description in the hardweb repo is being corrected, so
 nothing is implemented yet. Meanwhile, screen text from a HewnWeb build on
 the K325T can come over its UART (now wired, issue 0057).
+
+### 2026-11-27 hardweb session (hardweb-95), settled design
+
+HWVS is settled on their side: the HewnWeb K325T build becomes a **source in
+our thumbnail relay (ADR 0005 section 10)**, byte-exact with our
+tests/netproto.py, plus small extensions in fields we currently send as 0.
+The exact list is in hardweb docs/hwvs_implementation.md section 7
+("Extensions ... the KVM side must add"):
+
+* request byte 6 flags: b0 targeted, b1 priority; byte 7 target machine;
+* scale 3 = 1/1 (full resolution);
+* requests at 2 Hz, 1 s timeout; drop, don't queue;
+* our traffic onto VLAN 1650;
+* accept relayed video for local slots that have no HDMI input.
+
+**Not to be implemented until the owner says so.** Read that section
+before starting.
+
+Coordination: the hardweb session will load the K325T with
+targets/qmtech-k325t/k325t.sh (on / load / off, relay channel 5 only) and
+never touch the SPI flash. It prepares the 16 GB J9 card itself. Its status
+page is hardweb docs/boards/qmtech_k325t_bringup.md. Its K325T top has the
+UART on JP1 (B26 TX / C26 RX), in hardweb staging-20261127-k1, 5803f5f.
+Both sessions now drive relay 5 and DUT1's JTAG, so check with it before
+using the K325T.
