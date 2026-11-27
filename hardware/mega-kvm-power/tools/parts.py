@@ -11,7 +11,7 @@ FP_C1206 = 'Capacitor_SMD:C_1206_3216Metric'
 FP_LED = 'LED_SMD:LED_0603_1608Metric'
 
 # value -> LCSC (JLC basic unless noted)
-LCSC_R = {'10k': 'C25804', '100k': 'C25803', '4k7': 'C23162', '1k': 'C21190', '20k': 'C4184'}
+LCSC_R = {'0R': 'C21189', '100R': 'C22775', '10k': 'C25804', '100k': 'C25803', '4k7': 'C23162', '1k': 'C21190', '20k': 'C4184'}
 LCSC_C = {'100n': 'C14663'}
 
 
@@ -35,6 +35,8 @@ SS34 = dict(lib='Device:D_Schottky', fp='Diode_SMD:D_SMA', value='SS34',
             fields={'LCSC': 'C8678', 'MPN': 'SS34 40 V 3 A SMA'})
 B5819W = dict(lib='Device:D_Schottky', fp='Diode_SMD:D_SOD-123', value='B5819W',
               fields={'LCSC': 'C8598', 'MPN': 'B5819W 40 V 1 A SOD-123'})
+BAT54WS = dict(lib='Device:D_Schottky', fp='Diode_SMD:D_SOD-323', value='BAT54WS',
+               fields={'LCSC': 'C124205', 'MPN': 'Diodes BAT54WS-7-F 30 V 0.2 A Schottky SOD-323'})
 LDO = dict(lib='Regulator_Linear:L78L33_SOT89', fp='Package_TO_SOT_SMD:SOT-89-3', value='L78L33ACUTR',
            fields={'LCSC': 'TBD (78L33 SOT-89, 30 V in)', 'MPN': 'ST L78L33ACUTR'})
 TVS = dict(lib='mega-kvm-power:TVS_Uni', fp='Diode_SMD:D_SMC', value='SMCJ15A',

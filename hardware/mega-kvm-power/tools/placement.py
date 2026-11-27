@@ -111,9 +111,14 @@ MAIN.update({
     'U13': (35, 92, 90), 'C405': (35, 98.5, 90),
     'H7': (112, 134), 'H8': (226.5, 134),
 })
-for n in (1, 2, 3):
+for n in (1, 2, 3):        # gate drive (datasheet Fig. 8): CS, RS, DS per channel
     MAIN['C%d' % (510 + n)] = (78 + 5 * (n - 1), 92, 90)
     MAIN['R%d' % (500 + 10 * n + 3)] = (80.5 + 5 * (n - 1), 92, 90)
+    MAIN['D%d' % (509 + n)] = (79.25 + 5 * (n - 1), 96.8, 90)
+# CVS bypass (VSn -> GND) on each VS pour, between the FET rows
+MAIN.update({'C514': (11.5, 92, 90), 'C515': (47, 92, 90), 'C516': (60, 92, 90),
+             # LTC4417 VOUT pin RC filter (datasheet Fig. 10) by U50
+             'R543': (76, 89, 90), 'C517': (78, 86.2, 90)})
 
 BOARDS = {
     'main': {
