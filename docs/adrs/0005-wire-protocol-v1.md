@@ -260,7 +260,7 @@ mode (≥100 µs spacing, coalesced, last byte never lost).
 | 12 | 4 | tck_half_period (in `clk_sys` cycles, ≥2 → ≤31.25 MHz; default 6 ≈ 10.4 MHz) |
 | 16 | 2 | report_period_us (0 = only on completion) |
 | 18 | 2 | flags: b0 abort/reset session, b1 target = the physical keyboard's CPLD instead of this endpoint's DUT (ADR 0014; same on either endpoint, own sequence/session) |
-| 20 | 4 | bit_count (1..8192) |
+| 20 | 4 | bit_count (1..7904, see size limits below) |
 | 24 | n | TMS bytes (ceil(bit_count/8)), LSB first |
 | 24+n | n | TDI bytes |
 
@@ -280,6 +280,21 @@ A repeat of the last completed `seq` returns the cached result without clocking.
 A request while busy returns status busy. Exactly `bit_count` TCK pulses; TCK
 idles low; TMS/TDI change on the falling edge; TDO sampled on the rising edge
 (XVC semantics, design brief §12.1).
+
+**Size limits (amended 2026-11-27, issue 0059).** The supervisor's RX slots
+hold 2047 bytes of Ethernet frame including the FCS, so the largest
+JTAG_REQ datagram is a UDP payload of 2001 bytes = 8 + 16 + 2 x 988 bytes:
+**bit_count <= 7904** (`JTAG_MAX_BITS`, `DP_JTAG_MAX_BITS`; was stated as
+8192, which never worked: longer frames were silently dropped by the MAC).
+A request whose frame is longer than a slot is now answered with status 3
+(rejected-format, nothing clocked, seq not consumed) instead of silence;
+the MAC keeps the head of the oversize frame for that purpose (still
+counted as an RX drop). The engine itself holds 8192 bits per vector.
+The FPGA does not reassemble IP fragments, so a request must also fit one
+unfragmented packet on the path: `28 + 8 + 16 + 2 * ceil(bit_count / 8)
+<= MTU`, i.e. 5792 bits at MTU 1500; the full 7904 needs MTU >= 2028.
+Hosts split longer shifts into consecutive requests (no extra TCK edges;
+`dutctl --mtu N` / `$DUTCTL_MTU`, default 1500).
 
 ## 8. Raster (port 6504, type 0x60 RASTER, FPGA -> telemetry destination)
 

@@ -8,7 +8,7 @@ Issue 0057; pin map and sources in `docs/hardware/qmtech-k325t.md`.
 | `hdl/tb_k325t_bringup.vhd` | nvc testbench (UART text, echo, digit one-hot) |
 | `k325t_bringup.xdc` | pins (all header pins LVCMOS33, unused pins no pull) |
 | `build.tcl` | non-project Vivado build for xc7k325tffg676-1 |
-| `xvc-split.py` | XVC proxy that splits shifts to <= 7904 bits (supervisor limit) |
+| `xvc-split.py` | optional XVC proxy that splits shifts to <= 7904 bits; only needed with a dutctl older than issue 0059 (`SPLIT=1 ./k325t.sh load`) |
 | `k325t.sh` | `on` / `load [BIT]` / `stat` / `off` (SRAM only, parks the TAP before power-off) |
 
 ```sh
@@ -21,6 +21,11 @@ nvc --std=2008 -a hdl/k325t_bringup.vhd hdl/tb_k325t_bringup.vhd -e tb_k325t_bri
 ./k325t.sh on && ./k325t.sh load     # ~1.5 s at 10.4 MHz TCK
 ./k325t.sh off                       # TMS/TDI parked low, then relay 5 off
 ```
+
+`dutctl xvc` splits every XVC shift into JTAG_REQs that fit one unfragmented
+packet (MTU 1500: 5792 bits; `DUTCTL_MTU=9000` for a jumbo path: 7904, the
+supervisor maximum), issue 0059. `SPLIT=1` puts `xvc-split.py` in front as a
+fallback.
 
 What the design shows:
 

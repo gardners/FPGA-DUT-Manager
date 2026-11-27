@@ -87,3 +87,25 @@ void xvc_copy_bits(uint8_t *dst, const uint8_t *src, uint32_t start, uint32_t n)
       dst[i / 8] |= (uint8_t)(1u << (i % 8));
   }
 }
+
+int xvc_split_shift(uint32_t bits, const uint8_t *tms, const uint8_t *tdi, uint8_t *tdo, uint32_t max_bits,
+                    xvc_shift_fn fn, void *ctx)
+{
+  static uint8_t ctms[XVC_SPLIT_MAX_BITS / 8], ctdi[XVC_SPLIT_MAX_BITS / 8], ctdo[XVC_SPLIT_MAX_BITS / 8];
+  if (max_bits == 0 || max_bits > XVC_SPLIT_MAX_BITS)
+    return -1;
+  memset(tdo, 0, (bits + 7) / 8);
+  for (uint32_t done = 0; done < bits;) {
+    uint32_t n = bits - done > max_bits ? max_bits : bits - done;
+    xvc_copy_bits(ctms, tms, done, n);
+    xvc_copy_bits(ctdi, tdi, done, n);
+    memset(ctdo, 0, (n + 7) / 8);
+    if (fn(ctx, n, ctms, ctdi, ctdo) < 0)
+      return -1;
+    for (uint32_t i = 0; i < n; i++)
+      if (ctdo[i / 8] & (1u << (i % 8)))
+        tdo[(done + i) / 8] |= (uint8_t)(1u << ((done + i) % 8));
+    done += n;
+  }
+  return 0;
+}

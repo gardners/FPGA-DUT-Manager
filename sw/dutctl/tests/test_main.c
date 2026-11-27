@@ -361,6 +361,123 @@ static void test_xvc(void)
 }
 
 
+/* ------------------------------------------- JTAG request size / splitting */
+typedef struct {
+  uint32_t pos, calls, max_seen, fail_at;
+  uint32_t sizes[64];
+  uint8_t tms[8192], tdi[8192]; /* concatenated bits as the supervisor saw them */
+} split_rec_t;
+
+static int tdo_bit(uint32_t pos) { return (int)((pos * 2654435761u) >> 31); }
+
+static int split_fn(void *ctx, uint32_t n, const uint8_t *tms, const uint8_t *tdi, uint8_t *tdo)
+{
+  split_rec_t *r = ctx;
+  if (r->calls == r->fail_at)
+    return -1;
+  if (r->calls < 64)
+    r->sizes[r->calls] = n;
+  r->calls++;
+  if (n > r->max_seen)
+    r->max_seen = n;
+  /* padding bits of the last vector byte must be zero (byte-identical
+   * retransmissions, issue 0059 split) */
+  if (n % 8) {
+    CHECK((tms[n / 8] >> (n % 8)) == 0);
+    CHECK((tdi[n / 8] >> (n % 8)) == 0);
+  }
+  for (uint32_t i = 0; i < n; i++) {
+    uint32_t a = r->pos + i;
+    if (tms[i / 8] & (1u << (i % 8)))
+      r->tms[a / 8] |= (uint8_t)(1u << (a % 8));
+    if (tdi[i / 8] & (1u << (i % 8)))
+      r->tdi[a / 8] |= (uint8_t)(1u << (a % 8));
+    if (tdo_bit(a))
+      tdo[i / 8] |= (uint8_t)(1u << (i % 8));
+  }
+  r->pos += n;
+  return 0;
+}
+
+static void test_jtag_split(void)
+{
+  /* MTU -> largest request: 28 + 8 + 16 + 2 * nbytes <= MTU (issue 0059) */
+  CHECK(dp_jtag_max_bits_for_mtu(1500) == 5792);
+  CHECK(dp_jtag_max_bits_for_mtu(1501) == 5792);
+  CHECK(dp_jtag_max_bits_for_mtu(1502) == 5800);
+  CHECK(dp_jtag_max_bits_for_mtu(2027) == 7896);
+  CHECK(dp_jtag_max_bits_for_mtu(2028) == DP_JTAG_MAX_BITS);
+  CHECK(dp_jtag_max_bits_for_mtu(9000) == DP_JTAG_MAX_BITS);
+  CHECK(dp_jtag_max_bits_for_mtu(DP_MTU_MIN) == 2096);
+  CHECK(dp_jtag_max_bits_for_mtu(DP_MTU_MIN - 1) == 0);
+  CHECK(DP_JTAG_MAX_BITS == 7904);
+  /* datagram sizes at the limits: the 1500 MTU request is exactly one
+   * full packet, the maximum request is a 2000-byte UDP payload (RX slot
+   * 2047 bytes incl. FCS) */
+  static uint8_t pkt[DP_MAX_PACKET], v[1024];
+  memset(v, 0xA5, sizeof v);
+  CHECK(dp_encode_jtag_req(pkt, 0, 1, 2, 0, 0, 5792, v, v) + DP_IP_UDP_OVERHEAD == 1500);
+  CHECK(dp_encode_jtag_req(pkt, 0, 1, 2, 0, 0, 5793, v, v) + DP_IP_UDP_OVERHEAD > 1500);
+  CHECK(dp_encode_jtag_req(pkt, 0, 1, 2, 0, 0, DP_JTAG_MAX_BITS, v, v) == 2000);
+  /* frame incl. FCS: 2046 bytes fit the 2047-byte RX slot; 8 bits more = 2048 do not */
+  CHECK(14 + DP_IP_UDP_OVERHEAD + 2000 + 4 <= 2047 && 14 + DP_IP_UDP_OVERHEAD + 2002 + 4 > 2047);
+  CHECK(dp_encode_jtag_req(pkt, 0, 1, 2, 0, 0, DP_JTAG_MAX_BITS + 1, v, v) == 0);
+
+  /* splitting: the concatenated chunks are exactly the original shift */
+  static uint8_t tms[8192], tdi[8192], tdo[8192];
+  static split_rec_t r;
+  const uint32_t maxes[] = {5792, DP_JTAG_MAX_BITS, 2096, 8, 13};
+  for (size_t mi = 0; mi < sizeof maxes / sizeof maxes[0]; mi++) {
+    uint32_t m = maxes[mi];
+    const uint32_t lens[] = {1, 7, 9, m - 1, m, m + 1, 2 * m - 1, 2 * m, 2 * m + 1, 3608, 3 * m + 5};
+    for (size_t li = 0; li < sizeof lens / sizeof lens[0]; li++) {
+      uint32_t bits = lens[li];
+      if (bits == 0 || bits > 8 * 8192 || (bits + m - 1) / m > 64)
+        continue;
+      uint32_t seed = bits * 7919u + m;
+      for (uint32_t i = 0; i < (bits + 7) / 8; i++) {
+        seed = seed * 1103515245u + 12345u;
+        tms[i] = (uint8_t)(seed >> 16);
+        tdi[i] = (uint8_t)(seed >> 24);
+      }
+      if (bits % 8) { /* caller padding must not leak into the shift */
+        tms[bits / 8] |= (uint8_t)(0xFFu << (bits % 8));
+        tdi[bits / 8] |= (uint8_t)(0xFFu << (bits % 8));
+      }
+      memset(&r, 0, sizeof r);
+      r.fail_at = 0xFFFFFFFF;
+      memset(tdo, 0xFF, sizeof tdo);
+      CHECK(xvc_split_shift(bits, tms, tdi, tdo, m, split_fn, &r) == 0);
+      uint32_t want_calls = (bits + m - 1) / m;
+      CHECK(r.calls == want_calls && r.pos == bits && r.max_seen <= m);
+      for (uint32_t c = 0; c + 1 < r.calls; c++)
+        CHECK(r.sizes[c] == m);   /* only the last chunk is short */
+      CHECK(r.sizes[r.calls - 1] == bits - (want_calls - 1) * m);
+      int same = 1, tdo_ok = 1;
+      for (uint32_t i = 0; i < bits; i++) {
+        int b = 1 << (i % 8);
+        if (!!(tms[i / 8] & b) != !!(r.tms[i / 8] & b) || !!(tdi[i / 8] & b) != !!(r.tdi[i / 8] & b))
+          same = 0;
+        if (!!(tdo[i / 8] & b) != tdo_bit(i))
+          tdo_ok = 0;
+      }
+      CHECK(same);
+      CHECK(tdo_ok);
+      if (bits % 8)
+        CHECK((tdo[bits / 8] >> (bits % 8)) == 0);
+      /* nothing recorded beyond the shift: no extra TCK edges */
+      CHECK(bits % 8 == 0 || (r.tms[bits / 8] >> (bits % 8)) == 0);
+    }
+  }
+  /* a failing chunk stops the shift: later chunks are never sent */
+  memset(&r, 0, sizeof r);
+  r.fail_at = 1;
+  CHECK(xvc_split_shift(3 * 5792, tms, tdi, tdo, 5792, split_fn, &r) == -1);
+  CHECK(r.calls == 1 && r.pos == 5792);
+  CHECK(xvc_split_shift(8, tms, tdi, tdo, 0, split_fn, &r) == -1);
+  CHECK(xvc_split_shift(8, tms, tdi, tdo, XVC_SPLIT_MAX_BITS + 1, split_fn, &r) == -1);
+}
+
 /* ------------------------------------------------ raster frame assembler */
 static uint8_t g_px[3 * 16];
 static dp_raster_t mk_line(uint32_t frame, uint16_t line, uint16_t w, uint16_t vact, uint8_t flags)
@@ -1103,6 +1220,7 @@ int main(int argc, char **argv)
   test_decoders();
   test_uart_merge();
   test_xvc();
+  test_jtag_split();
   test_rasterframe();
   test_thumbs();
   test_png(argc > 2 ? argv[2] : NULL);

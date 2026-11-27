@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""XVC 1.0 splitting proxy (issue 0057 workaround).
+"""XVC 1.0 splitting proxy (issue 0057 workaround; optional since issue 0059).
+
+Since issue 0059 `dutctl xvc` splits shifts itself (to fit the path MTU), so
+this proxy is only a fallback for an older dutctl (`SPLIT=1 ./k325t.sh`).
 
 Listens for an XVC client (openFPGALoader, Vivado hw_server) and forwards to
 an upstream XVC server (`dutctl xvc`), splitting every shift into pieces of

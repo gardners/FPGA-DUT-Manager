@@ -123,6 +123,23 @@ def bits_to_bytes(bits):
     return bytes(out)
 
 
+HDR_LEN = 8
+JTAG_REQ_FIXED = 16
+# largest JTAG_REQ: an RX slot holds 2047 bytes incl. FCS, so the UDP payload
+# is <= 2001 = 8 + 16 + 2 * 988 (issue 0059); larger -> status 3 (bad format)
+JTAG_MAX_BITS = 7904
+IP_UDP_OVERHEAD = 28
+MTU_MIN = 576
+
+
+def jtag_max_bits_for_mtu(mtu):
+    """Largest JTAG_REQ bit count in one unfragmented IPv4 packet (mirrors
+    dp_jtag_max_bits_for_mtu): 1500 -> 5792, >= 2028 -> JTAG_MAX_BITS."""
+    if mtu < MTU_MIN:
+        return 0
+    return min(JTAG_MAX_BITS, 8 * ((mtu - IP_UDP_OVERHEAD - HDR_LEN - JTAG_REQ_FIXED) // 2))
+
+
 def jtag_req(dut, seq, tms, tdi, half=2, report_us=0, flags=0):
     assert len(tms) == len(tdi)
     return custom(T_JTAG_REQ, dut,

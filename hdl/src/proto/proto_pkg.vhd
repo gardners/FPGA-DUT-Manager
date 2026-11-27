@@ -63,7 +63,9 @@ package proto_pkg is
   constant UART_TX_FIXED    : natural := 10;
   constant JTAG_REQ_FIXED   : natural := 16;
   constant UART_TX_MAX      : natural := 1024;
-  constant JTAG_MAX_BITS    : natural := 8192;
+  -- largest JTAG_REQ an RX slot holds: 2047 bytes incl. FCS -> UDP payload
+  -- <= 2001 = 24 + 2 * 988 bytes (issue 0059); larger ones get JS_BAD_FMT
+  constant JTAG_MAX_BITS    : natural := 7904;
 
   -- management keys
   constant K_MAC          : natural := 16#0001#;
