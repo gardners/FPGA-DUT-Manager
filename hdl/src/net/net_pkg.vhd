@@ -58,6 +58,8 @@ package net_pkg is
     -- relayed full view (key 0x0045, issue 0060): 0 complete pictures only
     -- (triple buffered), 1 live line by line (default)
     relay_live : std_logic;
+    -- host VLAN ID (key 0x0046, issue 0062): 0 = host traffic untagged
+    host_vlan  : unsigned(11 downto 0);
   end record;
 
   -- a pending reply addressed to a requester
@@ -67,8 +69,9 @@ package net_pkg is
     mac    : mac_t;
     ip     : ip_t;
     port_n : std_logic_vector(15 downto 0);
+    vid    : unsigned(11 downto 0);   -- VLAN the request came on (0 = untagged), issue 0062
   end record;
-  constant REPLY_NONE : reply_t := ('0', 0, (others => '0'), (others => '0'), (others => '0'));
+  constant REPLY_NONE : reply_t := ('0', 0, (others => '0'), (others => '0'), (others => '0'), (others => '0'));
   type reply_arr_t is array (0 to 1) of reply_t;
 
   type u32_arr_t is array (0 to 1) of unsigned(31 downto 0);
@@ -169,6 +172,9 @@ package net_pkg is
     shd         : shd_status_t;
     -- thumbnail relay (issue 0061), heartbeat relay block
     relay       : relay_status_t;
+    -- host VLAN (issue 0062), heartbeat network block: frames for the host
+    -- path dropped for their VLAN
+    host_vdrops : unsigned(15 downto 0);
   end record;
 
   -- UART snapshot counters (latched by uart_bridge on snap_ack)
