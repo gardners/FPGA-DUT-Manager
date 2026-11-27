@@ -995,26 +995,31 @@ static int cmd_jtag_speed(int argc, char **argv)
 {
   static const char *const use =
       "usage: dutctl jtag-speed IP [DUT] | NAME  [--kbd] [--reps N] [--save] [--from HALF] [--to HALF]\n"
+      "                        [--tolerate N] [-v]\n"
       "  sweeps the TCK half period (clk_sys cycles of 8 ns) from HALF (default 50, 1.25 MHz) down\n"
       "  to --to (default 2, 31.25 MHz); each step runs N probes (default 200): TAP reset + IDCODE\n"
       "  compare, BYPASS random-pattern / all-0 / all-1 DR shifts checked against the chain length.\n"
       "  Read-only (IDCODE and BYPASS only). Recommends f_max / 2; --save stores it as tck_half\n"
-      "  (kbd_tck_half with --kbd) in the per-DUT configuration.\n";
+      "  (kbd_tck_half with --kbd) in the per-DUT configuration. --tolerate N: a step passes with\n"
+      "  up to N failing probes (default 0). -v: positions of the wrong bits\n"
+      "  (id+N / dr+N = bit N of the IDCODE window / DR shift, (received value)).\n";
   target_t t;
   int used = resolve_target("jtag-speed", argc, argv, &t);
   if (used < 0)
     return fputs(argc < 1 ? use : "", stderr), 2;
-  int kbd = 0, save = 0;
-  long reps = 200, from = js_steps[0], to = 2;
+  int kbd = 0, save = 0, verbose = 0;
+  long reps = 200, from = js_steps[0], to = 2, tolerate = 0;
   for (int i = used; i < argc; i++) {
     if (!strcmp(argv[i], "--kbd")) kbd = 1;
     else if (!strcmp(argv[i], "--save")) save = 1;
+    else if (!strcmp(argv[i], "-v") || !strcmp(argv[i], "--verbose")) verbose = 1;
     else if (!strcmp(argv[i], "--reps") && i + 1 < argc) reps = strtol(argv[++i], NULL, 0);
+    else if (!strcmp(argv[i], "--tolerate") && i + 1 < argc) tolerate = strtol(argv[++i], NULL, 0);
     else if (!strcmp(argv[i], "--from") && i + 1 < argc) from = strtol(argv[++i], NULL, 0);
     else if (!strcmp(argv[i], "--to") && i + 1 < argc) to = strtol(argv[++i], NULL, 0);
     else return fprintf(stderr, "dutctl jtag-speed: unknown option %s\n%s", argv[i], use), 2;
   }
-  if (reps < 1 || from < 2 || to < 2 || to > from)
+  if (reps < 1 || from < 2 || to < 2 || to > from || tolerate < 0)
     return fprintf(stderr, "dutctl jtag-speed: need --reps >= 1 and 2 <= --to <= --from\n"), 2;
   if (!t.ip[0])
     return fprintf(stderr, "dutctl jtag-speed: no supervisor ip for %s\n", argv[0]), 2;
@@ -1054,11 +1059,8 @@ static int cmd_jtag_speed(int argc, char **argv)
   }
   if (n == 0 || nid == 0)
     return fprintf(stderr, "dutctl jtag-speed: TDO follows TDI with no delay: no device on the chain\n"), 1;
-  printf("%s %s%s%s: %d device%s in the chain", what, t.ip, t.cfg ? " (" : "", t.cfg ? t.cfg->name : "",
-         n, n == 1 ? "" : "s");
-  if (t.cfg)
-    printf(")");
-  printf(", IDCODE");
+  printf("%s %s%s%s%s: %d device%s in the chain, IDCODE", what, t.ip, t.cfg ? " (" : "",
+         t.cfg ? t.cfg->name : "", t.cfg ? ")" : "", n, n == 1 ? "" : "s");
   for (int i = 0; i < nid; i++)
     printf(ids[i] ? " 0x%08x" : " (bypass-only)", ids[i]);
   printf("  (reference at half %d, %.2f MHz)\n", steps[0], js_freq_hz(steps[0]) / 1e6);
@@ -1086,16 +1088,44 @@ static int cmd_jtag_speed(int argc, char **argv)
         return 1;
       if (js_check(&p, tdo, ref, n, &e)) {
         bad++;
+        if (verbose) {
+          uint32_t pos[8];
+          int k = js_errpos(&p, tdo, ref, n, pos, 8);
+          printf("        probe %ld: %u wrong bit%s, at", r, e.id_err + e.rand_err + e.zero_err + e.one_err,
+                 e.id_err + e.rand_err + e.zero_err + e.one_err == 1 ? "" : "s");
+          for (int q = 0; q < k; q++) {
+            uint32_t b = pos[q];
+            int got = (tdo[b / 8] >> (b % 8)) & 1;
+            if (b < p.dr_at)
+              printf(" id+%u(%d)", b - p.id_at, got);
+            else {
+              /* expected / received around the bit, oldest first */
+              char ex[12], rx[12];
+              int m = 0;
+              for (int o = -4; o <= 4; o++, m++) {
+                uint32_t q2 = b + (uint32_t)o, src = q2 - (uint32_t)n;
+                ex[m] = (char)('0' + ((p.tdi[src / 8] >> (src % 8)) & 1));
+                rx[m] = (char)('0' + ((tdo[q2 / 8] >> (q2 % 8)) & 1));
+              }
+              ex[m] = rx[m] = 0;
+              printf(" dr+%u(%d; expected %s got %s)", b - p.dr_at, got, ex, rx);
+            }
+          }
+          printf("\n");
+        }
         tot.id_err += e.id_err;
         tot.rand_err += e.rand_err;
         tot.zero_err += e.zero_err;
         tot.one_err += e.one_err;
       }
     }
-    pass[s] = bad == 0;
+    pass[s] = bad <= tolerate;
     printf("  %4d  %8.3f   ", steps[s], js_freq_hz(steps[s]) / 1e6);
     if (!bad)
       printf("ok\n");
+    else if (pass[s])
+      printf("ok within --tolerate: %ld/%ld probes (bit errors: idcode %u, random %u, all-0 %u, all-1 %u)\n",
+             bad, reps, tot.id_err, tot.rand_err, tot.zero_err, tot.one_err);
     else
       printf("FAIL %ld/%ld probes (bit errors: idcode %u, random %u, all-0 %u, all-1 %u)\n", bad, reps,
              tot.id_err, tot.rand_err, tot.zero_err, tot.one_err);
@@ -1107,8 +1137,18 @@ static int cmd_jtag_speed(int argc, char **argv)
   /* 3. recommendation, with the steps of this sweep */
   int fmax;
   int rec = js_recommend(steps, pass, nsteps, &fmax);
-  if (fmax < 0)
-    return fprintf(stderr, "dutctl jtag-speed: even half %d failed; nothing recommended\n", steps[0]), 1;
+  if (fmax < 0) {
+    fprintf(stderr, "dutctl jtag-speed: even half %d failed; nothing recommended.\n", steps[0]);
+    int later = 0;
+    for (int s = 1; s < nsteps; s++)
+      later += pass[s];
+    if (later)
+      fprintf(stderr, "  Faster steps passed too, so the errors do not depend on TCK: a noise / signal\n"
+                      "  integrity problem rather than a speed limit (-v shows the wrong bits). The\n"
+                      "  fastest clean step bounds the timing; --tolerate N accepts N failing probes\n"
+                      "  per step to get a recommendation regardless.\n");
+    return 1;
+  }
   int first_fail = fmax + 1 < nsteps ? steps[fmax + 1] : 0;
   printf("f_max: half %d = %.3f MHz (%s)\n", steps[fmax], js_freq_hz(steps[fmax]) / 1e6,
          first_fail ? "the next step failed" : "the fastest step tested; the real limit may be higher");
@@ -1378,6 +1418,9 @@ static int cmd_jtag_discover(int argc, char **argv)
   }
   if (channel < 0 || channel > 3)
     return fprintf(stderr, "dutctl jtag-discover: --channel 0..3\n"), 2;
+  if (pc && !yes)
+    return fprintf(stderr, "dutctl jtag-discover: --power-cycle switches DUTs off and on (interrupting "
+                           "their work); add --yes to confirm\n"), 2;
   const char *root = getenv("DUTCTL_SYSFS_USB");
   if (!root || !*root)
     root = "/sys/bus/usb/devices";
@@ -1434,13 +1477,10 @@ static int cmd_jtag_discover(int argc, char **argv)
     nbase[i] = skip[i] ? -1 : ofl_detect(ofl, &ad[i], channel, base[i], 8, 0);
     char s[160];
     ids_str(base[i], nbase[i], s, sizeof s);
-    printf("  %-10s %s\n", ad[i].path, skip[i] == 2 ? "(skipped: not a JTAG cable openFPGALoader drives; --all)" : s);
+    printf("  %-10s %s\n", ad[i].path, skip[i] == 2 ? "(skipped: no openFPGALoader cable, or an FT232R without --all)" : s);
   }
   if (!pc)
     return 0;
-  if (!yes)
-    return fprintf(stderr, "dutctl jtag-discover: --power-cycle switches DUTs off and on; add --yes to "
-                           "confirm\n"), 2;
 
   /* DUTs to cycle */
   int sel[DC_MAX_DUTS], ns = 0;

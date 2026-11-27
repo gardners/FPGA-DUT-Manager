@@ -950,6 +950,7 @@ static void test_jtagdisc(void)
   CHECK(strstr(jd_classify(0x0403, 0x6014, "Digilent", "Digilent USB Device", &cable), "HS2") &&
         !strcmp(cable, "digilent_hs2"));
   CHECK(jd_classify(0x1443, 0x0007, "Digilent", "", &cable) && cable == NULL);
+  CHECK(strstr(jd_classify(0x0403, 0x6010, "Arrow", "Arrow USB Blaster", &cable), "Arrow") && cable == NULL);
   CHECK(jd_classify(0x0403, 0x6015, "FTDI", "FT-X", &cable) == NULL);
 
   char root[300];

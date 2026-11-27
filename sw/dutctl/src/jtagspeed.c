@@ -91,6 +91,18 @@ uint32_t js_check(const js_probe_t *p, const uint8_t *tdo, const uint8_t *ref_td
   return e->id_err + e->rand_err + e->zero_err + e->one_err;
 }
 
+int js_errpos(const js_probe_t *p, const uint8_t *tdo, const uint8_t *ref_tdo, int n, uint32_t *pos, int max)
+{
+  int k = 0;
+  for (uint32_t i = 0; i < JS_ID_BITS && k < max; i++)
+    if (getb(tdo, p->id_at + i) != getb(ref_tdo, p->id_at + i))
+      pos[k++] = p->id_at + i;
+  for (uint32_t i = 0; i + (uint32_t)n < p->dr_bits && k < max; i++)
+    if (getb(tdo, p->dr_at + n + i) != getb(p->tdi, p->dr_at + i))
+      pos[k++] = p->dr_at + n + i;
+  return k;
+}
+
 int js_idcodes(const js_probe_t *p, const uint8_t *tdo, uint32_t *ids, int max)
 {
   int n = 0;

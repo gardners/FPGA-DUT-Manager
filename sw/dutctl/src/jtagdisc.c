@@ -36,6 +36,10 @@ const char *jd_classify(unsigned vid, unsigned pid, const char *manufacturer, co
   case 0x6001: chip = "FTDI FT232R"; *cable = "ft232RL"; break;
   default: return NULL;
   }
+  if (strcasestr(p, "Arrow USB Blaster")) { /* FT2232H with Intel-specific firmware use */
+    *cable = NULL;
+    return "Arrow USB Blaster (FT2232H, Intel tools; not scanned)";
+  }
   if (strcasestr(p, "TE0790"))
     return "Trenz TE0790 (FT2232H)";
   if (strcasestr(m, "Digilent")) {

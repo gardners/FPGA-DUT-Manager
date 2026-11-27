@@ -45,6 +45,10 @@ int js_chain_len(const js_probe_t *p, const uint8_t *tdo, int max);
  * Returns the total. */
 uint32_t js_check(const js_probe_t *p, const uint8_t *tdo, const uint8_t *ref_tdo, int n, js_errs_t *e);
 
+/* Positions of the first max wrong bits, as TDO bit indices (IDCODE window
+ * first, then the DR shift). Returns the count found (<= max). */
+int js_errpos(const js_probe_t *p, const uint8_t *tdo, const uint8_t *ref_tdo, int n, uint32_t *pos, int max);
+
 /* Device IDCODEs in the window after reset, nearest TDO first: a 1 bit
  * starts a 32-bit IDCODE, a 0 bit is a BYPASS-only device; stops at an
  * all-ones word (TDI fill) or the end of the window. Returns the number of
