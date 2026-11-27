@@ -37942,7 +37942,7 @@
 			)
 		)
 	)
-	(label "G1"
+	(label "GT1"
 		(at 726.44 38.1 180)
 		(effects
 			(font
@@ -37950,7 +37950,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "faec702f-948a-5620-bb43-ae5b707d01d5")
+		(uuid "ed73485e-d106-5405-82dd-1278dd85660c")
 	)
 	(label "V1"
 		(at 734.06 33.02 90)
@@ -38068,7 +38068,7 @@
 			)
 		)
 	)
-	(label "G1"
+	(label "GT1"
 		(at 736.6 38.1 180)
 		(effects
 			(font
@@ -38076,7 +38076,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "a06268e7-29d9-5e9f-9dd8-0a2c698d9275")
+		(uuid "d10583e7-9b03-543d-857f-e97cdc85d162")
 	)
 	(label "V1"
 		(at 744.22 33.02 90)
@@ -38194,7 +38194,7 @@
 			)
 		)
 	)
-	(label "G1"
+	(label "GT1"
 		(at 746.76 38.1 180)
 		(effects
 			(font
@@ -38202,7 +38202,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "5d130c46-4bad-5036-8b4e-3fb4f5d9b301")
+		(uuid "219552da-ed1c-56ba-8f08-20892d8a36f4")
 	)
 	(label "V1"
 		(at 754.38 33.02 90)
@@ -38329,7 +38329,7 @@
 			)
 		)
 	)
-	(label "G1"
+	(label "GT1"
 		(at 759.46 38.1 180)
 		(effects
 			(font
@@ -38337,7 +38337,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "fc78f84d-616d-59c5-94a1-d0714fcdabfa")
+		(uuid "09cd8b06-c971-5328-b27c-a58d734411c5")
 	)
 	(label "VBUS"
 		(at 767.08 33.02 90)
@@ -38455,7 +38455,7 @@
 			)
 		)
 	)
-	(label "G1"
+	(label "GT1"
 		(at 769.62 38.1 180)
 		(effects
 			(font
@@ -38463,7 +38463,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "ed07087b-aac1-5de8-8b7f-e193b5ccd609")
+		(uuid "bfae6e8b-adfd-5f73-a123-443efbd99799")
 	)
 	(label "VBUS"
 		(at 777.24 33.02 90)
@@ -38581,7 +38581,7 @@
 			)
 		)
 	)
-	(label "G1"
+	(label "GT1"
 		(at 779.78 38.1 180)
 		(effects
 			(font
@@ -38589,7 +38589,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "1f5e7c8f-55ac-5049-8ce4-fa9b4b2635b0")
+		(uuid "3cbc1fca-c50c-55e7-8abf-5ccc2a38d875")
 	)
 	(label "VBUS"
 		(at 787.4 33.02 90)
@@ -38717,6 +38717,238 @@
 		)
 	)
 	(label "G1"
+		(at 772.16 19.05 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "56ea9c3d-787a-54d6-9806-f544a767cc5f")
+	)
+	(label "GT1"
+		(at 772.16 26.67 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "9dd52f58-3180-5231-8b47-f0e4f6fbb05f")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 772.16 22.86 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "76fab0a2-0273-507f-9a78-890ca8b9b064")
+		(property "Reference" "R513"
+			(at 774.7 21.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1k"
+			(at 774.7 24.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 772.16 22.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 772.16 22.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 772.16 22.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C21190"
+			(at 772.16 22.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Tolerance" "1%"
+			(at 772.16 22.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "RS: gate slew resistor (datasheet Fig. 8 / eq. 16); bench-tune with CS"
+			(at 772.16 22.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a1f4ef74-8670-53f7-bb48-91929b050be1")
+		)
+		(pin "2"
+			(uuid "9598da43-2bbd-5023-b5dc-98db969747d7")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "R513")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "GT1"
+		(at 782.32 26.67 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "f30f2474-3c60-5f71-a11e-22c38a5738bd")
+	)
+	(label "G1"
+		(at 782.32 19.05 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "1764fb73-3871-5ca7-8f7a-ed2025d0a4b4")
+	)
+	(symbol
+		(lib_id "Device:D_Schottky")
+		(at 782.32 22.86 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "e3748968-7969-565b-a7e6-0bd1cbc679a3")
+		(property "Reference" "D510"
+			(at 784.86 21.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "BAT54WS"
+			(at 784.86 24.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Diode_SMD:D_SOD-323"
+			(at 782.32 22.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 782.32 22.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 782.32 22.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C124205"
+			(at 782.32 22.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "Diodes BAT54WS-7-F 30 V 0.2 A Schottky SOD-323"
+			(at 782.32 22.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "DS: fast turn-off path around RS (datasheet Fig. 8)"
+			(at 782.32 22.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "7964064a-6eec-57e0-a7e7-480875bc7dce")
+		)
+		(pin "2"
+			(uuid "49a5075b-4796-5319-ba7a-64592ff30205")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "D510")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "GT1"
 		(at 795.02 19.05 90)
 		(effects
 			(font
@@ -38724,9 +38956,9 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "d34e2e09-d142-5051-9c7d-45dba9054a48")
+		(uuid "31e69050-3597-5fe3-8555-3bc70920ea3d")
 	)
-	(label "GSS1"
+	(label "VBUS"
 		(at 795.02 26.67 270)
 		(effects
 			(font
@@ -38734,7 +38966,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "526c7559-ff91-5c5c-9774-f6f74fe7aa96")
+		(uuid "691dc013-6d3d-5052-aea3-e0a7750e6612")
 	)
 	(symbol
 		(lib_id "Device:C")
@@ -38808,7 +39040,7 @@
 				(hide yes)
 			)
 		)
-		(property "Note" "soft start: gate-drain (VBUS) Miller cap, value TBD on bench"
+		(property "Note" "CS: gate-to-VOUT slew cap, >= 10 x Crss(max) of the output FETs; 0.79*RS*CS adds to switchover droop (eq. 14); value TBD on bench"
 			(at 795.02 22.86 0)
 			(effects
 				(font
@@ -38832,37 +39064,37 @@
 			)
 		)
 	)
-	(label "GSS1"
-		(at 795.02 52.07 90)
+	(label "VS1"
+		(at 795.02 34.29 90)
 		(effects
 			(font
 				(size 1 1)
 			)
 			(justify left bottom)
 		)
-		(uuid "545c9d1b-d7b5-5adc-aecb-330df46a002b")
+		(uuid "04468aed-dcf2-5bda-870b-e4ba305c3798")
 	)
-	(label "VBUS"
-		(at 795.02 59.69 270)
+	(label "GND"
+		(at 795.02 41.91 270)
 		(effects
 			(font
 				(size 1 1)
 			)
 			(justify right bottom)
 		)
-		(uuid "08ea4c16-b84f-54a8-8a9a-0116e230ddb7")
+		(uuid "1cae0d93-f7ff-5c5e-9873-ed15b8f09cad")
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 795.02 55.88 0)
+		(lib_id "Device:C")
+		(at 795.02 38.1 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "76fab0a2-0273-507f-9a78-890ca8b9b064")
-		(property "Reference" "R513"
-			(at 797.56 54.61 0)
+		(uuid "e2466293-12e1-59e4-bbd3-7cfccfb1a2f5")
+		(property "Reference" "C514"
+			(at 797.56 36.83 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -38870,8 +39102,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "1k"
-			(at 797.56 57.15 0)
+		(property "Value" "1u"
+			(at 797.56 39.37 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -38879,8 +39111,8 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 795.02 55.88 0)
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+			(at 795.02 38.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -38889,7 +39121,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 795.02 55.88 0)
+			(at 795.02 38.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -38898,7 +39130,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 795.02 55.88 0)
+			(at 795.02 38.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -38906,8 +39138,8 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C21190"
-			(at 795.02 55.88 0)
+		(property "LCSC" "TBD (X7R 50V)"
+			(at 795.02 38.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -38915,8 +39147,17 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "1%"
-			(at 795.02 55.88 0)
+		(property "Voltage" "50V"
+			(at 795.02 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "CVS: VS1 bypass, >= 10 x CS (datasheet)"
+			(at 795.02 38.1 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -38925,15 +39166,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "a1f4ef74-8670-53f7-bb48-91929b050be1")
+			(uuid "d41c3d62-aaf6-5d04-851e-6cd8864acb13")
 		)
 		(pin "2"
-			(uuid "9598da43-2bbd-5023-b5dc-98db969747d7")
+			(uuid "5c87648b-b899-56a9-b37c-1e1d89bd8add")
 		)
 		(instances
 			(project "mega-kvm-power-main"
 				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
-					(reference "R513")
+					(reference "C514")
 					(unit 1)
 				)
 			)
@@ -39932,7 +40173,7 @@
 			)
 		)
 	)
-	(label "G2"
+	(label "GT2"
 		(at 726.44 96.52 180)
 		(effects
 			(font
@@ -39940,7 +40181,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "207c6e44-1b23-5d61-a360-d59de5e20009")
+		(uuid "8d3c1d97-93fa-550a-91e8-4c148505b9ff")
 	)
 	(label "V2"
 		(at 734.06 91.44 90)
@@ -40058,7 +40299,7 @@
 			)
 		)
 	)
-	(label "G2"
+	(label "GT2"
 		(at 759.46 96.52 180)
 		(effects
 			(font
@@ -40066,7 +40307,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "6f6f4b22-03e4-5231-9b3c-a32729f2698a")
+		(uuid "f4d2f2ef-55cc-5ab2-8d14-d4792790d220")
 	)
 	(label "VBUS"
 		(at 767.08 91.44 90)
@@ -40185,6 +40426,238 @@
 		)
 	)
 	(label "G2"
+		(at 772.16 77.47 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "b0098aca-1c76-59c8-8198-cd9652d30f09")
+	)
+	(label "GT2"
+		(at 772.16 85.09 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "1a0196f0-1330-536d-8cac-65876c782da0")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 772.16 81.28 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "72993daf-61af-57c7-80f9-dc0f5d65fe3d")
+		(property "Reference" "R523"
+			(at 774.7 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1k"
+			(at 774.7 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 772.16 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 772.16 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 772.16 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C21190"
+			(at 772.16 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Tolerance" "1%"
+			(at 772.16 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "RS: gate slew resistor (datasheet Fig. 8 / eq. 16); bench-tune with CS"
+			(at 772.16 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "f9f66d1b-7d71-5eeb-966f-094aa1bb9985")
+		)
+		(pin "2"
+			(uuid "1ec40af1-fce0-5a31-a13d-4e269605a3e8")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "R523")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "GT2"
+		(at 782.32 85.09 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "fb2c401c-2bfb-56e1-b62a-999628f79c98")
+	)
+	(label "G2"
+		(at 782.32 77.47 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "542f32f2-82d8-58e5-a972-9520efe0a162")
+	)
+	(symbol
+		(lib_id "Device:D_Schottky")
+		(at 782.32 81.28 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "6025fa33-6a41-534f-899e-d7471053b52e")
+		(property "Reference" "D511"
+			(at 784.86 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "BAT54WS"
+			(at 784.86 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Diode_SMD:D_SOD-323"
+			(at 782.32 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 782.32 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 782.32 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C124205"
+			(at 782.32 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "Diodes BAT54WS-7-F 30 V 0.2 A Schottky SOD-323"
+			(at 782.32 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "DS: fast turn-off path around RS (datasheet Fig. 8)"
+			(at 782.32 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "edd09332-8428-51a9-a82a-9620c4c1ad55")
+		)
+		(pin "2"
+			(uuid "0130ff87-22a1-5516-9320-139ca4f8229d")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "D511")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "GT2"
 		(at 795.02 77.47 90)
 		(effects
 			(font
@@ -40192,9 +40665,9 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "b16cfb5b-e843-5da2-8a01-8af79b47aa78")
+		(uuid "0a051899-bcd6-5133-bf8c-af3ab4922483")
 	)
-	(label "GSS2"
+	(label "VBUS"
 		(at 795.02 85.09 270)
 		(effects
 			(font
@@ -40202,7 +40675,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "cccdaf76-05a2-57ee-8636-5f42a8c71a1b")
+		(uuid "f1823640-daa7-564f-9416-dc91dcab963e")
 	)
 	(symbol
 		(lib_id "Device:C")
@@ -40276,7 +40749,7 @@
 				(hide yes)
 			)
 		)
-		(property "Note" "soft start: gate-drain (VBUS) Miller cap, value TBD on bench"
+		(property "Note" "CS: gate-to-VOUT slew cap, >= 10 x Crss(max) of the output FETs; 0.79*RS*CS adds to switchover droop (eq. 14); value TBD on bench"
 			(at 795.02 81.28 0)
 			(effects
 				(font
@@ -40300,37 +40773,37 @@
 			)
 		)
 	)
-	(label "GSS2"
-		(at 795.02 110.49 90)
+	(label "VS2"
+		(at 795.02 92.71 90)
 		(effects
 			(font
 				(size 1 1)
 			)
 			(justify left bottom)
 		)
-		(uuid "6f7bda99-9422-5d4a-b356-765fcaeb2f83")
+		(uuid "6be1a268-7b3e-56a9-a3fa-a9ebd3970ad3")
 	)
-	(label "VBUS"
-		(at 795.02 118.11 270)
+	(label "GND"
+		(at 795.02 100.33 270)
 		(effects
 			(font
 				(size 1 1)
 			)
 			(justify right bottom)
 		)
-		(uuid "44c400ad-46a8-56a8-8572-eabcaaff2e6b")
+		(uuid "b610fbd0-bcc3-5795-b5a4-faa0a6b69186")
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 795.02 114.3 0)
+		(lib_id "Device:C")
+		(at 795.02 96.52 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "72993daf-61af-57c7-80f9-dc0f5d65fe3d")
-		(property "Reference" "R523"
-			(at 797.56 113.03 0)
+		(uuid "891b165d-a04f-5448-ae04-f317ad29d280")
+		(property "Reference" "C515"
+			(at 797.56 95.25 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -40338,8 +40811,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "1k"
-			(at 797.56 115.57 0)
+		(property "Value" "1u"
+			(at 797.56 97.79 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -40347,8 +40820,8 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 795.02 114.3 0)
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+			(at 795.02 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -40357,7 +40830,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 795.02 114.3 0)
+			(at 795.02 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -40366,7 +40839,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 795.02 114.3 0)
+			(at 795.02 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -40374,8 +40847,8 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C21190"
-			(at 795.02 114.3 0)
+		(property "LCSC" "TBD (X7R 50V)"
+			(at 795.02 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -40383,8 +40856,17 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "1%"
-			(at 795.02 114.3 0)
+		(property "Voltage" "50V"
+			(at 795.02 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "CVS: VS2 bypass, >= 10 x CS (datasheet)"
+			(at 795.02 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -40393,15 +40875,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "f9f66d1b-7d71-5eeb-966f-094aa1bb9985")
+			(uuid "dc9f350b-28ed-5328-81d3-56608d170d7f")
 		)
 		(pin "2"
-			(uuid "1ec40af1-fce0-5a31-a13d-4e269605a3e8")
+			(uuid "58968ea8-3e2f-5de6-ad1e-33acd6849e03")
 		)
 		(instances
 			(project "mega-kvm-power-main"
 				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
-					(reference "R523")
+					(reference "C515")
 					(unit 1)
 				)
 			)
@@ -41344,7 +41826,7 @@
 			)
 		)
 	)
-	(label "G3"
+	(label "GT3"
 		(at 726.44 154.94 180)
 		(effects
 			(font
@@ -41352,7 +41834,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "96ad96aa-cb17-5992-9e8b-22cbff60c72a")
+		(uuid "c21f6a97-7d80-51ca-9f37-1c8ed18beb2d")
 	)
 	(label "V3"
 		(at 734.06 149.86 90)
@@ -41470,7 +41952,7 @@
 			)
 		)
 	)
-	(label "G3"
+	(label "GT3"
 		(at 759.46 154.94 180)
 		(effects
 			(font
@@ -41478,7 +41960,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "2580f52c-0e7a-5357-a7b1-e85f7aa4f6e2")
+		(uuid "3725df60-a892-5102-893c-709c379cdedf")
 	)
 	(label "VBUS"
 		(at 767.08 149.86 90)
@@ -41597,6 +42079,238 @@
 		)
 	)
 	(label "G3"
+		(at 772.16 135.89 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "25c95e6f-1589-5730-ac2d-2b774e01c5df")
+	)
+	(label "GT3"
+		(at 772.16 143.51 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "d2073ff6-f5c6-5a2b-8569-ccb135ee7c74")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 772.16 139.7 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "1f2612fe-640c-599e-8194-bae2f5f1c679")
+		(property "Reference" "R533"
+			(at 774.7 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1k"
+			(at 774.7 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 772.16 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 772.16 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 772.16 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C21190"
+			(at 772.16 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Tolerance" "1%"
+			(at 772.16 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "RS: gate slew resistor (datasheet Fig. 8 / eq. 16); bench-tune with CS"
+			(at 772.16 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "d54b5b70-0d3c-51f6-90e6-9d1051a928b3")
+		)
+		(pin "2"
+			(uuid "3fbc390f-1cb8-5219-bc4a-1bb15144b08b")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "R533")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "GT3"
+		(at 782.32 143.51 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "9163b3e6-26ac-531e-aa6b-dbc4869d6488")
+	)
+	(label "G3"
+		(at 782.32 135.89 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "7ebf85a3-c7c2-5fd6-b5c5-dbfa1968d5ba")
+	)
+	(symbol
+		(lib_id "Device:D_Schottky")
+		(at 782.32 139.7 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "4b8fe377-1876-5f85-9868-4ad257d1ce6e")
+		(property "Reference" "D512"
+			(at 784.86 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "BAT54WS"
+			(at 784.86 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Diode_SMD:D_SOD-323"
+			(at 782.32 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 782.32 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 782.32 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C124205"
+			(at 782.32 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "Diodes BAT54WS-7-F 30 V 0.2 A Schottky SOD-323"
+			(at 782.32 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "DS: fast turn-off path around RS (datasheet Fig. 8)"
+			(at 782.32 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "996f6a7b-68a2-57e3-a01a-1cfa94e5f460")
+		)
+		(pin "2"
+			(uuid "a2ed2ba7-bd4f-59ea-bc58-b014dbfe0216")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "D512")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "GT3"
 		(at 795.02 135.89 90)
 		(effects
 			(font
@@ -41604,9 +42318,9 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "8d8d24b4-9a82-5b59-9ede-11249ac53039")
+		(uuid "56e71f43-3929-59cc-bc5f-1426b86d5949")
 	)
-	(label "GSS3"
+	(label "VBUS"
 		(at 795.02 143.51 270)
 		(effects
 			(font
@@ -41614,7 +42328,7 @@
 			)
 			(justify right bottom)
 		)
-		(uuid "72f597a5-3275-5702-a57a-a04bbd4ede8d")
+		(uuid "30f9b2d6-9015-5057-b40f-b86c13843b0e")
 	)
 	(symbol
 		(lib_id "Device:C")
@@ -41688,7 +42402,7 @@
 				(hide yes)
 			)
 		)
-		(property "Note" "soft start: gate-drain (VBUS) Miller cap, value TBD on bench"
+		(property "Note" "CS: gate-to-VOUT slew cap, >= 10 x Crss(max) of the output FETs; 0.79*RS*CS adds to switchover droop (eq. 14); value TBD on bench"
 			(at 795.02 139.7 0)
 			(effects
 				(font
@@ -41712,37 +42426,37 @@
 			)
 		)
 	)
-	(label "GSS3"
-		(at 795.02 168.91 90)
+	(label "VS3"
+		(at 795.02 151.13 90)
 		(effects
 			(font
 				(size 1 1)
 			)
 			(justify left bottom)
 		)
-		(uuid "5ef575be-dcac-5d9c-a3ad-7f6145957be5")
+		(uuid "2e62f13d-eb9e-5e25-8d5e-f2cb31f07192")
 	)
-	(label "VBUS"
-		(at 795.02 176.53 270)
+	(label "GND"
+		(at 795.02 158.75 270)
 		(effects
 			(font
 				(size 1 1)
 			)
 			(justify right bottom)
 		)
-		(uuid "1c4b59c3-6f64-53a8-8968-0903a02277b4")
+		(uuid "8866422e-f739-59bf-9778-269e3cab0d3b")
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 795.02 172.72 0)
+		(lib_id "Device:C")
+		(at 795.02 154.94 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "1f2612fe-640c-599e-8194-bae2f5f1c679")
-		(property "Reference" "R533"
-			(at 797.56 171.45 0)
+		(uuid "326d9c41-15aa-5233-8cdc-8983a05af8a9")
+		(property "Reference" "C516"
+			(at 797.56 153.67 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41750,8 +42464,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "1k"
-			(at 797.56 173.99 0)
+		(property "Value" "1u"
+			(at 797.56 156.21 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41759,8 +42473,8 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 795.02 172.72 0)
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+			(at 795.02 154.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41769,7 +42483,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 795.02 172.72 0)
+			(at 795.02 154.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41778,7 +42492,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 795.02 172.72 0)
+			(at 795.02 154.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41786,8 +42500,8 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C21190"
-			(at 795.02 172.72 0)
+		(property "LCSC" "TBD (X7R 50V)"
+			(at 795.02 154.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41795,8 +42509,17 @@
 				(hide yes)
 			)
 		)
-		(property "Tolerance" "1%"
-			(at 795.02 172.72 0)
+		(property "Voltage" "50V"
+			(at 795.02 154.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "CVS: VS3 bypass, >= 10 x CS (datasheet)"
+			(at 795.02 154.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -41805,15 +42528,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "d54b5b70-0d3c-51f6-90e6-9d1051a928b3")
+			(uuid "b066c744-abf8-5cb5-a271-68e41b13ab6a")
 		)
 		(pin "2"
-			(uuid "3fbc390f-1cb8-5219-bc4a-1bb15144b08b")
+			(uuid "806d2cbf-fa61-51e4-a282-c66085fa0630")
 		)
 		(instances
 			(project "mega-kvm-power-main"
 				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
-					(reference "R533")
+					(reference "C516")
 					(unit 1)
 				)
 			)
@@ -41987,7 +42710,7 @@
 		(at 668.02 259.08)
 		(uuid "e6076cbd-ab0f-540b-9804-6312c11daaa0")
 	)
-	(label "VBUS"
+	(label "VOUT_F"
 		(at 668.02 248.92 0)
 		(effects
 			(font
@@ -41995,7 +42718,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "31cd2da5-e7ba-5edb-baa6-5e14c3d53032")
+		(uuid "7c88ba72-a3a6-5ab6-93b3-d17d645439da")
 	)
 	(label "G3"
 		(at 668.02 241.3 0)
@@ -42265,7 +42988,7 @@
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
-		(dnp yes)
+		(dnp no)
 		(uuid "5c6d6afa-d6b9-50c5-9831-d3e9e2691fc7")
 		(property "Reference" "R501"
 			(at 713.74 214.63 0)
@@ -42276,7 +42999,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "158k"
+		(property "Value" "0R"
 			(at 713.74 217.17 0)
 			(effects
 				(font
@@ -42312,7 +43035,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "TBD (1%, JLC basic if stocked)"
+		(property "LCSC" "C21189"
 			(at 711.2 215.9 0)
 			(effects
 				(font
@@ -42330,7 +43053,7 @@
 				(hide yes)
 			)
 		)
-		(property "Note" "DNP = internal ~30 mV hysteresis; fit to set 63 mV/RHYS (check datasheet)"
+		(property "Note" "HYS must not float: 0R = internal 30 mV OV/UV hysteresis; a resistor RHYS instead sets 63 mV/RHYS (50-500 nA, datasheet eq. 1-3)"
 			(at 711.2 215.9 0)
 			(effects
 				(font
@@ -42349,6 +43072,238 @@
 			(project "mega-kvm-power-main"
 				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
 					(reference "R501")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "VBUS"
+		(at 711.2 224.79 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "1b67153c-c440-5413-a83b-d8309f3b84d2")
+	)
+	(label "VOUT_F"
+		(at 711.2 232.41 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "5b809d12-f4ce-50d6-b915-18436be505b8")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 711.2 228.6 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "f9697f4f-9788-5381-b97d-7b6e0d57639f")
+		(property "Reference" "R543"
+			(at 713.74 227.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "100R"
+			(at 713.74 229.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 711.2 228.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 711.2 228.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 711.2 228.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C22775"
+			(at 711.2 228.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Tolerance" "1%"
+			(at 711.2 228.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "RF: VOUT sense/supply filter, rides through input/output shorts (datasheet Fig. 10)"
+			(at 711.2 228.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "4ee236c6-dc33-5061-ac49-749a0ff4460f")
+		)
+		(pin "2"
+			(uuid "eb2faf1a-45a0-5c51-be3f-586919deb300")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "R543")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "VOUT_F"
+		(at 721.36 224.79 90)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left bottom)
+		)
+		(uuid "ee3848fc-9d6c-5cc0-b809-4964a91b4b7b")
+	)
+	(label "GND"
+		(at 721.36 232.41 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "d37c5cad-463b-51d6-8a3c-382a3138cd3a")
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 721.36 228.6 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "dcc30141-24d6-5e28-a264-b8931a15bfaf")
+		(property "Reference" "C517"
+			(at 723.9 227.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "10n"
+			(at 723.9 229.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
+			(at 721.36 228.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 721.36 228.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 721.36 228.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "TBD (X7R 50V)"
+			(at 721.36 228.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Voltage" "50V"
+			(at 721.36 228.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Note" "CF (datasheet Fig. 10)"
+			(at 721.36 228.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "17ce6f88-d7f2-5bb5-be0d-20748b5378c1")
+		)
+		(pin "2"
+			(uuid "89393078-a622-5323-8de8-43d7903d7ed4")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "C517")
 					(unit 1)
 				)
 			)
@@ -42640,6 +43595,83 @@
 			(project "mega-kvm-power-main"
 				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
 					(reference "#FLG04")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "VOUT_F"
+		(at 731.52 228.6 270)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify right bottom)
+		)
+		(uuid "ee7bd826-a5fe-57cb-9321-0a24b1b2e899")
+	)
+	(symbol
+		(lib_id "power:PWR_FLAG")
+		(at 731.52 228.6 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(dnp no)
+		(uuid "c6749cdc-353a-5899-b45a-8ffb44cec258")
+		(property "Reference" "#FLG05"
+			(at 734.06 227.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Value" "PWR_FLAG"
+			(at 734.06 229.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 731.52 228.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 731.52 228.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 731.52 228.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "4f2a20f1-48dd-54e5-9e3e-775641d4c854")
+		)
+		(instances
+			(project "mega-kvm-power-main"
+				(path "/cf726554-653e-53b9-8e25-fcabe01916fa"
+					(reference "#FLG05")
 					(unit 1)
 				)
 			)
@@ -44023,7 +45055,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "680R"
+		(property "Value" "1k"
 			(at 693.42 323.85 0)
 			(effects
 				(font
@@ -44059,7 +45091,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "TBD (1%, JLC basic if stocked)"
+		(property "LCSC" "C21190"
 			(at 690.88 322.58 0)
 			(effects
 				(font
@@ -44237,7 +45269,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "680R"
+		(property "Value" "1k"
 			(at 718.82 323.85 0)
 			(effects
 				(font
@@ -44273,7 +45305,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "TBD (1%, JLC basic if stocked)"
+		(property "LCSC" "C21190"
 			(at 716.28 322.58 0)
 			(effects
 				(font
@@ -44562,7 +45594,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "680R"
+		(property "Value" "1k"
 			(at 751.84 323.85 0)
 			(effects
 				(font
@@ -44598,7 +45630,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "TBD (1%, JLC basic if stocked)"
+		(property "LCSC" "C21190"
 			(at 749.3 322.58 0)
 			(effects
 				(font

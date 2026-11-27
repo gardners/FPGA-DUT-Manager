@@ -813,14 +813,14 @@
   "dnp": false,
   "fields": {
    "LCSC": "TBD (X7R 50V)",
-   "Note": "soft start: gate-drain (VBUS) Miller cap, value TBD on bench",
+   "Note": "CS: gate-to-VOUT slew cap, >= 10 x Crss(max) of the output FETs; 0.79*RS*CS adds to switchover droop (eq. 14); value TBD on bench",
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
   "in_bom": true,
   "pads": {
-   "1": "G1",
-   "2": "GSS1"
+   "1": "GT1",
+   "2": "VBUS"
   },
   "uuid": "fe19751b-7249-50de-b3fe-b18e348576a5",
   "value": "22n"
@@ -829,14 +829,14 @@
   "dnp": false,
   "fields": {
    "LCSC": "TBD (X7R 50V)",
-   "Note": "soft start: gate-drain (VBUS) Miller cap, value TBD on bench",
+   "Note": "CS: gate-to-VOUT slew cap, >= 10 x Crss(max) of the output FETs; 0.79*RS*CS adds to switchover droop (eq. 14); value TBD on bench",
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
   "in_bom": true,
   "pads": {
-   "1": "G2",
-   "2": "GSS2"
+   "1": "GT2",
+   "2": "VBUS"
   },
   "uuid": "4d2ed7a7-7e61-5481-b9b0-0b95a4fb3a2c",
   "value": "22n"
@@ -845,17 +845,81 @@
   "dnp": false,
   "fields": {
    "LCSC": "TBD (X7R 50V)",
-   "Note": "soft start: gate-drain (VBUS) Miller cap, value TBD on bench",
+   "Note": "CS: gate-to-VOUT slew cap, >= 10 x Crss(max) of the output FETs; 0.79*RS*CS adds to switchover droop (eq. 14); value TBD on bench",
    "Voltage": "50V"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
   "in_bom": true,
   "pads": {
-   "1": "G3",
-   "2": "GSS3"
+   "1": "GT3",
+   "2": "VBUS"
   },
   "uuid": "99f4ad7c-d60f-5f16-9d6a-9ba0781e9440",
   "value": "22n"
+ },
+ "C514": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "TBD (X7R 50V)",
+   "Note": "CVS: VS1 bypass, >= 10 x CS (datasheet)",
+   "Voltage": "50V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "VS1",
+   "2": "GND"
+  },
+  "uuid": "e2466293-12e1-59e4-bbd3-7cfccfb1a2f5",
+  "value": "1u"
+ },
+ "C515": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "TBD (X7R 50V)",
+   "Note": "CVS: VS2 bypass, >= 10 x CS (datasheet)",
+   "Voltage": "50V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "VS2",
+   "2": "GND"
+  },
+  "uuid": "891b165d-a04f-5448-ae04-f317ad29d280",
+  "value": "1u"
+ },
+ "C516": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "TBD (X7R 50V)",
+   "Note": "CVS: VS3 bypass, >= 10 x CS (datasheet)",
+   "Voltage": "50V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "VS3",
+   "2": "GND"
+  },
+  "uuid": "326d9c41-15aa-5233-8cdc-8983a05af8a9",
+  "value": "1u"
+ },
+ "C517": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "TBD (X7R 50V)",
+   "Note": "CF (datasheet Fig. 10)",
+   "Voltage": "50V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "VOUT_F",
+   "2": "GND"
+  },
+  "uuid": "dcc30141-24d6-5e28-a264-b8931a15bfaf",
+  "value": "10n"
  },
  "C6": {
   "dnp": false,
@@ -1308,6 +1372,54 @@
   },
   "uuid": "e2ccb2f0-16ec-54d9-9d94-d6846d9cdfa4",
   "value": "green"
+ },
+ "D510": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C124205",
+   "MPN": "Diodes BAT54WS-7-F 30 V 0.2 A Schottky SOD-323",
+   "Note": "DS: fast turn-off path around RS (datasheet Fig. 8)"
+  },
+  "footprint": "Diode_SMD:D_SOD-323",
+  "in_bom": true,
+  "pads": {
+   "1": "GT1",
+   "2": "G1"
+  },
+  "uuid": "e3748968-7969-565b-a7e6-0bd1cbc679a3",
+  "value": "BAT54WS"
+ },
+ "D511": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C124205",
+   "MPN": "Diodes BAT54WS-7-F 30 V 0.2 A Schottky SOD-323",
+   "Note": "DS: fast turn-off path around RS (datasheet Fig. 8)"
+  },
+  "footprint": "Diode_SMD:D_SOD-323",
+  "in_bom": true,
+  "pads": {
+   "1": "GT2",
+   "2": "G2"
+  },
+  "uuid": "6025fa33-6a41-534f-899e-d7471053b52e",
+  "value": "BAT54WS"
+ },
+ "D512": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C124205",
+   "MPN": "Diodes BAT54WS-7-F 30 V 0.2 A Schottky SOD-323",
+   "Note": "DS: fast turn-off path around RS (datasheet Fig. 8)"
+  },
+  "footprint": "Diode_SMD:D_SOD-323",
+  "in_bom": true,
+  "pads": {
+   "1": "GT3",
+   "2": "G3"
+  },
+  "uuid": "4b8fe377-1876-5f85-9868-4ad257d1ce6e",
+  "value": "BAT54WS"
  },
  "F1": {
   "dnp": false,
@@ -2060,7 +2172,7 @@
    "1": "VS1",
    "2": "VS1",
    "3": "VS1",
-   "4": "G1",
+   "4": "GT1",
    "5": "V1"
   },
   "uuid": "e763530e-fca0-52aa-b130-7ba2c45fb57b",
@@ -2078,7 +2190,7 @@
    "1": "VS1",
    "2": "VS1",
    "3": "VS1",
-   "4": "G1",
+   "4": "GT1",
    "5": "V1"
   },
   "uuid": "86cb9803-f63e-511a-bfec-9a87dd4c2fb7",
@@ -2096,7 +2208,7 @@
    "1": "VS1",
    "2": "VS1",
    "3": "VS1",
-   "4": "G1",
+   "4": "GT1",
    "5": "VBUS"
   },
   "uuid": "9760fe19-4636-5337-8868-55edc1f60052",
@@ -2114,7 +2226,7 @@
    "1": "VS1",
    "2": "VS1",
    "3": "VS1",
-   "4": "G1",
+   "4": "GT1",
    "5": "VBUS"
   },
   "uuid": "ea3eb2ef-9ac5-55e2-8e41-c6c1ccc56dbd",
@@ -2132,7 +2244,7 @@
    "1": "VS2",
    "2": "VS2",
    "3": "VS2",
-   "4": "G2",
+   "4": "GT2",
    "5": "V2"
   },
   "uuid": "03559f1f-62e0-581f-a580-1ba6d3c8c897",
@@ -2150,7 +2262,7 @@
    "1": "VS2",
    "2": "VS2",
    "3": "VS2",
-   "4": "G2",
+   "4": "GT2",
    "5": "VBUS"
   },
   "uuid": "59ded15c-6925-56c4-be50-a07339f73537",
@@ -2168,7 +2280,7 @@
    "1": "VS3",
    "2": "VS3",
    "3": "VS3",
-   "4": "G3",
+   "4": "GT3",
    "5": "V3"
   },
   "uuid": "eccbe7d1-c5fa-525c-9478-647f522fbf2e",
@@ -2186,7 +2298,7 @@
    "1": "VS3",
    "2": "VS3",
    "3": "VS3",
-   "4": "G3",
+   "4": "GT3",
    "5": "VBUS"
   },
   "uuid": "a62c54a6-e9b6-5070-9a1a-98c20c556b78",
@@ -2250,7 +2362,7 @@
    "1": "VS1",
    "2": "VS1",
    "3": "VS1",
-   "4": "G1",
+   "4": "GT1",
    "5": "V1"
   },
   "uuid": "682d435d-0dd6-5864-8eb9-58e14e4b6111",
@@ -2269,7 +2381,7 @@
    "1": "VS1",
    "2": "VS1",
    "3": "VS1",
-   "4": "G1",
+   "4": "GT1",
    "5": "VBUS"
   },
   "uuid": "9f3186e7-f371-5f76-9e99-02d4ef47b250",
@@ -3924,10 +4036,10 @@
   "value": "10k"
  },
  "R501": {
-  "dnp": true,
+  "dnp": false,
   "fields": {
-   "LCSC": "TBD (1%, JLC basic if stocked)",
-   "Note": "DNP = internal ~30 mV hysteresis; fit to set 63 mV/RHYS (check datasheet)",
+   "LCSC": "C21189",
+   "Note": "HYS must not float: 0R = internal 30 mV OV/UV hysteresis; a resistor RHYS instead sets 63 mV/RHYS (50-500 nA, datasheet eq. 1-3)",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -3937,7 +4049,7 @@
    "2": "GND"
   },
   "uuid": "5c6d6afa-d6b9-50c5-9831-d3e9e2691fc7",
-  "value": "158k"
+  "value": "0R"
  },
  "R502": {
   "dnp": false,
@@ -4110,13 +4222,14 @@
   "dnp": false,
   "fields": {
    "LCSC": "C21190",
+   "Note": "RS: gate slew resistor (datasheet Fig. 8 / eq. 16); bench-tune with CS",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
   "in_bom": true,
   "pads": {
-   "1": "GSS1",
-   "2": "VBUS"
+   "1": "G1",
+   "2": "GT1"
   },
   "uuid": "76fab0a2-0273-507f-9a78-890ca8b9b064",
   "value": "1k"
@@ -4170,13 +4283,14 @@
   "dnp": false,
   "fields": {
    "LCSC": "C21190",
+   "Note": "RS: gate slew resistor (datasheet Fig. 8 / eq. 16); bench-tune with CS",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
   "in_bom": true,
   "pads": {
-   "1": "GSS2",
-   "2": "VBUS"
+   "1": "G2",
+   "2": "GT2"
   },
   "uuid": "72993daf-61af-57c7-80f9-dc0f5d65fe3d",
   "value": "1k"
@@ -4230,13 +4344,14 @@
   "dnp": false,
   "fields": {
    "LCSC": "C21190",
+   "Note": "RS: gate slew resistor (datasheet Fig. 8 / eq. 16); bench-tune with CS",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
   "in_bom": true,
   "pads": {
-   "1": "GSS3",
-   "2": "VBUS"
+   "1": "G3",
+   "2": "GT3"
   },
   "uuid": "1f2612fe-640c-599e-8194-bae2f5f1c679",
   "value": "1k"
@@ -4244,7 +4359,7 @@
  "R540": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (1%, JLC basic if stocked)",
+   "LCSC": "C21190",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -4254,12 +4369,12 @@
    "2": "LA1"
   },
   "uuid": "f803cdd5-c6bc-517c-8070-e8bdfdf05d4c",
-  "value": "680R"
+  "value": "1k"
  },
  "R541": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (1%, JLC basic if stocked)",
+   "LCSC": "C21190",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -4269,12 +4384,12 @@
    "2": "LA2"
   },
   "uuid": "6e394e02-7630-5caf-b570-73042604d1ad",
-  "value": "680R"
+  "value": "1k"
  },
  "R542": {
   "dnp": false,
   "fields": {
-   "LCSC": "TBD (1%, JLC basic if stocked)",
+   "LCSC": "C21190",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -4284,7 +4399,23 @@
    "2": "LA3"
   },
   "uuid": "5693f768-42be-5a08-a677-9ac9f47ee56c",
-  "value": "680R"
+  "value": "1k"
+ },
+ "R543": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C22775",
+   "Note": "RF: VOUT sense/supply filter, rides through input/output shorts (datasheet Fig. 10)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "VBUS",
+   "2": "VOUT_F"
+  },
+  "uuid": "f9697f4f-9788-5381-b97d-7b6e0d57639f",
+  "value": "100R"
  },
  "R6": {
   "dnp": true,
@@ -4823,7 +4954,7 @@
    "12": "~{VALID3}",
    "13": "GND",
    "14": "unconnected-(U50-CAS-Pad14)",
-   "15": "VBUS",
+   "15": "VOUT_F",
    "16": "G3",
    "17": "VS3",
    "18": "G2",

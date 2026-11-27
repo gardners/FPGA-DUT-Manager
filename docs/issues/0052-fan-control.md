@@ -114,3 +114,14 @@ For the owner:
 * Please measure the always-on group's master-on inrush with 8 fans at
   100 % plus both Mimas boards: if it trips the 5 A limit, raise R182's
   limit or feed the fan switches from VBUS.
+
+## 2026-11-27 note: I2C addresses kept free for DUT current sensing (agent, feature/power-r13)
+
+Owner round 13 (0047) asked for a study of per-DUT current sensing; nothing
+is on the board yet. The recommended option is 2 x ADS1115 reading the
+eFuse ILM pins. It would sit on this same shield I2C bus at **0x49
+(ADDR = VDD) and 0x4B (ADDR = SCL)**, clear of the TMP75 (0x48), the EMC2302s
+(0x2E behind the mux), the mux (0x70) and the expanders. The TCA9548A's
+spare channels 4-7 are the fallback if those addresses are needed for
+something else. Details: `docs/hardware/power-board.md`, "Current sensing
+on the DUT rails".

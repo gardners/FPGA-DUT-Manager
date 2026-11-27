@@ -10,7 +10,7 @@ illuminated rocker switches LTC4417 EN (master on/off, not the 25 A path).
 Ported from the legacy input-board generator (gen_inputs.py); references are
 renumbered into the 50x/5xx range so they do not clash with the main board.
 """
-from parts import B5819W, FP_C1206, FP_R1206, LED_G, NFET, PFET, TVS, c, r
+from parts import B5819W, BAT54WS, FP_C1206, FP_R1206, LED_G, NFET, PFET, TVS, c, r
 
 FUSE_FP = 'Fuse:FuseHolder_Blade_ATO_Littelfuse_FLR_178.6165'
 INPUTS = [  # n, name, fuse
@@ -67,15 +67,23 @@ def build(S, P, ox, oy):
         qa, qb = FETS[n]
         note = {'Note': 'optional third pair, fit if the bench shows it is needed'}
         for k, q in enumerate(qa):
-            P(PFET, q, bx + 121.92 + k * 10.16, by + 22.86, {'D': vn, 'S': 'VS%d' % n, 'G': 'G%d' % n},
+            P(PFET, q, bx + 121.92 + k * 10.16, by + 22.86, {'D': vn, 'S': 'VS%d' % n, 'G': 'GT%d' % n},
               dnp=q in FET_DNP, fields=note if q in FET_DNP else None)
         for k, q in enumerate(qb):
-            P(PFET, q, bx + 154.94 + k * 10.16, by + 22.86, {'D': 'VBUS', 'S': 'VS%d' % n, 'G': 'G%d' % n},
+            P(PFET, q, bx + 154.94 + k * 10.16, by + 22.86, {'D': 'VBUS', 'S': 'VS%d' % n, 'G': 'GT%d' % n},
               dnp=q in FET_DNP, fields=note if q in FET_DNP else None)
-        # soft start (owner round 5): Miller capacitor gate -> VBUS
-        P(c('22n', '50V'), 'C%d' % (510 + n), bx + 185.42, by + 7.62, {'1': 'G%d' % n, '2': 'GSS%d' % n},
-          fields={'Note': 'soft start: gate-drain (VBUS) Miller cap, value TBD on bench'})
-        P(r('1k'), 'R%d' % (500 + 10 * n + 3), bx + 185.42, by + 40.64, {'1': 'GSS%d' % n, '2': 'VBUS'})
+        # gate drive, LTC4417 datasheet Figure 8 (slew-rate limited, owner round 5 soft
+        # start): pin Gn -> RS -> FET gates GTn, Schottky DS across RS (anode at the pin)
+        # for a fast turn-off, CS from the gates to VOUT (VBUS), CVS from VSn to GND.
+        P(r('1k'), 'R%d' % (500 + 10 * n + 3), bx + 162.56, by + 7.62, {'1': 'G%d' % n, '2': 'GT%d' % n},
+          fields={'Note': 'RS: gate slew resistor (datasheet Fig. 8 / eq. 16); bench-tune with CS'})
+        P(BAT54WS, 'D%d' % (509 + n), bx + 172.72, by + 7.62, {'A': 'G%d' % n, 'K': 'GT%d' % n}, rot=90,
+          fields={'Note': 'DS: fast turn-off path around RS (datasheet Fig. 8)'})
+        P(c('22n', '50V'), 'C%d' % (510 + n), bx + 185.42, by + 7.62, {'1': 'GT%d' % n, '2': 'VBUS'},
+          fields={'Note': 'CS: gate-to-VOUT slew cap, >= 10 x Crss(max) of the output FETs; '
+                          '0.79*RS*CS adds to switchover droop (eq. 14); value TBD on bench'})
+        P(c('1u', '50V'), 'C%d' % (513 + n), bx + 185.42, by + 22.86, {'1': 'VS%d' % n, '2': 'GND'},
+          fields={'Note': 'CVS: VS%d bypass, >= 10 x CS (datasheet)' % n})
         S.text('%s: input side (D=V%d)   %s: output side (D=VBUS)%s' % (
             '/'.join(qa), n, '/'.join(qb),
             '   - two in parallel each side for 25 A, Q512/Q513 DNP' if n == 1 else ''),
@@ -85,7 +93,7 @@ def build(S, P, ox, oy):
     bx, by = ox, oy + 175.26
     S.box(bx, by, bx + 193.04, by + 111.76, 'U50 LTC4417: prioritised PowerPath, V1 > V2 > V3')
     nets = {'V1': 'V1', 'V2': 'V2', 'V3': 'V3', 'VS1': 'VS1', 'VS2': 'VS2', 'VS3': 'VS3',
-            'G1': 'G1', 'G2': 'G2', 'G3': 'G3', 'VOUT': 'VBUS', 'GND': 'GND', 'EN': 'EN',
+            'G1': 'G1', 'G2': 'G2', 'G3': 'G3', 'VOUT': 'VOUT_F', 'GND': 'GND', 'EN': 'EN',
             '~{SHDN}': '~{SHDN}', 'HYS': 'HYS', 'UV1': 'UV1', 'OV1': 'OV1', 'UV2': 'UV2', 'OV2': 'OV2',
             'UV3': 'UV3', 'OV3': 'OV3', '~{VALID1}': '~{VALID1}', '~{VALID2}': '~{VALID2}',
             '~{VALID3}': '~{VALID3}'}
@@ -93,11 +101,17 @@ def build(S, P, ox, oy):
             footprint='Package_SO:SSOP-24_3.9x8.7mm_P0.635mm', nc=('CAS',),
             fields={'LCSC': 'C688500 (low stock: order via JLC global sourcing / parts pre-order; '
                             'SSOP-24, no exposed pad)', 'MPN': 'ADI LTC4417CGN#PBF'})
-    P(r('158k'), 'R501', bx + 101.6, by + 25.4, {'1': 'HYS', '2': 'GND'}, dnp=True,
-      fields={'Note': 'DNP = internal ~30 mV hysteresis; fit to set 63 mV/RHYS (check datasheet)'})
+    P(r('0R'), 'R501', bx + 101.6, by + 25.4, {'1': 'HYS', '2': 'GND'},
+      fields={'Note': 'HYS must not float: 0R = internal 30 mV OV/UV hysteresis; '
+                      'a resistor RHYS instead sets 63 mV/RHYS (50-500 nA, datasheet eq. 1-3)'})
+    P(r('100R'), 'R543', bx + 101.6, by + 38.1, {'1': 'VBUS', '2': 'VOUT_F'},
+      fields={'Note': 'RF: VOUT sense/supply filter, rides through input/output shorts (datasheet Fig. 10)'})
+    P(c('10n', '50V'), 'C517', bx + 111.76, by + 38.1, {'1': 'VOUT_F', '2': 'GND'},
+      fields={'Note': 'CF (datasheet Fig. 10)'})
     P(c('10u', '25V', FP_C1206), 'C504', bx + 111.76, by + 25.4, {'1': 'VBUS', '2': 'GND'})
     P(c('10u', '25V', FP_C1206), 'C505', bx + 119.38, by + 25.4, {'1': 'VBUS', '2': 'GND'})
     S.pwr_flag('VIN_OR', bx + 172.72, by + 17.78)
+    S.pwr_flag('VOUT_F', bx + 121.92, by + 38.1)
     S.text('Master on/off: front-panel illuminated rocker (SPST, 12 V lamp between LOAD and GND),\n'
            'wired to J54. Cable unplugged or switch off -> EN low -> VBUS off -> every output off,\n'
            'including the always-on Mimas/switch/fan group. JP2 bridges the switch for bench use.',
@@ -125,14 +139,14 @@ def build(S, P, ox, oy):
     for k in range(3):
         P(r('100k'), 'R%d' % (507 + k), bx + 50.8 + k * 7.62, by + 15.24,
           {'1': '+3V3', '2': '~{VALID%d}' % (k + 1)})
-    P(r('680R'), 'R540', bx + 81.28, by + 15.24, {'1': '+3V3', '2': 'LA1'})
+    P(r('1k'), 'R540', bx + 81.28, by + 15.24, {'1': '+3V3', '2': 'LA1'})
     P(LED_G, 'D507', bx + 81.28, by + 27.94, {'A': 'LA1', 'K': '~{VALID1}'}, value='green', rot=90,
       fields={'Note': 'IN1 banana selected'})
-    P(r('680R'), 'R541', bx + 106.68, by + 15.24, {'1': '+3V3', '2': 'LA2'})
+    P(r('1k'), 'R541', bx + 106.68, by + 15.24, {'1': '+3V3', '2': 'LA2'})
     P(LED_G, 'D508', bx + 106.68, by + 27.94, {'A': 'LA2', 'K': 'LK2'}, value='green', rot=90,
       fields={'Note': 'IN2 PCIe selected'})
     P(NFET, 'Q509', bx + 104.14, by + 43.18, {'D': 'LK2', 'S': '~{VALID2}', 'G': '~{VALID1}'})
-    P(r('680R'), 'R542', bx + 139.7, by + 15.24, {'1': '+3V3', '2': 'LA3'})
+    P(r('1k'), 'R542', bx + 139.7, by + 15.24, {'1': '+3V3', '2': 'LA3'})
     P(LED_G, 'D509', bx + 139.7, by + 27.94, {'A': 'LA3', 'K': 'LK3'}, value='green', rot=90,
       fields={'Note': 'IN3 Molex selected'})
     P(NFET, 'Q510', bx + 137.16, by + 43.18, {'D': 'LK3', 'S': 'LK3B', 'G': '~{VALID1}'})

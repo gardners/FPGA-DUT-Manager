@@ -40,8 +40,10 @@ ugly but exact; KiCad's netlist and the PCB parity check agree.
 * **One input at a time, automatic priority:** the LTC4417 connects the
   highest-priority valid input (after 256 ms validation) through
   back-to-back P-FETs, so two PSUs never feed each other. Valid window per
-  input: UV ~10.5 V, OV ~14.0 V (dividers 1.27 M / 33.2 k / 100 k, 1.0 V
-  comparators: **check thresholds against the datasheet**).
+  input (dividers 1.27 M / 33.2 k / 100 k, 1.000 V +-1.5 % comparators, 30 mV
+  internal hysteresis, checked against the datasheet in round 13): UV drops
+  out at 10.53 V and comes back at 10.85 V; OV trips at 14.03 V rising and
+  clears at 13.61 V.
 * **Master on/off** (owner round 4): a backlit SPST rocker on the front
   panel, on a 3-wire cable to J54 on the front edge of the board. It switches the LTC4417 EN,
   not the 25 A. The supply comes from VIN_OR, a diode-OR of the three
@@ -89,21 +91,48 @@ copper between the banana columns and the PCIe pair.
 
 **Package:** the default part is **LTC4417CGN**, the 24-lead narrow SSOP
 (ADI GN24 package, drawing 05-08-1641). It has gull-wing leads and **no
-exposed pad**; only the UF (4 x 4 QFN) version has one. The full ADI
-datasheet could not be downloaded from here, so please confirm the pin
-diagram once. LCSC lists C688500 (CGN) with very low stock, and the
+exposed pad**; only the UF (4 x 4 QFN) version has one. The pin map and
+footprint were checked against the datasheet (Rev. G) in round 13: see
+"LTC4417 datasheet check" below. LCSC lists C688500 (CGN) with very low stock, and the
 IGN/HGN variants (C688508, C117306) at zero. Order it through **JLC global
 sourcing / parts pre-order** so JLC places it like any other part; no hand
 fitting.
 
-**Soft start at master-on** (owner round 5): each channel has 22 nF + 1 k
-from the gate to VBUS (C511-C513, R513/R523/R533). This Miller capacitor limits
-the dV/dt of VBUS while the gate driver pulls the gate down, so about 1 mF of
-VBUS capacitance charges at roughly 1 A. The value is set on the bench,
-because the LTC4417 gate pull-down current is not in hand. FET SOA: about
-1 A at up to 12 V for about 12 ms (about 70 mJ, about 12 W at the start)
-should be a small fraction of the 10 ms SOA of a 100 A-class TDSON FET.
-Confirm against the BSC030P03NS3G SOA chart.
+**Soft start and gate drive** (owner round 5, reworked in round 13 to the
+datasheet's Figure 8). At master-on the LTC4417 itself soft-starts the first
+channel it connects: it regulates the gate so VOUT rises at about 5 V/ms
+(until a channel disconnects or 32 ms pass), so about 1 mF of VBUS
+capacitance charges at about 5 A. On top of that each channel has the
+datasheet's slew-rate network, which matters when it switches to a
+higher-voltage input: **RS** 1 k from the Gn pin to the FET gates (net GTn,
+R513/R523/R533), a **BAT54WS** across RS for a fast turn-off (D510-D512,
+anode at the pin), and **CS** 22 nF from the gates to VBUS (C511-C513).
+Each VSn has a **CVS** 1 uF bypass to GND (C514-C516). Datasheet rules:
+CS >= 10 x Crss(max) of the output FETs in parallel; CVS >= 10 x CS; and
+0.79 x RS x CS (17 us here) adds to the switch-over gap, so the VBUS droop
+at a change-over is about I x (2 + 8 + 17 us) / C_VBUS, ~0.5 V at 20 A into
+1 mF. A bigger CS or RS lowers the inrush but deepens that droop. Values to
+be set on the bench. FET SOA at master-on: about 5 A at up to 12 V for about
+2.4 ms is far inside the BSC030P03NS3G 10 ms SOA (confirm on its chart).
+
+### LTC4417 datasheet check (round 13)
+
+Checked against ADI's LTC4417 datasheet Rev. G (`docs/datasheets/ltc4417.pdf`,
+git-ignored):
+
+| Item | Datasheet | Board before round 13 | Now |
+|---|---|---|---|
+| Pin map, GN-24 | 1 EN, 2 /SHDN, 3 HYS, 4 UV1, 5 OV1, 6 UV2, 7 OV2, 8 UV3, 9 OV3, 10-12 /VALID1-3, 13 GND, 14 CAS, 15 VOUT, 16 G3, 17 VS3, 18 G2, 19 VS2, 20 G1, 21 VS1, 22 V3, 23 V2, 24 V1 | same | unchanged (correct) |
+| Package | GN24: 0.150 in narrow SSOP, body 8.56-8.74 x 3.81-3.99 mm, 0.635 mm pitch, no pad | `SSOP-24_3.9x8.7mm_P0.635mm` | unchanged (correct) |
+| HYS | ground it for the internal 30 mV, or RHYS to GND for 63 mV/RHYS; "connect to ground when not used" | R501 DNP: **HYS floating** | R501 fitted as 0 R |
+| Gate slew network | Fig. 8: RS between Gn and the gates, Schottky across RS, CS gates -> VOUT | CS + 1 k in series from the Gn pin to VBUS (the driver overpowers it, so it limited nothing) | RS, DS, CS per Fig. 8 |
+| VS bypass | CVS on every VSn (0.1-1 uF in every application, >= 10 x CS) | none | 1 uF on VS1-3 |
+| VOUT pin | 100 R / 10 nF filter to ride through input/output shorts (Fig. 10) | direct to VBUS | R543 100 R / C517 10 nF |
+| /VALID outputs | 2 mA abs max | LEDs on 680 R from 3.3 V: up to ~2 mA | 1 k (about 1.3 mA) |
+| UV/OV | 1.000 V +-1.5 %, 30 mV hysteresis, top-UV-OV-bottom string | as designed | unchanged: UV 10.53/10.85 V, OV 14.03/13.61 V |
+| EN, /SHDN | thresholds 1.1 V / 0.8 V, 3 uA pull-ups, 36 V max | 3 V from 100 k / 33 k | unchanged (EN sits at 0.1 V with the switch open) |
+| CAS | leave open if unused | NC | unchanged |
+| V1-V3 bypass, TVS | TVS on every input; bidirectional if reverse connection must be blocked | 1 uF + unidirectional SMCJ15A | unchanged on purpose: a reversed supply forward-biases the TVS and blows the input fuse |
 
 **JLC-stocked fallback** (`mega-kvm-power-inputs-lm74700`, schematic only,
 ERC clean). Every part is leaded and stocked:
@@ -159,7 +188,7 @@ side, plugged from above through the open top of the KVM unit.
 
 | Ref | Part | x (mm from left edge) | Pins | Rating | Fuse |
 |---|---|---|---|---|---|
-| J50/J51 | 4 mm PCB-mount banana sockets, red +12 V / black GND (24.243.1/.2, C7437321/C7437322, 24 A, THT) | 8.0 / 27.05 (19.05 mm pitch), centres 7.5 mm from the edge | 1 each | 24 A (20 A design point) | F1 25 A ATO |
+| J50/J51 | 4 mm PCB-mount banana sockets, red +12 V / black GND (24.243.1/.2, C7437321/C7437322, 24 A, THT) | 8.0 / 27.05 (19.05 mm pitch), centres 7.5 mm from the edge | 1 each | 24 A (20 A design point; owner round 13: the 25 A fuse is accepted) | F1 25 A ATO |
 | J52 | PCIe 8-pin (Mini-Fit Jr 2x4 vertical header, PCIe keying) | 35.3-54.4 (pin 1 at 38.5) | 1-3 +12 V, 4-8 GND (sense pins tied to GND) | 150 W = 12.5 A by spec | F2 15 A ATO |
 | J53 | Molex 8981 4-pin peripheral ("5.25-inch drive") male header | 57.3-80.0 (pin 1 at 61.0) | 1 +12 V, 2-3 GND, 4 +5 V **unused** | ~11 A per contact | F3 10 A ATO |
 | J54 | JST XH 3-pin to the front-panel rocker | 83-94 (pin 1 at 86.0) | 1 SUPPLY (VIN_OR via 47 R), 2 LOAD/EN_SW (lamp +), 3 GND (lamp -) | signal | - |
@@ -239,15 +268,16 @@ fee. Check stock when ordering.
 
 | Part | Use | LCSC | Why / sourcing |
 |---|---|---|---|
-| TI **TPS259470LRPWR** | 8 DUT eFuses (latch-off) | C3662793 (stocked, ~6k) | 5.5 A, 28 mOhm, true reverse blocking, adjustable ILIM/OVLO/dVdt, EN works with 3.3 V logic, FLT output. Latch-off: a shorted DUT stays off until the shield toggles CTRLn and the host logs it. |
+| TI **TPS259470LRPWR** | 8 DUT eFuses (latch-off) | C3662793 (~6k earlier; JLC showed **0 in stock** on 2026-11-27: re-check before ordering) | 5.5 A, 28 mOhm, true reverse blocking, adjustable ILIM/OVLO/dVdt, EN works with 3.3 V logic, FLT output. Latch-off: a shorted DUT stays off until the shield toggles CTRLn and the host logs it. |
 | TI **TPS259470ARPWR** | always-on eFuse (auto-retry) | TBD (same family) | Nobody toggles EN on the always-on group, so it must retry by itself. |
-| ADI **LTC4417CGN** | 3-input priority PowerPath (gate controller) | C688500, **only ~3 in stock** | Leaded SSOP-24, no exposed pad. Order through JLC global sourcing / parts pre-order; JLC places it, no hand-fitting. The fallback board is fully stocked (see above). |
+| ADI **LTC4417CGN** | 3-input priority PowerPath (gate controller) | C688500, **0 in stock at JLC on 2026-11-27** (was ~3) | Leaded SSOP-24, no exposed pad. Order through JLC global sourcing / parts pre-order; JLC places it, no hand-fitting. The fallback board is fully stocked (see above). |
 | TI **LM74700QDBVRQ1** (fallback) | ideal diode, 3 x | C2941042 (stocked) | SOT-23-6, leaded |
 | Infineon **BSC014N04LS** (fallback) | ideal-diode N-FETs | C2760081 | 40 V, 1.4 mOhm, TDSON-8 |
 | TI **LM339DR** + TL431 (fallback) | priority logic | C7948 / TBD | SOIC-14 / SOT-23 |
 | Infineon **BSC030P03NS3G** | 8 x input P-FETs | C152375 (stocked) | -30 V, 3 mOhm, PG-TDSON-8. A VBsemi second source (C7524921, 3.2 mOhm) exists. |
 | **SMCJ15A** | input TVS x 3 | C2834490 (MDD) | 1500 W, clamps below every downstream abs max. |
 | SS34 / B5819W / 2N7002 | output clamps / diode-OR / LED logic | C8678 / C8598 / C8545 | JLC basic parts (verify). |
+| Diodes **BAT54WS-7-F** | LTC4417 gate turn-off diodes D510-D512 (round 13) | C124205 (43.8k), $0.10 | SOD-323, 30 V Schottky. |
 | **TCA9535PWR** | optional fault expander (DNP) | C130204 (extended) | 16 inputs: /FLT0-7 on P0, /FLT_AON on P1.0. Address **0x24** (A2 high), clear of the shield's 0x20/0x22. |
 | L78L33ACUTR | 3.3 V, 30 V input | TBD | Survives the TVS clamp level. (AP7381, 40 V, is not at LCSC.) |
 | Microchip **EMC2302-1-AIZL-TR** | 4 x fan controller (2 fans each) | C626969, 217 in stock, $3.14 (1-9) / $2.66 (10+) | MSOP-10, no pad. 26 kHz PWM, tach per fan, watchdog to 100 %. Fixed address 0x2E, hence the mux. Extended part. |
@@ -255,7 +285,7 @@ fee. Check stock when ordering.
 | Infineon **BSP452** | 8 x fan-header protection | C58074, 24k in stock, $1.53 (1-9) / $1.26 (10+) / $0.95 (100+) | SOT-223 (tab = Vbb, a visible lead, not a hidden pad). |
 | TI **TMP75AIDR** | temperature, input FETs (0x48) | C30389, 4.4k, $0.29 | SOIC-8, LM75 pinout. UMW second source C5158044 (19k). |
 | Molex **47053-1000** | 8 x 4-pin fan header | C240840, 21k, $0.18 | THT |
-| Passives | 0603 resistors and capacitors | 10 k C25804, 100 k C25803, 4.7 k C23162, 1 k C21190, 20 k C4184, 100 n C14663; others TBD | JLC basic where possible. |
+| Passives | 0603 resistors and capacitors | 10 k C25804, 100 k C25803, 4.7 k C23162, 1 k C21190, 20 k C4184, 0 R C21189, 100 R C22775, 100 n C14663; others TBD | JLC basic where possible. |
 | **THT connectors** | banana sockets, ATO fuse holders (Littelfuse 178.6165), PCIe and Molex headers, screw terminals, Mini-Fit 2-pin, barrel jack, JST XH 3-pin | mostly TBD | JLC does THT assembly for stocked parts. Pick JLC-stocked equivalents when ordering. The panel-mount banana sockets (nut-fixed, through the panel) are mechanical and fitted at box assembly. |
 
 Fuse holders: ATO blade (Littelfuse FLR 178.6165), so 10/15/25 A fuses
@@ -434,6 +464,92 @@ is a small schematic and placement change.
   the cable capacitance give a few microseconds of rise time; fine for the
   Intel spec, check on the scope).
 
+## Current sensing on the DUT rails (study, round 13; not on the board yet)
+
+The owner asked (round 13) what per-DUT current measurement would cost. This
+is an estimate only; nothing is on the board yet.
+
+### The eFuse already has a current monitor
+
+The TPS259470's **ILM pin is both the current-limit setting and an analog
+load-current monitor** (TI SLVSFC9C, section 7.3.6). The pin sources
+I_MON = G_IMON x I_OUT into R_ILM, so the voltage across R_ILM follows the
+load current:
+
+* G_IMON = 182 uA/A typical, 165-200 uA/A min/max (datasheet table, 0.5 A to
+  5.5 A, below the current limit). With R_ILM = 665 R: **V_ILM = 0.121 V/A**,
+  i.e. 36 mV at 0.3 A, 121 mV at 1 A, 0.61 V at the 5 A limit. The limit
+  itself trips when V_ILM reaches about 0.61 V (I_LIM = 3334 / R_ILM), and
+  during the overcurrent blanking time it can reach about 2 x that (1.2 V).
+* Accuracy (datasheet Fig. 6-16, over process and temperature): about
+  -8/+9 % at 0.5 A, +-6 % at 1 A, +-5 % from 2 A up. Below 0.5 A it is
+  not specified, and no zero-current offset is given: expect +-10-15 % at
+  0.3 A until a bench check says otherwise. R_ILM (1 %) adds to that.
+* A one-point calibration per channel (a known load, e.g. 1-2 A, stored by
+  the host) removes most of each part's gain error. What is left is drift
+  with temperature and the curve's shape: an estimated few % at load, more
+  at 0.3 A.
+
+**Rules for using the pin** (from the datasheet and how the pin works):
+
+1. **At most 50 pF on the ILM pin** (TI note: "sensitive to capacitive
+   loading"), so no filter capacitor directly on the pin and no long
+   trace before an isolating resistor.
+2. **Any DC load on ILM changes the current limit**: the pin voltage is what
+   the limit comparator sees. A load R_L in parallel with R_ILM raises the
+   limit by R_ILM / R_L. The ADC input must look like a high impedance.
+3. **Recommended interface per channel:** 10 k (0603) right at the eFuse ILM
+   pin, then the trace to the ADC, then 1 nF to GND at the ADC input. The pin
+   then sees R_ILM in parallel with 10 k only for edges faster than about
+   10 us, which lowers V_ILM by at most 6 % on fast steps (the limit is a
+   little higher for a few microseconds). At DC it sees nothing but the ADC
+   input impedance through 10 k. The 1 nF is far larger than the ADC's
+   sampling capacitor (a few pF), so the switched-capacitor kickback is
+   absorbed there and never reaches the eFuse.
+4. **Same supply:** the ADC must be powered whenever the eFuses can be on.
+   An unpowered ADC clamps its inputs to its VDD through the ESD diodes,
+   which would pull current out of ILM and raise the limit. Powering it
+   from the power board's own +3V3 (from VBUS, like the eFuses) does this.
+   Do not power it from the shield.
+5. Open ILM sets the limit near zero; ILM shorted to GND is detected as a
+   fault. The 10 k series resistor keeps an ADC-side short from doing that.
+
+### Options and cost
+
+Prices and stock from JLCPCB's parts search on 2026-11-27 (1-9 / 100+
+unit price). All parts are leaded, no exposed pad. "Extended" parts add
+JLC's ~$3 loading fee per part type per order.
+
+| Option | Parts (LCSC, stock) | Resolution at R_ILM = 665 R | Accuracy, idle 0.3-1 A / load 2-5 A | Area | Added cost per board |
+|---|---|---|---|---|---|
+| **A: 2 x ADS1115 on the ILM pins (recommended)** | 2 x TI ADS1115IDGSR, VSSOP-10, C37593 (72k), $1.22 / $0.82; 8 x 10 k C25804 + 8 x 1 nF C1588 (basic) | 16-bit, +-1.024 V range: 31 uV = **0.26 mA** per code | set by G_IMON: ~+-10-15 % / +-6 % raw; a few % after one-point calibration. The 10 k into the ADC's MOhm-class switched-capacitor input reads about 1 % low (a fixed gain error, calibrated out with the rest) | ~100 mm2 (2 x ~25 mm2 for the ICs with decoupling, 8 x ~6 mm2 for R and C) | **~$2.5 (1-9), ~$1.7 (100+)**, plus one extended fee |
+| B: 1 x ADS7828 on the ILM pins | TI ADS7828E/2K5, TSSOP-16, C701649 (3.8k), $5.04 / $3.64; same R/C (C 10-100 nF for its larger SAR sampling capacitor) | 12-bit, internal 2.5 V: 0.61 mV = **5 mA** per code (60 codes at 0.3 A) | as A, plus +-1-2 codes (+-2-3 % at 0.3 A) | ~70 mm2 | ~$5.1 / ~$3.7, one extended fee |
+| (C: ADS7830, 8-bit) | ADS7830IPWR C161747 (4.7k), $1.80 / $1.08 | 9.8 mV = **81 mA** per code (under 4 codes at 0.3 A) | too coarse at idle | ~70 mm2 | ~$1.9 / ~$1.2 |
+| D: shunt + INA226 per rail | 8 x TI INA226AIDGSR, VSSOP-10, C49851 (37.7k), $0.67 / $0.41; 8 x 5 mOhm 1 % 2512 shunt RLM25FEER005 C185817 (31k), $0.053 / $0.042; 8 x 100 nF | 2.5 uV = **0.5 mA** per code; also reads each rail's voltage and power | offset <= 10 uV (2 mA): ~+-2 % at 0.3 A, ~+-1.1 % at load (shunt 1 % + gain 0.1 %), no calibration needed | ~500 mm2, and the shunts sit in each 5 A output path (output pours re-laid, Kelvin sense traces) | **~$5.9 / ~$3.7**, two extended fees; 125 mW and 25 mV lost per rail at 5 A |
+
+INA219 (C138706, SOIC-8, $0.56 at 100+) costs more than the INA226 and is
+less precise; INA3221 (3 channels) has an exposed pad (QFN-16-EP), so both
+were left out. The 12-bit ADS1015 (C193969) costs more than the ADS1115.
+
+**I2C:** ADS1115 addresses are 0x48-0x4B (ADDR to GND/VDD/SDA/SCL). 0x48 is
+the TMP75, so use **0x49 (ADDR = VDD) and 0x4B (ADDR = SCL)**. Both are
+clear of 0x20/0x22/0x24-0x27, 0x2E, 0x3F, 0x70. They could also go behind
+the TCA9548A's spare channels 4-7. INA226s would take 0x40-0x47.
+
+**Sampling:** each ADS1115 converts one of its four inputs at a time (8 to
+860 samples/s). At 128 samples/s the host gets all 8 rails about 4 times
+a second. That is plenty for idle / booting / busy / near-the-limit
+decisions. For short spikes, the eFuse's own /FLT and limit already act.
+
+**Recommendation:** option A. It costs about $2 per board, takes about
+100 mm2 near the eFuses, puts nothing in the power path and uses a signal
+the eFuses already produce. Its accuracy is set by the eFuse's monitor gain
+(+-5-9 % raw, a few % after a one-point calibration per rail). That is
+enough to tell an idle MEGA65 from a busy one or a fault. If per-DUT energy to
++-1-2 % is ever needed, option D (INA226 per rail) is the upgrade: about
+$2-3.5 more per board, about 5 x the area, and a re-layout of the output
+paths.
+
 ## Mechanical (one board, owner round 12)
 
 * **One board, 230 x 138.5 mm**, lying flat at the **front of the KVM
@@ -500,26 +616,25 @@ sourcing, stocked fallback designed); soft start added; 5 A limits kept
 Still open:
 1. Shield 12 V input: the shield must fit the Mini-Fit Jr 2-pin mating
    header (owner says it matches; record the part on the shield BOM).
-2. Soft-start capacitor values (C511-C513 here, C12/C22/C32 on the
-   fallback): set on the bench.
-3. LTC4417: confirm the GN pinout and UV/OV/HYS values against the ADI
-   datasheet (it could not be fetched here).
+2. Gate slew values RS/CS (R513/R523/R533, C511-C513 here; C12/C22/C32 on
+   the fallback): set on the bench (see "Soft start and gate drive").
+3. ~~LTC4417 pinout and UV/OV/HYS~~: checked in round 13 (see "LTC4417
+   datasheet check").
 4. (0052) BSP452 per fan header (default) or a 0.5 A PTC (saves ~$10 per
    board, but a shorted fan lead then resets the Mimas group).
 5. (0052) Measure the master-on inrush of the always-on group with 8 fans
    at 100 % and both Mimas boards (see "Things to measure").
 6. (round 12) Banana sockets: PCB-mount 24 A parts (24.243.1/.2,
-   C7437321/C7437322) are the stocked choice. 24 A covers the 20 A design
-   point but not the 25 A fuse rating; confirm, and check their pin
-   pattern against the generic `Banana_Jack_1Pin` footprint before fab.
+   C7437321/C7437322) are the stocked choice. **Owner round 13: a 25 A
+   fuse with the 24 A sockets is fine** (not a commercial product; 1 A is
+   within tolerance), so F1 stays 25 A. Still check their pin pattern
+   against the generic `Banana_Jack_1Pin` footprint before fab.
 
 ## Not yet done
 
 * Routing (only placement and polygons). The TI RPW0010A land pattern and the Molex
   8981 footprint were drawn from datasheet text and catalogue dimensions:
   **check both against the drawings before fab**.
-* LTC4417 HYS resistor (R1, DNP) and UV/OV thresholds: confirm with the
-  datasheet (ADI's site could not be reached from here).
 * Fallback (LM74700) input stage: legacy schematic only; it would have to be
   ported into the one board if the LTC4417 cannot be sourced.
 * The CPL CSVs in `out/` come from unrouted boards: for review and costing
