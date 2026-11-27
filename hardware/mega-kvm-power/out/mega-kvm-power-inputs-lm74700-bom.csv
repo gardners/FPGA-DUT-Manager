@@ -15,6 +15,7 @@
 "J3","PCIe 8-pin","Connector_Molex:Molex_Mini-Fit_Jr_5566-08A_2x04_P4.20mm_Vertical","","","1",""
 "J4","Molex 4-pin","mega-kvm-power:Molex_8981_PeripheralPower_1x04_P5.08mm_Vertical","","","1",""
 "J5","MASTER SW","Connector_JST:JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical","C144395 (verify)","","1",""
+"J8","TEMP I2C from main J6","Connector_JST:JST_XH_B5B-XH-A_1x05_P2.50mm_Vertical","C157991","JST B5B-XH-A(LF)(SN)","1",""
 "Q12,Q13,Q16,Q18","BSC014N04LS","Package_SON:Infineon_PG-TDSON-8_6.15x5.15mm","C2760081","Infineon BSC014N04LS 40 V 1.4 mOhm","4",""
 "Q14,Q15,Q17,Q19","BSC030P03NS3G","Package_SON:Infineon_PG-TDSON-8_6.15x5.15mm","C152375","Infineon BSC030P03NS3G -30 V 3 mOhm","4",""
 "Q21,Q22,Q23","2N7002","Package_TO_SOT_SMD:SOT-23","C8545","","3",""
@@ -25,3 +26,4 @@
 "U1,U2,U3","LM74700QDBVRQ1","Package_TO_SOT_SMD:SOT-23-6","C2941042","TI LM74700QDBVRQ1 (SOT-23-6, leaded)","3",""
 "U4,U5","LM339DR","Package_SO:SOIC-14_3.9x8.7mm_P1.27mm","C7948","TI LM339DR","2",""
 "U6","TL431","Package_TO_SOT_SMD:SOT-23","TBD (TL431 SOT-23, JLC basic)","","1",""
+"U10","TMP75AIDR","Package_SO:SOIC-8_3.9x4.9mm_P1.27mm","C30389","TI TMP75AIDR (LM75 pinout, 0x48-0x4F), SOIC-8","1",""

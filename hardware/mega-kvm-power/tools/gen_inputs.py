@@ -12,12 +12,12 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from kigen import Schematic, write_project  # noqa: E402
-from parts import B5819W, FP_C1206, FP_R1206, HOLE_M3, LDO, LED_G, LUG_M4, NFET, PFET, TVS, c, r  # noqa: E402
+from parts import B5819W, FP_C1206, FP_R1206, HOLE_M3, LDO, LED_G, LUG_M4, NFET, PFET, TSENS, TVS, XH5, c, r  # noqa: E402
 
 NAME = 'mega-kvm-power-inputs'
 OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', NAME)
 
-S = Schematic(NAME, 'MEGA-KVM power board - inputs (LTC4417 priority select)', paper='A3')
+S = Schematic(NAME, 'MEGA-KVM power board - inputs (LTC4417 priority select)', paper='A3', rev='0.3')
 
 
 def P(part, ref, x, y, nets, value=None, dnp=False, nc=(), fp=None, fields=None, rot=0):
@@ -75,11 +75,14 @@ for n, label, fuse, kind in INPUTS:
     P(r('33k2'), 'R%d' % (10 * n + 1), bx + 99.06, by + 20.32, {'1': 'UV%d' % n, '2': 'OV%d' % n})
     P(r('100k'), 'R%d' % (10 * n + 2), bx + 106.68, by + 20.32, {'1': 'OV%d' % n, '2': 'GND'})
     # back-to-back PFETs, common source VSn
-    qa, qb = ([1, 2], [3, 4]) if n == 1 else ([2 * n + 1], [2 * n + 2])
+    # banana: two pairs fitted plus an optional third pair (Q12/Q13, DNP; 0047 round 9)
+    qa, qb = ([1, 2, 12], [3, 4, 13]) if n == 1 else ([2 * n + 1], [2 * n + 2])
     for k, q in enumerate(qa):
-        P(PFET, 'Q%d' % q, bx + 127 + k * 15.24, by + 22.86, {'D': vn, 'S': 'VS%d' % n, 'G': 'G%d' % n})
+        P(PFET, 'Q%d' % q, bx + 121.92 + k * 10.16, by + 22.86, {'D': vn, 'S': 'VS%d' % n, 'G': 'G%d' % n},
+          dnp=(q == 12), fields={'Note': 'optional third pair, fit if the bench shows it is needed'} if q == 12 else None)
     for k, q in enumerate(qb):
-        P(PFET, 'Q%d' % q, bx + 160.02 + k * 15.24, by + 22.86, {'D': 'VBUS', 'S': 'VS%d' % n, 'G': 'G%d' % n})
+        P(PFET, 'Q%d' % q, bx + 154.94 + k * 10.16, by + 22.86, {'D': 'VBUS', 'S': 'VS%d' % n, 'G': 'G%d' % n},
+          dnp=(q == 13), fields={'Note': 'optional third pair, fit if the bench shows it is needed'} if q == 13 else None)
     # soft start (owner round 5): Miller capacitor gate -> VBUS limits dV/dt of VBUS at
     # master-on (I_gate / C). Start value 22 nF + 1 k; set on the bench for ~1 A into ~1 mF.
     P(c('22n', '50V'), 'C%d' % (10 + n), bx + 185.42, by + 7.62, {'1': 'G%d' % n, '2': 'GSS%d' % n},
@@ -87,7 +90,7 @@ for n, label, fuse, kind in INPUTS:
     P(r('1k'), 'R%d' % (10 * n + 3), bx + 185.42, by + 40.64, {'1': 'GSS%d' % n, '2': 'VBUS'})
     S.text('Q%s: input side (D=V%d)   Q%s: output side (D=VBUS)%s' % (
         '/'.join(map(str, qa)), n, '/'.join(map(str, qb)),
-        '   - two in parallel each side for 25 A' if n == 1 else ''), bx + 116.84, by + 40.64, 1.27)
+        '   - two in parallel each side for 25 A, Q12/Q13 DNP' if n == 1 else ''), bx + 116.84, by + 40.64, 1.27)
 
 # ---------------------------------------------------------------- LTC4417
 bx, by = 210.82, 15.24
@@ -161,14 +164,31 @@ S.text('~VALIDn are open drain (low = input n valid). The selected input is the 
        'valid one, so LED2 = V2 & !V1, LED3 = V3 & !V1 & !V2. LEDs are dark when VBUS is off\n'
        '(master switch off). Q9-Q11 gates see at most 3.3 V.', bx + 2.54, by + 73.66, 1.27)
 
-for k in range(2):
-    S.place(HOLE_M3['lib'], 'H%d' % (1 + k), 'M3', 22.86 + k * 12.7, 195.58, {}, footprint=HOLE_M3['fp'])
+# ---------------------------------------------------------------- FET temperature (issue 0052)
+bx, by = 12.7, 191.77
+S.box(bx, by, bx + 193.04, by + 45.72, 'FET temperature: TMP75 at 0x49 on the shield I2C bus (cable to main J6)')
+P(TSENS, 'U3', bx + 38.1, by + 22.86,
+  {'SDA': 'SDA', 'SCL': 'SCL', 'O.S.': '~{TALERT}', 'A0': '3V3_EXT', 'A1': 'GND', 'A2': 'GND',
+   '+Vs': '3V3_EXT', 'GND': 'GND'},
+  fields={'Note': 'between the banana FET pairs, on the VS1 copper; 0x49 (A0 high)'})
+P(c('100n'), 'C14', bx + 15.24, by + 22.86, {'1': '3V3_EXT', '2': 'GND'})
+P(XH5, 'J8', bx + 83.82, by + 22.86,
+  {'1': 'GND', '2': '3V3_EXT', '3': 'SDA', '4': 'SCL', '5': '~{TALERT}'}, value='TEMP I2C from main J6',
+  fields={'Note': '1 GND, 2 3V3 (from the main board), 3 SDA, 4 SCL, 5 /ALERT (wire-OR /INT); '
+                  'pull-ups are on the shield'})
+S.pwr_flag('3V3_EXT', bx + 99.06, by + 12.7)
+S.text('Powered from the main board 3.3 V over the cable, not the local LDO, so the\n'
+       'sensor and the bus pull-ups share one supply. Over-temperature ALERT\n'
+       '(TMP75 default 80 C set / 75 C clear) pulls the shared /INT low.', bx + 114.3, by + 15.24, 1.27)
+
+for k in range(3):
+    S.place(HOLE_M3['lib'], 'H%d' % (1 + k), 'M3', 22.86 + k * 12.7, 248.92, {}, footprint=HOLE_M3['fp'])
 
 S.text('Fuse ratings: banana 25 A (4 mm sockets ~30 A), PCIe 8-pin 15 A (150 W = 12.5 A spec),\n'
        'Molex 4-pin 10 A (one 12 V pin, ~11 A contact). One input at a time: no back-feed\n'
        'between PSUs. TVS SMCJ15A: Vrwm 15 V, clamp 24.4 V < 28 V TPS25947 / 36 V LTC4417.\n'
        'FETs BSC030P03NS3G 3 mOhm: at 25 A, 2 parallel per side = ~0.5 W each.',
-       12.7, 205.74, 1.5)
+       12.7, 254.0, 1.5)
 
 if __name__ == '__main__':
     os.makedirs(OUTDIR, exist_ok=True)

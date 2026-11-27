@@ -177,7 +177,7 @@
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
   "in_bom": true,
   "pads": {
-   "1": "SNS3",
+   "1": "3V3_EXT",
    "2": "GND"
   },
   "uuid": "06c23004-cdfd-51d7-a44e-230b8c90c926",
@@ -580,6 +580,24 @@
   },
   "uuid": "425d21a7-5ad9-575e-ac2b-f8999f6ae545",
   "value": "GND lug (to main)"
+ },
+ "J8": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C157991",
+   "MPN": "JST B5B-XH-A(LF)(SN)"
+  },
+  "footprint": "Connector_JST:JST_XH_B5B-XH-A_1x05_P2.50mm_Vertical",
+  "in_bom": true,
+  "pads": {
+   "1": "GND",
+   "2": "3V3_EXT",
+   "3": "SDA",
+   "4": "SCL",
+   "5": "~{TALERT}"
+  },
+  "uuid": "14bb1209-3c30-56a9-9ca5-77be42e0645a",
+  "value": "TEMP I2C from main J6"
  },
  "JP1": {
   "dnp": false,
@@ -1149,6 +1167,28 @@
   },
   "uuid": "6bed0675-fa01-5cfb-9065-a0405bc78615",
   "value": "LM74700QDBVRQ1"
+ },
+ "U10": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C30389",
+   "MPN": "TI TMP75AIDR (LM75 pinout, 0x48-0x4F), SOIC-8",
+   "Note": "between the banana FETs; 0x49"
+  },
+  "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+  "in_bom": true,
+  "pads": {
+   "1": "SDA",
+   "2": "SCL",
+   "3": "~{TALERT}",
+   "4": "GND",
+   "5": "GND",
+   "6": "GND",
+   "7": "3V3_EXT",
+   "8": "3V3_EXT"
+  },
+  "uuid": "ae8eeb45-c819-5c25-bb3b-8107d7527ba7",
+  "value": "TMP75AIDR"
  },
  "U2": {
   "dnp": false,

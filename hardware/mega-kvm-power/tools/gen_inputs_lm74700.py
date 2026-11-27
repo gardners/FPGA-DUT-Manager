@@ -17,7 +17,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from kigen import Schematic, write_project  # noqa: E402
-from parts import B5819W, FP_C1206, FP_R1206, HOLE_M3, LED_G, LUG_M4, NFET, PFET, TVS, c, r  # noqa: E402
+from parts import B5819W, FP_C1206, FP_R1206, HOLE_M3, LED_G, LUG_M4, NFET, PFET, TSENS, TVS, XH5, c, r  # noqa: E402
 
 NAME = 'mega-kvm-power-inputs-lm74700'
 OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', NAME)
@@ -144,6 +144,18 @@ S.pwr_flag('GND', bx + 101.6, by + 30.48)
 S.pwr_flag('VIN_OR', bx + 101.6, by + 12.7)
 for k in range(2):
     S.place(HOLE_M3['lib'], 'H%d' % (1 + k), 'M3', bx + 10.16 + k * 12.7, by + 55.88, {}, footprint=HOLE_M3['fp'])
+
+# FET temperature sensor, same as the default input board (issue 0052)
+bx, by = 271.78, 220.98
+S.box(bx, by, bx + 132.08, by + 50.8, 'FET temperature: TMP75 0x49, cable to main J6')
+P(TSENS, 'U10', bx + 30.48, by + 25.4,
+  {'SDA': 'SDA', 'SCL': 'SCL', 'O.S.': '~{TALERT}', 'A0': '3V3_EXT', 'A1': 'GND', 'A2': 'GND',
+   '+Vs': '3V3_EXT', 'GND': 'GND'}, fields={'Note': 'between the banana FETs; 0x49'})
+P(c('100n'), 'C30', bx + 10.16, by + 25.4, {'1': '3V3_EXT', '2': 'GND'})
+P(XH5, 'J8', bx + 76.2, by + 25.4, {'1': 'GND', '2': '3V3_EXT', '3': 'SDA', '4': 'SCL', '5': '~{TALERT}'},
+  value='TEMP I2C from main J6')
+S.pwr_flag('3V3_EXT', bx + 99.06, by + 12.7)
+
 
 if __name__ == '__main__':
     os.makedirs(OUTDIR, exist_ok=True)

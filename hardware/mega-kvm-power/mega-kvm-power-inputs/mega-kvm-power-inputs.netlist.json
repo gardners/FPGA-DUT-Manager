@@ -62,6 +62,21 @@
   "uuid": "87eaacdc-4d4f-597e-90af-35e16f718ef2",
   "value": "22n"
  },
+ "C14": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C14663",
+   "Voltage": "25V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "3V3_EXT",
+   "2": "GND"
+  },
+  "uuid": "813e8eb1-0b48-55ce-ac34-46c66b6368f6",
+  "value": "100n"
+ },
  "C2": {
   "dnp": false,
   "fields": {
@@ -386,6 +401,15 @@
   "uuid": "57f3fb7a-2b82-5c4c-b260-a85e5b076e80",
   "value": "M3"
  },
+ "H3": {
+  "dnp": false,
+  "fields": {},
+  "footprint": "MountingHole:MountingHole_3.2mm_M3",
+  "in_bom": false,
+  "pads": {},
+  "uuid": "ba3a4b57-4e7a-5944-8f05-30620a70e252",
+  "value": "M3"
+ },
  "J1": {
   "dnp": false,
   "fields": {
@@ -501,6 +525,25 @@
   "uuid": "cd9c1f0c-1f19-5eb9-bd51-56e131bed4eb",
   "value": "GND lug (to main)"
  },
+ "J8": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C157991",
+   "MPN": "JST B5B-XH-A(LF)(SN)",
+   "Note": "1 GND, 2 3V3 (from the main board), 3 SDA, 4 SCL, 5 /ALERT (wire-OR /INT); pull-ups are on the shield"
+  },
+  "footprint": "Connector_JST:JST_XH_B5B-XH-A_1x05_P2.50mm_Vertical",
+  "in_bom": true,
+  "pads": {
+   "1": "GND",
+   "2": "3V3_EXT",
+   "3": "SDA",
+   "4": "SCL",
+   "5": "~{TALERT}"
+  },
+  "uuid": "fb0a3ba8-f4b3-507a-9996-febcdd60b7a2",
+  "value": "TEMP I2C from main J6"
+ },
  "JP1": {
   "dnp": false,
   "fields": {},
@@ -560,6 +603,44 @@
   },
   "uuid": "190482b2-36a7-5e00-8fdb-244c6c9f009c",
   "value": "2N7002"
+ },
+ "Q12": {
+  "dnp": true,
+  "fields": {
+   "LCSC": "C152375",
+   "MPN": "Infineon BSC030P03NS3G -30 V 3 mOhm",
+   "Note": "optional third pair, fit if the bench shows it is needed"
+  },
+  "footprint": "Package_SON:Infineon_PG-TDSON-8_6.15x5.15mm",
+  "in_bom": true,
+  "pads": {
+   "1": "VS1",
+   "2": "VS1",
+   "3": "VS1",
+   "4": "G1",
+   "5": "V1"
+  },
+  "uuid": "73bc8f58-008c-50c8-a354-049b8affaf89",
+  "value": "BSC030P03NS3G"
+ },
+ "Q13": {
+  "dnp": true,
+  "fields": {
+   "LCSC": "C152375",
+   "MPN": "Infineon BSC030P03NS3G -30 V 3 mOhm",
+   "Note": "optional third pair, fit if the bench shows it is needed"
+  },
+  "footprint": "Package_SON:Infineon_PG-TDSON-8_6.15x5.15mm",
+  "in_bom": true,
+  "pads": {
+   "1": "VS1",
+   "2": "VS1",
+   "3": "VS1",
+   "4": "G1",
+   "5": "VBUS"
+  },
+  "uuid": "a96bf015-7784-5009-95e8-434bc3fddafc",
+  "value": "BSC030P03NS3G"
  },
  "Q2": {
   "dnp": false,
@@ -1117,5 +1198,27 @@
   },
   "uuid": "01b20704-db28-55fa-b322-194875f0cd9f",
   "value": "L78L33ACUTR"
+ },
+ "U3": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C30389",
+   "MPN": "TI TMP75AIDR (LM75 pinout, 0x48-0x4F), SOIC-8",
+   "Note": "between the banana FET pairs, on the VS1 copper; 0x49 (A0 high)"
+  },
+  "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+  "in_bom": true,
+  "pads": {
+   "1": "SDA",
+   "2": "SCL",
+   "3": "~{TALERT}",
+   "4": "GND",
+   "5": "GND",
+   "6": "GND",
+   "7": "3V3_EXT",
+   "8": "3V3_EXT"
+  },
+  "uuid": "7760f218-6770-5732-9a6d-e3f1cc02834f",
+  "value": "TMP75AIDR"
  }
 }
