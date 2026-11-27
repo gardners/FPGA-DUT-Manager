@@ -20,7 +20,7 @@ fan clearances, the KVM fit and the sheet count.
 | `strain-bar` | 371 x 36 | 8 | Stands in the deck's rear slots (30 mm tall); cable-tie slot pairs every 40 mm. |
 | `fan-plate` | 482.6 x 177.8 | 2 | 4RU (`FAN_PLATE['ru']`, 1-4). 3 x 120 mm fans at 125 mm pitch, staggered low/high/low (centres 63 / 114.8 mm above the plate bottom), cut grille or plain bore (`guard`). Screws into the carrier shelf's batten ends and two gussets. MEGA65 logo etch above fan 1, M.E.G.A. e.V. slot above fan 3, "MEGA-KVM" under fan 2. |
 | `fan-gusset` | 90 x 36 | 4 | Stands on the carrier deck over each batten. |
-| `kvm-front` | 482.6 x 133.35 | 1 | No power connectors (owner round 12). 2 x 92 mm fans on the left, above the deck. Right-hand column: the 0050 display PCB from `mega-kvm-front/out/panel-holes.json` at the top (PCB 3 mm behind the panel), the master rocker under it (wired to J54 on the power board), the "MEGA-KVM" etch (10 mm letters) to the rocker's right. Logo slots sit in the band in front of the deck. |
+| `kvm-front` | 482.6 x 133.35 | 1 | No power connectors (owner round 12). Master rocker at the far left (wired to J54 on the power board), then 2 x 120 mm fans (owner 2026-11-27; they reach down through a deck notch). Right-hand column: the 140 x 66 mm 0050 display PCB from `mega-kvm-front/out/panel-holes.json` at the top (PCB 3 mm behind the panel), the "MEGA-KVM" etch (10 mm letters) under it, then the MEGA65 and M.E.G.A. e.V. logo slots. |
 | `kvm-deck` | 425 x 349 | 1 | No notch. The 230 x 138.5 mm power board at the front (x 25-255, front edge 40 mm behind the panel, inputs along its front edge, plugged from the open top), the GS105 beside it (x 263-357), and the two bays at the rear (x 40.8-422). Holes: the board's eight M3 holes, Mimas, keyboard sub-board and shield-support holes, GS105 tie slots, tie-slot pairs for the DUT lead bundle, vents under the Mimas boards. The board and GS105 outlines are etched. |
 | `kvm-rear` | 425 x 132 | 1 | Seen from the rear: the two bay cut-outs at the left (sub-SVGs `out/rack/fragments/bay1.svg`, `bay2.svg`). At the right (= the deck's left, behind the power board's DUT terminals): the Ethernet bulkhead + 8 DUT power lead holes, with the keyboard feed-through above them. Vent slots fill the rest. |
 | `kvm-gusset` | 90 x 24 | 4 | Under the KVM deck, front and rear, against the battens' inner faces (moved inwards where a deck hole is in the way). |
@@ -78,11 +78,16 @@ rocker position, gussets, logos); `LOGOS`; `FOOTPRINT`.
   patch) + 120 (Mimas) = **349 mm**. The 381 mm of bays are wider than the 375 mm
   between the battens, so three outer bay holes (keyboard sub-board, two shield
   supports) land on the right batten: drill them through and use M3 x 40 screws.
-* **KVM fans:** 2 x 120 mm still do not fit: the 227 mm display PCB is now the only
-  thing beside the fans, and they need about 480 mm behind a 425 mm deck. They would fit
-  with a display board of at most 172 mm. The default is 2 x 92 mm (424 of 425 mm);
-  `KVM['fan']=120, 'fan_count'=1` also fits (that fan crosses the deck, which then
-  gets a notch).
+* **KVM fans: 2 x standard 120 mm PC fans** (owner, 2026-11-27). They fit
+  since the display PCB became a two-row 140 x 66 mm board (issue 0050): fans at
+  x 33-274, display at x 280-420 (421 of 425 mm). A 120 mm fan is taller than the
+  space above the deck, so the fans reach 20.6 mm below the deck top through one
+  notch in the deck front (x 32-275, 28 mm deep), 2 mm clear of the front gussets;
+  the generator checks the fan bodies against the gussets and battens. The rocker
+  sits in the strip left of the fans (`rocker_pos: 'left'`); the MEGA-KVM etch
+  and the MEGA65 / M.E.G.A. e.V. logo slots are stacked under the display
+  (`etch_pos` / logos `'column'`), each checked against the fans, PCB, rocker
+  and screw holes. `KVM['fan']=92` with `rocker_pos: 'below_pcb'` still builds.
 * KVM rear: the bays (381.2 mm) and the bulkhead/DUT power column leave 3.8 mm.
 
 # Options A and B (issue 0048, no longer developed)

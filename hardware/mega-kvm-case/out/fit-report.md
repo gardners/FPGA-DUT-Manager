@@ -13,7 +13,7 @@ Options A and B (the single 1RU box) are in `fit-report-options-AB.md` and are n
 * **official expansions**: PLACEHOLDER (no data) (NOT cut: reference layer only).
 * Front-panel PCB: `../mega-kvm-front/out/panel-holes.json` (found).
 * Power boards: main = mega-kvm-power-main.kicad_pcb, inputs = mega-kvm-power-inputs.kicad_pcb.
-* Logos: mega65: logos/mega65.svg etched at 110.0 x 23.6 mm; mega_ev: placeholder box 110 x 24 (no logos/mega-ev.svg).
+* Logos: mega65: logos/mega65.svg etched at 110.0 x 23.6 mm; mega65: logos/mega65.svg etched at 98.7 x 21.2 mm; mega_ev: placeholder box 110 x 21 (no logos/mega-ev.svg); mega_ev: placeholder box 110 x 24 (no logos/mega-ev.svg).
 * Cross-checks: MEGA65 holes: Trenz DIM drawing vs the rugged case agree within 0.8 mm (rear-right hole y 93.8 vs 93.0; front row y 4.88 vs 5.0); the DIM values are used. Cart64out holes: Eagle .brd and DXF agree exactly (Ø3.302 at (16,4) (16,58) (71,4) (71,58)); the DXF outline is 97 x 62 including a 12 mm tongue (body 85 mm, not 86). The Cart64out insertion depth (tongue tip at board y 91.0) comes from the rugged case's single breakout support hole, which lands exactly on Cart64out hole (71, 58).
 
 ## Heights (1RU pitch)
@@ -74,23 +74,25 @@ Gussets: 36 mm tall x 90 mm long on the carrier deck over each batten.
 * Depth budget: power board front edge at y 40 (behind the front panel) + board 138.5 + cable gap 15 (DUT leads cross here) + RJ45 patch clearance 35 + Mimas 120 = 349 mm. All units together: shelves 253 mm, KVM 349 mm, rack 600 mm between the posts (MEASURE).
 * Power board (owner round 12, 230 x 138.5 mm) at x 25-255, y 40.0-178.5, top 37.6 mm above the slot bottom. The input connectors along its front edge are plugged from the open top: 40 mm of free height above the board over its front 25 mm (checked as the "input plugs" box), and 55.8 mm to the next unit's battens above that.
 * GS105 at x 263-357 beside the board. Cable routes (dashed in the top view): DUT leads from the terminals on the board's rear edge (y 178.5) across the cable gap to the bulkhead/DUT-power column at the rear left (x 3-37, the bays start at x 40.8); Mimas Mini-Fit leads back to the bays; the GS105 jack lead sideways to the switch. Tie-slot pairs hold the DUT bundle in the cable gap.
-* Front panel width budget behind the face: fans 2 x 92 mm (x 5.0-190.0), display column 227.0 mm (x 193.0-420.0): needs 424.0 of 425.0 mm.
-* **2 x 120 mm fans still do not fit.** With no power connectors on the front, only the 227 mm display PCB shares the face with the fans, and 2 x 120 mm fans need 480 mm (5 + 2 x 120 + 1 + 2 + 227 + 5) behind a 425 mm deck. They would fit with a display board of at most 172 mm. Options: 2 x 92 mm (default), 1 x 120 mm, or a narrower display board.
-* Display column: PCB z 94.4-130.4 (x 193.0-420.0); the rocker and the MEGA-KVM etch below it.
-* Fans clear the deck (top-aligned, no notch).
-* Rocker: below_pcb (deck x 219.5, z 62.7).
+* Front panel width budget behind the face: fans 2 x 120 mm (x 33.0-274.0, z 10.4-130.4), display column 140.0 mm (x 280.0-420.0): needs 421.0 of 425.0 mm.
+* Display column: PCB 140 x 66 mm at z 64.4-130.4 (x 280.0-420.0), read from panel-holes.json; the MEGA-KVM etch and the logos under it.
+* Fans cross the deck: they reach 20.6 mm below the deck top, through one notch in the deck front (x 32-275, 28 mm deep), between the front gussets; nearest under-deck part (gusset/batten) 2.0 mm away sideways. Fan bodies (25 mm deep) end at y 25; the power board starts at y 40.
+* Etched: MEGA-KVM at x 310-386, z 50.4-60.4 (checked against the fans, display PCB, rocker and screws).
+* Etched: mega65 logo at x 278-388, z 26.2-47.4 (checked against the fans, display PCB, rocker and screws).
+* Etched: mega_ev logo at x 278-388, z 2.0-23.2 (checked against the fans, display PCB, rocker and screws).
+* Rocker: left (deck x 19.0, z 70.4).
 * Rear plate 425 x 132.0 mm (seen from the rear): bays 381.2 mm at the left, the bulkhead/DUT power column at the right (= deck left, behind the DUT terminals); 3.8 mm spare. The keyboard feed-through sits above the column; vent slots fill the upper part.
 * KVM deck: 3 bay holes are over the right batten: kbd sub (x 417.3, y 317.8); shield support (x 417.0, y 233.8); shield support (x 417.0, y 298.8). Drill them on through the batten and use M3 x 40 screws from below
 * KVM rear gusset moved 6 mm inwards off the batten to clear deck holes
-* KVM front: MEGA-KVM etched beside the rocker (deck x 232-420), 10.0 mm letters
+* KVM front: MEGA-KVM etched under the display PCB (deck x 276-420), 10.0 mm letters
 * Gussets: 4 under the deck against the battens' inner faces (24 x 90 mm), front and rear.
 
 | Part | nearest neighbour (same height band) | gap mm | headroom to the unit top mm |
 |---|---|---|---|
 | KVM fan 1 | KVM fan 2 | 1.0 | 3.0 |
 | KVM fan 2 | KVM fan 1 | 1.0 | 3.0 |
-| front PCB + LCD | KVM fan 2 | 3.0 | 3.0 |
-| rocker | power board | 18.0 | 61.1 |
+| front PCB + LCD | KVM fan 2 | 6.0 | 3.0 |
+| rocker | KVM fan 1 | 7.5 | 53.4 |
 | power board | GS105 | 8.0 | 70.8 |
 | input plugs (from above) | KVM fan 1 | 15.0 | 55.8 |
 | GS105 | power board | 8.0 | 75.4 |

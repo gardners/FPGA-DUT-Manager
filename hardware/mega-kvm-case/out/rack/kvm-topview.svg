@@ -17,6 +17,10 @@
 <text x="171.5" y="161.25" style="font-family:sans-serif;font-size:1.8px;fill:#000;text-anchor:middle;font-weight:normal">Mimas power leads</text>
 <rect x="184" y="177.5" width="104" height="10" style="fill:#ffe0e0;fill-opacity:0.5;stroke:#c66;stroke-width:0.3;stroke-dasharray:2,1"/>
 <text x="236" y="183.5" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">GS105 12V lead</text>
+<rect x="48" y="339" width="120" height="25" style="fill:#b0b0e0;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
+<text x="108" y="352.5" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">KVM fan 1</text>
+<rect x="169" y="339" width="120" height="25" style="fill:#b0b0e0;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
+<text x="229" y="352.5" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">KVM fan 2</text>
 <rect x="278" y="224" width="94" height="100" style="fill:#8fa8d8;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
 <text x="325" y="275" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">GS105</text>
 <rect x="297.2" y="15.2" width="90" height="120" style="fill:#7fbf7f;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
@@ -35,18 +39,14 @@
 <text x="155" y="255.75" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">power board</text>
 <rect x="40" y="299" width="96" height="25" style="fill:#d08040;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
 <text x="88" y="312.5" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">input plugs (from above)</text>
-<rect x="20" y="339" width="92" height="25" style="fill:#b0b0e0;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
-<text x="66" y="352.5" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">KVM fan 1</text>
-<rect x="113" y="339" width="92" height="25" style="fill:#b0b0e0;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
-<text x="159" y="352.5" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">KVM fan 2</text>
 <rect x="247.4" y="15.2" width="189.6" height="120" style="fill:#a0d0a0;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
 <text x="342.2" y="76.2" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">shield 1</text>
 <rect x="55.8" y="15.2" width="189.6" height="120" style="fill:#a0d0a0;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
 <text x="150.6" y="76.2" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">shield 2</text>
-<rect x="228" y="342" width="13" height="22" style="fill:#d8c070;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
-<text x="234.5" y="354" style="font-family:sans-serif;font-size:1.8px;fill:#000;text-anchor:middle;font-weight:normal">rocker</text>
-<rect x="208" y="332.4" width="227" height="28.6" style="fill:#d8c070;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
-<text x="321.5" y="347.7" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">front PCB + LCD</text>
+<rect x="27.5" y="342" width="13" height="22" style="fill:#d8c070;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
+<text x="34" y="354" style="font-family:sans-serif;font-size:1.8px;fill:#000;text-anchor:middle;font-weight:normal">rocker</text>
+<rect x="295" y="332.4" width="140" height="28.6" style="fill:#d8c070;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
+<text x="365" y="347.7" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">front PCB + LCD</text>
 <text x="227.5" y="370" style="font-family:sans-serif;font-size:4px;fill:#000;text-anchor:middle;font-weight:bold">FRONT</text>
 <text x="227.5" y="11" style="font-family:sans-serif;font-size:4px;fill:#000;text-anchor:middle;font-weight:bold">REAR</text>
 <text x="15" y="8" style="font-family:sans-serif;font-size:4px;fill:#000;text-anchor:start;font-weight:bold">KVM unit top view (deck 425 x 349 mm, 3RU)</text>

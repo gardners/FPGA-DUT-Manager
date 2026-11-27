@@ -306,3 +306,37 @@ The main board goes at the front of the KVM deck.
   381 mm of bays are wider than the 375 mm between the battens, so three outer
   bay holes land on the right batten: drill through, M3 x 40 (noted in the
   report). Fit report: 0 conflicts.
+
+## 2026-11-27 owner: 120 mm fans
+
+Owner: "92mm fans? I thought we were using cheap and easily available 120mm
+ones? Whatever the common standard PC ones are." The KVM front gets **2 x
+standard 120 mm PC fans** (120 x 120 x 25, 105 mm pitch).
+
+Plan (agent, branch `feature/front-2row`): the display PCB (0050) is
+re-laid out in two rows, about 140 mm wide, so that it fits beside the two
+fans. `KVM` in config.py: `'fan': 120, 'fan_count': 2`; the display board
+size comes from panel-holes.json as before. 120 mm fans are taller than the
+space above the KVM deck, so they reach down through notches in the deck
+front, between the battens and clear of the front gussets; the logos and
+the MEGA-KVM etch move into the right-hand column with the display and the
+rocker. Fit report must stay at "Conflicts / problems: none".
+
+## 2026-11-27 progress: 2 x 120 mm KVM fans (agent, branch feature/front-2row)
+
+* `KVM`: `'fan': 120, 'fan_count': 2`. The display PCB (now 140 x 66 mm,
+  read from panel-holes.json) leaves room: fans x 33-274, display x 280-420
+  (421 of 425 mm).
+* 3RU panel layout (front view, deck x): master rocker at x 19 (in the strip
+  left of the fans, at the fans' centre height, `rocker_pos: 'left'`), fans
+  z 10.4-130.4, display PCB top right (z 64.4-130.4), the MEGA-KVM etch
+  (10 mm) under it, then the MEGA65 logo (x 278-388, z 26-47) and the
+  M.E.G.A. e.V. slot (z 2-23, still a placeholder: no logos/mega-ev.svg).
+  New check: every etch is tested against the fans, PCB, rocker and screw
+  holes.
+* The fans reach 20.6 mm below the deck top through one notch in the deck
+  front (x 32-275, 28 mm deep), 2 mm clear of the front gussets and battens
+  (new check of the fan bodies against the under-deck parts). Fan bodies end
+  25 mm behind the panel; the power board starts at 40 mm.
+* Fit report: **Conflicts / problems: none**. The old 2 x 92 mm layout
+  (`'fan': 92, 'rocker_pos': 'below_pcb'`, logos 'left'/'right') still builds.

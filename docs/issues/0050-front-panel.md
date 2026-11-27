@@ -89,3 +89,37 @@ Round-trip fixes in `tools/route.py`, all needed to get there:
 * Freerouting necks tracks down at the TSSOP pins (0.125-0.187 mm). They are
   widened back to 0.2 mm on import, and routing uses 0.175 mm clearance so
   the widened tracks still keep 0.15 mm.
+
+## 2026-11-27 owner: 120 mm fans
+
+Owner: "92mm fans? I thought we were using cheap and easily available 120mm
+ones? Whatever the common standard PC ones are." The KVM front panel (0051)
+must carry 2 x standard 120 mm PC fans (120 x 120 x 25, 105 mm hole pitch).
+They were 92 mm only because this board was a 227 x 36 mm single-row strip:
+2 x 120 + 227 does not fit across the 425 mm KVM deck.
+
+Plan (agent, branch `feature/front-2row`): re-lay the board out as **two
+rows**, at most ~145 mm wide and ~70 mm tall. Top row: the 1602 module (on
+the back, window/bezel as now) with the level shifter and LCD header beside
+it, plus the expanders and connectors. Bottom row: the 8 red/green LED pairs
+and the 5 buttons (>= 10 mm pitch). Same schematic and netlist, no circuit
+change; LCD M2.5 holes plus M3 spacers in the corners; panel-holes.json,
+silkscreen and engraving updated; ERC/DRC, then re-route with
+`make -B pcb-routing`.
+
+## 2026-11-27 progress: two-row board (agent, branch feature/front-2row)
+
+* Board **140 x 66 mm** (was 227 x 36), same schematic/netlist. Top row: the
+  1602 module on the back (window, bezel, M2.5 holes H1-H4 unchanged at the
+  top left), PCA9306/J2/JP1 beside it as before, then U2 with RN1-RN4 under
+  it, J3 (EXP, DNP) along the top edge and J1 (shield) vertical at the right
+  edge. Bottom row: 8 LED pairs at 8 mm pitch (red y 44, green y 56, x
+  12-68), U1 between the LEDs and the buttons, 5 buttons at 11.5 mm pitch
+  (x 88-134, y 50). M3 spacers: H5 top right, H6 bottom right, H7 bottom
+  left, H8 bottom middle (x 82.5, by the buttons).
+* panel-holes.json, silkscreen, back-silk labels and the engraving list
+  follow the new positions; `rocker` x/y are now null (the case generator
+  places the rocker). Docs: `docs/hardware/front-panel.md` tables updated.
+* `make -B pcb-routing`: 666 tracks, 68 vias, 0 incomplete. One starved
+  thermal (U2 GND pin) fixed in the generator: IC GND pads connect solid to
+  the pours. **ERC 0; DRC 0 violations, 0 unconnected**, schematic parity.

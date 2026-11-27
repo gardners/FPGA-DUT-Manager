@@ -4,7 +4,7 @@
 <sodipodi:namedview inkscape:document-units="mm" pagecolor="#ffffff"/>
 
 <g inkscape:groupmode="layer" inkscape:label="cut (red hairline)" id="cut">
-<path d="M 1.925,1.925 L 427.075,1.925 L 427.075,351.075 L 1.925,351.075 Z" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
+<path d="M 1.925,1.925 L 427.075,1.925 L 427.075,351.075 L 276.925,351.075 L 276.925,323.075 L 34.075,323.075 L 34.075,351.075 L 1.925,351.075 Z" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
 <circle cx="14.5" cy="339" r="1.675" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
 <circle cx="14.5" cy="274" r="1.675" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>
 <circle cx="14.5" cy="209" r="1.675" style="fill:none;stroke:#ff0000;stroke-width:0.01"/>

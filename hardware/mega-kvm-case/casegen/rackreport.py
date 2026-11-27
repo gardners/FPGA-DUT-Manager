@@ -202,21 +202,28 @@ def report(cfg, fp, res, boards, files, OUT):
       'rear left (x %.0f-%.0f, the bays start at x %.1f); Mimas Mini-Fit leads back to the bays; the GS105 jack '
       'lead sideways to the switch. Tie-slot pairs hold the DUT bundle in the cable gap.' % (
           kv['gs'][0], kv['gs'][0] + cfg.GS105['w'], kv['yr'], kv['col'][0], kv['col'][1], kv['bay_x0']))
-    w('* Front panel width budget behind the face: fans %d x %d mm (x %.1f-%.1f), display column %.1f mm '
-      '(x %.1f-%.1f): needs %.1f of %.1f mm.' % (K['fan_count'], K['fan'], K['side_margin'], kv['fans_end'],
-                                                 kv['right_w'], g.W - K['side_margin'] - kv['right_w'],
-                                                 g.W - K['side_margin'], kv['width_need'], g.W))
-    pcbw = kv['pcb'][2]
-    w('* **2 x 120 mm fans still do not fit.** With no power connectors on the front, only the %.0f mm display PCB '
-      'shares the face with the fans, and 2 x 120 mm fans need %.0f mm (%.0f + 2 x 120 + 1 + 2 + %.0f + %.0f) '
-      'behind a %.0f mm deck. They would fit with a display board of at most %.0f mm. Options: 2 x 92 mm '
-      '(default), 1 x 120 mm, or a narrower display board.' % (
-          pcbw, 2 * K['side_margin'] + 243 + pcbw, K['side_margin'], pcbw, K['side_margin'],
-          g.W, g.W - 2 * K['side_margin'] - 243))
-    w('* Display column: PCB z %.1f-%.1f (x %.1f-%.1f); the rocker and the MEGA-KVM etch below it.' % (
-        kv['pcb'][1], kv['pcb'][1] + kv['pcb'][3], kv['pcb'][0], kv['pcb'][0] + kv['pcb'][2]))
-    w('* Fans %s the deck%s.' % ('cross' if kv['fan_cross_deck'] else 'clear',
-                                 ' (the KVM deck is notched for them)' if kv['fan_cross_deck'] else ' (top-aligned, no notch)'))
+    fz = kv['fans'][0][1] if kv['fans'] else 0.0
+    w('* Front panel width budget behind the face: fans %d x %d mm (x %.1f-%.1f, z %.1f-%.1f), display column '
+      '%.1f mm (x %.1f-%.1f): needs %.1f of %.1f mm.' % (
+          K['fan_count'], K['fan'], kv['fans_x0'], kv['fans_end'], fz - K['fan'] / 2, fz + K['fan'] / 2,
+          kv['right_w'], kv['pcb_x0'], kv['pcb_x0'] + kv['right_w'], kv['width_need'], g.W))
+    w('* Display column: PCB %.0f x %.0f mm at z %.1f-%.1f (x %.1f-%.1f), read from panel-holes.json; the '
+      'MEGA-KVM etch and the logos under it.' % (
+          kv['pcb'][2], kv['pcb'][3], kv['pcb'][1], kv['pcb'][1] + kv['pcb'][3], kv['pcb'][0], kv['pcb'][0] + kv['pcb'][2]))
+    if kv['fan_cross_deck']:
+        w('* Fans cross the deck: they reach %.1f mm below the deck top, through %s in the deck front (%s), '
+          'between the front gussets; nearest under-deck part (gusset/batten) %.1f mm away sideways. Fan bodies '
+          '(%.0f mm deep) end at y %.0f; the power board starts at y %.0f.' % (
+              g.top - (fz - K['fan'] / 2),
+              'one notch' if len(kv['notches']) == 1 else '%d notches' % len(kv['notches']),
+              ', '.join('x %.0f-%.0f, %.0f mm deep' % n for n in kv['notches']),
+              kv['fan_under_gap'] if kv['fan_under_gap'] is not None else float('nan'),
+              cfg.FANS[K['fan']]['thick'], cfg.FANS[K['fan']]['thick'], kv['pm'][1]))
+    else:
+        w('* Fans clear the deck (top-aligned, no notch).')
+    for what, a0, b0, a1, b1 in kv['etched']:
+        w('* Etched: %s at x %.0f-%.0f, z %.1f-%.1f (checked against the fans, display PCB, rocker and '
+          'screws).' % (what, a0, a1, b0, b1))
     w('* Rocker: %s (deck x %.1f, z %.1f).' % (K['rocker_pos'], kv['rock'][0], kv['rock'][1]))
     w('* Rear plate %.0f x %.1f mm (seen from the rear): bays %.1f mm at the left, the bulkhead/DUT power column at '
       'the right (= deck left, behind the DUT terminals); %.1f mm spare. The keyboard feed-through sits above the '

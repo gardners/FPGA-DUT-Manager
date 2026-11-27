@@ -2,8 +2,8 @@
  "units": "mm",
  "origin": "board top-left corner seen from the front of the case; x right, y down",
  "board": {
-  "w": 227.0,
-  "h": 36.0,
+  "w": 140.0,
+  "h": 66.0,
   "thickness": 1.6,
   "panel_gap": 3.0,
   "window": {
@@ -48,8 +48,8 @@
    "dut": 0,
    "colour": "red",
    "function": "powered",
-   "x": 95.0,
-   "y": 12.0,
+   "x": 12.0,
+   "y": 44.0,
    "hole_d": 3.2
   },
   {
@@ -58,8 +58,8 @@
    "dut": 0,
    "colour": "green",
    "function": "selected",
-   "x": 95.0,
-   "y": 24.0,
+   "x": 12.0,
+   "y": 56.0,
    "hole_d": 3.2
   },
   {
@@ -68,8 +68,8 @@
    "dut": 1,
    "colour": "red",
    "function": "powered",
-   "x": 103.0,
-   "y": 12.0,
+   "x": 20.0,
+   "y": 44.0,
    "hole_d": 3.2
   },
   {
@@ -78,8 +78,8 @@
    "dut": 1,
    "colour": "green",
    "function": "selected",
-   "x": 103.0,
-   "y": 24.0,
+   "x": 20.0,
+   "y": 56.0,
    "hole_d": 3.2
   },
   {
@@ -88,8 +88,8 @@
    "dut": 2,
    "colour": "red",
    "function": "powered",
-   "x": 111.0,
-   "y": 12.0,
+   "x": 28.0,
+   "y": 44.0,
    "hole_d": 3.2
   },
   {
@@ -98,8 +98,8 @@
    "dut": 2,
    "colour": "green",
    "function": "selected",
-   "x": 111.0,
-   "y": 24.0,
+   "x": 28.0,
+   "y": 56.0,
    "hole_d": 3.2
   },
   {
@@ -108,8 +108,8 @@
    "dut": 3,
    "colour": "red",
    "function": "powered",
-   "x": 119.0,
-   "y": 12.0,
+   "x": 36.0,
+   "y": 44.0,
    "hole_d": 3.2
   },
   {
@@ -118,8 +118,8 @@
    "dut": 3,
    "colour": "green",
    "function": "selected",
-   "x": 119.0,
-   "y": 24.0,
+   "x": 36.0,
+   "y": 56.0,
    "hole_d": 3.2
   },
   {
@@ -128,8 +128,8 @@
    "dut": 4,
    "colour": "red",
    "function": "powered",
-   "x": 127.0,
-   "y": 12.0,
+   "x": 44.0,
+   "y": 44.0,
    "hole_d": 3.2
   },
   {
@@ -138,8 +138,8 @@
    "dut": 4,
    "colour": "green",
    "function": "selected",
-   "x": 127.0,
-   "y": 24.0,
+   "x": 44.0,
+   "y": 56.0,
    "hole_d": 3.2
   },
   {
@@ -148,8 +148,8 @@
    "dut": 5,
    "colour": "red",
    "function": "powered",
-   "x": 135.0,
-   "y": 12.0,
+   "x": 52.0,
+   "y": 44.0,
    "hole_d": 3.2
   },
   {
@@ -158,8 +158,8 @@
    "dut": 5,
    "colour": "green",
    "function": "selected",
-   "x": 135.0,
-   "y": 24.0,
+   "x": 52.0,
+   "y": 56.0,
    "hole_d": 3.2
   },
   {
@@ -168,8 +168,8 @@
    "dut": 6,
    "colour": "red",
    "function": "powered",
-   "x": 143.0,
-   "y": 12.0,
+   "x": 60.0,
+   "y": 44.0,
    "hole_d": 3.2
   },
   {
@@ -178,8 +178,8 @@
    "dut": 6,
    "colour": "green",
    "function": "selected",
-   "x": 143.0,
-   "y": 24.0,
+   "x": 60.0,
+   "y": 56.0,
    "hole_d": 3.2
   },
   {
@@ -188,8 +188,8 @@
    "dut": 7,
    "colour": "red",
    "function": "powered",
-   "x": 151.0,
-   "y": 12.0,
+   "x": 68.0,
+   "y": 44.0,
    "hole_d": 3.2
   },
   {
@@ -198,8 +198,8 @@
    "dut": 7,
    "colour": "green",
    "function": "selected",
-   "x": 151.0,
-   "y": 24.0,
+   "x": 68.0,
+   "y": 56.0,
    "hole_d": 3.2
   }
  ],
@@ -208,40 +208,40 @@
    "ref": "SW1",
    "function": "PREV",
    "engrave": "<",
-   "x": 175.0,
-   "y": 15.0,
+   "x": 88.0,
+   "y": 50.0,
    "hole_d": 4.5
   },
   {
    "ref": "SW2",
    "function": "NEXT",
    "engrave": ">",
-   "x": 186.0,
-   "y": 15.0,
+   "x": 99.5,
+   "y": 50.0,
    "hole_d": 4.5
   },
   {
    "ref": "SW3",
    "function": "MODE",
    "engrave": "MODE",
-   "x": 197.0,
-   "y": 15.0,
+   "x": 111.0,
+   "y": 50.0,
    "hole_d": 4.5
   },
   {
    "ref": "SW4",
    "function": "SPARE1",
    "engrave": "A",
-   "x": 208.0,
-   "y": 15.0,
+   "x": 122.5,
+   "y": 50.0,
    "hole_d": 4.5
   },
   {
    "ref": "SW5",
    "function": "SPARE2",
    "engrave": "B",
-   "x": 219.0,
-   "y": 15.0,
+   "x": 134.0,
+   "y": 50.0,
    "hole_d": 4.5
   }
  ],
@@ -276,113 +276,113 @@
   },
   {
    "ref": "H5",
-   "x": 159.0,
-   "y": 4.0,
+   "x": 136.5,
+   "y": 3.5,
    "hole_d": 3.2,
    "use": "M3, 3 mm spacer board-to-panel"
   },
   {
    "ref": "H6",
-   "x": 159.0,
-   "y": 32.0,
+   "x": 136.5,
+   "y": 62.5,
    "hole_d": 3.2,
    "use": "M3, 3 mm spacer board-to-panel"
   },
   {
    "ref": "H7",
-   "x": 223.5,
-   "y": 4.0,
+   "x": 3.5,
+   "y": 62.5,
    "hole_d": 3.2,
    "use": "M3, 3 mm spacer board-to-panel"
   },
   {
    "ref": "H8",
-   "x": 223.5,
-   "y": 32.0,
+   "x": 82.5,
+   "y": 62.5,
    "hole_d": 3.2,
    "use": "M3, 3 mm spacer board-to-panel"
   }
  ],
  "rocker": {
-  "x": 247.0,
-  "y": 18.0,
-  "note": "backlit SPST rocker, 3-pin, JST XH cable to power-input board J5; cut-out per the chosen part (e.g. KCD1-type 19.2 x 13.0 mm, KCD3-type 30 x 22 mm)"
+  "x": null,
+  "y": null,
+  "note": "backlit SPST rocker, 3-pin, JST XH cable to the power board; placed by the case generator (KVM rocker_pos); cut-out per the chosen part (e.g. KCD1-type 19.2 x 13.0 mm)"
  },
  "engrave": [
   {
    "text": "1",
-   "x": 95.0,
-   "y": 5.0
+   "x": 12.0,
+   "y": 37.0
   },
   {
    "text": "2",
-   "x": 103.0,
-   "y": 5.0
+   "x": 20.0,
+   "y": 37.0
   },
   {
    "text": "3",
-   "x": 111.0,
-   "y": 5.0
+   "x": 28.0,
+   "y": 37.0
   },
   {
    "text": "4",
-   "x": 119.0,
-   "y": 5.0
+   "x": 36.0,
+   "y": 37.0
   },
   {
    "text": "5",
-   "x": 127.0,
-   "y": 5.0
+   "x": 44.0,
+   "y": 37.0
   },
   {
    "text": "6",
-   "x": 135.0,
-   "y": 5.0
+   "x": 52.0,
+   "y": 37.0
   },
   {
    "text": "7",
-   "x": 143.0,
-   "y": 5.0
+   "x": 60.0,
+   "y": 37.0
   },
   {
    "text": "8",
-   "x": 151.0,
-   "y": 5.0
+   "x": 68.0,
+   "y": 37.0
   },
   {
    "text": "PWR",
-   "x": 88.5,
-   "y": 12.0
+   "x": 5.5,
+   "y": 44.0
   },
   {
    "text": "SEL",
-   "x": 88.5,
-   "y": 24.0
+   "x": 5.5,
+   "y": 56.0
   },
   {
    "text": "<",
-   "x": 175.0,
-   "y": 7.0
+   "x": 88.0,
+   "y": 43.0
   },
   {
    "text": ">",
-   "x": 186.0,
-   "y": 7.0
+   "x": 99.5,
+   "y": 43.0
   },
   {
    "text": "MODE",
-   "x": 197.0,
-   "y": 7.0
+   "x": 111.0,
+   "y": 43.0
   },
   {
    "text": "A",
-   "x": 208.0,
-   "y": 7.0
+   "x": 122.5,
+   "y": 43.0
   },
   {
    "text": "B",
-   "x": 219.0,
-   "y": 7.0
+   "x": 134.0,
+   "y": 43.0
   }
  ]
 }

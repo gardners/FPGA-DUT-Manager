@@ -9,7 +9,7 @@ KiCad 10 project: `hardware/mega-kvm-front/`
 
 | Path | What |
 |---|---|
-| `mega-kvm-front.kicad_sch` / `.kicad_pcb` | generated schematic and placed board (227 x 36 mm, 2 layers, 1.6 mm) |
+| `mega-kvm-front.kicad_sch` / `.kicad_pcb` | generated schematic and placed board (140 x 66 mm, two rows, 2 layers, 1.6 mm) |
 | `tools/gen_front.py` | schematic generator (`kigen.py`/`sexp.py` copied from the power board) |
 | `tools/parts.py` | parts, footprints and LCSC numbers |
 | `tools/layout.py` | **all geometry**: board, LCD, LED/button positions, panel cut-out sizes, engraving |
@@ -52,12 +52,15 @@ Python and run `hardware/mega-kvm-front/tools/build_all.sh`.
   (3.5 mm diameter), 3.5 mm proud of the panel, through 4.5 mm holes. Other
   heights in the same family (LCSC): 8.5 mm C136680, 10 mm C136678, 10.5 mm
   C136677, 12 mm C136675, 13 mm C136674.
-* **Master rocker:** in the panel to the right of the board, **not on this
-  board**. It is cabled to the power input board J5 (JST XH 3-way: supply,
+* **Master rocker:** in the panel, **not on this board**; the case generator
+  places it (KVM: left of the fans). It is cabled to the power input board J5 (JST XH 3-way: supply,
   load/lamp +, lamp -), see `power-board.md`.
-* Height 36 mm fits inside a 1RU case (about 38.5 mm inside with 3 mm top
-  and bottom panels). The board is 227 mm wide: the LCD (80 mm), then the
-  8 LED columns, then the 5 buttons.
+* **Two rows, 140 x 66 mm** (2026-11-27; was a 227 x 36 mm strip): it sits
+  beside 2 x 120 mm fans on the 3RU KVM front panel (issue 0051). Top row:
+  the LCD (80 mm) with the PCA9306, J2 and JP1 beside it, then the button
+  expander U2 with its pull-up arrays, J3 along the top edge and J1 at the
+  right-hand edge. Bottom row: the 8 LED columns (8 mm pitch), the LED
+  expander U1, the 5 buttons (11.5 mm pitch). It no longer fits a 1RU case.
 
 ## Connectors (B side)
 
@@ -88,10 +91,10 @@ pull-ups). It can take more buttons or a rotary encoder later without a
 new board.
 
 Pin positions (board coordinates, front view; the headers are on the
-back, so seen from behind x is mirrored): J1 pin 1 (176.35, 32.0) to pin 6
-(163.65, 32.0); J2 pin 1 (82.6, 11.61) to pin 4 (82.6, 3.99); JP1 pin 1
-(82.6, 30.74), pin 3 (82.6, 25.66); J3 pin 1 (218.83, 33.0) to pin 10
-(195.97, 33.0).
+back, so seen from behind x is mirrored): J1 pin 1 (134.0, 28.35) to pin 6
+(134.0, 15.65); J2 pin 1 (82.6, 11.61) to pin 4 (82.6, 3.99); JP1 pin 1
+(82.6, 30.74), pin 3 (82.6, 25.66); J3 pin 1 (126.43, 4.5) to pin 10
+(103.57, 4.5).
 
 ## I2C addresses (shield front-panel bus)
 
@@ -164,8 +167,9 @@ LED/switch), so it always matches the board.
 
 Coordinates are in mm, relative to the **board origin = the board's
 top-left corner as seen from the front of the case**: x to the right, y
-downwards. The board is 227 x 36 mm. Place the origin in the panel where the
-board should sit; vertically centred in 1RU is the intent.
+downwards. The board is 140 x 66 mm. Place the origin in the panel where the
+board should sit (the KVM case generator puts its top edge 3 mm below the
+panel top, at the right).
 
 **LCD**
 
@@ -187,45 +191,46 @@ the actual module before cutting acrylic.**
 | H2 | 77.5 | 2.5 | 2.7 | same |
 | H3 | 2.5 | 33.5 | 2.7 | same |
 | H4 | 77.5 | 33.5 | 2.7 | same |
-| H5 | 159.0 | 4.0 | 3.2 (M3) | 3 mm spacer, board to panel |
-| H6 | 159.0 | 32.0 | 3.2 | same |
-| H7 | 223.5 | 4.0 | 3.2 | same |
-| H8 | 223.5 | 32.0 | 3.2 | same |
+| H5 | 136.5 | 3.5 | 3.2 (M3) | 3 mm spacer, board to panel (top right) |
+| H6 | 136.5 | 62.5 | 3.2 | same (bottom right) |
+| H7 | 3.5 | 62.5 | 3.2 | same (bottom left) |
+| H8 | 82.5 | 62.5 | 3.2 | same (bottom, between the LEDs and the buttons) |
 
 Countersink the panel side if flush heads are wanted.
 
-**LEDs** (panel hole 3.2 mm; red row y = 12.0, green row y = 24.0)
+**LEDs** (panel hole 3.2 mm; red row y = 44.0, green row y = 56.0)
 
 | Label | DUT | x | Red (powered) | Green (selected) |
 |---|---|---|---|---|
-| 1 | 0 | 95.0 | D1 (95.0, 12.0) | D11 (95.0, 24.0) |
-| 2 | 1 | 103.0 | D2 | D12 |
-| 3 | 2 | 111.0 | D3 | D13 |
-| 4 | 3 | 119.0 | D4 | D14 |
-| 5 | 4 | 127.0 | D5 | D15 |
-| 6 | 5 | 135.0 | D6 | D16 |
-| 7 | 6 | 143.0 | D7 | D17 |
-| 8 | 7 | 151.0 | D8 | D18 |
+| 1 | 0 | 12.0 | D1 (12.0, 44.0) | D11 (12.0, 56.0) |
+| 2 | 1 | 20.0 | D2 | D12 |
+| 3 | 2 | 28.0 | D3 | D13 |
+| 4 | 3 | 36.0 | D4 | D14 |
+| 5 | 4 | 44.0 | D5 | D15 |
+| 6 | 5 | 52.0 | D6 | D16 |
+| 7 | 6 | 60.0 | D7 | D17 |
+| 8 | 7 | 68.0 | D8 | D18 |
 
-**Buttons** (panel hole 4.5 mm, all at y = 15.0)
+**Buttons** (panel hole 4.5 mm, all at y = 50.0)
 
 | Ref | Function | x | Engraving suggestion |
 |---|---|---|---|
-| SW1 | PREV | 175.0 | `<` |
-| SW2 | NEXT | 186.0 | `>` |
-| SW3 | MODE | 197.0 | `MODE` |
-| SW4 | SPARE1 | 208.0 | `A` |
-| SW5 | SPARE2 | 219.0 | `B` |
+| SW1 | PREV | 88.0 | `<` |
+| SW2 | NEXT | 99.5 | `>` |
+| SW3 | MODE | 111.0 | `MODE` |
+| SW4 | SPARE1 | 122.5 | `A` |
+| SW5 | SPARE2 | 134.0 | `B` |
 
-**Engraving** (suggested text centres): digits "1".."8" at (LED x, 5.0);
-"PWR" at (88.5, 12.0) and "SEL" at (88.5, 24.0); button labels at
-(button x, 7.0). The board's silkscreen carries the same digits and
+**Engraving** (suggested text centres): digits "1".."8" at (LED x, 37.0);
+"PWR" at (5.5, 44.0) and "SEL" at (5.5, 56.0); button labels at
+(button x, 43.0). The board's silkscreen carries the same digits and
 labels for assembly, but it is hidden behind the panel.
 
-**Master rocker** (off-board): suggested centre (247.0, 18.0), 20 mm right
-of the board edge so its body (about 20 mm deep) clears the board. The
-cut-out depends on the part: KCD1-type about 19.2 x 13.0 mm, KCD3-type
-about 30 x 22 mm. The 3-wire JST XH lead runs to the power input board J5.
+**Master rocker** (off-board): placed by the case generator, not in
+board coordinates (`rocker` x/y in panel-holes.json are null). On the KVM
+front it sits in the strip left of the two 120 mm fans. The cut-out depends
+on the part: KCD1-type about 19.2 x 13.0 mm, KCD3-type about 30 x 22 mm.
+The 3-wire JST XH lead runs to the power board.
 
 ## Parts (JLCPCB assembly)
 
@@ -273,5 +278,6 @@ array) before ordering.
 5. **Bicolour option:** one red/green common-cathode 3 mm LED per DUT
    (e.g. C183838) would halve the panel holes. Not used, since the owner
    asked for separate red and green LEDs.
-6. **Board width:** 227 mm. It can shrink by about 15 mm by tightening the
-   LED pitch (8 to 7 mm) and the button pitch (11 to 9 mm).
+6. **Board size:** 140 x 66 mm (two rows). The KVM front allows up to
+   about 144 mm beside 2 x 120 mm fans; the LED pitch (8 mm) and the button
+   pitch (11.5 mm) leave room to tighten if needed.
