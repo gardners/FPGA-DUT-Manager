@@ -24,7 +24,7 @@ of each section. Tick or delete an item when it is done (or tell the lead).
 | 2026-11-27 | Keep the LTC4417 + FET input selector rather than relays (relays lose more power at every realistic load, arc at 20 A DC, and drop all boards on changeover) | 0047 |
 | 2026-11-27 | Fan protection: **Infineon BSP452** (SOT-223, current-limited high-side switch, ~$1.26 each, ~$10 more per board than PTCs). A shorted fan lead is cut in microseconds instead of dragging the always-on group (and both Mimas) into its 5 A limit. PTC footprints stay available as the fallback | 0052 |
 | 2026-11-27 | Fan control: 4 x EMC2302 (MSOP-10, 2 fans each) behind a TCA9548A I2C switch, one 26 kHz PWM + tach per fan; fans run at 100 % until the host sets them; 2 x TMP75 (main board, input-board FETs) | 0052 |
-| 2026-11-27 | Input board reshaped to **126 x 64 mm** (two tiers); the KVM front now stacks it under the display PCB (deck notched below it), 0 fit conflicts | 0047, 0051 |
+| 2026-11-27 | One power board (230 x 138.5 mm) with the inputs on its front edge, plugged from the open top; one TMP75 at 0x48. **Banana sockets**: the stocked PCB-mount parts (24.243.1/.2, C7437321/2) are rated 24 A, below the 25 A input fuse. Default: fit a 20 A fuse (the design point) unless you find a higher-rated PCB-mount socket | 0047 |
 | 2026-11-27 | The keyboard CPLD `type3` branch stays local (not pushed) until you say where it should go | 0046 |
 
 ## Bench / hardware checks only the owner can do
