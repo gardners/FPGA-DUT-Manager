@@ -257,3 +257,67 @@ in the tree as legacy and are no longer developed.
    rules for loading/filtering it? Compare one 8-channel I2C ADC on the
    ILM pins against a shunt + INA226/INA219-class monitor per rail (LCSC
    numbers, stock, price, area, accuracy at 0.3-1 A and at load).
+
+## 2026-11-27 progress: round 13 applied (agent, feature/power-r13)
+
+* **LTC4417 checked against the datasheet (Rev. G).** The U50 pin map
+  (pins 1-24) and the GN-24 footprint (`SSOP-24_3.9x8.7mm_P0.635mm`) were
+  right. UV/OV thresholds confirmed: UV 10.53 V falling / 10.85 V rising,
+  OV 14.03 V rising / 13.61 V falling. Fixed in the application circuit:
+  1. HYS was floating (R501 DNP). The datasheet says to ground it when the
+     internal 30 mV is used, so R501 is now a fitted 0 R.
+  2. The soft-start C + R sat directly on the Gn pin, where the driver
+     overpowers it. It now follows the datasheet's Figure 8: RS 1 k from Gn to
+     the FET gates (GTn), a BAT54WS (C124205) across RS for a fast turn-off,
+     and CS 22 nF from the gates to VBUS.
+  3. There was no VS bypass. Added 1 uF on VS1-3 (C514-C516); the datasheet
+     wants CVS >= 10 x CS.
+  4. The VOUT pin now goes through 100 R / 10 nF (R543/C517, Figure 10), so
+     the controller rides through input/output shorts.
+  5. /VALID LEDs: the 680 R resistors allowed up to ~2 mA, the pins' absolute
+     maximum. They are now 1 k (~1.3 mA).
+  Full table in `docs/hardware/power-board.md` ("LTC4417 datasheet check").
+* **Fuse:** F1 stays at 25 A (the generator and BOM already had it). The
+  docs now record the owner's OK for 25 A with the 24 A sockets.
+* **Stock (JLC parts search, 2026-11-27):** LTC4417CGN C688500 and
+  TPS259470LRPWR C3662793 both show **0 in stock** today. Re-check or
+  pre-order before fab.
+* **Current sensing:** study in power-board.md ("Current sensing on the DUT
+  rails"); nothing is on the board. Recommendation: 2 x ADS1115 (C37593)
+  reading the eFuses' ILM pins (0.121 V/A at R_ILM 665 R) through
+  10 k / 1 nF, about $2 per board, +-5-9 % raw and a few % after a
+  one-point calibration. The alternative is a 5 mOhm shunt + INA226 per
+  rail: +-1-2 %, about $3.7-5.9 per board, ~5 x the area, and shunts in the
+  output paths.
+* **Mimas A7 vs the vendor STEP:** findings in the next note (they touch
+  the shield and case, which are outside this branch).
+* ERC 0, DRC 0 with schematic parity (unrouted only); BOM/CPL regenerated.
+
+## 2026-11-27 Mimas A7 checked against the vendor STEP (report only; agent, feature/power-r13)
+
+`docs/datasheets/MimasA7_3D_1.step` (Open CASCADE export, git-ignored) was
+parsed with a small script: assembly transforms, then each solid's bounding
+box and the board's drill cylinders. The model uses the repo's Mimas
+coordinates (origin at the RJ45/P13 corner, x towards the HDMI edge, top
+surface z = 0). The power board uses no Mimas dimensions. These findings
+are for the shield (0045) and case (0051) owners:
+
+| Item | Repo (shield `geometry.py`/`gen_pcb.py`, case `config.py`, shield.md) | STEP | Note |
+|---|---|---|---|
+| Outline | 120 x 90 | 120.0 x 90.0 | OK |
+| PCB thickness | 1.6 | **1.16** (bottom parts start at z = -1.16) | measure; changes stack heights by 0.44 mm |
+| Mounting holes | (5.00, 84.86), (115.0, 85.0), (4.83, 5.00), (115.0, 5.00) | **(5.0, 85.0), (115.0, 85.0), (5.0, 5.0), (115.0, 5.0)**, 3.2 mm | two holes were 0.14 / 0.17 mm off |
+| Header row 1 x | 10.41 (body from 9.14) | **10.46**, pitch 2.54, row 40 at 109.52 | 0.05 mm |
+| P13 columns | A 1.27, B 3.81 | **A 1.35, B 3.89** | 0.08 mm |
+| P12 columns | A 86.19, B 88.73 | **A 86.11, B 88.65** | 0.08 mm (both pairs symmetric about y = 45) |
+| Header pins | male, socket 8.5 mm on top | male: plastic 2.54, pin tips 8.6 above the board | consistent |
+| **RJ45 (HFJ11-1G01E magjack)** | y 60.8-76.6, x to 13.6 (drawing), shield notch x 0-18 | body **x -0.5 .. 21.8**, y 58.8-78.6 (60.3-76.7 above z 10.5), **top 14.1 mm** above the Mimas | **collides with the shield** (underside 11.0 mm above the Mimas) over x 18.0-21.8: extend the notch to x >= 22.5 at y 59-78, or check a real board |
+| USB-B | y 40.8-52.8 | x 0.1-16.6, y 39.0-54.5, top 11.03 | inside the notch; 0.01 mm under the shield underside height, but inside the notch, so OK |
+| DC jack | y 13.4-22.4 | x 0-14.5, y 13.4-22.4, top 11.0 | OK (in the notch) |
+| S12 power switch | y 30.6-37.2 | x 0.1-12.8, y 30.4-37.3, top ~13.5 | OK (in the notch) |
+| HDMI IN / OUT | centres 71.3 / 49.9 (y 63.8-78.8 / 42.4-57.4); "lips 1.5 mm proud" | centres 71.3 / 49.9 (y 63.2-79.4 / 41.8-58.0 incl. tabs), front at x = 119.99 | centres OK; the model shows them **flush** with the edge, not 1.5 mm proud (the model may simplify; check a board) |
+| 7-segment DS1 | (35, 66)-(62, 78) on User.Drawings | body x 35.9-65.9, y 64.2-78.2, ~5-6 mm tall | drawing only; widen if used as a keep-out |
+| mDP P9/P11 | y 9.6-21.0 / 25.9-37.3 | model bounding boxes unusable (they overlap and run 16 mm off the board) | not checked |
+
+**The RJ45 depth is the one that matters.** Every other difference is
+<= 0.17 mm.
