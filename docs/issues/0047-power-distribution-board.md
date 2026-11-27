@@ -199,3 +199,19 @@ I2C fan controller and a temperature sensor on J5 (0052).
   227 mm front-panel PCB does not fit beside two 120 mm fans either.
 * TMP75 (0x49) on the VS1 copper, cabled to the main board (0052).
 * Fans, fan control and per-header protection: see 0052. ERC/DRC clean.
+
+## 2026-11-27 owner round 12: one board, inputs on the main PCB
+
+**Owner:** "now that the main KVM thing is an open-top 3RU, we can just have
+the power connectors on the power distribution PCB and keep life simple for
+that."
+
+Decision: **drop the separate input board.** The three inputs (banana,
+PCIe 8-pin, Molex 4-pin), their fuses, the LTC4417 selector with its FET
+pairs and the input-FET temperature sensor all move onto the power main
+board. The plugs are reached from the open top of the KVM unit. The main
+board sits at the front of the KVM deck, with the input connectors along its
+front edge, so they are easy to pull when the drawer is out. No power
+connectors pass through the front panel any more. The rocker stays on the
+front panel, wired to the board. The input-board and LM74700 projects stay
+in the tree as legacy and are no longer developed.

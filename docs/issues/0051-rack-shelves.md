@@ -273,3 +273,10 @@ everything.
   down would give them their own windows. The generator now also cuts the
   board's third mounting hole (H3), and labels the stacked banana pair
   under the 0V socket.
+
+## 2026-11-27 owner round 12: no input board on the KVM front
+
+The power inputs move onto the power main board (0047 round 12) and are
+reached from the open top. The KVM front panel loses the input-board
+cut-outs and keeps the display group, the rocker, the fans and the etching.
+The main board goes at the front of the KVM deck.
