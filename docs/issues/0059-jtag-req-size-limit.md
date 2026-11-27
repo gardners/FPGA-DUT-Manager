@@ -55,3 +55,21 @@ Status: open (found 2026-11-27 during 0057). Related: ADR 0005, 0057.
 * `targets/qmtech-k325t/k325t.sh` talks to `dutctl xvc` directly;
   `SPLIT=1` keeps `xvc-split.py` as a fallback.
 * ADR 0005 §7 (size limits paragraph), ADR 0010, README updated.
+
+### 2026-11-27 lead: XVC getinfo and openFPGALoader's 16-bit limits
+
+Found while the hardweb session loaded 9.1 MB K325T cores (issue 0057):
+
+* `dutctl xvc` advertised `getinfo` 524288 (a bit count). XVC 1.0 means
+  bytes of TMS + TDI together, so openFPGALoader used 262144-byte vectors,
+  above our 65536-byte parser limit, and was dropped silently mid-load.
+  Fixed in 47b8124 (bytes; every disconnect reason is now logged).
+* That alone still lost the end of large bitstreams (DONE=0, STAT
+  0x4000190c, no CRC error): openFPGALoader's `XVC_client::writeTDI` keeps
+  the burst byte count and the final-TMS bit index in `uint16_t`, so bursts
+  over 65536 bits wrap and the TAP leaves Shift-DR early on the last burst.
+  Fixed in 1bee1fe: `getinfo` advertises 16384 bytes (8192 per vector =
+  65536 bits).
+* Confirmed by the hardweb session: its 9.1 MB core loads in 9.8 s,
+  DONE=1, and HewnWeb runs on the K325T (console over `dutctl uart`, VGA
+  confirmed by the owner).
