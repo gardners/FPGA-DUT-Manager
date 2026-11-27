@@ -224,7 +224,7 @@ SHELF = {
     #  'setback' the other shelves of a group are set back on their rails by
     #            'setback' (None = the minimum); notches only where the carrier
     #            shelf's own deck meets its fans.
-    'fan_clearance': 'notch',
+    'fan_clearance': 'setback',
     'setback': None,
     'notch_clear': 1.0,         # fan frame -> notch edge, sideways
     'notch_extra': 3.0,         # notch depth = fan thickness + this
@@ -252,12 +252,14 @@ FAN_PLATE = {
     'gap': 5.0,                 # between fan frames (3 x 120 + 2 x 5 = 370 < 375 between battens)
     'edge': 3.0,                # fan frame -> plate top/bottom edge
     'stagger': ['low', 'high', 'low'],
+    'low_above_deck': True,     # set-back mode: 'low' fans start above the carrier shelf's deck
+    'deck_gap': 2.0,            # (deck top + this), so no shelf deck needs a fan notch
     'guard': 'grille',          # 'grille' (cut finger guard) or 'open' (plain bore for wire guards)
     'grille_hole': 6.0, 'grille_pitch': 7.5,
     'batten_screws': (8.0, 17.0),   # screw heights (above the slot bottom) into each batten's front end
     'screw_d': 4.0,
     'gusset': {'h': 36.0, 'l': 90.0, 'chamfer': 6.0},   # right triangle standing on the carrier deck over each batten
-    'logos': [('mega65', 0), ('mega_ev', 2)],           # logo slot above fan n (a 'low' fan)
+    'logos': [('mega65', 0), ('mega_ev', 2)],           # logo slot above or below fan n (a 'low' fan), larger band
     'text': 'MEGA-KVM', 'text_size': 12.0,              # etched below the 'high' fan
 }
 

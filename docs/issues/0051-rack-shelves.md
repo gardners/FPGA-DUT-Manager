@@ -364,3 +364,12 @@ rocker. Fit report must stay at "Conflicts / problems: none".
 
 Plan (agent, branch `feature/rack-case-4`): implement 1-4 in the case
 generator, the LCD part in 0050 / the front board generator.
+
+## 2026-11-27 owner follow-up: keep the MEGA65 off the battens
+
+Owner: "Basically don't put the MEGA65 mainboard flush over [the battens of
+the shelf above] if you can help it. The power switch sits about 17 mm above
+the PCB along that left edge." Add the power switch (~17 mm above the PCB,
+board left edge) as a tall part; keep the board outline inside the
+between-battens zone (full 38 mm height); the fit report flags any part over
+13.45 mm under a batten.
