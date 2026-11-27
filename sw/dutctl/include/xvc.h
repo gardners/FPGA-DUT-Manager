@@ -35,4 +35,18 @@ void xvc_consume(xvc_parser_t *p);
  * (LSB-first packing) into dst starting at bit 0. */
 void xvc_copy_bits(uint8_t *dst, const uint8_t *src, uint32_t start, uint32_t n);
 
+/* One bounded shift: clock exactly n bits (n <= max_bits of the split). */
+typedef int (*xvc_shift_fn)(void *ctx, uint32_t n, const uint8_t *tms, const uint8_t *tdi, uint8_t *tdo);
+
+#define XVC_SPLIT_MAX_BITS 65536 /* upper bound for max_bits (chunk buffers) */
+
+/* Shift `bits` as consecutive chunks of at most max_bits (the last one
+ * shorter), each passed to fn: chunk k covers bits [k*max_bits, ...) of
+ * tms/tdi, so the concatenation is exactly the original TMS/TDI sequence,
+ * no TCK edges are added or lost, and the chunks' TDO is reassembled into
+ * tdo (ceil(bits/8) bytes, unused high bits zero). Returns 0, or -1 as soon
+ * as fn fails (later chunks are not sent) or max_bits is 0 / too large. */
+int xvc_split_shift(uint32_t bits, const uint8_t *tms, const uint8_t *tdi, uint8_t *tdo, uint32_t max_bits,
+                    xvc_shift_fn fn, void *ctx);
+
 #endif

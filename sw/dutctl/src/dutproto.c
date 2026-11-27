@@ -52,6 +52,16 @@ size_t dp_encode_uart_tx(uint8_t *buf, uint8_t dut, uint32_t offset, uint16_t cm
   return dp_encode_hdr(buf, DP_T_UART_TX, 10 + len, dut);
 }
 
+uint32_t dp_jtag_max_bits_for_mtu(unsigned mtu)
+{
+  if (mtu < DP_MTU_MIN)
+    return 0;
+  /* 28 + 8 + 16 + 2 * ceil(bits / 8) <= mtu */
+  uint32_t nb = (mtu - DP_IP_UDP_OVERHEAD - DP_HDR_LEN - DP_JTAG_REQ_FIXED) / 2;
+  uint32_t bits = nb * 8;
+  return bits > DP_JTAG_MAX_BITS ? DP_JTAG_MAX_BITS : bits;
+}
+
 size_t dp_encode_jtag_req(uint8_t *buf, uint8_t dut, uint32_t seq, uint32_t half,
                           uint16_t report_us, uint16_t flags, uint32_t bits,
                           const uint8_t *tms, const uint8_t *tdi)

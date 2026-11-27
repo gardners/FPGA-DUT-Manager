@@ -779,7 +779,26 @@ typedef struct {
   uint32_t half;
   uint8_t dut;     /* header dut field: endpoint index or DP_DUT_ANY */
   uint16_t target; /* 0 = the DUT, DP_JF_KBD = the physical keyboard's CPLD */
+  uint32_t max_bits; /* per JTAG_REQ: fits one unfragmented packet (issue 0059) */
 } jtag_ctx_t;
+
+/* path MTU towards the supervisors: global --mtu N, else $DUTCTL_MTU, else
+ * 1500. Every JTAG shift is split into requests that fit one unfragmented
+ * IPv4 packet (the FPGA does not reassemble fragments), at most
+ * DP_JTAG_MAX_BITS (issue 0059). */
+static unsigned g_mtu = DP_MTU_DEFAULT;
+
+static int set_mtu(const char *s, const char *what)
+{
+  char *end;
+  long v = strtol(s, &end, 0);
+  if (!*s || *end || v < DP_MTU_MIN || v > 65535) {
+    fprintf(stderr, "dutctl: %s %s: need an MTU of %d..65535 bytes\n", what, s, DP_MTU_MIN);
+    return -1;
+  }
+  g_mtu = (unsigned)v;
+  return 0;
+}
 
 static int jtag_txn(jtag_ctx_t *j, uint32_t bits, const uint8_t *tms, const uint8_t *tdi, uint8_t *tdo,
                     uint16_t flags)
@@ -843,28 +862,23 @@ static int jtag_open(jtag_ctx_t *j, const target_t *t, int kbd, uint32_t half)
   j->target = kbd ? DP_JF_KBD : 0;
   j->dut = t->dut >= 0 ? (uint8_t)t->dut : DP_DUT_ANY;
   j->half = half;
+  j->max_bits = dp_jtag_max_bits_for_mtu(g_mtu);
   srand((unsigned)(time(NULL) ^ getpid()));
   j->seq = (uint32_t)rand();
   uint8_t z = 0;
   return jtag_txn(j, 1, &z, &z, NULL, DP_JF_ABORT); /* session reset: nothing clocked */
 }
 
+static int jtag_chunk(void *ctx, uint32_t n, const uint8_t *tms, const uint8_t *tdi, uint8_t *tdo)
+{
+  return jtag_txn(ctx, n, tms, tdi, tdo, 0);
+}
+
+/* any length: consecutive requests of <= j->max_bits continue the shift
+ * exactly (no extra TCK edges, TAP state carried over) */
 static int jtag_shift(jtag_ctx_t *j, uint32_t bits, const uint8_t *tms, const uint8_t *tdi, uint8_t *tdo)
 {
-  static uint8_t ctms[1024], ctdi[1024], ctdo[1024];
-  memset(tdo, 0, (bits + 7) / 8);
-  for (uint32_t done = 0; done < bits;) {
-    uint32_t n = bits - done > DP_JTAG_MAX_BITS ? DP_JTAG_MAX_BITS : bits - done;
-    xvc_copy_bits(ctms, tms, done, n);
-    xvc_copy_bits(ctdi, tdi, done, n);
-    if (jtag_txn(j, n, ctms, ctdi, ctdo, 0) < 0)
-      return -1;
-    for (uint32_t i = 0; i < n; i++)
-      if (ctdo[i / 8] & (1u << (i % 8)))
-        tdo[(done + i) / 8] |= (uint8_t)(1u << ((done + i) % 8));
-    done += n;
-  }
-  return 0;
+  return xvc_split_shift(bits, tms, tdi, tdo, j->max_bits, jtag_chunk, j);
 }
 
 static int cmd_jtag_idcode(int argc, char **argv)
@@ -944,8 +958,9 @@ static int cmd_xvc(int argc, char **argv)
   struct sockaddr_in a = {.sin_family = AF_INET, .sin_port = htons((uint16_t)port), .sin_addr.s_addr = INADDR_ANY};
   if (bind(ls, (struct sockaddr *)&a, sizeof a) < 0 || listen(ls, 1) < 0)
     die("xvc listen");
-  fprintf(stderr, "XVC server for %s%s on port %d (max %d bits per UDP shift, TCK <= %.2f MHz)\n", t.ip,
-          kbd ? " keyboard CPLD" : "", port, DP_JTAG_MAX_BITS, js_freq_hz((int)min_half) / 1e6);
+  fprintf(stderr, "XVC server for %s%s on port %d (max %u bits per UDP shift at MTU %u, TCK <= %.2f MHz)\n",
+          t.ip, kbd ? " keyboard CPLD" : "", port, dp_jtag_max_bits_for_mtu(g_mtu), g_mtu,
+          js_freq_hz((int)min_half) / 1e6);
   signal(SIGPIPE, SIG_IGN);
   static xvc_parser_t xp;
   static uint8_t tdo[XVC_MAX_BYTES];
@@ -1774,7 +1789,10 @@ static void usage(void)
           "  dutctl thumbs IFACE [--out PREFIX] [--pictures N] [--request] [--force IP] [--scale 1|2]\n"
           "  dutctl screenshot [IP|DIGIT] [-o FILE.png|.ppm] [--screen auto|editable|novideo|select]\n"
           "                    [--timeout S]     one frame from a video target (alias: dutctl -S)\n"
-          "  global option: --conf FILE  (default $DUTCTL_CONF, else ~/.config/dutctl/duts.conf)\n");
+          "  global options: --conf FILE  (default $DUTCTL_CONF, else ~/.config/dutctl/duts.conf)\n"
+          "                  --mtu N      path MTU to the supervisors (default $DUTCTL_MTU, else 1500);\n"
+          "                               JTAG shifts are split to fit one unfragmented packet\n"
+          "                               (1500: 5792 bits per request; >= 2028: 7904, the maximum)\n");
 }
 
 
@@ -2363,10 +2381,17 @@ out:
 
 int main(int argc, char **argv)
 {
-  /* global --conf FILE, anywhere on the line */
+  const char *em = getenv("DUTCTL_MTU");
+  if (em && *em && set_mtu(em, "DUTCTL_MTU") < 0)
+    return 2;
+  /* global --conf FILE / --mtu N, anywhere on the line */
   for (int i = 1; i < argc; i++)
-    if (!strcmp(argv[i], "--conf") && i + 1 < argc) {
-      g_conf_arg = argv[i + 1];
+    if ((!strcmp(argv[i], "--conf") || !strcmp(argv[i], "--mtu")) && i + 1 < argc) {
+      if (argv[i][2] == 'm') {
+        if (set_mtu(argv[i + 1], "--mtu") < 0)
+          return 2;
+      } else
+        g_conf_arg = argv[i + 1];
       memmove(argv + i, argv + i + 2, sizeof argv[0] * (size_t)(argc - i - 1)); /* incl. NULL */
       argc -= 2;
       i--;

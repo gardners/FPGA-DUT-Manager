@@ -91,7 +91,15 @@ enum dp_phys_type { DP_PHYS_NONE = 0, DP_PHYS_MK1, DP_PHYS_MK2, DP_PHYS_TYPE3 };
 enum dp_ack_status { DP_ACK_OK = 0, DP_ACK_BAD_KEY, DP_ACK_BAD_LEN, DP_ACK_BAD_VALUE, DP_ACK_DUPLICATE };
 enum dp_jtag_status { DP_JS_DONE = 0, DP_JS_BUSY, DP_JS_BAD_SEQ, DP_JS_BAD_FMT, DP_JS_UNPOWERED };
 
-#define DP_JTAG_MAX_BITS 8192
+/* Largest JTAG_REQ the supervisor accepts: an RX slot holds 2047 bytes incl.
+ * FCS, so the UDP payload is <= 2001 = 8 + 16 + 2 * 988 bytes (issue 0059).
+ * Larger requests are answered DP_JS_BAD_FMT. Such a request (2028-byte IP
+ * datagram) still needs a path MTU >= 2028; see dp_jtag_max_bits_for_mtu. */
+#define DP_JTAG_MAX_BITS 7904
+#define DP_JTAG_REQ_FIXED 16 /* JTAG_REQ payload before the vectors */
+#define DP_IP_UDP_OVERHEAD 28 /* IPv4 (no options) + UDP headers */
+#define DP_MTU_DEFAULT 1500
+#define DP_MTU_MIN 576 /* IPv4 minimum reassembly size; smaller MTUs are refused */
 #define DP_UART_TX_MAX 1024
 #define DP_CLK_HZ 125000000.0
 #define DP_MAX_PACKET 2200 /* control plane; raster uses DP_RASTER_MAX_PACKET */
@@ -222,6 +230,12 @@ static inline void dp_put16(uint8_t *p, uint16_t v) { p[0] = v >> 8; p[1] = v; }
 static inline void dp_put32(uint8_t *p, uint32_t v) { p[0] = v >> 24; p[1] = v >> 16; p[2] = v >> 8; p[3] = v; }
 static inline uint16_t dp_get16(const uint8_t *p) { return (uint16_t)(p[0] << 8 | p[1]); }
 static inline uint32_t dp_get32(const uint8_t *p) { return (uint32_t)p[0] << 24 | (uint32_t)p[1] << 16 | (uint32_t)p[2] << 8 | p[3]; }
+
+/* Largest JTAG_REQ bit count whose datagram fits one unfragmented IPv4
+ * packet of `mtu` bytes (the FPGA does not reassemble fragments), a multiple
+ * of 8, capped at DP_JTAG_MAX_BITS: 1500 -> 5792, >= 2028 -> 7904.
+ * Returns 0 for mtu < DP_MTU_MIN. */
+uint32_t dp_jtag_max_bits_for_mtu(unsigned mtu);
 
 /* Encoders return the total datagram length (header + payload), 0 on error. */
 size_t dp_encode_hdr(uint8_t *buf, uint8_t type, uint16_t plen, uint8_t dut);
