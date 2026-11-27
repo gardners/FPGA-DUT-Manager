@@ -72,3 +72,11 @@ on the 3-digit 7-segment LED display.
 * **Relay channel 5 has a loose joint somewhere**: it turned the K325T off
   a few times while the owner was working near it. Expect occasional
   unexpected power loss (a JTAG request then answers "unpowered").
+* Owner: **VGA works.** The K325T's flash image (whatever boots before an
+  SRAM load) shows "storage ready" on screen with no card inserted: that is
+  the flash design's message, not ours (for the HewnWeb side if it is
+  theirs).
+* UART moved from J11 to **JP1** (owner: J10/J11 are kept for PMOD microSD
+  adapters): JP1-6 (B26) = K325T TX -> Mimas P13 row 4 B; JP1-4 (C26,
+  4.7k pull-up) = K325T RX <- row 5 B. Bring-up design rebuilt with the new
+  pins (DRC clean). JP1 pinout in docs/hardware/qmtech-k325t.md.

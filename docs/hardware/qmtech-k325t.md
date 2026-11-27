@@ -89,13 +89,36 @@ Digit order (which of DIG_1..3 is the leftmost digit) is from the usual
 
 Bank 16 (HR, 3.3 V).
 
-## UART to the supervisor (J11 -> DUT1 cable)
+### JP1 (2x9, daughter board)
 
-| J11 pin | K325T ball | Direction | Mimas P13 | Supervisor signal |
+From the DB_FPGA V04 schematic (net labels sit above their wires): pin 1 is
+3.3 V, pin 2 GND; J2_IO60 and J2_IO59 have 4.7 k pull-ups to 3.3 V (R63,
+R64). DB net J2_IOn = core U5 pin n-2.
+
+| JP1 pin | Signal | Ball | JP1 pin | Signal | Ball |
+|---|---|---|---|---|---|
+| 1 | 3.3 V | | 2 | GND | |
+| 3 | J2_IO60 (4.7k pull-up) | D26 | 4 | J2_IO59 (4.7k pull-up) | C26 |
+| 5 | J2_IO58 | B25 | 6 | J2_IO57 | B26 |
+| 7 | J2_IO56 | F25 | 8 | J2_IO55 | E26 |
+| 9 | J2_IO54 | E25 | 10 | J2_IO53 | D25 |
+| 11 | J2_IO52 | D23 | 12 | J2_IO51 | D24 |
+| 13 | J2_IO50 | E21 | 14 | J2_IO49 | E22 |
+| 15 | J2_IO48 | A23 | 16 | J2_IO47 | A24 |
+| 17 | J2_IO46 | D19 | 18 | J2_IO45 | D20 |
+
+Bank 14/15 (HR, 3.3 V). Check pins 1/2 with a meter before wiring.
+
+## UART to the supervisor (JP1 -> DUT1 cable)
+
+Moved from J11 to JP1 on 2026-11-27 (owner: J10/J11 are kept for PMOD
+microSD adapters).
+
+| JP1 pin | K325T ball | Direction | Mimas P13 | Supervisor signal |
 |---|---|---|---|---|
-| 4 | D10 | K325T output (TX) | row 4 B | "UART from DUT (in)" |
-| 10 | E10 | K325T input (RX, internal pull-up) | row 5 B | "UART to DUT (out)" |
-| 5 or 11 | GND | | row 3 (A/B, already GND via the JTAG lead) | |
+| 6 | B26 | K325T output (TX) | row 4 B | "UART from DUT (in)" |
+| 4 | C26 | K325T input (RX; 4.7k pull-up on the board) | row 5 B | "UART to DUT (out)" |
+| 2 | GND | | row 3 (A/B, already GND via the JTAG lead) | |
 
 Format: **2,000,000 baud 8N1**, the supervisor's default (`DEFAULT_BAUD_INC`,
 ADR 0005 key 0x0010). If the supervisor's baud was changed, set it back with

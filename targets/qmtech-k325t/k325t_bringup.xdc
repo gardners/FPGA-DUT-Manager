@@ -41,9 +41,11 @@ set_property -dict {PACKAGE_PIN H26 IOSTANDARD LVCMOS33} [get_ports {core_led_n[
 set_property -dict {PACKAGE_PIN AD21 IOSTANDARD LVCMOS33} [get_ports sw1_n] ;# SW1 J3_IO7
 set_property -dict {PACKAGE_PIN B20  IOSTANDARD LVCMOS33} [get_ports sw2_n] ;# SW2 J2_IO44
 
-# UART to the supervisor on PMOD J11 (pin 4 TX out, pin 10 RX in; GND on 5/11)
-set_property -dict {PACKAGE_PIN D10 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW} [get_ports uart_tx] ;# J11-4 J2_IO13
-set_property -dict {PACKAGE_PIN E10 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports uart_rx] ;# J11-10 J2_IO14
+# UART to the supervisor on daughter-board JP1 (owner 2026-11-27: J10/J11 are
+# kept for PMOD microSD adapters). JP1 pin 6 = TX out, pin 4 = RX in (4.7k
+# pull-up R64 on the board); GND on JP1 pin 2.
+set_property -dict {PACKAGE_PIN B26 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW} [get_ports uart_tx] ;# JP1-6 J2_IO57
+set_property -dict {PACKAGE_PIN C26 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports uart_rx] ;# JP1-4 J2_IO59
 
 # VGA (resistor DAC; bit weights inferred from the resistor networks, MSB = 1k)
 set_property -dict {PACKAGE_PIN W26 IOSTANDARD LVCMOS33} [get_ports vga_hs] ;# J3_IO44 (100R)
