@@ -98,3 +98,24 @@ board build c73c7b23; 1000 probes per step):
   alone is not expected to remove it; it does not behave like a timing limit
   set by the cable length. Next step is a scope on TDI/TDO at half 8, and a
   sweep with the keyboard protocol idle.
+
+### 2026-11-27 owner questions / plan (sub-agent, branch feature/kbd-jtag-si)
+
+Owner asks about the keyboard-path error floor: (a) did we stop the
+keyboard protocol while doing JTAG, to reduce cross-talk? (**No**: the
+physical keyboard host keeps scanning on the same ribbon during keyboard
+JTAG.) (b) Does de-bouncing (majority-voting) the TDO bit fix it?
+
+Plan: two board-wide diagnostic MGMT keys, so the lead can A/B test on
+hardware (protocol rule: ADR 0005, proto_pkg, dutproto.h, netproto.py):
+
+* **0x0063 kbd JTAG quiet** (1 byte): 0 as now (default); 1 pause the
+  physical keyboard host while the keyboard JTAG engine is busy (from
+  admission until done, plus a few-µs guard before the first TCK edge and
+  after the last): lines to the keyboard static at idle levels, matrix
+  frozen (no key events to the DUTs), detection (pk_present) held, clean
+  resume; 2 host stopped entirely (keyboard JTAG then needs key 0x0061 = 1).
+* **0x0064 JTAG TDO sampling** (1 byte, all three engines): 0 single sample
+  at the end of the high half period (default); 1 majority of 3 over the
+  last three clk_sys cycles of the high half (half ≥ 4); 2 majority of 5
+  (half ≥ 6); smaller half periods fall back.
