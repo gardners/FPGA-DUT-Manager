@@ -171,8 +171,12 @@ def report(cfg, fp, res, boards, files, OUT):
         g.W, g.D, g.by, fp.BOARD['d'], cfg.SHELF['rear_space']))
     w('* Cart64out lies flat behind the expansion port: tongue tip at deck y %.1f, rear edge at y %.1f; the '
       'strain-relief bar stands at y %.1f.' % (g.by + fp.CART64OUT['tip_y'], res['cart_end'], res['bar_y']))
-    w('* Fan notches: %s, %.0f mm deep (fan %.0f + %.0f).' % (
-        ', '.join('x %.1f-%.1f' % n for n in g.notches) or 'none', g.nd, g.fspec['thick'], cfg.SHELF['notch_extra']))
+    if g.notches:
+        w('* Fan notches: %s, %.0f mm deep (fan %.0f + %.0f).' % (
+            ', '.join('x %.1f-%.1f' % n for n in g.notches), g.nd, g.fspec['thick'], cfg.SHELF['notch_extra']))
+    else:
+        w('* Fan notches: **none** (plain rectangular deck; the fan plate\'s low fans start %.1f mm above the '
+          'carrier\'s deck top).' % (min(f['z0'] for f in g.fans) - g.top))
     if g.mode == 'notch':
         w('* Notch mode: all shelves of a group sit flush. On the **three other shelves of each group the battens '
           'start %.0f mm behind the deck front** (cut them %.0f mm shorter), so the carrier\'s gussets fit under '

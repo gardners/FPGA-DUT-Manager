@@ -65,7 +65,7 @@ MEGA65 tall parts against the next shelf (the drawers have no top: the next shel
 
 * Deck 425 x 253 mm: front allowance 35 + MEGA65 board 118 + rear space 100.
 * Cart64out lies flat behind the expansion port: tongue tip at deck y 126.0, rear edge at y 223.0; the strain-relief bar stands at y 240.0.
-* Fan notches: none, 28 mm deep (fan 25 + 3).
+* Fan notches: **none** (plain rectangular deck; the fan plate's low fans start 2.0 mm above the carrier's deck top).
 * Set-back mode: the other shelves of a group are set back 92 mm on their rails (minimum 92: fan bodies and gussets).
 * Long server rails: battens may be longer than the deck (to the rails' inner-member length); the deck only fixes the front 253 mm.
 

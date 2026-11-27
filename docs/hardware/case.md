@@ -16,19 +16,22 @@ fan clearances, the KVM fit and the sheet count.
 
 | Part | Size (mm) | Qty | What |
 |---|---|---|---|
-| `shelf-deck` | 425 x 253 | 8 | Common deck. Batten outlines are in the hidden reference layer (drill guide, not cut). Dashed etched lines mark the 25 mm edge strips (parts there < 12 mm, under the next shelf's battens). Holes: MEGA65 board (6), floppy (4), Cart64out (4), deck-to-batten screws, gusset pilots, two cable pass-throughs with tie slots, two strain-bar slots. Front notch x 26.5-398.5, 28 mm deep, for the fan bodies. |
+| `shelf-deck` | 424.6 x 253 | 8 | Common deck, plain rectangle (set-back mode: **no fan notches**). Batten outlines are in the hidden reference layer (drill guide, not cut). Dashed etched lines mark the 25 mm edge strips (parts there < 12 mm, under the next shelf's battens). Holes: MEGA65 board (6), floppy (4), Cart64out (4), deck-to-batten screws, gusset pilots, two cable pass-throughs with tie slots, two strain-bar slots. |
 | `strain-bar` | 371 x 36 | 8 | Stands in the deck's rear slots (30 mm tall); cable-tie slot pairs every 40 mm. |
-| `fan-plate` | 482.6 x 177.8 | 2 | 4RU (`FAN_PLATE['ru']`, 1-4). 3 x 120 mm fans at 125 mm pitch, staggered low/high/low (centres 63 / 114.8 mm above the plate bottom), cut grille or plain bore (`guard`). Screws into the carrier shelf's batten ends and two gussets. MEGA65 logo etch above fan 1, M.E.G.A. e.V. slot above fan 3, "MEGA-KVM" under fan 2. |
+| `fan-plate` | 482.6 x 177.8 | 2 | 4RU (`FAN_PLATE['ru']`, 1-4). 3 x 120 mm fans at 125 mm pitch, staggered low/high/low (centres 93 / 114.8 mm above the plate bottom: the low fans start 2 mm above the carrier's deck top, so no deck needs a notch), cut grille or plain bore (`guard`). Screws into the carrier shelf's batten ends and two gussets. MEGA65 logo under fan 1, M.E.G.A. e.V. logo under fan 3 (the larger free band), "MEGA-KVM" under fan 2. |
 | `fan-gusset` | 90 x 36 | 4 | Stands on the carrier deck over each batten. |
-| `kvm-front` | 482.6 x 133.35 | 1 | No power connectors (owner round 12). Master rocker at the far left (wired to J54 on the power board), then 2 x 120 mm fans (owner 2026-11-27; they reach down through a deck notch). Right-hand column: the 140 x 66 mm 0050 display PCB from `mega-kvm-front/out/panel-holes.json` at the top (PCB 3 mm behind the panel), the "MEGA-KVM" etch (10 mm letters) under it, then the MEGA65 and M.E.G.A. e.V. logo slots. |
-| `kvm-deck` | 425 x 349 | 1 | No notch. The 230 x 138.5 mm power board at the front (x 25-255, front edge 40 mm behind the panel, inputs along its front edge, plugged from the open top), the GS105 beside it (x 263-357), and the two bays at the rear (x 40.8-422). Holes: the board's eight M3 holes, Mimas, keyboard sub-board and shield-support holes, GS105 tie slots, tie-slot pairs for the DUT lead bundle, vents under the Mimas boards. The board and GS105 outlines are etched. |
-| `kvm-rear` | 425 x 132 | 1 | Seen from the rear: the two bay cut-outs at the left (sub-SVGs `out/rack/fragments/bay1.svg`, `bay2.svg`). At the right (= the deck's left, behind the power board's DUT terminals): the Ethernet bulkhead + 8 DUT power lead holes, with the keyboard feed-through above them. Vent slots fill the rest. |
+| `kvm-front` | 482.6 x 133.35 | 1 | No power connectors (owner round 12). Master rocker at the far left (wired to J54 on the power board), then 2 x 120 mm fans (owner 2026-11-27; they reach down through a deck notch). Right-hand column: the 140 x 66 mm 0050 display PCB from `mega-kvm-front/out/panel-holes.json` at the top (PCB 3 mm behind the panel), the "MEGA-KVM" etch (10 mm letters) under it, then the MEGA65 and M.E.G.A. e.V. logos. |
+| `kvm-deck` | 424.6 x 349 | 1 | One front notch (x 32-275, 28 mm deep) for its own 2 x 120 mm front fans. The 230 x 138.5 mm power board at the front (x 25-255, front edge 40 mm behind the panel, inputs along its front edge, plugged from the open top), the GS105 beside it (x 263-357), and the two bays at the rear (x 40.8-422). Holes: the board's eight M3 holes, Mimas, keyboard sub-board and shield-support holes, GS105 tie slots, tie-slot pairs for the DUT lead bundle, vents under the Mimas boards. The board and GS105 outlines are etched. |
+| `kvm-rear` | 424.6 x 132 | 1 | Seen from the rear: the two bay cut-outs at the left (sub-SVGs `out/rack/fragments/bay1.svg`, `bay2.svg`). At the right (= the deck's left, behind the power board's DUT terminals): the Ethernet bulkhead + 8 DUT power lead holes, with the keyboard feed-through above them. Vent slots fill the rest. |
 | `kvm-gusset` | 90 x 24 | 4 | Under the KVM deck, front and rear, against the battens' inner faces (moved inwards where a deck hole is in the way). |
 
-Not cut: 25 x 25 mm timber battens, 2 per shelf and 2 for the KVM. In notch
-mode the battens of the three non-carrier shelves of each group start 92 mm
-behind the deck front (cut them shorter), so that the carrier's gussets fit
-under their decks. Drawings: `out/rack/rack-elevation.svg/.png` (front and side
+Not cut: 25 x 25 mm timber battens, 2 per shelf and 2 for the KVM, all full
+length. **Set-back mode** (owner round 13, `SHELF['fan_clearance'] =
+'setback'`): the bottom (carrier) shelf of each group carries the fan plate
+at its front; the three other shelves of the group are mounted **92 mm
+further back on their rails** (clear of the 25 mm fan bodies and the 90 mm
+gussets), so no shelf deck has notches. (`'notch'` mode, flush shelves with
+notched decks and shortened battens, still builds.) Drawings: `out/rack/rack-elevation.svg/.png` (front and side
 view, cable-loop zone), `out/rack/kvm-topview.svg/.png`, and
 `out/rack/preview/*.png` (renders with the reference layer visible).
 
@@ -43,29 +46,51 @@ view, cable-loop zone), `out/rack/kvm-topview.svg/.png`, and
   Rev.1: Eagle board = DXF, holes Ø3.3 at (16,4) (16,58) (71,4) (71,58).
   Its insertion depth comes from the rugged case's breakout support hole.
   Official expansions: no data, so nothing is cut.
-* `logos/`: `mega65.svg` (= `assets/mega65.svg`), etched as one colour (the
-  dark pill only, letters bare). Drop `mega-ev.svg` there for the M.E.G.A.
-  e.V. slot (currently a reference-layer placeholder: nothing is etched).
+* `mega65_footprint.TALL_PARTS`: the MEGA65's tall parts with their board
+  positions (from the DIM drawing) and heights: **IEC serial 6-pin DIN socket
+  21.1 mm above the PCB** (owner: assume it is the tallest part; the MEGA65
+  schematics name J6 "IEC - 1541 style Diskdrive" without a part number, so
+  the height is the Same Sky SDS-60J datasheet's for a standard right-angle
+  6-pin DIN, 20 W x 21.1 H x 15.5 D), the power switch (~17 mm, owner), VGA,
+  RJ45 and the two joystick DB9s (typical heights, ASSUMED).
+* `logos/` (provenance in `logos/README.md`): `mega65.svg` (= `assets/mega65.svg`),
+  etched as one colour (the dark pill only, letters bare); `mega-ev.svg`, the
+  M.E.G.A. e.V. logo rebuilt as clean vectors (block grid + outlined text) from
+  https://www.m-e-g-a.org/wp-content/uploads/2012/06/mlogo.png (a real 200 x 52 px
+  PNG, kept as `logos/src/mlogo.png`) by `tools/make_mega_ev_logo.py`.
+* `RAILS`: server slides **12.7 mm (1/2 in) per side, ASSUMED** (owner to
+  measure); deck width = 450 - 2 x 12.7 = 424.6 mm.
 
 ### Parameters (`config.py`, rack block)
 
 `PLY_T`, `RACK_KERF`, `RACK_SHEETS`; `RACK` (layout list bottom-to-top,
 group size, post opening, face width, rack depth for the drawing); `SHELF`
-(deck width, batten, front allowance, rear space, `fan_clearance` =
+(deck width from `RAILS`, batten, front allowance, rear space, `fan_clearance` =
 `notch` or `setback` with `setback`, notch clearances, cable slots, tie
 slots, strain bar, MEGA65 x position, floppy side); `FANS` (120/92/80 mm
 hole pitch and bore); `FAN_PLATE` (RU, fan size/count/gap, stagger, guard,
 screws, gusset, logo slots, text); `KVM` (RU, fan size/count, margins,
-rocker position, gussets, logos); `LOGOS`; `FOOTPRINT`.
+rocker position, gussets, logos); `LOGOS`; `FOOTPRINT`. `FAN_PLATE`
+`low_above_deck` / `deck_gap` lift the low fans clear of the carrier deck in
+set-back mode.
 
 ### Fit results (2026-11-27)
 
 * No conflicts in the default configuration.
 * Heights: deck top to next deck 38.45 mm, to the next battens 13.45 mm.
-  MEGA65 on 6.3 mm hexes + tallest part (assumed 15 mm) = 22.9 mm; floppy on
-  5 mm spacers 30.4 mm; gussets 36 mm (all under 37.45).
-* Widths: deck 425, 375 between the battens; board + 10 + floppy = 325.6 mm.
-  Fans span x 27.5-397.5: 2.5 mm from the battens of the shelves above.
+  The drawers have no top: the next shelf's deck and battens are the top.
+  MEGA65 on 6.3 mm hexes + IEC socket (21.1 mm) = **29.0 mm above the deck:
+  9.5 mm below the next deck**; power switch 24.9 mm (13.6 mm margin); floppy
+  on 5 mm spacers 30.4 mm (8.1 mm); gussets 36 mm (all under 37.45). The whole
+  board (deck x 49.5-263.5) and the floppy (x 273.5-375.1) stay **between the
+  battens** (24.5 mm from either batten's inner edge), so no tall part is under
+  a batten (owner: keep the board off the battens; the report flags any part
+  over 13.45 mm under one).
+* Widths: deck 424.6, 374.6 between the battens; board + 10 + floppy = 325.6 mm.
+  Fans span x 27.3-397.3, between the battens of the shelves above.
+* Fan plate (set-back mode): the low fans start 2 mm above the carrier's deck
+  (z 33-153), the high fan at z 54.8-174.8; the other shelves of the group sit
+  92 mm back, so the fans and gussets clear their battens by 2 mm (y).
 * **KVM (owner round 12, one power board, 2026-11-27):** no input board and no power
   cut-outs on the front. The power board (230 x 138.5 mm, read from its KiCad
   file) lies flat at the front of the deck: its front edge is 40 mm behind the front
@@ -80,7 +105,7 @@ rocker position, gussets, logos); `LOGOS`; `FOOTPRINT`.
   supports) land on the right batten: drill them through and use M3 x 40 screws.
 * **KVM fans: 2 x standard 120 mm PC fans** (owner, 2026-11-27). They fit
   since the display PCB became a two-row 140 x 66 mm board (issue 0050): fans at
-  x 33-274, display at x 280-420 (421 of 425 mm). A 120 mm fan is taller than the
+  x 33-274, display at x 280-420 (421 of 424.6 mm). A 120 mm fan is taller than the
   space above the deck, so the fans reach 20.6 mm below the deck top through one
   notch in the deck front (x 32-275, 28 mm deep), 2 mm clear of the front gussets;
   the generator checks the fan bodies against the gussets and battens. The rocker

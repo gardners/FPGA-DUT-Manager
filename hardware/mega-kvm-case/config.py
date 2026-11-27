@@ -133,8 +133,13 @@ FAN = {'size': 40.0, 'thick': 10.0, 'count': 2,       # Noctua NF-A4x10 FLX (12 
        'wall_gap': 2.0}   # fan -> wall inner face (keeps a web next to the base fingers)
 
 FRONT = {               # front panel items (issue 0050)
+    # Jaycar QP5521 16x2 (white on blue, 5 V) + XC3706 PCF8574 I2C backpack (owner round 13).
+    # Jaycar: viewing area 65.0 x 14.0; backpack 50 x 25 x 10. Outline 80 x 36, holes 75 x 31
+    # and bezel 71.2 x 24.2 are typical 1602A values (Jaycar gives none: MEASURE on arrival).
+    # The rack KVM front reads its cut-outs from panel-holes.json; this block is for options A/B.
     'lcd': {'window': (71.6, 24.6), 'module': (80.0, 36.0), 'holes': (75.0, 31.0), 'hole_d': 2.7,
-            'depth': 27.0},            # 1602 module with I2C backpack; window = bezel 71.2 x 24.2 + 0.4
+            'view': (65.0, 14.0), 'part': 'Jaycar QP5521 + XC3706',
+            'depth': 27.0},            # window = bezel 71.2 x 24.2 + 0.4; depth: module ~10 + backpack 10 + header/lead
     'led_d': 3.1, 'led_pitch': 6.0,    # 3 mm LEDs (or light pipes from the 0050 PCB)
     'buttons': ['PREV', 'NEXT', 'SCAN', 'FIXED', 'PIP'],
     'button_d': 7.0, 'button_pitch': 10.5,   # 7 mm panel momentary or tact-switch caps (ASSUMED)
