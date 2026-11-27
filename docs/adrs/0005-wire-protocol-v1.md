@@ -68,7 +68,28 @@ so the two implementations cannot silently diverge.
   new VLAN, or the fallback address where fallback is enabled; the ack of
   the change still leaves from the old address). Static addresses (key
   0x0002 / SET_IDENTITY) are kept. Keys are volatile: a reload (or SPI
-  boot) returns to 0.
+  boot) returns to 0. **Bench setting (owner, 2026-11-28, issue 0063): 0**
+  -- host traffic stays untagged with DHCP; only board-to-board and
+  source traffic uses VLAN 1650 (below). The key stays in the bitstream.
+* **VLAN identity** (issue 0063, 2026-11-28): besides its two host
+  endpoints, each board has one fixed address on the inter-board VLAN
+  (key 0x0043): **vlan_ip = base + 16 + B**, base = key 0x0047 (default
+  10.231.50.0, a /24), B = DIP[7:4] (0..15, so .16 - .31). MAC = endpoint
+  0's MAC (02:4D:36:35:00:<DUT0 ID>, as the relay uses). No DHCP, no
+  gateway. The board answers, independent of DHCP state and of key 0x0046:
+  * ARP requests (opcode 1) for vlan_ip, and
+  * ICMP echo (<= 64 data bytes) to vlan_ip at endpoint 0's MAC,
+  **only when tagged with the key 0x0043 VID**; the reply (from endpoint
+  0's MAC and vlan_ip) is tagged with that VID. Untagged requests, other
+  VIDs, or another destination MAC are not answered for vlan_ip (they go
+  the host path, which answers only its own endpoint addresses; a tagged
+  frame the host path does not accept counts in host_vlan_drops). Key
+  0x0043 = 0 switches the identity off (vlan_ip reported 0.0.0.0): it is
+  never answered untagged. Answered requests count in the heartbeat
+  (vlan_hits, section 3e). If key 0x0046 = key 0x0043 both the identity
+  and the endpoint addresses are answered on that VID, each from its own
+  address. Future inter-board UDP (e.g. cross-board KVM) uses vlan_ip;
+  machines on the VLAN (source boards) use base + 32 + M (issue 0063).
 * Broadcast-addressed management is ignored except `SET_IDENTITY` carrying the
   exact board DNA (recovery when the IP is unknown).
 
@@ -133,7 +154,8 @@ the shield block (section 3c, issue 0049) 160 bytes (header + 152); with
 the relay block (section 3d, issue 0061) 188 bytes (header + 180); with
 the relay receive load (section 3d, bytes 188..195, issue 0060) 196 bytes
 (header + 188); with the network block (section 3e, issue 0062) 200
-bytes (header + 192).
+bytes (header + 192); with the VLAN identity (section 3e, bytes 200..207,
+issue 0063) 208 bytes (header + 200).
 Decoders must accept >= 100 and use the blocks only when present.
 
 ### 3a. Heartbeat link block (bytes 132..139; payload >= 132)
@@ -225,14 +247,18 @@ at 2**rl_fifo_aw and rl_wr_stall rising = DDR3 cannot keep up; rl_rx_ovf
 rising with a low rl_fifo_hwm cannot happen (an overflow needs a full
 FIFO); rl_mem_wait rising alone is harmless contention.
 
-### 3e. Heartbeat network block (bytes 196..199; payload >= 192)
+### 3e. Heartbeat network block (bytes 196..199, payload >= 192; bytes 200..207, payload >= 200)
 
-Host VLAN (issue 0062). Appended 2026-11-27.
+Host VLAN (issue 0062), appended 2026-11-27; VLAN identity (issue 0063),
+appended 2026-11-28. All board-wide (both endpoints send the same values).
 
 | Off | Size | Field |
 |---|---|---|
 | 196 | 2 | host_vlan: key 0x0046, the VID of host traffic (0 = untagged) |
 | 198 | 2 | host_vlan_drops: received frames for the host path dropped for their VLAN (wrong VID, tagged while the key is 0, untagged non-ARP/ICMP/MGMT while it is set), board-wide, wrapping. Relay frames (EtherType 0x88B5, key 0x0043) are not counted here (rl_rx_vlan) |
+| 200 | 4 | vlan_ip: the board's VLAN identity (section 1), key 0x0047 base + 16 + DIP[7:4]; 0.0.0.0 while key 0x0043 is 0 (off) |
+| 204 | 2 | vlan: key 0x0043, the inter-board VLAN ID the identity (and the relay) uses |
+| 206 | 2 | vlan_hits: ARP requests and ICMP echoes answered for vlan_ip, wrapping |
 
 ## 4. Management (port 6500)
 
@@ -273,10 +299,11 @@ Keys (whole values, never toggles):
 | 0x0035 | 1 | console screen (issue 0029): 0 auto (select while choosing; else passthrough of HDMI IN to HDMI OUT when the video target is one of this board's DUTs and its video is present (issue 0032); else editable when text is forced or video is present, else no video), 1 editable, 2 no video, 3 select (1..3 force a console screen and disable passthrough) |
 | 0x0040 | 1 | Ethernet capture enable (phase 2) |
 | 0x0041 | 8 | thumbnail relay forced destination (section 10): MAC(6), scale(1: 1 = 1/2, 2 = 1/4), frame divisor(1: 1..15). MAC 00:00:00:00:00:00 = off (default). A group (multicast/broadcast) MAC, another scale or divisor -> bad value. Board-wide |
-| 0x0043 | 2 | inter-board VLAN ID (section 10, issue 0060): u16, 0 = untagged (the behaviour before 2026-11-27), 1..4094 = thumbnail relay requests, lines and no-source frames between boards carry an 802.1Q tag (TPID 0x8100, PCP 0, DEI 0, this VID) and relay frames are accepted only with that VID. Default **1650**. Host-facing traffic (UDP to the host, and relay frames to the key 0x0041 forced MAC) follows key 0x0046 instead. Values > 4094 -> bad value. Board-wide |
+| 0x0043 | 2 | inter-board VLAN ID (section 10, issue 0060): u16, 0 = untagged (the behaviour before 2026-11-27), 1..4094 = thumbnail relay requests, lines and no-source frames between boards carry an 802.1Q tag (TPID 0x8100, PCP 0, DEI 0, this VID) and relay frames are accepted only with that VID. Default **1650**. Host-facing traffic (UDP to the host, and relay frames to the key 0x0041 forced MAC) follows key 0x0046 instead. Also the VLAN of the board's VLAN identity (section 1, key 0x0047, issue 0063); 0 = identity off. Values > 4094 -> bad value. Board-wide |
 | 0x0044 | 1 | HDMI IN owner (section 10, issue 0060): which of this board's DUTs is cabled to the on-board HDMI IN. 0 (default) the video target's DUT (the behaviour before 2026-11-27: both DUTs share the input); 1 DUT0; 2 DUT1; 3 none. A local machine that does not own the HDMI IN (only with 1..3) shows relayed video for its machine number (thumbnails in the mosaic) and, as the video target, a full-resolution relayed picture (section 10, "selected target without local video"). Values > 3 -> bad value. Board-wide |
 | 0x0045 | 1 | relayed full view (section 10, issue 0060): 0 complete pictures only (triple buffered, never torn; a picture with any frame lost is never shown); 1 **live** line by line (default): every good 1/1 frame is written into the buffer being shown, so lines show up as they arrive and rows that are lost keep the previous picture's content (may tear). Values > 1 -> bad value. Board-wide |
-| 0x0046 | 2 | host VLAN ID (section 1, issue 0062): u16, 0 = untagged (default; the behaviour before 2026-11-27), 1..4094 = all host traffic tagged with this VID and host frames accepted only with it (untagged: ARP, ICMP echo and MGMT still answered, untagged); DHCP starts over on the new VLAN 1..2 ms after a change. Re-setting the current value changes nothing. Values > 4094 -> bad value. Board-wide |
+| 0x0046 | 2 | host VLAN ID (section 1, issue 0062): u16, 0 = untagged (default; the behaviour before 2026-11-27), 1..4094 = all host traffic tagged with this VID and host frames accepted only with it (untagged: ARP, ICMP echo and MGMT still answered, untagged); DHCP starts over on the new VLAN 1..2 ms after a change. Re-setting the current value changes nothing. Values > 4094 -> bad value. Board-wide. Bench: 0 (owner, 2026-11-28) |
+| 0x0047 | 4 | VLAN subnet base (section 1, issue 0063): IPv4, a /24 (the mask is implied); the VLAN identity is base + 16 + DIP[7:4] on the key 0x0043 VLAN. Default **10.231.50.0**. A last octet other than 0 -> bad value. Applies from the next request. Board-wide |
 | 0x0050 | 2 | heartbeat period ms |
 | 0x0060 | 1 | target output enable policy (issue 0056): 0 auto: UART TXD, KIO10 and JTAG driven while the DUT is sensed powered (default); 1 force UART TXD and KIO10 on (JTAG still follows the sense); 2 force all of them off, JTAG included (JTAG_REQ then answers status 4, a running transaction is aborted): the host sets 2 before it cuts the DUT's power (`dutctl relay ... power N off`). The shield power-off hold (key 0x0062) overrides 0 and 1 |
 | 0x0061 | 1 | physical keyboard CPLD JTAG (section 7, ADR 0014): 0 auto (pins driven while a keyboard is detected and for 10 s after the last detection or keyboard JTAG transaction; default), 1 force on, 2 force off, 3 force on with KB_JTAGEN driven low (diagnostic: does J5 pin 3 gate the CPLD's JTAG port?). Board-wide |
