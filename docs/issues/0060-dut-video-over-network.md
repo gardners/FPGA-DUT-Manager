@@ -56,3 +56,15 @@ page is hardweb docs/boards/qmtech_k325t_bringup.md. Its K325T top has the
 UART on JP1 (B26 TX / C26 RX), in hardweb staging-20261127-k1, 5803f5f.
 Both sessions now drive relay 5 and DUT1's JTAG, so check with it before
 using the K325T.
+
+### 2026-11-27 owner: implement it
+
+* The lead no longer controls the K325T's power or JTAG; the hardweb
+  session does. The lead keeps the Mimas supervisor (JTAG, LAN).
+* Implement the KVM side now: move inter-board traffic onto VLAN 1650 and
+  add the section 7 extensions, so that the owner can switch targets with
+  the MEGA65 keyboard hot key and see video from both the MEGA65 (local
+  HDMI) and the K325T (relayed).
+* New: when the **selected** target has no local video, keep requesting its
+  stream (targeted, priority, 1/1, 2 Hz) and show it **full-resolution in
+  real time**, not just as a thumbnail.
