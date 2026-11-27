@@ -213,6 +213,9 @@ static int cmd_set(int argc, char **argv)
             "         host-vlan (VLAN ID of all host traffic, default 0 = untagged; 1..4094 tags it\n"
             "                    and accepts host frames only on it (untagged: ARP, ping, MGMT);\n"
             "                    DHCP leases are dropped and renewed on the new VLAN)\n"
+            "         vlan-base (IPv4 /24 base of the inter-board VLAN, last octet 0, default\n"
+            "                    10.231.50.0; the board answers ARP/ping on the vlan for\n"
+            "                    base + 16 + DIP[7:4])\n"
             "         hdmi-owner (DUT on the HDMI IN: 0 the video target's (default), 1 DUT0, 2 DUT1,\n"
             "                     3 none; the others show relayed video, full-screen when selected)\n"
             "         relay-view (relayed full-screen view: 0 complete pictures only, 1 live line by\n"
@@ -240,7 +243,7 @@ static int cmd_set(int argc, char **argv)
     {"kbd-jtag", DP_K_PK_JTAG, 1}, {"power-ctl", DP_K_PWR_CTL, 1},
     {"kbd-jtag-quiet", DP_K_KJ_QUIET, 1}, {"jtag-tdo-vote", DP_K_TDO_VOTE, 1},
     {"vlan", DP_K_VLAN, 2}, {"hdmi-owner", DP_K_HDMI_OWNER, 1}, {"host-vlan", DP_K_HOST_VLAN, 2},
-    {"relay-view", DP_K_RELAY_VIEW, 1},
+    {"relay-view", DP_K_RELAY_VIEW, 1}, {"vlan-base", DP_K_VLAN_BASE, -4},
   };
   if (!strcmp(name, "kbd-led-rgb")) {
     unsigned c[4];
@@ -413,6 +416,10 @@ static void print_hb_kv(const char *ip, const dp_hdr_t *h, const dp_heartbeat_t 
   printf(" has_net=%u", hb->has_net);
   if (hb->has_net)
     printf(" host_vlan=%u host_vlan_drops=%u", hb->host_vlan, hb->host_vlan_drops);
+  printf(" has_vident=%u", hb->has_vident);
+  if (hb->has_vident)
+    printf(" vlan_ip=%u.%u.%u.%u vlan=%u vlan_hits=%u", hb->vlan_ip[0], hb->vlan_ip[1], hb->vlan_ip[2],
+           hb->vlan_ip[3], hb->vlan, hb->vlan_hits);
   printf("\n");
   fflush(stdout);
 }
@@ -517,6 +524,13 @@ static int cmd_listen(int argc, char **argv)
     }
     if (hb.has_net && (hb.host_vlan || hb.host_vlan_drops))
       printf("  host-vlan %u (vlan drops %u)", hb.host_vlan, hb.host_vlan_drops);
+    if (hb.has_vident) {
+      if (hb.vlan_ip[0] | hb.vlan_ip[1] | hb.vlan_ip[2] | hb.vlan_ip[3])
+        printf("  vlan-ip %u.%u.%u.%u (vlan %u, answered %u)", hb.vlan_ip[0], hb.vlan_ip[1],
+               hb.vlan_ip[2], hb.vlan_ip[3], hb.vlan, hb.vlan_hits);
+      else
+        printf("  vlan-ip off");
+    }
     if (hb.phys_type) {
       printf("  phys");
       for (int k = 0; k < 80; k++)

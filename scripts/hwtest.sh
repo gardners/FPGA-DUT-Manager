@@ -161,6 +161,16 @@ if (($(field "$l" has_net))); then
 else
 	report INFO "host vlan" "no network block (payload $(field "$l" plen))"
 fi
+# VLAN identity (issue 0063, heartbeat bytes 200..207): base (key 0x0047) +
+# 16 + DIP[7:4] on the inter-board VLAN (key 0x0043)
+vip=""
+if (($(field "$l" has_vident))); then
+	vip=$(field "$l" vlan_ip)
+	[[ $vip == 0.0.0.0 ]] && vip=""
+	report INFO "vlan identity" "${vip:-off} on VLAN $(field "$l" vlan) (key 0x0043; 0 = identity off), board $(($(field "$l" dip) >> 4)), ARP/ICMP answered $(field "$l" vlan_hits)"
+else
+	report INFO "vlan identity" "not in this bitstream (payload $(field "$l" plen))"
+fi
 # relay receive load (relay-rx-speed): FIFO peaks in the last second, DDR3 back-pressure
 if (($(field "$l" has_rxload))); then
 	report INFO "relay rx load" "rx fifo peak $(field "$l" rl_fifo_hwm)/$((1 << $(field "$l" rl_fifo_aw))) entries, word fifo peak $((2 * $(field "$l" rl_wf_hwm)))/512, writer stalls $(field "$l" rl_wr_stall) x 2.048 us, memory waits $(field "$l" rl_mem_wait) x 2.048 us (wrapping)"
@@ -209,6 +219,24 @@ for d in "${eps[@]}"; do
 	elif [[ -n $mac ]]; then report FAIL "arp dut$d" "$mac, expected $want ($how)"
 	else report FAIL "arp dut$d" "no ARP entry ($how)"; fi
 done
+
+# VLAN identity (issue 0063): ping it over this host's VLAN interface when
+# there is one (bob: eno2.1650 = 10.231.50.1/24, hardweb scripts/lab_vlans.sh)
+vif=${HWTEST_VLAN_IF:-eno2.$(field "${hb[${eps[0]}]}" vlan)}
+if [[ -z $vip ]]; then
+	report SKIP "ping vlan identity" "identity off or not in this bitstream"
+elif ! ip -br addr show "$vif" 2>/dev/null | grep -q ' UP '; then
+	report SKIP "ping vlan identity" "no VLAN interface $vif up on this host"
+else
+	r=$(timeout 20 ping -I "$vif" -c $pings -i 0.2 -W 1 -q "$vip" 2>/dev/null | grep -o '[0-9]* received' | cut -d' ' -f1)
+	want=$(printf '02:4d:36:35:00:%02x' "$(field "${hb[0]:-${hb[${eps[0]}]}}" dut_id)")
+	mac=$(ip neigh show "$vip" dev "$vif" 2>/dev/null | grep -oiE 'lladdr ([0-9a-f]{2}:){5}[0-9a-f]{2}' | cut -d' ' -f2)
+	if ((${r:-0} == pings)) && [[ ${mac,,} == "$want" ]]; then
+		report PASS "ping vlan identity" "$vip via $vif ${r}/$pings, MAC $mac"
+	else
+		report FAIL "ping vlan identity" "$vip via $vif ${r:-0}/$pings, MAC ${mac:-none} (expected $want)"
+	fi
+fi
 
 # ---------------------------------------------------- heartbeat period
 # rate D... -> "period_ms received sent" per endpoint from $tmp/hb
@@ -313,10 +341,15 @@ keytest relay-view     0x0045 board 01       "00 01"           "02"       "0000"
 # traffic to another VLAN. 0 is the "0 accepted" case on an untagged bench.
 hv=$(field "$l" host_vlan)
 keytest host-vlan      0x0046 board "$(printf %04x "${hv:-0}")" "$(printf %04x "${hv:-0}")" "0fff ffff" "06 067200"
+# issue 0063: VLAN subnet base, restored to the current one (from the
+# heartbeat's vlan_ip) or the default 10.231.50.0; last octet /= 0 -> bad value
+vb=0ae73200
+[[ -n $vip ]] && vb=$(IFS=. read -r a b c _ <<<"$vip"; printf '%02x%02x%02x00' "$a" "$b" "$c")
+keytest vlan-base      0x0047 board "$vb" "c0a86300 $vb" "0ae73205 ffffff01" "0ae732 0ae7320000"
 keytest hb-period-ms   0x0050 ep    "$(printf %04x "${orig_period[${eps[0]}]}")" "$(printf %04x "${orig_period[${eps[0]}]}")" "0000" "14 001400"
 keytest out-policy     0x0060 ep    00       "00"              "03"       "0000"
 # (0x0041 became the thumbnail forced-destination key, issue 0038; 0x0042 is still unused,
-# 0x0046 is the host VLAN, issue 0062)
+# 0x0046 is the host VLAN, issue 0062; 0x0047 the VLAN subnet base, issue 0063)
 for k in 0x0000 0x0007 0x0042 0x7fff 0xffff; do
 	mres=""
 	expect "${ip[${eps[0]}]}" $k 00 1

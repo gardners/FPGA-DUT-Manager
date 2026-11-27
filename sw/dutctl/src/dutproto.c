@@ -226,6 +226,15 @@ int dp_decode_heartbeat(const uint8_t *p, size_t len, dp_heartbeat_t *hb)
   } else {
     hb->host_vlan = hb->host_vlan_drops = 0;
   }
+  hb->has_vident = len >= 200;
+  if (hb->has_vident) {
+    memcpy(hb->vlan_ip, p + 192, 4);
+    hb->vlan = dp_get16(p + 196);
+    hb->vlan_hits = dp_get16(p + 198);
+  } else {
+    memset(hb->vlan_ip, 0, 4);
+    hb->vlan = hb->vlan_hits = 0;
+  }
   return 0;
 }
 

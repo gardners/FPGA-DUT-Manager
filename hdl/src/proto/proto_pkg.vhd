@@ -54,8 +54,9 @@ package proto_pkg is
 
   -- payload lengths (after the 8-byte common header)
   -- 100 fixed + 24 video block + 8 link block + 12 memory block + 8
-  -- shield block + 28 relay block (ADR 0005 sections 3, 3a, 3b, 3c, 3d, 8)
-  constant HB_PAYLOAD_LEN   : natural := 192;
+  -- shield block + 28 relay block + 8 relay receive load + 12 network block
+  -- (ADR 0005 sections 3, 3a, 3b, 3c, 3d, 3e, 8)
+  constant HB_PAYLOAD_LEN   : natural := 200;
   -- heartbeat byte 184 relay_flags (ADR 0005 section 3d, issue 0061)
   constant RLF_FULL_WANT  : natural := 0;   -- full view wanted (selected target without local video)
   constant RLF_FULL_FRESH : natural := 1;   -- a full picture in the last second (shown)
@@ -99,6 +100,7 @@ package proto_pkg is
   constant K_HDMI_OWNER   : natural := 16#0044#;  -- HDMI IN owner: 0 follows the video target, 1 DUT0, 2 DUT1, 3 none (issue 0060)
   constant K_RELAY_VIEW   : natural := 16#0045#;  -- relayed full view: 0 complete pictures, 1 live line by line (default), issue 0060
   constant K_HOST_VLAN    : natural := 16#0046#;  -- host VLAN ID u16 0..4094 (default 0 = untagged), issue 0062
+  constant K_VLAN_BASE    : natural := 16#0047#;  -- VLAN subnet base IPv4 (/24, last octet 0; default 10.231.50.0), issue 0063
   constant K_HB_PERIOD    : natural := 16#0050#;
   constant K_OUT_POLICY   : natural := 16#0060#;  -- 0 auto (sense), 1 UART/KIO10 on, 2 all off incl. JTAG (issue 0056)
   constant K_PK_JTAG      : natural := 16#0061#;  -- physical kbd CPLD JTAG: 0 auto, 1 on, 2 off, 3 on + JTAGEN low (ADR 0014)
@@ -143,6 +145,7 @@ package proto_pkg is
   constant CON_SHOWN_RELAYED     : std_logic_vector(7 downto 0) := x"04";
 
   constant DEFAULT_VLAN : unsigned(11 downto 0) := to_unsigned(1650, 12);   -- key 0x0043 (issue 0060)
+  constant DEFAULT_VLAN_BASE : std_logic_vector(31 downto 0) := x"0AE7_3200"; -- key 0x0047: 10.231.50.0 (issue 0063)
 
   constant DEFAULT_BAUD_INC : unsigned(31 downto 0) := x"0418_9375"; -- 2 Mbaud @125 MHz
   constant DEFAULT_IP_BASE  : std_logic_vector(31 downto 0) := x"C0A8_4110"; -- 192.168.65.16

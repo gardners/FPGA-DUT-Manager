@@ -441,7 +441,8 @@ begin
       ack => ack, ack_cmd => ack_cmd, ack_key => ack_key, ack_status => ack_status,
       ack_taken => ack_taken, jr => jr, jr_status => jr_status, jr_seq => jr_seq,
       jr_taken => jr_taken, dhcp_strobe => dhcp_strobe, dhcp_rx => dhcp_rx,
-      rx_rejects => rx_rejects, vlan_drops => bstat.host_vdrops);
+      rx_rejects => rx_rejects, vlan_drops => bstat.host_vdrops,
+      vlan_ip => bstat.vlan_ip, vlan_hits => bstat.vlan_hits);
 
   ---------------------------------------------------------------- text tap
   ttap : entity work.text_rx_tap

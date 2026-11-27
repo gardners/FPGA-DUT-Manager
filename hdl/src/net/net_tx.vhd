@@ -36,7 +36,9 @@
 -- JTAG response) use the VLAN their request came on; heartbeats, UART
 -- snapshots, raster, DHCP and relay frames to the forced host MAC (key
 -- 0x0041) the host VLAN (key 0x0046); relay requests and frames to a
--- requester the inter-board VLAN (key 0x0043).
+-- requester the inter-board VLAN (key 0x0043). ARP/ICMP replies for the
+-- board's VLAN identity (reply_t.vsrc, issue 0063) are sent from endpoint
+-- 0's MAC with bstat.vlan_ip as the source address.
 --
 -- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.
 library ieee;
@@ -139,7 +141,7 @@ architecture rtl of net_tx is
   type state_t is (S_IDLE, S_DISCARD, S_LATCH, S_HIST, S_PREP, S_CSUM, S_START, S_WRITE, S_WAIT_MAC);
   signal state : state_t := S_IDLE;
 
-  constant PF_MAX : natural := 200;   -- heartbeat: 8 + 192
+  constant PF_MAX : natural := 208;   -- heartbeat: 8 + 200
   type pf_t is array (0 to PF_MAX - 1) of byte_t;
   type hdr_t is array (0 to 41) of byte_t;
   signal hdr   : hdr_t := (others => (others => '0'));
@@ -631,6 +633,11 @@ begin
               pf(196) <= "0000" & std_logic_vector(bcfg.host_vlan(11 downto 8));
               pf(197) <= std_logic_vector(bcfg.host_vlan(7 downto 0));
               pf(198) <= bu(bstat.host_vdrops, 0); pf(199) <= bu(bstat.host_vdrops, 1);
+              -- 200..207 VLAN identity (ADR 0005 s3e, issue 0063)
+              for i in 0 to 3 loop pf(200 + i) <= b(bstat.vlan_ip, i); end loop;
+              pf(204) <= "0000" & std_logic_vector(bcfg.vlan(11 downto 8));
+              pf(205) <= std_logic_vector(bcfg.vlan(7 downto 0));
+              pf(206) <= bu(bstat.vlan_hits, 0); pf(207) <= bu(bstat.vlan_hits, 1);
             when others => null;
           end case;
 
@@ -668,7 +675,11 @@ begin
               hdr(32 + i) <= b(arp.mac, i);
             end loop;
             for i in 0 to 3 loop
-              hdr(28 + i) <= b(ip_eff(d), i);
+              if arp.vsrc = '1' then
+                hdr(28 + i) <= b(bstat.vlan_ip, i);   -- VLAN identity (issue 0063)
+              else
+                hdr(28 + i) <= b(ip_eff(d), i);
+              end if;
               hdr(38 + i) <= b(arp.ip, i);
             end loop;
             a_len    <= to_unsigned(42, 13);
@@ -733,6 +744,8 @@ begin
             for i in 0 to 3 loop
               if kind = K_DHCP then
                 hdr(26 + i) <= b(dq.ciaddr, i);        -- 0.0.0.0 unless renewing
+              elsif kind = K_ICMP and icmp.vsrc = '1' then
+                hdr(26 + i) <= b(bstat.vlan_ip, i);    -- VLAN identity (issue 0063)
               else
                 hdr(26 + i) <= b(ip_eff(d), i);
               end if;

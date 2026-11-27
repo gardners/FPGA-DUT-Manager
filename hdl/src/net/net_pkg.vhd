@@ -60,6 +60,9 @@ package net_pkg is
     relay_live : std_logic;
     -- host VLAN ID (key 0x0046, issue 0062): 0 = host traffic untagged
     host_vlan  : unsigned(11 downto 0);
+    -- VLAN subnet base (key 0x0047, issue 0063): /24, last octet 0; the
+    -- board's VLAN identity is base + 16 + DIP[7:4] on the key 0x0043 VLAN
+    vlan_base  : ip_t;
   end record;
 
   -- a pending reply addressed to a requester
@@ -70,8 +73,9 @@ package net_pkg is
     ip     : ip_t;
     port_n : std_logic_vector(15 downto 0);
     vid    : unsigned(11 downto 0);   -- VLAN the request came on (0 = untagged), issue 0062
+    vsrc   : std_logic;               -- answer from the board's VLAN identity (ARP/ICMP), issue 0063
   end record;
-  constant REPLY_NONE : reply_t := ('0', 0, (others => '0'), (others => '0'), (others => '0'), (others => '0'));
+  constant REPLY_NONE : reply_t := ('0', 0, (others => '0'), (others => '0'), (others => '0'), (others => '0'), '0');
   type reply_arr_t is array (0 to 1) of reply_t;
 
   type u32_arr_t is array (0 to 1) of unsigned(31 downto 0);
@@ -175,6 +179,10 @@ package net_pkg is
     -- host VLAN (issue 0062), heartbeat network block: frames for the host
     -- path dropped for their VLAN
     host_vdrops : unsigned(15 downto 0);
+    -- VLAN identity (issue 0063), heartbeat network block: its address
+    -- (0 = off) and the ARP/ICMP requests answered for it
+    vlan_ip     : ip_t;
+    vlan_hits   : unsigned(15 downto 0);
   end record;
 
   -- UART snapshot counters (latched by uart_bridge on snap_ack)
@@ -212,9 +220,20 @@ package net_pkg is
   function dut_mac(id : unsigned) return mac_t;
   function fallback_ip(id : unsigned) return ip_t;
   function default_cfg(id : unsigned) return dut_cfg_t;
+  -- issue 0063: the board's VLAN identity, base + 16 + B (B = DIP[7:4]);
+  -- 0.0.0.0 (off) while the inter-board VLAN (key 0x0043) is 0
+  function vlan_ident(base : ip_t; b : unsigned(3 downto 0); vid : unsigned(11 downto 0)) return ip_t;
 end package;
 
 package body net_pkg is
+  function vlan_ident(base : ip_t; b : unsigned(3 downto 0); vid : unsigned(11 downto 0)) return ip_t is
+  begin
+    if vid = 0 then
+      return (others => '0');
+    end if;
+    return base(31 downto 8) & "0001" & std_logic_vector(b);
+  end function;
+
   function dut_mac(id : unsigned) return mac_t is
   begin
     return x"024D36350000" or std_logic_vector(resize(id, 48));

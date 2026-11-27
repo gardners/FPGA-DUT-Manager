@@ -152,3 +152,11 @@ VLAN: ping 0.2 ms, keyboard CPLD IDCODE, hwtest 67/0. duts.conf
 The key is volatile: after a reload the board comes back untagged on
 203.28.176.x and needs `dutctl set <ip> host-vlan 1650` (and
 `hdmi-owner 1`) again.
+
+### 2026-11-28 bench back to key 0 (issue 0063)
+
+Owner: host traffic (DHCP, heartbeats, MGMT, UART, JTAG/XVC, screenshots)
+stays **untagged with DHCP**; only board-to-board and source traffic goes
+on VLAN 1650, with fixed addresses (issue 0063). Key 0x0046 stays in the
+bitstream with default 0 and the bench uses 0 (ADR 0005 section 1 and key
+table note this); the switch-over steps above are kept for reference only.
