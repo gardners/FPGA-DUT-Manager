@@ -7,7 +7,6 @@ of each section. Tick or delete an item when it is done (or tell the lead).
 
 | Since | Item | Blocks | Issue |
 |---|---|---|---|
-| 2026-11-27 | **KVM front fans**: 2 x 120 mm do not fit beside the 227 mm display board and the 197 mm input board on a 425 mm deck. Default now **2 x 92 mm**; alternatives 1 x 120 mm, or a display PCB at most 172 mm wide (the input board now stacks under it, so it is no longer the limit) | KVM front panel cut-outs, fan count | 0051 |
 | 2026-11-27 | **M.E.G.A. e.V. logo SVG** -> `hardware/mega-kvm-case/logos/mega-ev.svg` (the MEGA65 logo from `assets/mega65.svg` is used already) | fan plate / KVM front etch | 0051 |
 | 2026-11-27 | **MEGA65 details the drawings don't give**: tallest part above the PCB; floppy mounting-hole offset from the bezel and spacer height; official expansion mounting holes; Cart64out stand-off height to line up with the cart port. (Board outline + 6 holes taken from `pcbs/mega65r6/DIM-TE0765-06.PDF`, cross-checked with mega65-rugged-case) | shelf deck holes and heights | 0051 |
 | 2026-11-27 | **Rails and rack**: width each slide takes per side (sets the deck width, now 425 mm); inner-member length; rack depth between posts | shelf width, batten length | 0051 |
@@ -40,3 +39,9 @@ of each section. Tick or delete an item when it is done (or tell the lead).
 | 2026-11-27 | A real MEGA65 as HDMI-with-audio source: passthrough, EDID, screenshot | 0037, 0042 |
 | 2026-11-27 | Measure a MEGA65's 12 V current (idle and busy, with floppy) | 0047 sizing |
 | 2026-11-27 | Before PCB fab: measure a real Mimas A7 (outline, holes, connector positions); confirm the LTC4417 GN pinout (the full datasheet could not be downloaded here) | 0045, 0047 |
+
+## Resolved
+
+* 2026-11-27 KVM front fans: owner wants standard 2 x 120 mm PC fans. The
+  display board is being re-laid out in two rows (at most ~172 mm wide) so
+  they fit (0050, 0051).
