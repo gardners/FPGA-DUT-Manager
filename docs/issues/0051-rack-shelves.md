@@ -205,3 +205,19 @@ everything.
 * **Logos:** official vector artwork is needed (not redrawn from memory). The
   owner supplies SVGs of the MEGA65 and M.E.G.A. e.V. logos. They are
   converted to single-colour etch layers (black) by the generator.
+
+## 2026-11-27 owner answers (round 11)
+
+* **Battens go under the deck**, not on top. The deck top stays flat full
+  width; low parts may run over the edge strips. Tall parts still keep
+  clear of the strip under the next shelf's battens (care needed).
+* **All shelves use the same deck**, with cut-outs that clear the fan bodies
+  of a fan plate. The fan plate screws into the front ends of its shelf's
+  battens (with gussets). Alternatively the other three shelves of a group
+  are simply set back on their rails for clearance. Either works ("many
+  peelers, one cat"). The generator supports both: fan notches in the
+  common deck plus a set-back parameter.
+* **The KVM sits in the middle** of the stack (4 shelves, KVM, 4 shelves) to
+  minimise cable lengths.
+* The owner organises the logos (SVG) and the MEGA65 PCB/case drawings.
+* Owner-facing blockers are tracked in `docs/OWNER-TODO.md`.
