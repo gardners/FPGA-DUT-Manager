@@ -323,6 +323,8 @@ architecture rtl of k325t_sdprobe is
   signal j_stat, d_stat : natural range 0 to 3 := 0;  -- 0 none/running, 2 card, 3 no card
   signal j_win   : natural range 0 to 31 := 31;
   signal answered : std_logic := '0';
+  signal c0_try   : natural range 0 to 3 := 0;   -- CMD0 attempts - 1
+  signal do_low   : std_logic := '0';            -- DO seen low during this try
   signal j_win_u : unsigned(4 downto 0);
 
   -- text FIFO + UART
@@ -482,6 +484,9 @@ begin
     if rising_edge(clk50) then
       spi_go   <= '0';
       f_we     <= '0';
+      if act = '1' and miso = '0' then
+        do_low <= '1';
+      end if;
       ucmd_ack <= '0';
 
       case st is
@@ -635,6 +640,7 @@ begin
 
         when P_TRY =>
           act <= '0';
+          do_low <= '0';
           cs <= '1';
           answered <= '0';
           if perm = 24 then
@@ -666,21 +672,27 @@ begin
 
         when P_DUMMY =>  -- 10 bytes = 80 clocks with CS high
           if cnt = 9 then
+            c0_try <= 0;
             sd_cmd_call(0, x"00000000", 0, '0', P_CMD0R);
           else
             cnt <= cnt + 1;
             xfer(x"FF", P_DUMMY);
           end if;
 
-        when P_CMD0R =>
+        when P_CMD0R =>  -- up to 4 CMD0s (some cards ignore the first)
           if r1 = x"01" then
             answered <= '1';
           end if;
-          if perm = 24 then
-            say("  J9 (CS=DAT3 DI=CMD DO=DAT0 CK=CLK): CMD0 R1=" & hx(r1), P_CHK);
+          if r1 /= x"01" and c0_try /= 3 then
+            c0_try <= c0_try + 1;
+            sd_cmd_call(0, x"00000000", 0, '0', P_CMD0R);
+          elsif perm = 24 then
+            say("  J9 (CS=DAT3 DI=CMD DO=DAT0 CK=CLK): CMD0 R1=" & hx(r1) & " (try " & pin_c(c0_try) &
+                ", DO low seen " & bit_c(do_low) & ")", P_CHK);
           else
             say("  p" & dec2(perm) & " CS=" & pin_c(r_cs) & " DI=" & pin_c(r_di) & " DO=" & pin_c(r_do) &
-                " CK=" & pin_c(r_ck) & ": CMD0 R1=" & hx(r1), P_CHK);
+                " CK=" & pin_c(r_ck) & ": CMD0 R1=" & hx(r1) & " (try " & pin_c(c0_try) &
+                ", DO low seen " & bit_c(do_low) & ")", P_CHK);
           end if;
 
         when P_CHK =>

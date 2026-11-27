@@ -170,8 +170,8 @@ begin
     assert contains(rxbuf, "== done", rxlen) report "no end of run" severity failure;
     assert contains(rxbuf, "=> pulled up", rxlen) report "pin class" severity failure;
     assert not contains(rxbuf, "TIED", rxlen) report "tied pin reported" severity failure;
-    assert contains(rxbuf, "  p00 CS=1 DI=2 DO=3 CK=4: CMD0 R1=FF", rxlen) report "p00 line" severity failure;
-    assert contains(rxbuf, "  p13 CS=3 DI=1 DO=4 CK=2: CMD0 R1=01", rxlen) report "p13 line" severity failure;
+    assert contains(rxbuf, "  p00 CS=1 DI=2 DO=3 CK=4: CMD0 R1=FF (try 4, DO low seen 0)", rxlen) report "p00 line" severity failure;
+    assert contains(rxbuf, "  p13 CS=3 DI=1 DO=4 CK=2: CMD0 R1=01 (try 1, DO low seen 1)", rxlen) report "p13 line" severity failure;
     assert contains(rxbuf, "card answers at p13: CS=J11-3 DI=J11-1 DO=J11-4 CK=J11-2", rxlen)
       report "winner" severity failure;
     assert contains(rxbuf, "CMD8 R1=01 R7=000001AA", rxlen) report "CMD8" severity failure;
