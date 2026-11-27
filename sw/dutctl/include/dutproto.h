@@ -66,6 +66,9 @@ enum dp_key {
   DP_K_HOST_VLAN = 0x0046,   /* host VLAN ID u16 0..4094 (default 0 = untagged): all host traffic
                                 tagged with it, host frames accepted only on it (untagged: ARP,
                                 ICMP, MGMT still answered), issue 0062 */
+  DP_K_VLAN_BASE = 0x0047,   /* VLAN subnet base IPv4 (/24, last octet 0; default 10.231.50.0):
+                                the board answers ARP/ping for base + 16 + DIP[7:4] tagged
+                                with the key 0x0043 VLAN, issue 0063 */
   DP_K_HB_PERIOD = 0x0050,
   DP_K_OUT_POLICY = 0x0060, /* 0 auto (sense), 1 UART/KIO10 forced on (JTAG follows the
                                sense), 2 all outputs off, JTAG included (issue 0056) */
@@ -211,6 +214,12 @@ typedef struct {
   uint8_t has_net;
   uint16_t host_vlan;       /* key 0x0046: host traffic VLAN ID, 0 = untagged */
   uint16_t host_vlan_drops; /* frames for the host path dropped for their VLAN (wrapping) */
+  /* VLAN identity (bytes 200..207, issue 0063); valid only when has_vident
+     (payload >= 200) */
+  uint8_t has_vident;
+  uint8_t vlan_ip[4];       /* board's address on the inter-board VLAN, 0.0.0.0 = off */
+  uint16_t vlan;            /* key 0x0043: inter-board VLAN ID (0 = untagged, identity off) */
+  uint16_t vlan_hits;       /* ARP/ICMP requests answered for vlan_ip (wrapping) */
 } dp_heartbeat_t;
 
 /* heartbeat relay_flags (byte 184, ADR 0005 section 3d, issue 0061) */
@@ -354,6 +363,8 @@ enum { DP_TH_SCALE_HALF = 1, DP_TH_SCALE_QUARTER = 2, DP_TH_SCALE_FULL = 3 /* 1/
 enum { DP_TH_RF_TARGETED = 1, DP_TH_RF_PRIORITY = 2 };
 #define DP_VLAN_DEFAULT 1650 /* inter-board VLAN (key 0x0043) */
 #define DP_HOST_VLAN_DEFAULT 0 /* host VLAN (key 0x0046): untagged */
+#define DP_VLAN_BASE_DEFAULT 0x0AE73200u /* key 0x0047: 10.231.50.0 (issue 0063) */
+#define DP_VLAN_IDENT_OFFSET 16 /* VLAN identity = base + 16 + DIP[7:4] */
 enum { DP_TH_FLAG_PRESENT = 1, DP_TH_FLAG_LAST = 2 };
 
 typedef struct {

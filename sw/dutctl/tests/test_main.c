@@ -38,7 +38,7 @@ typedef struct {
   uint8_t data[DP_RASTER_MAX_PACKET];
   size_t len;
 } vec_t;
-static vec_t vecs[32];
+static vec_t vecs[64];
 static int nvecs;
 
 static void load_vectors(const char *path)
@@ -49,7 +49,7 @@ static void load_vectors(const char *path)
     exit(1);
   }
   static char hex[2 * DP_RASTER_MAX_PACKET + 8];
-  while (nvecs < 32 && fscanf(f, "%31s %6240s", vecs[nvecs].name, hex) == 2) {
+  while (nvecs < 64 && fscanf(f, "%31s %6240s", vecs[nvecs].name, hex) == 2) {
     size_t l = strlen(hex) / 2;
     for (size_t i = 0; i < l; i++) {
       unsigned b;
@@ -95,6 +95,9 @@ static void test_encoders(void)
   check_bytes("mgmt_relay_view", b, dp_encode_mgmt_set(b, 0, 0x0045, DP_K_RELAY_VIEW, &rv, 1));
   uint8_t hv[2] = {0x06, 0x72}; /* host VLAN 1650 (issue 0062) */
   check_bytes("mgmt_host_vlan", b, dp_encode_mgmt_set(b, 1, 0x0062, DP_K_HOST_VLAN, hv, 2));
+  uint8_t vb[4] = {10, 231, 50, 0}; /* VLAN subnet base (issue 0063) */
+  CHECK(((uint32_t)vb[0] << 24 | (uint32_t)vb[1] << 16 | (uint32_t)vb[2] << 8 | vb[3]) == DP_VLAN_BASE_DEFAULT);
+  check_bytes("mgmt_vlan_base", b, dp_encode_mgmt_set(b, 0, 0x0063, DP_K_VLAN_BASE, vb, 4));
   uint8_t bm[10] = {0};
   bm[10 / 8] |= 1 << (10 % 8);
   bm[63 / 8] |= 1 << (63 % 8);
@@ -200,6 +203,15 @@ static void test_decoders(void)
   CHECK(dp_decode_heartbeat(v->data + 8, h.length, &hb) == 0);
   CHECK(hb.has_rxload && hb.rl_fifo_aw == 14 && hb.has_net);
   CHECK(hb.host_vlan == 1650 && hb.host_vlan_drops == 0xFFFE);
+  CHECK(!hb.has_vident && hb.vlan == 0 && hb.vlan_ip[3] == 0);
+
+  v = vec("heartbeat_vident");
+  CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && h.length == 200 && h.dut == 1);
+  CHECK(dp_decode_heartbeat(v->data + 8, h.length, &hb) == 0);
+  CHECK(hb.has_net && hb.host_vlan == 1650 && hb.has_vident);
+  CHECK(hb.vlan_ip[0] == 10 && hb.vlan_ip[1] == 231 && hb.vlan_ip[2] == 50 &&
+        hb.vlan_ip[3] == DP_VLAN_IDENT_OFFSET + 3);
+  CHECK(hb.vlan == 1650 && hb.vlan_hits == 0x0102);
 
   v = vec("snapshot");
   CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && h.type == DP_T_UART_SNAP);
