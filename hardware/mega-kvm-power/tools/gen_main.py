@@ -12,6 +12,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from kigen import Schematic, write_project  # noqa: E402
 import input_stage  # noqa: E402
+import five_volt  # noqa: E402
 from parts import (B5819W, EFUSE_A, EFUSE_L, FAN_CTRL, FAN_HDR, FAN_SW, FP_C1206, FP_R1206,  # noqa: E402,F401
                    HOLE_M3, I2C_MUX, LDO, LED_G, NFET, SS34, TSENS, c, r)
 
@@ -39,8 +40,9 @@ CDVDT = '2n2'    # SR = 2000 pF / C = ~0.9 V/ms -> 0.45 A into 470 uF
 CITIMER = '4n7'  # blanking = C * 1.51 V / 1.8 uA = ~4 ms
 
 
-def efuse_cell(i, bx, by, part, en, out, flt, term):
-    """One eFuse with its passives. i = cell index (0..8)."""
+def efuse_cell(i, bx, by, part, en, out, flt, term, sel=None):
+    """One eFuse with its passives. i = cell index (0..8). sel: the series 1 k
+    goes to this net (the 12 V / 5 V selector JPn, issue 0055) instead of EN."""
     base = 100 + 10 * i
     u = 'U%d' % (i + 1)
     S.box(bx, by, bx + 92, by + 58, '%s: %s' % (u, term[0]))
@@ -52,7 +54,8 @@ def efuse_cell(i, bx, by, part, en, out, flt, term):
     x = bx + 7.62
     step = 7.62
     if en[0] is not None:            # logic-controlled: series R + 20k pull-down
-        P(r('1k'), 'R%d' % (base + 0), x, y, {'1': en[0], '2': en[1]})
+        P(r('1k'), 'R%d' % (base + 0), x, y, {'1': en[0], '2': sel or en[1]},
+          fields={'Note': 'to selector %s pin 2 (shunt 1-2 = this 12 V output)' % sel} if sel else None)
         P(r('20k'), 'R%d' % (base + 1), x + step, y, {'1': en[1], '2': 'GND'})
     else:                            # always-on: UVLO divider from VBUS (~9.4 V rising)
         P(r('100k'), 'R%d' % (base + 0), x, y, {'1': 'VBUS', '2': en[1]})
@@ -77,7 +80,8 @@ for n in range(8):
     col, row = n % 4, n // 4
     bx, by = 12.7 + col * 96.52, 15.24 + row * 66.04
     efuse_cell(n, bx, by, EFUSE_L, ('CTRL%d' % n, 'EN%d' % n), 'OUT%d' % n, '~{FLT%d}' % n,
-               ('DUT%d switched 12 V, 5 A' % n,))
+               ('DUT%d switched 12 V, 5 A' % n + (' (or 5 V via JP%d)' % n if n in five_volt.CHANNELS else ''),),
+               sel='CSEL%d' % n if n in five_volt.CHANNELS else None)
     conn(2, 'J%d' % (10 + n), bx + 76.2, by + 22.86, {'1': 'OUT%d' % n, '2': 'GND'},
          'DUT%d 12V' % n, FP_TERM,
          fields={'MPN': '2-pole 5.08 mm PCB screw terminal, MKDS 1,5/2-5,08 class (13.5 A); '
@@ -228,13 +232,17 @@ nets = {'VCC': '+3V3', 'GND': 'GND', 'SDA': 'SDA', 'SCL': 'SCL', '~{INT}': '~{I2
         'A0': 'EXA0', 'A1': 'EXA1', 'A2': 'EXA2', 'P10': '~{FLT_AON}'}
 for k in range(8):
     nets['P0%d' % k] = '~{FLT%d}' % k
-for k in range(1, 8):
+nets['P11'] = '5V_PRESENT'          # issue 0055: Molex +5 V present (divider R601/R602)
+for k, n in enumerate(five_volt.CHANNELS):   # 0055: 5 V eFuse EN = channel n on and set to 5 V
+    nets['P1%d' % (2 + k)] = 'EN5V%d' % n
+for k in range(5, 8):
     nets['P1%d' % k] = 'EXUNUSED'
 S.place('Interface_Expansion:TCA9535PWR', 'U11', 'TCA9535PWR', ex, ey, nets,
         footprint='Package_SO:TSSOP-24_4.4x7.8mm_P0.65mm', dnp=True,
-        fields={'LCSC': 'C130204', 'Note': 'DNP by default; P00-07 /FLT0-7, P10 /FLT_AON'})
+        fields={'LCSC': 'C130204', 'Note': 'DNP by default; P00-07 /FLT0-7 (5-7: 12 V or 5 V output), '
+                                           'P10 /FLT_AON, P11 5V_PRESENT, P12-14 EN5V5-7'})
 P(r('10k'), 'R11', bx + 83.82, by + 58.42, {'1': 'EXUNUSED', '2': 'GND'}, dnp=True,
-  fields={'Note': 'unused P11-P17 held low; firmware may also set them as outputs'})
+  fields={'Note': 'unused P15-P17 held low; firmware may also set them as outputs'})
 P(c('100n'), 'C7', bx + 83.82, by + 15.24, {'1': '+3V3', '2': 'GND'}, dnp=True)
 for k, (net, to) in enumerate([('EXA0', 'GND'), ('EXA1', 'GND'), ('EXA2', '+3V3')]):
     a, b = ('1', '2') if to == 'GND' else ('2', '1')
@@ -268,6 +276,9 @@ S.text('Notes\n'
 
 # ---------------------------------------------------------------- input stage (0047 round 12)
 input_stage.build(S, P, 609.6, 15.24)
+
+# ---------------------------------------------------------------- 5 V DUT outputs (issue 0055)
+five_volt.build(S, P, 12.7, 419.1)
 
 if __name__ == '__main__':
     os.makedirs(OUTDIR, exist_ok=True)
