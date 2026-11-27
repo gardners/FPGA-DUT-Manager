@@ -141,3 +141,14 @@ docs/scripts only; build id b413b496): **TIMING MET, WNS +0.115 ns, WHS
 HDL testbenches (incl. tb_host_vlan), netproto selftest, 909 dutctl checks,
 52 relay checks. Not loaded on hardware. Bitstream:
 build/vivado/supervisor.bit in the feature/host-vlan worktree.
+
+### 2026-11-27 lead: switched over
+
+Build b413b496 loaded; hwtest 67/0 untagged. `dutctl set 203.28.176.86
+host-vlan 1650`: both endpoints took leases from bob's dnsmasq on eno2.1650
+within seconds: **DUT0 = 10.231.50.146, DUT1 = 10.231.50.162**. Over the
+VLAN: ping 0.2 ms, keyboard CPLD IDCODE, hwtest 67/0. duts.conf
+(`k325t`), targets/qmtech-k325t/ and the K325T doc now use 10.231.50.162.
+The key is volatile: after a reload the board comes back untagged on
+203.28.176.x and needs `dutctl set <ip> host-vlan 1650` (and
+`hdmi-owner 1`) again.
