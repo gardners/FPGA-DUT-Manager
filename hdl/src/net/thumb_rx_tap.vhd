@@ -214,7 +214,7 @@ begin
                 -- header sanity, registered a byte early (timing)
                 sane <= '0';
                 if mbad = '0' and (enc = TH_ENC_RAW or enc = TH_ENC_RLE) and
-                   (((scale = x"01" and width = 320) or (scale = x"02" and width = 160)) and height <= 200 or
+                   ((((scale = x"01" and width = 320) or (scale = x"02" and width = 160)) and height <= 200) or
                     (scale = x"03" and width /= 0 and width <= 1024 and height <= 1023)) and
                    nlines /= 0 and height /= 0 and row + nlines <= height then
                   sane <= '1';

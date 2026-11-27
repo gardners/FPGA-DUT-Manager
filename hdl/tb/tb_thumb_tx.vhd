@@ -4,6 +4,9 @@
 -- every frame byte for byte against netproto.thumb_packets (per-line
 -- RAW888/RLE24 choice, packing, budget split, flags), the no-source frames,
 -- requests and the scale/divisor policy (issue 0038). MS_PER_S = 40.
+-- Issue 0060: 2 Hz requests, full-view requests (targeted, priority, 1/1),
+-- targeted requests for other machines ignored, a targeted request streams
+-- only its machine, frames to a requester tagged, to the forced MAC not.
 -- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.
 library ieee;
 use ieee.std_logic_1164.all;
@@ -29,12 +32,15 @@ architecture tb of tb_thumb_tx is
   signal req_stb : std_logic := '0';
   signal req_mac : std_logic_vector(47 downto 0) := (others => '0');
   signal req_scale, req_div : std_logic_vector(7 downto 0) := x"00";
+  signal req_flags, req_target : std_logic_vector(7 downto 0) := x"00";
+  signal full_want : std_logic := '0';
+  signal full_m : unsigned(4 downto 0) := (others => '0');
   signal cap_done, cap_buf, cap_q : std_logic := '0';
   signal cap_m : unsigned(4 downto 0) := (others => '0');
   signal cap_rows : unsigned(7 downto 0) := (others => '0');
   signal eff_q, lock_v, lock_b, pkt_valid, pkt_taken, treq_valid, treq_taken, strm : std_logic;
   signal eff_div : unsigned(3 downto 0);
-  signal tsc : std_logic_vector(7 downto 0);
+  signal tsc, tdv, tfl, ttg : std_logic_vector(7 downto 0);
   signal lock_m : unsigned(4 downto 0);
   signal pkt : thumb_pkt_t;
   signal pb_raddr : unsigned(12 downto 0) := (others => '0');
@@ -86,6 +92,8 @@ begin
               selecting => selecting, n_seen => n_seen,
               force_mac => force_mac, force_scale => force_scale, force_div => force_div,
               req_stb => req_stb, req_mac => req_mac, req_scale => req_scale, req_div => req_div,
+              req_flags => req_flags, req_target => req_target,
+              full_want => full_want, full_machine => full_m,
               cap_done => cap_done, cap_machine => cap_m, cap_buf => cap_buf,
               cap_quarter => cap_q, cap_rows => cap_rows,
               eff_quarter => eff_q, eff_div => eff_div,
@@ -93,7 +101,8 @@ begin
               mem_req => req(1), mem_rsp => rsp(1),
               pkt_valid => pkt_valid, pkt => pkt, pkt_taken => pkt_taken,
               pb_raddr => pb_raddr, pb_rdata => pb_rdata,
-              treq_valid => treq_valid, treq_scale => tsc, treq_div => open, treq_taken => treq_taken,
+              treq_valid => treq_valid, treq_scale => tsc, treq_div => tdv,
+              treq_flags => tfl, treq_target => ttg, treq_taken => treq_taken,
               streaming => strm, pictures => pics);
 
   process (clk)
@@ -117,7 +126,9 @@ begin
       wait until rising_edge(clk);
       exit when fin;
       if treq_valid = '1' then
-        write(l, string'("treq ") & integer'image(to_integer(unsigned(tsc))));
+        write(l, string'("treq ") & integer'image(to_integer(unsigned(tsc))) & " " &
+          integer'image(to_integer(unsigned(tdv))) & " " & integer'image(to_integer(unsigned(tfl))) & " " &
+          integer'image(to_integer(unsigned(ttg))));
         writeline(fo, l);
         treq_taken <= '1';
         wait until rising_edge(clk);
@@ -133,7 +144,8 @@ begin
           integer'image(to_integer(unsigned(pkt.enc))) & " " &
           integer'image(to_integer(pkt.frame)) & " " & integer'image(to_integer(pkt.row)) & " " &
           integer'image(to_integer(pkt.nlines)) & " " & integer'image(to_integer(pkt.height)) & " " &
-          integer'image(to_integer(pkt.width)) & " " & integer'image(to_integer(pkt.nbytes)) & " ");
+          integer'image(to_integer(pkt.width)) & " " & integer'image(to_integer(pkt.nbytes)) & " " &
+          std_logic'image(pkt.tag)(2) & " ");
         for i in 0 to to_integer(pkt.nbytes) - 1 loop
           pb_raddr <= to_unsigned(i, 13);
           wait until rising_edge(clk);
@@ -214,13 +226,46 @@ begin
     -- request expires after MS_PER_S without repeats
     wait for 50 us;
     assert strm = '0' and eff_q = '0' report "request did not expire" severity error;
-    -- selecting: requests every MS_PER_S/4 with own scale (6 seen -> 1/4)
+    -- selecting: requests every MS_PER_S/2 (2 Hz) with own scale (6 seen -> 1/4)
     n_seen <= to_unsigned(6, 6);
     selecting <= '1';
     n0 := ntreq;
-    wait for 45 us;
-    assert ntreq - n0 >= 3 report "requests not sent while selecting" severity error;
+    wait for 65 us;
+    assert ntreq - n0 >= 3 and ntreq - n0 <= 4 report "requests not sent at 2 Hz while selecting" severity error;
     assert eff_q = '1' and eff_div = 2 report "own scale while selecting" severity error;
+    selecting <= '0';
+    -- full view of machine 9 (issue 0060): targeted, priority, 1/1, divisor 1
+    full_m <= to_unsigned(9, 5);
+    full_want <= '1';
+    n0 := ntreq;
+    wait for 45 us;
+    assert ntreq - n0 >= 2 report "no full-view requests" severity error;
+    full_want <= '0';
+    wait for 50 us;          -- our own requests are not heard (no req_stb)
+    -- a request targeted at machine 7 (not ours) is ignored
+    req_mac <= x"024D36350033"; req_scale <= x"03"; req_div <= x"01";
+    req_flags <= x"03"; req_target <= x"07";
+    wait until rising_edge(clk);
+    req_stb <= '1';
+    wait until rising_edge(clk);
+    req_stb <= '0';
+    wait for 1 us;
+    assert strm = '0' report "streaming for a request targeted at another machine" severity error;
+    -- targeted at our machine 5 (scale 3 -> answered at 1/2): only machine
+    -- 5 is streamed, tagged
+    req_target <= x"05";
+    wait until rising_edge(clk);
+    req_stb <= '1';
+    wait until rising_edge(clk);
+    req_stb <= '0';
+    wait for 1 us;
+    assert strm = '1' and eff_q = '0' and eff_div = 1 report "targeted request policy" severity error;
+    done(4, '1', '0', 16);   -- not the target: not sent
+    wait for 30 us;
+    assert pics = 3 report "sent a picture of a machine that was not the target" severity error;
+    done(5, '0', '1', 6);
+    wait until pics = 4 for 2 ms;
+    assert pics = 4 report "target machine's picture not sent" severity error;
     report "tb_thumb_tx PASSED (frame-level): " & integer'image(npkt) & " frames, " &
       integer'image(ntreq) & " requests";
     fin <= true;
