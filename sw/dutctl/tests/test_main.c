@@ -168,6 +168,18 @@ static void test_decoders(void)
   CHECK(hb.shd_flags == (DP_SF_BUILD | DP_SF_PROBED | DP_SF_PRESENT | DP_SF_SENSE | DP_SF_PWRB));
   CHECK(hb.shd_revision == 1 && hb.shd_features == 0x7F && hb.shd_sense == 0x31);
   CHECK(hb.shd_hdmi == 0x5D && hb.shd_pwr == 0xA5 && hb.shd_i2c_errors == 0x0102);
+  CHECK(!hb.has_relay && hb.rl_last_machine == 0xFF);
+
+  v = vec("heartbeat_relay");
+  CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && h.length == 180 && h.dut == 0);
+  CHECK(dp_decode_heartbeat(v->data + 8, h.length, &hb) == 0);
+  CHECK(hb.has_shield && hb.shd_i2c_errors == 0x0102 && hb.has_relay);
+  CHECK(hb.rl_req_sent == 0x0102 && hb.rl_req_full == 0x0304 && hb.rl_rx_req == 0x0506);
+  CHECK(hb.rl_rx_lines == 0xFFFE && hb.rl_rx_bad == 0x0708 && hb.rl_rx_ovf == 0x090A);
+  CHECK(hb.rl_rx_nosrc == 0x0B0C && hb.rl_rx_vlan == 0x0D0E && hb.rl_rx_long == 0x1011);
+  CHECK(hb.rl_rx_foreign == 0x1213 && hb.rl_full_pics == 0x1415 && hb.rl_full_swaps == 0x1617);
+  CHECK(hb.rl_flags == (DP_RLF_FULL_WANT | DP_RLF_FULL_STALE | DP_RLF_LAST_VALID));
+  CHECK(hb.rl_last_machine == 1 && hb.rl_last_scale == 3 && hb.rl_full_age == 0xFF);
 
   v = vec("snapshot");
   CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && h.type == DP_T_UART_SNAP);

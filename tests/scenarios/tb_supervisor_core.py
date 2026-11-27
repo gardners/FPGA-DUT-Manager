@@ -41,6 +41,7 @@ PEER_MAC = P.mac("02:4D:36:35:00:22")
 PEER_TILE = [bytes((x * 3 + y) & 255 for x in range(480)) for y in range(4)]
 VLAN = P.VLAN_DEFAULT          # inter-board relay traffic (issue 0060)
 # 1/1 picture of machine 3 (DUT1's slot) from a board without HDMI (issue 0060)
+LONG_LINE = bytes((x * 7 + 3) & 255 for x in range(3 * 720))
 FULL_PIC = [bytes((x * 5 + 7 * y) & 255 for x in range(3 * 64)) for y in range(8)]
 # thumbnail of the testbench picture: centre 640 columns (x offset 40), all
 # 8 lines (shorter than 400), 2x2 boxes -> 320 x 4
@@ -157,6 +158,12 @@ def scenario():
     for k in (1, 2):
         for fr in P.thumb_packets(DUT_MAC[0], PEER_MAC, 3, k, FULL_PIC, P.TH_SCALE_FULL, budget=1000, vlan=VLAN):
             f.append((5 if k == 1 else 20, P.with_fcs(fr)))
+    # relay counters (issue 0061): an untagged relay frame (VLAN drop), and a
+    # 1/1 RAW888 frame of 720 pixels for machine 9 (2214 bytes: longer than
+    # a MAC slot; good, but not taken: no full view of machine 9)
+    f.append((100, P.with_fcs(P.thumb_frame(DUT_MAC[1], PEER_MAC, 5, 2, 0, PEER_TILE, P.TH_SCALE_QUARTER, 4))))
+    f.append((100, P.with_fcs(P.thumb_frame(DUT_MAC[0], PEER_MAC, 9, 1, 0, [LONG_LINE], P.TH_SCALE_FULL, 480,
+                                          enc=P.TH_ENC_RAW, vlan=VLAN))))
     return f
 
 
@@ -341,8 +348,9 @@ def check(path):
     if hb0 and (hb0[-1]["addr_src"] != 1 or hb0[-1]["dut_id"] != 0):
         err("DUT0 heartbeat addr_src/dut_id %r" % ((hb0[-1]["addr_src"], hb0[-1]["dut_id"]),))
     for d, h in hbs:
-        if "rx_hunts" not in h or "video_flags" not in h or "mem_flags" not in h or "shd_flags" not in h:
-            err("heartbeat without video/link/memory/shield block (expected 152-byte payload)")
+        if "rx_hunts" not in h or "video_flags" not in h or "mem_flags" not in h or "shd_flags" not in h \
+                or "rl_req_sent" not in h:
+            err("heartbeat without video/link/memory/shield/relay block (expected 180-byte payload)")
             break
         # testbench: no shield (status inputs at defaults): all-zero block
         if any(h[k] for k in P.SHD_FIELDS):
@@ -487,6 +495,21 @@ def check(path):
     # (the full view itself is checked by the testbench: full_on; with the
     # shortened 1 s = 1 ms a heartbeat rarely falls into it)
     shown = sorted(set(h["console_screen"] for h in hb0))
+    # relay counters (issue 0061) in the last heartbeat: one request heard,
+    # good lines frames (two thumbnails, the full pictures, the long one),
+    # the untagged frame dropped, the long frame counted and not taken
+    if hb0:
+        r = {k: hb0[-1][k] for k in P.RELAY_FIELDS}
+        nfull = sum(1 for k in (1, 2) for _ in P.thumb_packets(DUT_MAC[0], PEER_MAC, 3, k, FULL_PIC,
+                                                                P.TH_SCALE_FULL, budget=1000))
+        want = dict(rl_rx_req=1, rl_rx_lines=3 + nfull, rl_rx_bad=0, rl_rx_ovf=0, rl_rx_vlan=1,
+                    rl_rx_long=1, rl_rx_foreign=1, rl_full_pics=2, rl_last_machine=9, rl_last_scale=3)
+        if any(r[k] != v for k, v in want.items()) or r["rl_req_full"] < 1 or \
+                r["rl_req_sent"] < r["rl_req_full"] or r["rl_req_sent"] < len(full) or \
+                not r["rl_flags"] & P.RLF_LAST_VALID or not r["rl_flags"] & P.RLF_FULL_WANT or \
+                r["rl_flags"] & P.RLF_LAST_NOSRC:
+            err("relay counters %r (want %r, requests >= %d)" % (r, want, len(full)))
+        print("relay counters: %s" % " ".join("%s=%d" % (k[3:], v) for k, v in r.items()))
     print("full view: %d tagged requests (%s), console shown %r"
           % (len(full), full[0][14:22].hex() if full else "-", shown))
 

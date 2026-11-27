@@ -148,6 +148,13 @@ if ((${#eps[@]} == 2)); then
 	((same)) && report PASS "hb endpoints agree" "same boot/build/dna" || report FAIL "hb endpoints agree" "boot/build/dna differ"
 fi
 l=${hb[${eps[0]}]}
+# thumbnail relay counters (issue 0061, heartbeat relay block, board-wide)
+if (($(field "$l" has_relay))); then
+	rf=$(field "$l" rl_flags)
+	report INFO "relay counters" "req sent $(field "$l" rl_req_sent) (full $(field "$l" rl_req_full)) heard $(field "$l" rl_rx_req); rx lines $(field "$l" rl_rx_lines) bad $(field "$l" rl_rx_bad) (fifo ovf $(field "$l" rl_rx_ovf)) nosrc $(field "$l" rl_rx_nosrc) vlan-drop $(field "$l" rl_rx_vlan) long $(field "$l" rl_rx_long) foreign $(field "$l" rl_rx_foreign); full pics $(field "$l" rl_full_pics) shown $(field "$l" rl_full_swaps) age $(($(field "$l" rl_full_age) * 8)) ms; flags $rf (b0 want, b1 live, b2 no picture 1 s, b3 last valid, b4 last nosrc, b5 streaming)$( ((rf & 8)) && echo "; last machine $(field "$l" rl_last_machine) scale $(field "$l" rl_last_scale)")"
+else
+	report INFO "relay counters" "no relay block (payload $(field "$l" plen))"
+fi
 caps=$(field "$l" caps)
 report INFO capabilities "$(printf 0x%x "$caps"): uart $((caps & 1)) jtag $((caps >> 1 & 1)) kbd-dev $((caps >> 2 & 1)) phys-kbd $((caps >> 3 & 1)) capture $((caps >> 4 & 1)) chain $((caps >> 5 & 1)) audio $((caps >> 6 & 1))"
 
