@@ -124,6 +124,7 @@ architecture rtl of thumb_tx is
   signal st : st_t := S_IDLE;
   signal sm : unsigned(4 downto 0) := (others => '0');
   signal sb, sq : std_logic := '0';
+  signal stag : std_logic := '0';            -- picture goes to a requester (tagged)
   signal sd : integer range 0 to 1 := 0;
   signal srows, row : unsigned(7 downto 0) := (others => '0');
   signal frame : unsigned(31 downto 0) := (others => '0');
@@ -343,7 +344,7 @@ begin
             elsif pend = '1' then
               pend   <= '0';
               lock_r <= '1';
-              sm <= pm; sb <= pbf; sq <= pq; srows <= prows;
+              sm <= pm; sb <= pbf; sq <= pq; srows <= prows; stag <= to_req;
               if pm = local1 then sd <= 1; else sd <= 0; end if;
               if pq = '1' then
                 nw <= to_unsigned(40, 8); width <= to_unsigned(160, 9); rawb <= to_unsigned(480, 13);
@@ -486,7 +487,7 @@ begin
             pk_r.sub     <= TH_SUB_LINES;
             pk_r.d       <= sd;
             pk_r.dst     <= dst;
-            pk_r.tag     <= to_req;
+            pk_r.tag     <= stag;
             pk_r.machine <= sm;
             pk_r.flags   <= "000000" & last_pkt & '1';
             if sq = '1' then pk_r.scale <= x"02"; else pk_r.scale <= x"01"; end if;

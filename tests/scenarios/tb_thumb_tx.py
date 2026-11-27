@@ -33,7 +33,7 @@ DST_T = P.mac("02:4D:36:35:00:33")     # targeted requester (issue 0060)
 PICTURES = [(4, 0, DST_A, 1, P.TH_SCALE_HALF, tile(4, 320, 16)),
             (5, 1, DST_A, 2, P.TH_SCALE_QUARTER, tile(5, 160, 6)),
             (4, 0, DST_R, 3, P.TH_SCALE_QUARTER, tile(4, 160, 3, zero=True)),
-            (5, 1, DST_T, 4, P.TH_SCALE_HALF, tile(5, 320, 6, zero=True))]
+            (5, 1, DST_T, 4, P.TH_SCALE_QUARTER, tile(5, 160, 6))]
 
 
 def check(path):

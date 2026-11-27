@@ -20,7 +20,7 @@ entity tb_supervisor_core is
   generic (
     VEC_IN  : string := "core_vectors.txt";
     CAP_OUT : string := "core_capture.txt";
-    RUN_US  : natural := 4300
+    RUN_US  : natural := 4800
   );
 end entity;
 
@@ -47,6 +47,8 @@ architecture tb of tb_supervisor_core is
   signal vrgb : std_logic_vector(23 downto 0);
   signal pt_req : std_logic;
   signal pt_seen : boolean := false;
+  signal full_on : std_logic;
+  signal full_seen : boolean := false;
   signal mreq : mem_req_arr_t(0 to 2);
   signal mrsp : mem_rsp_arr_t(0 to 2);
   signal th_seen, th_fresh, th_cur, th_q : std_logic_vector(31 downto 0);
@@ -87,10 +89,12 @@ begin
       -- passthrough (0032): shown as soon as requested (no clock switch here)
       pt_request => pt_req, pt_active => pt_req,
       thumb_mem_req => mreq, thumb_mem_rsp => mrsp,
-      thumb_seen => th_seen, thumb_fresh => th_fresh, thumb_cur => th_cur, thumb_quarter => th_q);
+      thumb_seen => th_seen, thumb_fresh => th_fresh, thumb_cur => th_cur, thumb_quarter => th_q,
+      full_on => full_on);
   mm : entity work.mem_mux_model generic map (N => 3, ADDR_BITS => 17, LATENCY => 20, STALL_EVERY => 7)
     port map (clk => clk_sys, req => mreq, rsp => mrsp);
   pt_seen <= true when pt_req = '1';
+  full_seen <= true when full_on = '1';
 
   urx(0) <= utx(0);
   urx(1) <= '1';
@@ -192,7 +196,7 @@ begin
       integer'image(to_integer(good)) & " bad " & integer'image(to_integer(bad));
     -- one drop: the deliberately oversize JTAG_REQ (issue 0059)
     assert bad = 1 report "RX CRC errors/drops" severity failure;
-    assert good = 51 report "expected 51 good RX frames" severity failure;
+    assert good = 61 report "expected 61 good RX frames" severity failure;
     assert pk_jtagen_seen_low report "JTAGEN never driven low in key 0x0061 mode 3" severity failure;
     -- thumbnails: local machines 0 (DUT0, video target: captured) and 3
     -- (DUT1) seen; machine 5's picture from a peer stored at 1/4 scale
@@ -203,6 +207,10 @@ begin
     -- video present, video target DUT0, auto screen: passthrough requested
     -- until the last frame forces the editable screen (key 0x0035)
     assert pt_seen report "passthrough never requested" severity failure;
+    -- issue 0060: DUT1's machine 3 (no local video) relayed: 1/4 thumbnail
+    -- stored, and as the video target its 1/1 pictures shown full-screen
+    assert th_fresh(3) = '1' or th_q(3) = '1' report "relayed thumbnail of local machine 3 not stored" severity failure;
+    assert full_seen report "full view never shown" severity failure;
     assert pt_req = '0' report "passthrough requested with a forced screen" severity failure;
     report "tb_supervisor_core PASSED (frame-level); run core_scenario.py check";
     done <= true;
