@@ -19,7 +19,8 @@
  *   dutctl jtag-discover [--scan] [--power-cycle --yes] [--write]
  *                                              USB JTAG adaptors -> DUTs
  *   (global: --conf FILE, else $DUTCTL_CONF, else ~/.config/dutctl/duts.conf)
- *   dutctl relay TTY COMMAND...                Arduino relay controller
+ *   dutctl relay [--raw] TTY COMMAND...        Arduino relay controller (out-policy
+ *                                              hooks for DUTs in duts.conf, issue 0056)
  *   dutctl thumbs IFACE [--request] [--force IP] thumbnail relay -> PPM (AF_PACKET)
  *   dutctl screenshot [TARGET] [-o FILE]        one frame -> PNG/PPM (alias -S)
  *
@@ -55,6 +56,7 @@
 #include "jtagspeed.h"
 #include "pngwrite.h"
 #include "rasterframe.h"
+#include "relayhook.h"
 #include "screenshot.h"
 #include "uartstream.h"
 #include "xvc.h"
@@ -199,7 +201,7 @@ static int cmd_set(int argc, char **argv)
             "usage: dutctl set IP NAME VALUE\n"
             "  names: mac ip dhcp dest-ip dest-mac baud uart-fast uart-snap uart-period-us\n"
             "         kbd-policy kbd-override kbd-target video-target coupled capture\n"
-            "         hb-period-ms out-policy (0 auto, 1 on, 2 off)\n"
+            "         hb-period-ms out-policy (0 auto, 1 UART/KIO10 on, 2 all off incl. JTAG)\n"
             "         kbd-leds (physical keyboard LEDs: 0 status colour, 1 DUT's, 2 host)\n"
             "         console-screen (0 auto incl. passthrough, 1 editable, 2 no video, 3 select)\n"
             "         kbd-jtag (keyboard CPLD JTAG: 0 auto, 1 on, 2 off, 3 on with JTAGEN low)\n"
@@ -1280,11 +1282,68 @@ static int relay_run(const char *tty, int argc, char **argv, int quiet)
   return rc;
 }
 
+/* out-policy for one hooked DUT; returns 0 when acknowledged */
+static int relay_hook_policy(const dc_dut_t *d, uint8_t pol, const char *why)
+{
+  if (!d->ip[0]) {
+    printf("DUT %s: no ip in %s, out-policy %u not set (%s)\n", d->name, conf_path(), pol, why);
+    return 1;
+  }
+  printf("DUT %s (%s): out-policy %u (%s) %s\n", d->name, d->ip, pol,
+         pol == DP_OUTPOL_OFF ? "outputs off, JTAG included" : "auto", why);
+  fflush(stdout);
+  if (mgmt_set_q(d->ip, DP_K_OUT_POLICY, &pol, 1, 1)) {
+    fprintf(stderr, "  WARNING: out-policy %u on %s not acknowledged\n", pol, d->ip);
+    return 1;
+  }
+  return 0;
+}
+
+/* dutctl relay [--raw] TTY COMMAND...: before a relay command cuts a DUT's
+ * power, the DUTs mapped to those channels in duts.conf (relay = TTY CH) get
+ * out-policy 2, so the supervisor stops driving them (no back-powering,
+ * issue 0056); after switching on they get out-policy 0 again. --raw sends
+ * the command alone. */
 static int cmd_relay(int argc, char **argv)
 {
+  int raw = 0;
+  if (argc > 0 && !strcmp(argv[0], "--raw")) {
+    raw = 1;
+    argc--;
+    argv++;
+  }
   if (argc < 2)
-    return fprintf(stderr, "usage: dutctl relay TTY COMMAND...  (e.g. STATUS, STATUS 3, POWER 3 ON, POWER 1 2 OFF, CYCLE 2 3000, ALL OFF)\n"), 2;
-  return relay_run(argv[0], argc - 1, argv + 1, 0);
+    return fprintf(stderr,
+                   "usage: dutctl relay [--raw] TTY COMMAND...  (e.g. STATUS, STATUS 3, POWER 3 ON, POWER 1 2 OFF, "
+                   "CYCLE 2 3000, ALL OFF)\n"
+                   "  POWER .. OFF / ALL OFF / CYCLE first set out-policy 2 on the DUTs that duts.conf maps\n"
+                   "  to those channels (relay = TTY CHANNEL); POWER .. ON / CYCLE set out-policy 0 %d ms\n"
+                   "  after switching on. --raw: the relay command only.\n",
+                   RH_SETTLE_MS),
+           2;
+  const char *tty = argv[0];
+  rh_plan_t p;
+  if (raw || !rh_plan(conf(), tty, argc - 1, argv + 1, &p))
+    return relay_run(tty, argc - 1, argv + 1, 0);
+  const dc_conf_t *c = conf();
+  for (int i = 0; i < p.npre; i++)
+    relay_hook_policy(&c->d[p.pre[i]], DP_OUTPOL_OFF, "before switching off");
+  int rc = relay_run(tty, argc - 1, argv + 1, 0);
+  if (rc && p.npre && !p.npost)
+    printf("relay command failed: the DUTs above keep out-policy 2 (outputs off); "
+           "dutctl set IP out-policy 0 to undo\n");
+  if (p.npost) {
+    if (rc) {
+      printf("relay command failed: out-policy left as it is\n");
+      return rc;
+    }
+    struct timespec ts = {.tv_sec = p.post_delay_ms / 1000, .tv_nsec = (p.post_delay_ms % 1000) * 1000000L};
+    while (nanosleep(&ts, &ts) && errno == EINTR)
+      ;
+    for (int i = 0; i < p.npost; i++)
+      relay_hook_policy(&c->d[p.post[i]], DP_OUTPOL_AUTO, "after switching on");
+  }
+  return rc;
 }
 
 /* ------------------------------------------------------------- duts */
@@ -1709,7 +1768,7 @@ static void usage(void)
           "  dutctl jtag-speed IP [DUT] | NAME [--kbd] [--reps N] [--save] [--from H] [--to H]\n"
           "  dutctl duts [--help]              configured DUTs (per-DUT JTAG setup)\n"
           "  dutctl jtag-discover [--scan] [--all] [--power-cycle --yes [--dut NAME]... [--write]]\n"
-          "  dutctl relay TTY COMMAND...\n"
+          "  dutctl relay [--raw] TTY COMMAND...\n"
           "  dutctl text IP [--screen N] [--fg N] [--bg N] [--force] [--jumbo] [--file F | LINE ...]\n"
           "  dutctl video IP [--frames N] [--out PREFIX] [--enable] [--require-complete]\n"
           "  dutctl thumbs IFACE [--out PREFIX] [--pictures N] [--request] [--force IP] [--scale 1|2]\n"

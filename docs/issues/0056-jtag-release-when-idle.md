@@ -1,6 +1,6 @@
 # 0056: Release (tri-state) DUT JTAG outputs when idle
 
-Status: proposed (owner question 2026-11-27). Related: 0054, 0055,
+Status: implemented on `feature/no-backfeed` (2026-11-27), hardware check pending. Owner question 2026-11-27. Related: 0054, 0055,
 docs/cabling/dut-cable.md section 4.
 
 ## Question (owner, 2026-11-27)
@@ -61,3 +61,63 @@ Revised plan (lead), simpler than releasing the pins on a timer:
    the DUT mapped to relay channel N in duts.conf first, and `on` restores
    out-policy 0 after switching on.
 4. Applies to all three jtag_engines (DUT0, DUT1, keyboard CPLD).
+
+## 2026-11-27 implementation started (sub-agent, branch `feature/no-backfeed`)
+
+Scope: points 1-4 above: TMS/TDI parked low after every transaction in
+`jtag_engine` (all three engines), out-policy 2 also gates JTAG, a
+power-off hook on the shield CTRL bits (bit n -> DUT n, n = 0..1, matching
+the power board's "CTRLn = DUTn power on" labelling), and the `dutctl relay
+... power N on|off` hooks via duts.conf. Testbenches, ADR 0005 key text and
+`docs/cabling/dut-cable.md` follow.
+
+## 2026-11-27 progress: implemented (sub-agent, `feature/no-backfeed`)
+
+* **Parking**: `jtag_engine` S_DONE (completion and abort) sets TMS = TDI =
+  '0' with TCK '0'; no TCK edge. The next transaction drives its first
+  TMS/TDI at the start of the low phase, half_period (>= 2) clk cycles
+  before the first rising edge (unchanged sequencing). All three engines.
+  `tb_jtag_engine` now asserts the parked pins on every idle cycle and
+  fails on any TCK edge outside a transaction; new cases end a
+  transaction in Run-Test/Idle and in Pause-DR, wait 1 us parked, and
+  continue (IDCODE read in two halves across a parked Pause-DR); abort on
+  power loss also parks.
+* **out-policy 2** (key 0x0060) now also forces JTAG off: new entity
+  `hdl/src/top/dut_out_gate.vhd` (+ `tb_dut_out_gate`) feeds the engine's
+  `powered` input with `sense and not forced-off`, so a JTAG_REQ gets
+  status 4 (unpowered) without consuming the seq and a running one aborts.
+  1 still forces only UART TXD / KIO10 on. Heartbeat jtag_status b3 now
+  reports the engine's view (unpowered or forced off).
+* **Shield power-off hold**: CTRL bit n = DUT n (the power board labels
+  CTRLn "DUTn power on"; this board's endpoints are DUT0/DUT1, bits 2-7
+  have no effect here). Effective bit = key 0x0062 value once set, else the
+  adopted CTRL state. While the shield answers (shd flags b2), bit n 1 -> 0,
+  or bit n = 0 when the shield first answers with DUT n unsensed, sets a
+  hold: UART TXD, KIO10 and JTAG of DUT n off from the next clock, i.e.
+  before the I2C write drops CTRL n. The hold ends when bit n is 1 again or
+  the sense goes low and then high (DUT powered from elsewhere); it
+  overrides out-policy 1. Heartbeat target_flags b4 = hold (ADR 0005,
+  proto_pkg TF_PWR_HOLD, dutproto.h DP_TF_*, netproto TF_*). Not exercised
+  in `tb_supervisor_core` (its shield inputs stay at defaults so the
+  shield-block checks hold); covered by `tb_dut_out_gate`.
+* **dutctl**: `dutctl relay [--raw] TTY POWER N.. OFF|ON`, `ALL OFF`,
+  `CYCLE N MS`: out-policy 2 on the DUTs duts.conf maps to those channels
+  before switching off; out-policy 0 500 ms after switching on (CYCLE:
+  MS + 500 ms). TTYs match by name or realpath. Hook failures warn but do
+  not stop the relay command. `src/relayhook.c` + unit tests.
+  `jtag-discover --power-cycle` still calls the relay without hooks.
+* `tb_supervisor_core` scenario: out-policy 2 -> DUT0 JTAG_REQ status 4,
+  out-policy 0 -> same seq reads IDCODE; last heartbeat shows outputs on.
+* Tests: 34/34 HDL testbenches, dutctl 356 checks, relay_core 52 checks.
+* Vivado build of cf8acc8 (build id cf8acc83; later commits change no
+  HDL behaviour, only an unused proto_pkg constant): **WNS 0.095 ns, WHS
+  0.049 ns, timing met**. Not loaded on hardware.
+
+Hardware checks for the lead: (1) after an XVC / `jtag-idcode` run, TMS and
+TDI on the DUT header read low with the sense powered; (2) `dutctl set IP
+out-policy 2` -> `jtag-idcode` answers unpowered, heartbeat target_flags
+b2 = 0; 0 -> IDCODE again; (3) a Vivado XVC session over the parked pins
+still works (TAP state kept across shifts); (4) switch a DUT off with
+out-policy 0: the sense now drops (no back-powered hold-up); (5) shield
+build: key 0x0062 bit 0/1 1 -> 0 shows target_flags b4 and tri-states
+before CTRL drops.

@@ -285,6 +285,7 @@ architecture rtl of supervisor_core is
 
   -- sense / enables
   signal vio_s, kb_s, powered, out_en : std_logic_vector(1 downto 0);
+  signal pwr_eff, jpow, phold : std_logic_vector(1 downto 0);
   signal dstat : dut_status_arr_t;
   signal bstat : board_status_t;
   signal frames_sent : unsigned(31 downto 0);
@@ -478,10 +479,14 @@ begin
     -- 3.3 V rail). The bench JTAG strip skips JB1's VIO row (ADR 0008
     -- amendment 2), so the keyboard cable alone must enable the outputs.
     powered(i) <= vio_s(i) or kb_s(i);
-    -- output policy: 0 auto (sense), 1 force on, 2 force off
-    out_en(i) <= '1' when cfg(i).out_policy = x"01" else
-                 '0' when cfg(i).out_policy = x"02" else
-                 powered(i);
+    -- output policy (key 0x0060: 0 auto, 1 force UART/KIO10 on, 2 force
+    -- everything off, JTAG included) and the shield power-off hold: CTRL
+    -- bit i = DUT i's power (power board CTRLn = DUTn), issue 0056
+    pwr_eff(i) <= bcfg.pwr_ctl(i) when bcfg.pwr_set = '1' else shd_status.pwr(i);
+    og : entity work.dut_out_gate
+      port map (clk => clk_sys, policy => cfg(i).out_policy, powered => powered(i),
+                shd_present => shd_status.flags(2), pwr_eff => pwr_eff(i),
+                out_en => out_en(i), jtag_pow => jpow(i), hold => phold(i));
     baud(i) <= cfg(i).baud_inc;
 
     dc : block
@@ -536,7 +541,7 @@ begin
 
     je : entity work.jtag_engine
       port map (
-        clk => clk_sys, powered => powered(i),
+        clk => clk_sys, powered => jpow(i),
         req_valid => jreq_valid(i), req_seq => jreq_seq, req_bits => jreq_bits,
         req_half => jreq_half, req_abort => jreq_abort,
         dec_valid => jdec_valid(i), dec_code => jcode,
@@ -558,7 +563,7 @@ begin
     kio10_oe(i) <= out_en(i);
 
     -- status for heartbeat (phase 1: UDP always owns the keyboard)
-    dstat(i).target_flags  <= "0000" & '1' & out_en(i) & vio_s(i) & kb_s(i);
+    dstat(i).target_flags  <= "000" & phold(i) & '1' & out_en(i) & vio_s(i) & kb_s(i);
     route(i) <= pk_present when sel_kbd = i else '0';
     arb : entity work.kbd_arbiter
       port map (clk => clk_sys, udp_strobe => kbd_strobe(i), udp_keys => kbd_udp(i),
@@ -570,7 +575,7 @@ begin
     dstat(i).kbd_eff       <= kbd_eff(i);
     dstat(i).kbd_udp       <= kbd_udp(i);
     dstat(i).dut_leds      <= dut_leds(i);
-    dstat(i).jtag_status   <= "0000" & not powered(i) & jab(i) & jready(i) & jbusy(i);
+    dstat(i).jtag_status   <= "0000" & not jpow(i) & jab(i) & jready(i) & jbusy(i);
     dstat(i).jtag_next_seq <= j_next(i);
     dstat(i).uart_rx_seq   <= u_rx_seq(i);
     dstat(i).uart_tx_acc   <= u_tx_acc(i);

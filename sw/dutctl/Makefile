@@ -7,7 +7,7 @@ CFLAGS += -std=c11 -Wall -Wextra -Werror -Iinclude
 LDLIBS += -lm
 
 LIB_SRC := src/dutproto.c src/uartstream.c src/xvc.c src/rasterframe.c src/pngwrite.c src/screenshot.c \
-           src/dutconf.c src/jtagdisc.c src/jtagspeed.c
+           src/dutconf.c src/jtagdisc.c src/jtagspeed.c src/relayhook.c
 LIB_OBJ := $(LIB_SRC:src/%.c=$(BUILD)/%.o)
 
 .PHONY: all test clean install

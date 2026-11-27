@@ -161,14 +161,26 @@ tri-stated. The 1 kOhm keeps the sense reliable and limits current if the
 Mimas is unpowered (back-feed through its input clamp) or the ball is ever
 driven low by a wrong bitstream (3.3 mA instead of a short on the K325T
 3V3 rail). There is no workaround without the wire: the JTAG outputs follow
-the power sense only; `out-policy` (key 0x0060) switches the UART and
-keyboard outputs, not JTAG.
+the power sense (`out-policy` 1 forces the UART and keyboard outputs on,
+not JTAG; `out-policy` 2 forces all of them off, JTAG included).
 
-**Back-powering caution (2026-11-27):** while the sense reads powered, TCK
-(low), TMS and TDI (their last bit, TMS usually high after a reset to
-Test-Logic-Reset) stay driven between transactions. When the DUT is switched
-off, a high TMS/TDI feeds its 3V3 rail through the FPGA's input clamp
-diodes; if that holds the rail high enough, the sense keeps reading powered
-and the outputs keep driving. Until the supervisor releases idle JTAG
-outputs (issue 0056), unplug the JTAG lead or leave the DUT powered while
-the lead is connected and the supervisor is running.
+**Back-powering (issue 0056, bitstreams from branch `feature/no-backfeed`
+on):** between transactions the supervisor parks TCK, TMS and TDI **low**
+(no TCK edge, so the TAP keeps its state and an XVC session can continue).
+Low outputs cannot feed a switched-off DUT's 3V3 rail through its input
+clamps, so the sense drops and the outputs tri-state. (Earlier bitstreams
+left TMS/TDI at their last bit, TMS usually high, which could hold the rail
+and the sense up: a self-sustaining back-powered state.) Still driven while
+the DUT is sensed powered: UART TXD and KIO10 idle **high**, so switch the
+outputs off before cutting power:
+
+* Relay power: `dutctl relay TTY POWER N OFF` sets `out-policy` 2 on the
+  DUT that duts.conf maps to that channel (`relay = TTY N`) first, and
+  `POWER N ON` restores `out-policy` 0 half a second after switching on
+  (`--raw` skips this). By hand: `dutctl set IP out-policy 2`.
+* Shield power (key 0x0062): when the supervisor switches CTRL0/CTRL1 off,
+  DUT0/DUT1's outputs (UART, KIO10, JTAG) go off at the same time, until
+  the bit is on again (heartbeat target_flags b4 shows the hold).
+
+A DUT powered while the supervisor itself is off can still back-power the
+Mimas through its I/O clamps (see Cautions above).

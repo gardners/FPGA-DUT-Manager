@@ -70,6 +70,7 @@ hdl/src/video/seg7_status.vhd
 hdl/src/video/edid_pkg.vhd
 hdl/src/video/ddc_edid.vhd
 hdl/src/top/shield_io.vhd
+hdl/src/top/dut_out_gate.vhd
 hdl/src/top/supervisor_core.vhd
 hdl/src/platform/xc7/xc7_prims_pkg.vhd
 hdl/src/video/hdmi_framer.vhd
