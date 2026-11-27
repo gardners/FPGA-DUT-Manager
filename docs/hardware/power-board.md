@@ -1,7 +1,8 @@
 # MEGA-KVM power board (issue 0047)
 
 Status: draft v0.4 (2026-11-27: **one board**, owner round 12; earlier:
-round 5, round 9 and the fan control of issue 0052). The schematic passes
+round 5, round 9 and the fan control of issue 0052; **three 5 V DUT
+outputs**, issue 0055, 2026-11-27). The schematic passes
 ERC and the placed board passes DRC with schematic parity. Polygons are
 sketched; the board is **not routed**.
 
@@ -9,11 +10,11 @@ KiCad 10 projects: `hardware/mega-kvm-power/`
 
 | Path | What |
 |---|---|
-| `mega-kvm-power-main/` | **the power board** (one board since round 12): 3 inputs with LTC4417CGN priority selection, master-switch connector, 8 switched DUT outputs, the always-on group, 8 PWM fan headers with I2C fan control, temperature (horizontal, 230 x 138.5 mm, at the front of the KVM deck) |
+| `mega-kvm-power-main/` | **the power board** (one board since round 12): 3 inputs with LTC4417CGN priority selection, master-switch connector, 8 switched DUT outputs (channels 5-7 switchable to 5 V, issue 0055), the always-on group, 8 PWM fan headers with I2C fan control, temperature (horizontal, 230 x 138.5 mm, at the front of the KVM deck) |
 | `mega-kvm-power-inputs/` | **legacy** (round 12): the separate input board (v0.3, 126 x 64 mm). Kept in the tree, not built or developed |
 | `mega-kvm-power-inputs-lm74700/` | **legacy**: JLC-stocked fallback input board (schematic only): 3 x LM74700-Q1 ideal diodes + P-FET switches + LM339 priority logic. Its circuit still applies if the LTC4417 cannot be sourced, but it would have to be ported into the one board |
 | `lib/` | project symbols (TPS259470, PMOS_TDSON8, NMOS_TDSON8, TVS_Uni, LTC4417 copy, BSP452) and footprints (TI RPW0010A, Molex 8981, MSOP-10 with 0.28 mm pads) |
-| `tools/` | generators: `gen_main.py` + `input_stage.py` (the schematic), `placement.py` + `pcb_build.py` (board), `build_all.sh` (one board; `LEGACY=1` also rebuilds `gen_inputs.py` / `gen_inputs_lm74700.py`); helpers `check_board.sh main\|inputs` (one board + ERC/DRC), `fpdump.py` (placed courtyards/pads), `fpbbox.py` (library footprint extents) |
+| `tools/` | generators: `gen_main.py` + `input_stage.py` (the schematic), `five_volt.py` (the 5 V outputs, 0055), `placement.py` + `pcb_build.py` (board), `build_all.sh` (one board; `LEGACY=1` also rebuilds `gen_inputs.py` / `gen_inputs_lm74700.py`); helpers `check_board.sh main\|inputs` (one board + ERC/DRC), `fpdump.py` (placed courtyards/pads), `fpbbox.py` (library footprint extents) |
 | `out/` | schematic PDFs, ERC/DRC reports, BOM and CPL CSVs, 3D renders (top/bottom PNG) |
 
 The schematics and boards are **generated**. Edit the Python and run
@@ -31,10 +32,12 @@ ugly but exact; KiCad's netlist and the PCB parity check agree.
  banana 4 mm --F1 25 A--TVS--V1--[Q501 Q502 (Q512) | Q503 Q504 (Q513)]--+
  PCIe 8-pin  --F2 15 A--TVS--V2--[Q505             | Q506            ]--+--VBUS--> 8 x TPS259470L (5 A) --> DUT0..7 terminals
  Molex 4-pin --F3 10 A--TVS--V3--[Q507             | Q508            ]--+    |
+   pin 4 +5 V --F4 10 A--TVS--+5V--> 3 x TPS259470L (3 A) --> DUT5-7 "5V ONLY" (JST VH)
                  (LTC4417 U50: V1 > V2 > V3)                                 +--> 1 x TPS259470A (5 A) --> AON12: 2 x Mimas,
  V1/V2/V3 --diode-OR--> VIN_OR --> J54 --> front-panel rocker --> EN              GS105 barrel, 8 x BSP452 --> FAN0..7
  input-selected LEDs D507-D509 by the connectors; TMP75 0x48 on the FET copper   CTRL 1x11 from the shield, STATUS,
                                                                                  J5 I2C: TCA9548A -> 4 x EMC2302
+ CTRL5-7 --1 k--> JP5-7 (shunt 1-2: 12 V eFuse EN5-7 | 2-3: 5 V eFuse EN | none: both off)
 ```
 
 * **One input at a time, automatic priority:** the LTC4417 connects the
@@ -190,12 +193,13 @@ side, plugged from above through the open top of the KVM unit.
 |---|---|---|---|---|---|
 | J50/J51 | 4 mm PCB-mount banana sockets, red +12 V / black GND (24.243.1/.2, C7437321/C7437322, 24 A, THT) | 8.0 / 27.05 (19.05 mm pitch), centres 7.5 mm from the edge | 1 each | 24 A (20 A design point; owner round 13: the 25 A fuse is accepted) | F1 25 A ATO |
 | J52 | PCIe 8-pin (Mini-Fit Jr 2x4 vertical header, PCIe keying) | 35.3-54.4 (pin 1 at 38.5) | 1-3 +12 V, 4-8 GND (sense pins tied to GND) | 150 W = 12.5 A by spec | F2 15 A ATO |
-| J53 | Molex 8981 4-pin peripheral ("5.25-inch drive") male header | 57.3-80.0 (pin 1 at 61.0) | 1 +12 V, 2-3 GND, 4 +5 V **unused** | ~11 A per contact | F3 10 A ATO |
+| J53 | Molex 8981 4-pin peripheral ("5.25-inch drive") male header | 57.3-80.0 (pin 1 at 61.0) | 1 +12 V, 2-3 GND, 4 **+5 V** (since 0055: the 5 V DUT outputs) | ~11 A per contact | F3 10 A ATO (12 V); **F4 10 A ATO (5 V)** |
 | J54 | JST XH 3-pin to the front-panel rocker | 83-94 (pin 1 at 86.0) | 1 SUPPLY (VIN_OR via 47 R), 2 LOAD/EN_SW (lamp +), 3 GND (lamp -) | signal | - |
 | D507/D508/D509 | green LEDs "IN1/IN2/IN3 selected", just behind each connector | 17.5 / 50 / 67 | - | - | - |
+| D601 | green LED "5V" (Molex +5 V present after F4; 0055), beside J53 pin 4 | 78.5 | - | - | - |
 
-The fuse holders (F1-F3) sit in a row 21 mm behind the front edge, also
-reachable from above. No power connector passes through the front panel.
+The fuse holders (F1-F4) sit in a row 21 mm behind the front edge, also
+reachable from above (F4, the 5 V fuse, at x 77-98). No power connector passes through the front panel.
 
 Each input: blade fuse, then **SMCJ15A** unidirectional TVS (Vrwm 15 V,
 clamp 24.4 V at 61.5 A, below the 28 V abs max of the TPS25947 and the
@@ -211,9 +215,11 @@ board's 3.3 V LDO on VBUS, so they are dark when the master switch is off.
 | J10-J17 "DUT0-7 12V" | 1 + (OUTn), 2 - (GND) | 2-pole 5.08 mm **screw terminal** per DUT (MKDS 1,5/2-5,08 class, 13.5 A; JLC-stocked KF128/DG128 clone), for leads that end in barrel plugs (owner round 5) |
 | J20/J21 "MIMAS0/1 12V" | 1 +12 V (always on), 2 GND | Molex Mini-Fit Jr 2-pin (5566-02A), 9 A, latching, polarised: goes to the shield's 12 V input, then Mimas header VIN (0045) |
 | J22 "GS105 12V" | centre +12 V | CUI PJ-102AH 2.1 mm jack; needs a male-male 5.5/2.1 lead |
+| J61-J63 "DUT5-7 5V ONLY" | 1 +5 V (OUT5V5-7), 2 GND | **JST VH 2-pin** vertical B2P-VH (C160315), 3.96 mm, 10 A per contact, friction-lock latch, polarised. Rear edge x 171-210 (pin 1 at x 174 / 189 / 204, y 7.5). Mates VHR-2N (C595405) + SVH-21T-P1.1 crimps (C160349, 18-22 AWG). Nothing else on the board uses VH, so a 5 V lead cannot land on a 12 V output (issue 0055) |
+| JP5-JP7 "CH5-7 12V/5V" | 1 EN5-7 (12 V eFuse), 2 CSEL (CTRLn via 1 k), 3 EN5V5-7 (5 V eFuse) | 1x3 2.54 mm header (C2932698) + shunt (C100114), by J3 at x 100/105/110. See "5 V DUT outputs" |
 | J30-J37 "FAN0-7" | 1 GND, 2 +12 V, 3 TACH, 4 PWM | Molex 47053-1000 4-pin PWM fan header (C240840). FAN0-1 KVM front panel, FAN2-4 shelf fan plate A, FAN5-7 plate B. 3-pin fans fit and run at full speed. See "Fans, I2C and temperature" |
 | **J3 "CTRL"** | see below | from the shield's 1x11 keyed header |
-| J4 "STATUS" 1x10 | 1 GND, 2-9 /FLT0-7, 10 /FLT_AON | open drain, 10 k pull-ups to the local 3.3 V (fan tach moved to I2C) |
+| J4 "STATUS" 1x10 | 1 GND, 2-9 /FLT0-7, 10 /FLT_AON | open drain, 10 k pull-ups to the local 3.3 V (fan tach moved to I2C). /FLT5-7 = channel 5-7 fault, from whichever output (12 V or 5 V) JP5-7 selects (wire-OR, 0055) |
 | J5 "I2C" 1x5 | 1 GND, 2 3V3 (only via JP1), 3 SDA, 4 SCL, 5 /INT | shield I2C bus: fan controllers (via the mux), TMP75, optional TCA9535. /INT is a wire-OR of every ALERT, 10 k pull-up (R12) |
 
 ### Control header (J3): pin order (adopted by the owner, round 5)
@@ -226,7 +232,7 @@ on reversed; the middle pin (6) would not key.
 |---|---|---|
 | 1 | GND | - |
 | 2 | KEY (no pin) | - |
-| 3-10 | CTRL0..CTRL7 = DUT0..DUT7 power on (active high, 3.3 V) | in, 1 k series, 20 k pull-down to GND |
+| 3-10 | CTRL0..CTRL7 = DUT0..DUT7 power on (active high, 3.3 V) | in, 1 k series, 20 k pull-down to GND. CTRL5-7 switch the 12 V **or** the 5 V output of their channel, as JP5-7 select (0055) |
 | 11 | PRESENT | out: 3.3 V through 10 k when the power board is connected **and powered**; the shield should pull it down (100 k) |
 
 One cable from the **master shield** drives all 8 outputs (owner round
@@ -248,12 +254,14 @@ as the shield's own SHD_FEAT1 strap.
 | Inrush per output | ~0.9 V/ms (C_dVdt 2.2 nF), 0.45 A into 470 uF | TPS25947 eq. 4 |
 | Overcurrent blanking | ~4 ms (C_ITIMER 4.7 nF), up to 2 x ILIM meanwhile | |
 | Sum of limits | 8 x 5 + 5 = 45 A > 25 A input | the input fuse/PSU is the real total limit; MEGA65s draw far less |
+| +5 V (0055) | from Molex pin 4 only, F4 **10 A**; 3 x 3.03 A limits = 9.1 A | Molex 8981 contact ~11 A; PSU 5 V lead 18 AWG; see "5 V DUT outputs" |
+| 5 V outputs | 3 x 3.03 A (R_ILM 1.1 k), OVLO 5.90 V rising / 5.36 V falling (392 k / 100 k), ~0.8 V/ms (2.2 nF), ~4 ms blanking (4.7 nF), latch-off | TPS25947 eq. 5, OVLO thresholds 1.20 V / 1.09 V |
 | eFuse dissipation | 5 A x 5 A x 28-45 mOhm = 0.7-1.1 W, about 30-47 K rise (RthJA 41.7 K/W EVM) | continuous 5 A per DUT is not expected |
 | Input FETs | BSC030P03NS3G, 3 mOhm; banana: 2 in parallel per side, 12.5 A each = ~0.5 W (pads for a third pair Q512/Q513, DNP); PCIe 15 A single = ~0.7 W | |
 | Copper | **2 oz** both layers (stackup set in the boards) | |
 | Polygon width | VBUS >= 12.5 mm on each layer at 25 A for a 10 K rise (IPC-2221, external, 70 um); >= 1 mm per 5 A output (polygons are wider) | main VBUS pour ~36 mm, joined directly to the output FETs' drains (v0.4, sketch) |
 | Board-to-board | none since round 12 (one board) | |
-| 3.3 V | L78L33 (30 V input, 100 mA) | FLT/tach/PWM pull-ups, PRESENT, 4 x EMC2302, mux, TMP75, 3 input LEDs: < 30 mA, ~0.25 W in the SOT-89 |
+| 3.3 V | L78L33 (30 V input, 100 mA) | FLT/tach/PWM pull-ups, PRESENT, 4 x EMC2302, mux, TMP75, 3 input LEDs: < 30 mA, ~0.25 W in the SOT-89 (the 5 V LEDs run from +5 V, not from here) |
 
 Output discharge: the TPS25947 has no quick-output-discharge. The 4.7 k
 LED resistor on each output (about 2.5 mA) bleeds an unloaded output down.
@@ -278,7 +286,11 @@ fee. Check stock when ordering.
 | **SMCJ15A** | input TVS x 3 | C2834490 (MDD) | 1500 W, clamps below every downstream abs max. |
 | SS34 / B5819W / 2N7002 | output clamps / diode-OR / LED logic | C8678 / C8598 / C8545 | JLC basic parts (verify). |
 | Diodes **BAT54WS-7-F** | LTC4417 gate turn-off diodes D510-D512 (round 13) | C124205 (43.8k), $0.10 | SOD-323, 30 V Schottky. |
-| **TCA9535PWR** | optional fault expander (DNP) | C130204 (extended) | 16 inputs: /FLT0-7 on P0, /FLT_AON on P1.0. Address **0x24** (A2 high), clear of the shield's 0x20/0x22. |
+| **TCA9535PWR** | optional fault expander (DNP) | C130204 (extended) | 16 inputs: /FLT0-7 on P0, /FLT_AON on P1.0, **5V_PRESENT on P1.1** (0055). Address **0x24** (A2 high), clear of the shield's 0x20/0x22. |
+| TI **TPS259470LRPWR** (0055) | 3 x 5 V DUT eFuses U61-U63 | C3662793 (same row as the 12 V eFuses: 11 per board) | Same part, same footprint, same stock problem (0 at JLC on 2026-11-27). |
+| **SMBJ5.0A** (0055) | +5 V input TVS D600 | C2758500, ~33k in stock, $0.04 | SMB, Vrwm 5.0 V, Vbr 6.4 V min, Vc 9.2 V. |
+| JST **B2P-VH(LF)(SN)** (0055) | 3 x 5 V output connectors J61-J63 | C160315, ~140k in stock, $0.06 | THT, 10 A per contact. Cable side VHR-2N (C595405, 23k) + SVH-21T-P1.1 (C160349, 306k). |
+| 1x3 2.54 mm header + shunt (0055) | JP5-JP7 channel selectors | C2932698 (4.5k, $0.02) + C100114 shunt (339k, $0.01) | Shunts are loose parts, fitted at box assembly. |
 | L78L33ACUTR | 3.3 V, 30 V input | TBD | Survives the TVS clamp level. (AP7381, 40 V, is not at LCSC.) |
 | Microchip **EMC2302-1-AIZL-TR** | 4 x fan controller (2 fans each) | C626969, 217 in stock, $3.14 (1-9) / $2.66 (10+) | MSOP-10, no pad. 26 kHz PWM, tach per fan, watchdog to 100 %. Fixed address 0x2E, hence the mux. Extended part. |
 | TI **TCA9548APWR** | I2C switch for the four EMC2302 | C130026, $0.70 (1-9) | TSSOP-24. Address 0x70. LCSC showed 2.5-9k in stock in recent snapshots; confirm. |
@@ -291,6 +303,145 @@ fee. Check stock when ordering.
 Fuse holders: ATO blade (Littelfuse FLR 178.6165), so 10/15/25 A fuses
 are cheap and easy to swap. The holder's current rating must be checked
 against 25 A before ordering.
+
+## 5 V DUT outputs (issue 0055)
+
+Owner request (2026-11-27): three outputs for FPGA boards that take 5 V on
+a DC barrel. The 5 V comes only from the Molex input; banana and PCIe carry
+no 5 V, and there is no 12 V to 5 V converter (owner: "such is life").
+Generator: `tools/five_volt.py`.
+
+```
+ J53 pin 4 --F4 10 A ATO--+5V--+-- D600 SMBJ5.0A, C600/C601 10 uF, D601 "5V" LED, R601/R602 -> 5V_PRESENT
+ (+5V_RAW)                     +-- R604/R605 392 k / 100 k -> OVLO5 (5.90 V), shared
+                               +-- U61 TPS259470L 3 A --> J61 "DUT5 5V ONLY" (JST VH)
+                               +-- U62 TPS259470L 3 A --> J62 "DUT6 5V ONLY"
+                               +-- U63 TPS259470L 3 A --> J63 "DUT7 5V ONLY"
+ CTRLn (n = 5..7) --1 k-- CSELn = JPn pin 2;  JPn pin 1 = ENn (12 V eFuse Un+1), pin 3 = EN5Vn (5 V eFuse)
+                                              each EN: 20 k to GND
+```
+
+**Source and fuse.** J53 pin 4 (+5 V of the Molex 8981 lead) goes through
+its own **10 A ATO fuse F4** (the same holder and fuse as F3), independent
+of the LTC4417 12 V selector. Sizing: three outputs limited to 3.03 A each
+= 9.1 A, below 10 A, so the eFuses act first and F4 only clears wiring
+faults (a shorted strip, a failed eFuse, 12 V on pin 4). An ATO blade
+carries 110 % of its rating for at least 100 h, so 9 A is fine. Upstream limits:
+the Molex 8981 contact is good for about 11 A, and a PC PSU's 5 V lead is
+18 AWG (about 10 A in chassis wiring). A 7.5 A fuse would protect a thin
+lead better but would blow with all three outputs near their limits.
+
+**Protection.** An **SMBJ5.0A** unidirectional TVS (C2758500; Vrwm 5.0 V,
+Vbr 6.4 V min, 9.2 V clamp at 65 A) after F4 catches hot-plug spikes. As on
+the 12 V inputs, a reversed supply forward-biases it and blows F4; until
+then the TPS25947 itself blocks down to -15 V (datasheet 7.3.1), and the
+supply-side OVLO resistor is >= 350 k as its note 4 asks. A 12 V lead on
+pin 4 (a miswired adapter) is held off by OVLO (outputs open within
+1.2 us) while the TVS conducts until F4 blows; the TVS may die short doing
+that, which is still safe. Slow over-voltage: OVLO opens all three 5 V
+outputs at **5.90 V** rising and lets them back on below 5.36 V (ATX allows
+5.25 V). The Molex connector is keyed, so a reversed lead needs a bodged
+adapter. No series FET: it would add 50-100 mV and parts for a case the
+eFuse already survives.
+
+**eFuses.** **TPS259470L** (latch-off), the same part and footprint as the
+12 V DUT eFuses, so a shorted 5 V DUT stays off until the host toggles
+CTRLn. Settings, with the 12 V cell values where they suit 5 V too:
+
+| Setting | Part | Value | Why |
+|---|---|---|---|
+| ILIM | R612/R622/R632 1.1 k | 3334 / 1100 = **3.03 A** | the owner's "2-3 A each"; typical 5 V barrel boards draw 0.5-2 A; 3 x 3 A stays below F4. During the blanking time up to 2 x ILIM flows, so a board with large input capacitance still starts |
+| OVLO | R604 392 k / R605 100 k, C602 100 nF | 5.90 V rising, 5.36 V falling | 1.20 V / 1.09 V thresholds; above the 5.25 V ATX tolerance, below what 5 V barrel boards tolerate (their regulators are usually rated 6-7 V) |
+| dV/dt | 2.2 nF | ~0.8 V/ms, 0 -> 5 V in ~6 ms | 0.4 A into 470 uF, 0.8 A into 1000 uF: a barrel-jack board's bulk capacitor charges well inside the 3 A limit |
+| ITIMER | 4.7 nF | ~4 ms blanking | as the 12 V cells |
+| Output | SS34 to GND, 1 uF, 1 k + green LED (3 mA) | | negative-spike clamp, LED shows the output is live and bleeds an unloaded output |
+
+**Channel selector JP5-JP7.** The shield's 8 CTRL lines all drive 12 V
+outputs, so the 5 V outputs share CTRL5-7. Per channel, a **1x3 2.54 mm
+header with a shunt**: CTRLn goes through the existing 1 k to the middle
+pin (CSELn). Shunt on **1-2** = the 12 V output DUTn (as before), on
+**2-3** = the 5 V output, **no shunt = both off**. Each EN keeps its own
+20 k pull-down, so the unselected eFuse is always off.
+
+* **Header, not a solder jumper:** DUT boards move between slots, and a
+  shunt changes without tools and shows its position at a glance. A 1x3
+  header also cannot select both outputs: two shunts cannot share pin 2.
+  A three-pad solder jumper can, with one solder blob across all three pads.
+* **No shunt = both off (chosen) rather than 12 V:** a shunt that is lost
+  or never fitted turns the channel off, never on at the wrong voltage. The
+  board is not built yet, so no board in the field changes behaviour; fit
+  the three shunts on 1-2 (12 V) at box assembly to keep "channel n = 12 V"
+  as the default. JLC cannot fit shunts: they are loose parts (C100114).
+* Move a shunt only with the channel off: a shunt moved while CTRLn is high
+  switches the outputs immediately (the 12 V one off, the 5 V one on).
+* Only the selected eFuse can be on, and its output is on its own connector
+  type: the 12 V screw terminal never carries 5 V and the VH connector
+  never carries 12 V, whatever the shunt does. The selector only decides
+  which connector is live.
+
+**Connectors.** J61-J63: **JST VH 2-pin vertical** (B2P-VH, C160315):
+3.96 mm pitch, 10 A per contact, polarised, with a friction-lock latch on
+the housing (VHR-2N, C595405; crimps SVH-21T-P1.1, C160349, 18-22 AWG).
+Nothing else on the board is a VH: the 12 V outputs are 5.08 mm screw
+terminals, the Mimas feeds Mini-Fit Jr, the rocker JST XH. They sit on the
+rear edge with the other DUT outputs, right of the GS105 jack (x 171-210,
+15 mm pitch), silk "DUTn 5V ONLY", with "5V ONLY (JST VH): channel set by
+JP5-7" under them. The owner's leads use different barrel shank lengths at
+the DUT end (shorter = lower voltage).
+
+**Status to the host.**
+
+* **Faults:** the 5 V eFuse's /FLT is wire-ORed onto /FLTn of its channel
+  (the 10 k pull-up in the 12 V cell). Only one of the pair can be enabled;
+  the disabled one (EN low = UVLO) and an unpowered one (no Molex 5 V)
+  leave /FLT high. So /FLT5-7 mean "channel 5-7 faulted" whichever output
+  is selected, on J4 and on the optional TCA9535 P0.5-7, with no new lines.
+* **5 V present:** R601 10 k / R602 20 k from +5V (3.3 V at 5 V, logic high
+  above ~3.5 V) to the optional **TCA9535 U11 P1.1** (0x24, on the shield
+  I2C bus via J5). The shield's own expanders have no free input and the
+  1x11 CTRL cable is full (`shield-pinplan.md`), so this is the only host
+  path; U11 is DNP by default. A green **"5V" LED D601** next to J53 pin 4
+  shows it on the board in any case.
+* **Selection readback:** U11 P1.2-P1.4 read EN5V5-7: high = channel on
+  and set to 5 V. With CTRLn high, EN5Vn low means the 12 V output is live
+  (or no shunt). The host cannot see the shunt while the channel is off.
+
+**Power budget.** The 5 V outputs draw from the PSU's 5 V rail, not from
+VBUS. Worst case 9.1 A (the three limits), typically 1-6 A. A channel set
+to 5 V draws nothing from VBUS, so the 12 V budget does not grow. Voltage at
+the DUT under load: F4 (~7 mOhm) + the B.Cu strip (~150 mm x 8 mm, 2 oz,
+~5 mOhm) + the eFuse (28-45 mOhm) + the PSU lead (18 AWG, 0.5 m out and
+back, ~20 mOhm) is about 32 mOhm shared plus the eFuse: **~0.4 V with all
+three outputs at 3 A**, ~0.2 V with one output at 3 A, ~0.1 V at 1 A. The
+lead to the DUT adds its own. eFuse loss at 3 A: 0.25-0.4 W each.
+
+**Layout.** F4 continues the fuse row (x 77-98); J53 pin 4 reaches it on a
+B.Cu strip. TVS, caps, LED and the sense divider sit right of F4 on a small
+F.Cu pour; the +5V bus runs on B.Cu (y 112.5-121, then up x 161.5-169 past
+H2, ~8 mm wide, about 15 A at a 10 K rise on 2 oz) to an F.Cu pour under
+the 5 V eFuse row. The strips cut the B.Cu GND plane: stitch GND around
+them when routing. To make room on the rear edge the fan block moved 39 mm
+forward (now y 40-111). The board outline (230 x 138.5 mm), the mounting
+holes and the connectors the case reads (J10-J17, J50-J54) did not move,
+so the case fit is unchanged (`hardware/mega-kvm-case` rebuilt: still
+"Conflicts / problems: none"; only the footprint order in its outputs
+changed, so they were not committed).
+
+### 5 V DUT outputs: open questions
+
+1. **TPS259470L stock:** LCSC/JLC show 0 for C3662793 (the same part as
+   the eight 12 V DUT eFuses, now 11 per board). Stocked alternatives in
+   the family: TPS259470A (auto-retry, C3662799, ~4k) or TPS259474L
+   (latch-off circuit breaker, adjustable OVLO, C2864845, ~5.9k; it has PG
+   instead of /FLT, so the fault wiring would change).
+2. **Fit U11 (TCA9535) by default?** It is now the only way the host sees
+   5V_PRESENT, the 5 V selection and (as before) the /FLT lines.
+3. **Shunt default at assembly:** 1-2 (12 V) on all three, as proposed?
+4. **Rear lead holes:** the case has 8 DUT power lead holes, enough for one
+   lead per channel. If both leads of a channel stay plugged in, three more
+   holes are needed (`ITEMS['dut_power']` in the case config).
+5. **3 A per 5 V output** enough, and is 0.2-0.4 V of drop at full load
+   (from the PSU to the VH connector) acceptable for the boards in mind?
 
 ## Fans, I2C and temperature (issue 0052)
 
@@ -562,9 +713,15 @@ paths.
   * Middle (y 24-80): VBUS pour, bulk caps, 3.3 V LDO, CTRL J3 / STATUS J4 /
     I2C J5 headers, optional expander.
   * Rear edge (y 0-24): DUT0-7 screw terminals, MIMAS0/1 Mini-Fit, GS105
-    barrel jack.
-  * Right 60 mm (x 170-230, y 0-74): the fan block (8 headers); fan
-    controllers and mux at x 139-167, y 35-53.
+    barrel jack, then (0055) the three 5 V outputs J61-J63 (JST VH, x
+    171-210) with their eFuses below them (y 15-36).
+  * Right 60 mm (x 170-230, y 40-111, moved 39 mm forward for the 5 V
+    outputs in 0055): the fan block (8 headers); fan controllers and mux at
+    x 139-167, y 35-53.
+  * 5 V path (0055): J53 pin 4 -> F4 (x 77-98, y 115-122) on a B.Cu strip;
+    TVS, caps, LED, sense divider right of F4; the +5V bus on a B.Cu strip
+    (y 112.5-121, then up x 161.5-169 past H2) to the 5 V eFuse row. The
+    strips cut the B.Cu GND plane; stitch GND around them when routing.
 * The DUT and always-on leads leave from the rear edge. The front edge
   should sit a few cm behind the front panel, with clear space above it for
   the PCIe/Molex plugs (vertical, ~35 mm with the cable bend) and the banana
@@ -614,6 +771,7 @@ sourcing, stocked fallback designed); soft start added; 5 A limits kept
 2-pin.
 
 Still open:
+0. (0055) See "5 V DUT outputs: open questions".
 1. Shield 12 V input: the shield must fit the Mini-Fit Jr 2-pin mating
    header (owner says it matches; record the part on the shield BOM).
 2. Gate slew values RS/CS (R513/R523/R533, C511-C513 here; C12/C22/C32 on

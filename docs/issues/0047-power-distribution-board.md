@@ -321,3 +321,14 @@ are for the shield (0045) and case (0051) owners:
 
 **The RJ45 depth is the one that matters.** Every other difference is
 <= 0.17 mm.
+
+## 2026-11-27 Three 5 V DUT outputs (issue 0055; agent, feature/power-5v)
+
+J53 pin 4 (Molex +5 V) now feeds three 5 V outputs: F4 10 A ATO, SMBJ5.0A
+TVS, 3 x TPS259470L (3 A, OVLO 5.9 V, latch-off), JST VH connectors J61-J63
+("DUT5-7 5V ONLY") on the rear edge at x 171-210. Channels 5-7 share their
+CTRL line with the 12 V outputs through a per-channel 1x3 header + shunt
+(JP5-JP7: 1-2 = 12 V, 2-3 = 5 V, none = both off). The 5 V /FLT joins /FLTn;
+5V_PRESENT and EN5V5-7 go to the optional TCA9535 (P1.1-P1.4). The fan block
+moved 39 mm forward; outline and holes unchanged. ERC 0, DRC 0, parity clean.
+See power-board.md "5 V DUT outputs (issue 0055)" and issue 0055.
