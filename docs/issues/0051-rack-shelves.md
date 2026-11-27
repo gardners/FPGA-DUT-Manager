@@ -408,3 +408,17 @@ between-battens zone (full 38 mm height); the fit report flags any part over
   and avoiding it would mean hanging the front panel on the battens with the
   deck set back behind the fans (not done).
 * Fit report: **Conflicts / problems: none**.
+
+## 2026-11-27 progress: Mimas model from the vendor STEP (branch feature/mimas-step-fix, issue 0045)
+
+* `config.MIMAS`: holes (5, 5)/(5, 85)/(115, 5)/(115, 85), `hdmi_cz` 3.0
+  (STEP shell 0-6.07 mm), RJ45 body y 60.7-76.7; PCB thickness noted as
+  unconfirmed (STEP 1.16, the shield190 stack reads `MIMAS_PCB` /
+  `STANDOFF_MIMAS` from the shield's `geometry.py`). The Mimas HDMIs are
+  flush with the board edge in the STEP, so with `mimas_to_panel` 0.2 the
+  plugs reach through the rear panel's thickness: check they mate fully.
+* Rebuilt: fit report **Conflicts / problems: none**. The KVM deck note now
+  says "left batten" for holes at x ~417 of 424.6: `rack.py` picks the side
+  from the leftover loop variable `hx` (the last deck hole), not from the
+  holes over the batten. Pre-existing bug, not fixed here (outside this
+  branch's files).

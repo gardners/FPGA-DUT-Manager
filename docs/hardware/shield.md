@@ -71,8 +71,9 @@ spare. The GS105 sits **behind** the boards (owner round 8).
 | 0 | case floor |
 | 3.0-4.6 | keyboard sub-boards (3 mm standoffs) |
 | 4.6-13.5 | J5 headers (right-angle box header, 8.9 mm) |
-| 5.5-7.1 | Mimas PCB (5.5 mm standoffs) |
-| 7.1-~13.6 | Mimas HDMI IN/OUT, mDP |
+| 5.5-7.1 | Mimas PCB (5.5 mm standoffs; 6.0-7.16 if the board is 1.16 mm thick as in the vendor STEP, see below) |
+| 7.1-~13.2 | Mimas HDMI IN/OUT (6.1 mm), mDP (4.2 mm), 7-segment display (5.7 mm) |
+| 7.1-21.2 | Mimas RJ45 magjack (14.1 mm): taller than the shield underside, so it sits in the cut-out |
 | ~15.1-18.1 | JB1 pin tails under the shield (<= 3 mm): **1.6 mm clear of the J5 tops, no clipping** |
 | 18.1-19.7 | shield: 8.5 mm sockets on the Mimas male headers; 11 mm 2x6 sockets on the sub-boards' standard 2x6 male headers (2.54 + 11 = 13.54 mm board gap) |
 | 19.7-~26.2 | header HDMI receptacles |
@@ -92,17 +93,22 @@ sockets line up pad-for-pad with the same board on each side (0.000 mm).
 
 Mimas coordinates: origin at the Mimas board's corner between the RJ45 edge
 and the P13 edge, x towards the HDMI edge, y towards P12 (Numato V3
-drawing). These numbers come from the drawing: **check them with calipers on a real board before fab**.
+drawing). The numbers below were checked on 2026-11-27 against the
+vendor 3D model (`docs/datasheets/MimasA7_3D_1.step`, git-ignored: board
+drills and B-rep vertex bounding boxes; they live in
+`scripts/geometry.py`). **Check them with calipers on a real board before fab**.
 
 | Item | Position |
 |---|---|
 | Mimas board | 120 x 90 mm |
-| Header row 1 centre | x = 10.41 (header body starts at 9.14); row n at 10.41 + (n-1) x 2.54 |
-| P12 | column A y = 86.19, column B y = 88.73 (B on the outer edge) |
-| P13 | column A y = 1.27, column B y = 3.81 (A on the outer edge) |
-| Mimas holes (3.2 mm) | (5.00, 84.86), (115.0, 85.0), (4.83, 5.00), (115.0, 5.00) |
-| Rear (HDMI) edge | x = 120: HDMI IN y 63.8-78.8, HDMI OUT 42.4-57.4, mDP 25.9-37.3 / 9.6-21.0 |
-| Front (RJ45) edge | x = 0: RJ45 y 60.8-76.6, USB-B 40.8-52.8, S12 30.6-37.2, P2 25.2-27.7, DC jack 13.4-22.4 |
+| Mimas PCB thickness | 1.6 assumed; **the STEP models 1.16** (measure). `geometry.MIMAS_PCB` switches the Mimas standoff between 5.5 and 6.0 mm so the shield stays level with the sub-board stack |
+| Header row 1 centre | x = 10.465; row n at 10.465 + (n-1) x 2.54 (row 40 at 109.525) |
+| P12 | column A y = 86.106, column B y = 88.646 (B on the outer edge) |
+| P13 | column A y = 1.346, column B y = 3.886 (A on the outer edge) |
+| Mimas holes (3.2 mm) | (5.0, 85.0), (115.0, 85.0), (5.0, 5.0), (115.0, 5.0) |
+| Rear (HDMI) edge | x = 120: HDMI IN centre y 71.3 (63.2-79.4 with tabs), HDMI OUT 49.9 (41.8-58.0), both from x 110.8 and **flush with the edge** in the STEP (not 1.5 mm proud: check a board); mDP y 25.9-37.3 / 9.6-21.0, from x 107.3 |
+| Front (RJ45) edge | x = 0: RJ45 magjack body x 0-21.8, y 60.7-76.7, 14.1 mm tall; USB-B x 0-16.6, y 39.6-53.9, 11.0 tall; S12 x 0-12.8, y 30.4-37.3, 13.5 tall; P2 y 24.8-28.1; DC jack x 0-14.5, y 13.4-22.4, 11.0 tall |
+| 7-segment display | x 35.9-65.9, y 64.2-78.2, 5.7 mm tall (under the shield, 5.3 mm clear) |
 
 **Shield** (120 x 189.6 mm, 4 layers: signals / GND / 3V3 / signals + 12 V):
 
@@ -118,10 +124,13 @@ drawing). These numbers come from the drawing: **check them with calipers on a r
   | DUT1 JB1 | -24.6 .. -0.6 |
   | DUT2 JB1 | -48.8 .. -24.8 |
 
-  The HDMI lips stand 1.5 mm proud, like the Mimas's own; the box headers
-  are flush.
-* Cut-out x 0-18, y 12.4-77.6 so the RJ45, USB-B, power switch S12, P2
-  jumper and DC jack stay reachable.
+  The header HDMI lips stand 1.5 mm proud; the box headers are flush.
+* Cut-out x 0-18, y 12.4-78.0 so the RJ45, USB-B, power switch S12, P2
+  jumper and DC jack stay reachable, **stepping out to x 23 over y
+  59-78** for the RJ45 magjack body (x 21.8, 14.1 mm tall, above the
+  11.04 mm shield underside). `geometry.py` asserts that every Mimas part
+  taller than the shield underside lies inside the cut-out with >= 1 mm
+  margin; the P12 VIN track on B.Cu steps around it.
 * 8 x 3.2 mm holes: the 4 Mimas holes (11 mm standoffs between Mimas and shield) and 4 in the
   overhang corners (standoffs to the floor).
 * Bottom side: only the two 2x40 Mimas sockets and the two 2x6 sub-board
@@ -272,7 +281,9 @@ JLC or fitted by us.
 ## Before fab (checklist)
 
 1. Measure the Mimas on a real board: pin grid, holes, part heights under
-   the shield, HDMI lip position. Check the stack: the JB1 tail length
+   the shield, HDMI lip position (flush in the STEP), **PCB thickness (1.6
+   or the STEP's 1.16: set `geometry.MIMAS_PCB`)** and the RJ45 depth
+   (x 21.8 in the STEP, 13.6 on the drawing). Check the stack: the JB1 tail length
    (<= 3 mm) against the J5 tops, and the 11 mm socket height.
 2. **Check the TCA6424A pin numbers** in `lib/shield.kicad_sym` against TI
    SCPS193 (they were entered from memory of the RGJ pinout, including the
