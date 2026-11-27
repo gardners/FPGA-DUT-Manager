@@ -142,3 +142,62 @@ the VHDL attribute and the IDELAYCTRL sits in a generate, so the margin
 difference is placement noise), LUT 17789, FF 20888, BRAM 32, PLLE2 2/5,
 BUFG 13, IDELAYCTRL 3. Should be re-checked by the lead on the merged
 build before hardware.
+
+## 2026-11-27 step 2: shield I2C master and expanders (branch feature/shield-i2c)
+
+* `hdl/src/common/i2c_master.vhd`: byte-level master (START/repeated
+  START/STOP, write with ACK check, read with ACK/NACK), 100/400 kHz (55 %
+  low time, so tLOW >= 1.3 us at 400 kHz), open drain via tri-state,
+  clock stretching tolerated (1 ms timeout -> err, lines released), SDA
+  changes a quarter low phase after SCL falls, 9-clock bus-stuck recovery
+  + STOP. `tb_i2c_master` (TCA6424A model): transfers, SCL timing, NACK,
+  stretching, timeout, recovery, permanently stuck bus.
+* `hdl/src/top/shield_io.vhd`: micro-op table, no CPU. Boot: recovery +
+  probe of A (TCA6424A 0x22: revision, features); if A's port 2 is already
+  configured as outputs (FPGA reloaded with the shield powered) the CTRL
+  state found there is kept until the host sets one; output registers are
+  written before configuration (TI: output registers power up 0xFF, AI bit
+  b7 of the TCA6424A command increments within the bank of three; TCA6416A
+  toggles within a register pair; checked against SCPS193D/SCPS194F). Each
+  1 ms slot: read B (TCA6416A 0x20) inputs, write B P0 (HPD, PK_JTAGEN),
+  write A P2 (CTRL). Config rewritten every 256 slots and after a failure.
+  No shield: present = 0, probe retried every 1 s. Hook: ext_* single
+  register write/read per slot for the fan controller / temperature
+  sensor (0052). `tb_shield_io`: A/B models plus a third device on ext.
+* **HPD policy:** like the on-board receiver (HPD high from configuration):
+  HPD_EN for header receiver i once the clocks have locked (ddc_edid
+  serving), if i < SHIELD_RX and the shield's feature strap says that
+  capture is fitted (FEAT0/2/3).
+* **Power CTRL mapping:** DUT power is switched today by the host through
+  the Arduino relay controller (ADR 0009, channels 0..7); there was no
+  power state in the FPGA. New MGMT key 0x0062 = CTRL0..7 bitmask, bit n =
+  power-board output n (`power-board.md`: CTRL n = DUTn power on), complete
+  state like `POWER <ch> ON|OFF`; the host maps outputs to machines as it
+  does relay channels. Only the master shield's header is cabled (0045),
+  so only that board's key matters. `dutctl set IP power-ctl 0x05`.
+* **Top level (SHIELD_RX > 0 only):** shd_i2c_scl/sda = G15/G16 (added to
+  `shield_v1.xdc`; not the DDC pins). DUT0/DUT1 sense for the tri-state
+  gating comes from expander B P1.0/1 and P1.4/5; unpowered until the
+  first good poll and after any failed poll; bodge pins only if no shield
+  answers the probe. Normal build: same pins and sense path.
+* **Protocol:** heartbeat shield block (ADR 0005 s3c, payload 152, zeros in
+  the normal build) and key 0x0062; proto_pkg, dutproto.h/.c, netproto.py,
+  vectors, dutctl listen. Expander B P0.7 = PWRB_PRESENT (as shield.md;
+  the pin plan had it as spare, updated).
+* `make test` green: 33 HDL tests, dutctl 236 checks, relay 52.
+* Builds at 12611846 (HDL identical to the branch head):
+  normal **TIMING MET WNS +0.183 / WHS +0.012 ns** (LUT 18563, FF 21974,
+  IOB 143); `SHIELD_RX=3` **TIMING MET WNS +0.144 / WHS +0.013 ns** (LUT
+  20729, FF 25330, IOB 174). Not hardware-tested (no shield).
+
+Open points:
+
+* The normal build is not bit-identical to before: the heartbeat grows by
+  the (zero) shield block and net_rx accepts key 0x0062.
+* DUT2/DUT3 sense is read and reported but nothing uses it yet (their
+  JTAG/UART/keyboard ports are step 3/4 work).
+* A shield bitstream on a bodge-harness board falls back to the pin sense;
+  a shield whose expander A fails to answer at boot would do the same (for
+  up to 1 s per retry).
+* A powered-off power board: CTRL is still driven; PRESENT is reported
+  (shd_flags b4) but not acted on.

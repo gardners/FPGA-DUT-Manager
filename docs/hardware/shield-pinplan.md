@@ -102,7 +102,7 @@ Expander B: **TCA6416A** (16-bit), address 0x20 (ADDR low).
 | P0.4 | in | HDMI1_5V_SENSE | HDMI1 source +5 V present (divider) |
 | P0.5 | in | HDMI2_5V_SENSE | HDMI2 source +5 V present |
 | P0.6 | in | HDMI3_5V_SENSE | HDMI3 source +5 V present |
-| P0.7 | - | SP_EXPB_P07 | spare |
+| P0.7 | in | PWRB_PRESENT | power board PRESENT (1x11 pin 11, 100 k pull-down; high = present), as in `shield.md` |
 | P1.0 | in | DUT0_VIO_SENSE | JB1 pin 6 (VIO) of DUT0, divider |
 | P1.1 | in | DUT1_VIO_SENSE | DUT1 |
 | P1.2 | in | DUT2_VIO_SENSE | DUT2 |
@@ -116,6 +116,23 @@ The FPGA polls expander B every ~1 ms; the tri-state gating of DUT-facing
 outputs then reacts within about 1 ms, which the series resistors make
 harmless (0045 round 3). The expanders' INT and RESET pins are not wired to
 the FPGA (spare pads; RESET pulled up).
+
+FPGA side (2026-11-27, issue 0049 step 2): `hdl/src/top/shield_io.vhd` with
+`hdl/src/common/i2c_master.vhd`, 400 kHz, in the shield build only
+(`SHIELD_RX` > 0). A boot probe reads A's revision/features; output
+registers are written before the configuration registers (both parts power
+up with output registers 0xFF), so CTRL and HPD never pulse high. Each ~1 ms
+slot: read B's inputs, write B P0 (HPD_EN = receiver in the build, clocks
+locked and its capture fitted per SHD_FEAT0/2/3; PK_JTAGEN), write A P2
+(PWR_CTL0..7 = MGMT key 0x0062, bit n = power-board output n; after an FPGA
+reconfiguration with the shield powered, the state already in A is kept
+until the host sets one). Configuration is rewritten every 256 slots and
+after any failure. DUT0/DUT1 sense for the output gating comes from B
+(unpowered until the first good poll and after a failed one); status in
+the heartbeat shield block (ADR 0005 section 3c). A single-register
+ext_* hook in shield_io serves further devices on the bus (fan controller,
+temperature sensor, issue 0052): their 7-bit addresses must avoid 0x20 and
+0x22.
 
 ## Bodge harness vs shield
 
