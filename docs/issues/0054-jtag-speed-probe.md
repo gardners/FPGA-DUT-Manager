@@ -211,3 +211,6 @@ rows 3-7 (DUT1) to an FPGA board on relay channel 5: `dutctl jtag-idcode
 turned out to be an Artix-7 200T board, not the intended K325T, but this is
 the first IDCODE read through a DUT port (build 618e7266): the DUT1 path
 (TCK/TMS/TDI out, TDO in, power sense) works.
+* Later the same day, with the K325T fitted: `dutctl jtag-idcode
+  203.28.176.87` read **IDCODE 0x43651093** (XC7K325T, rev 4), relay
+  channel 5 on, then off again.
