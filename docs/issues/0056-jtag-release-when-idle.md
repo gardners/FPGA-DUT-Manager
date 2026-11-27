@@ -38,3 +38,26 @@ state, which may explain what the owner saw earlier.
   0x0061 auto).
 * Possibly a key for the lease length (0 = old behaviour, always driven
   while powered).
+
+## 2026-11-27 owner: do it ("let's burn that down")
+
+Revised plan (lead), simpler than releasing the pins on a timer:
+
+1. **Park TMS and TDI low after every transaction** (TCK is already low).
+   No TCK edge happens, so the TAP state is unchanged (TMS/TDI are only
+   sampled on TCK edges); XVC sessions keep working. Low outputs cannot
+   back-feed an unpowered DUT, and nothing holds its rail up, so the sense
+   drops and the existing tri-state takes over. A powered DUT only sees its
+   own TMS/TDI pull-ups' ~0.1-0.3 mA into our low outputs. Releasing on a
+   timer instead would risk a TCK edge when the line floats to the DUT's
+   pull level, which could move the TAP mid-session.
+2. **`out-policy` 2 (force off) also forces the JTAG outputs off** (today
+   it only covers UART and keyboard), so the host can switch a DUT's
+   outputs off before it cuts that DUT's power.
+3. **UART to DUT and KIO10 also idle high** and back-feed the same way.
+   When the supervisor itself switches a DUT's power (shield power-ctl key
+   0x0062, bit n = 0), it forces that DUT's outputs off at the same moment.
+   For the relay path, `dutctl relay ... power N off` sets out-policy 2 on
+   the DUT mapped to relay channel N in duts.conf first, and `on` restores
+   out-policy 0 after switching on.
+4. Applies to all three jtag_engines (DUT0, DUT1, keyboard CPLD).
