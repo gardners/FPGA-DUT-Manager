@@ -759,6 +759,13 @@ begin
             hdr(24) <= std_logic_vector(not csum(15 downto 8));
             hdr(25) <= std_logic_vector(not csum(7 downto 0));
             state     <= S_START;
+            if (kind = K_HB or kind = K_SNAP) and hdr(26) = x"00" and hdr(27) = x"00" and
+               hdr(28) = x"00" and hdr(29) = x"00" then
+              -- the endpoint lost its address while this was being built
+              -- (ep_ok is registered; e.g. DHCP restarted after a host VLAN
+              -- change, issue 0062): never send telemetry from 0.0.0.0
+              state <= S_IDLE;
+            end if;
           else
             cidx <= cidx + 1;
           end if;

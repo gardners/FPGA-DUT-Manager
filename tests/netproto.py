@@ -467,6 +467,18 @@ def vlan_untag(frame):
     return None, frame
 
 
+def parse_frame_vlan(f):
+    """parse_frame for a frame that may carry an 802.1Q tag (FCS included):
+    the result has "vid" (0 = untagged) and "wire_len" (incl. tag and FCS);
+    all other fields are those of the untagged frame (issue 0062)."""
+    vid, u = vlan_untag(f[:-4])
+    d = parse_frame(u + struct.pack("<I", zlib.crc32(u) & 0xFFFFFFFF))
+    d["fcs_ok"] = struct.pack("<I", zlib.crc32(f[:-4]) & 0xFFFFFFFF) == f[-4:]
+    d["vid"] = vid or 0
+    d["wire_len"] = len(f)
+    return d
+
+
 def thumb_request(src, scale=TH_SCALE_HALF, div=2, flags=0, target=0, vlan=0):
     """Broadcast request frame (no FCS), tagged with vlan unless 0."""
     return vlan_tag(eth(BCAST_MAC, src, ETH_THUMB, thumb_request_body(scale, div, flags, target)), vlan)

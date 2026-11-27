@@ -329,7 +329,7 @@ architecture rtl of supervisor_core is
   signal dhcp_tx : dhcp_tx_arr_t;
   signal ids_prev : unsigned(9 downto 0) := (others => '1');
   signal id_restart : std_logic := '0';
-  -- host VLAN change (issue 0062): DHCP starts over on the new VLAN a few
+  -- host VLAN change (issue 0062): DHCP starts over on the new VLAN 1..2
   -- ms after the change, once the MGMT ack has gone out with the old address
   signal hv_prev    : unsigned(11 downto 0) := (others => '0');
   signal hv_wait    : unsigned(2 downto 0) := (others => '0');
@@ -469,10 +469,10 @@ begin
         id_restart <= '1';
       end if;
       -- host VLAN changed: drop the leases (DHCP starts over, tagged as
-      -- the new key says) 4..5 ms later; static addresses are kept
+      -- the new key says) 1..2 ms later; static addresses are kept
       if hv_prev /= bcfg.host_vlan then
         hv_prev <= bcfg.host_vlan;
-        hv_wait <= to_unsigned(5, 3);
+        hv_wait <= to_unsigned(2, 3);
       elsif hv_wait /= 0 and tick_1ms = '1' then
         hv_wait <= hv_wait - 1;
         if hv_wait = 1 then dhcp_restart <= '1'; end if;
