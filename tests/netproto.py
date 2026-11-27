@@ -16,6 +16,10 @@ K_PK_LED_MODE, K_PK_LED_HOST = 0x0033, 0x0034  # physical keyboard LEDs (ADR 000
 K_CON_SCREEN = 0x0035  # console screen: 0 auto, 1 editable, 2 no video, 3 select
 K_PK_JTAG = 0x0061  # physical keyboard CPLD JTAG: 0 auto, 1 on, 2 off, 3 on + JTAGEN low (ADR 0014)
 PK_JTAG_AUTO, PK_JTAG_ON, PK_JTAG_OFF, PK_JTAG_ON_JTAGEN_LOW = 0, 1, 2, 3
+K_OUT_POLICY = 0x0060  # 0 auto (sense), 1 UART/KIO10 on, 2 all off incl. JTAG (issue 0056)
+OUTPOL_AUTO, OUTPOL_ON, OUTPOL_OFF = 0, 1, 2
+# heartbeat target_flags (byte 40)
+TF_KB3V3, TF_VIO, TF_OUT_EN, TF_SENSE_VALID, TF_PWR_HOLD = 0x01, 0x02, 0x04, 0x08, 0x10
 K_PWR_CTL = 0x0062  # shield power CTRL0..7 bitmask, bit n = power-board output n (issue 0049)
 K_KJ_QUIET = 0x0063  # kbd JTAG quiet: 0 off, 1 (default) pause the kbd host during kbd JTAG, 2 kbd host stopped (issue 0054)
 KJ_QUIET_OFF, KJ_QUIET_PAUSE, KJ_QUIET_STOP = 0, 1, 2

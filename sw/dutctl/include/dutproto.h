@@ -59,7 +59,8 @@ enum dp_key {
   DP_K_CAPTURE_EN = 0x0040,
   DP_K_THUMB_FORCE = 0x0041, /* thumbnail relay to MAC(6) scale(1) div(1); MAC 0 = off */
   DP_K_HB_PERIOD = 0x0050,
-  DP_K_OUT_POLICY = 0x0060,
+  DP_K_OUT_POLICY = 0x0060, /* 0 auto (sense), 1 UART/KIO10 forced on (JTAG follows the
+                               sense), 2 all outputs off, JTAG included (issue 0056) */
   DP_K_PK_JTAG = 0x0061, /* physical keyboard CPLD JTAG: 0 auto, 1 force on, 2 force off,
                             3 on with KB_JTAGEN driven low (diagnostic) (ADR 0014) */
   DP_K_PWR_CTL = 0x0062, /* shield power CTRL0..7 bitmask, bit n = power-board output n
@@ -74,6 +75,14 @@ enum dp_key {
 #define DP_JF_ABORT 0x0001 /* abort / reset session: next seq := seq, nothing clocked */
 #define DP_JF_KBD 0x0002   /* target the physical keyboard's CPLD instead of the DUT */
 enum dp_jtag_target { DP_JT_DUT = 0, DP_JT_KBD = 1 };
+/* out-policy values (key 0x0060) */
+enum dp_out_policy { DP_OUTPOL_AUTO = 0, DP_OUTPOL_ON = 1, DP_OUTPOL_OFF = 2 };
+/* heartbeat target_flags (byte 40) */
+#define DP_TF_KB3V3 0x01
+#define DP_TF_VIO 0x02
+#define DP_TF_OUT_EN 0x04
+#define DP_TF_SENSE_VALID 0x08
+#define DP_TF_PWR_HOLD 0x10 /* shield power-off hold: all outputs forced off (issue 0056) */
 /* heartbeat capabilities (byte 32) */
 #define DP_CAP_KBD_JTAG 0x100
 /* heartbeat kbd_phys_type (byte 76) */

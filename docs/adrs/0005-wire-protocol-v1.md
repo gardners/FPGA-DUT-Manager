@@ -79,7 +79,7 @@ Sent per DUT at ~50 Hz (configurable period; 20 ms default), and expedited
 | 31 | 1 | link_flags: b0 eth link up, b1 1000 Mb/s, b2 full duplex, b3 chain up-link ok, b4 chain down-link ok, b5 is master, b6 reserved (was DUT ID conflict; IDs cannot collide since ADR 0011 amendment) |
 | 32 | 4 | capabilities: b0 uart, b1 jtag, b2 kbd device, b3 phys kbd host, b4 hdmi capture, b5 chain, b6 audio, b7 thumbnails (section 10), b8 JTAG to the physical keyboard's CPLD (section 7, ADR 0014) |
 | 36 | 4 | config_generation |
-| 40 | 1 | target_flags: b0 kbd 3V3 sense, b1 JTAG VREF sense, b2 outputs enabled, b3 sense valid |
+| 40 | 1 | target_flags: b0 kbd 3V3 sense, b1 JTAG VREF sense, b2 outputs enabled (UART TXD, KIO10), b3 sense valid, b4 power-off hold: the shield power control switched this DUT's CTRL bit off and all its outputs, JTAG included, are forced off (key 0x0062, issue 0056) |
 | 41 | 1 | kbd_owner: 0 UDP, 1 physical |
 | 42 | 1 | kbd_policy: 0 REQUIRE_FRESH_PRESS, 1 ACCEPT_HELD |
 | 43 | 1 | selected: hi nibble video target 0..7/F none, lo nibble kbd target |
@@ -88,7 +88,7 @@ Sent per DUT at ~50 Hz (configurable period; 20 ms default), and expedited
 | 64 | 10 | kbd_physical (master: raw physical bitmap; else zero) |
 | 74 | 2 | kbd_phys_change_count |
 | 76 | 1 | kbd_phys_type: 0 none, 1 MK-I, 2 MK-II, 3 type 3 (async UART, ADR 0014) |
-| 77 | 1 | jtag_status: b0 busy, b1 result ready, b2 aborted, b3 target unpowered |
+| 77 | 1 | jtag_status: b0 busy, b1 result ready, b2 aborted, b3 JTAG outputs off (target unpowered, out-policy 2 or power-off hold) |
 | 78 | 4 | jtag_next_seq |
 | 82 | 4 | uart_rx_seq |
 | 86 | 4 | uart_tx_accepted |
@@ -195,9 +195,9 @@ Keys (whole values, never toggles):
 | 0x0040 | 1 | Ethernet capture enable (phase 2) |
 | 0x0041 | 8 | thumbnail relay forced destination (section 10): MAC(6), scale(1: 1 = 1/2, 2 = 1/4), frame divisor(1: 1..15). MAC 00:00:00:00:00:00 = off (default). A group (multicast/broadcast) MAC, another scale or divisor -> bad value. Board-wide |
 | 0x0050 | 2 | heartbeat period ms |
-| 0x0060 | 1 | target output enable policy: 0 auto (sense), 1 force on, 2 force off |
+| 0x0060 | 1 | target output enable policy (issue 0056): 0 auto: UART TXD, KIO10 and JTAG driven while the DUT is sensed powered (default); 1 force UART TXD and KIO10 on (JTAG still follows the sense); 2 force all of them off, JTAG included (JTAG_REQ then answers status 4, a running transaction is aborted): the host sets 2 before it cuts the DUT's power (`dutctl relay ... power N off`). The shield power-off hold (key 0x0062) overrides 0 and 1 |
 | 0x0061 | 1 | physical keyboard CPLD JTAG (section 7, ADR 0014): 0 auto (pins driven while a keyboard is detected and for 10 s after the last detection or keyboard JTAG transaction; default), 1 force on, 2 force off, 3 force on with KB_JTAGEN driven low (diagnostic: does J5 pin 3 gate the CPLD's JTAG port?). Board-wide |
-| 0x0062 | 1 | shield power outputs (issue 0049): bit n = CTRL n of the master shield's 1x11 power header = power-board output n (`docs/hardware/power-board.md`; the host maps outputs to machines, as for the relay channels of ADR 0009). Complete state, not a toggle. Default after configuration: what expander A already drives if the shield stayed powered (heartbeat shd_flags b5), else all off. Accepted on any board; it only has an effect where `shield_io` runs and the shield answers. Board-wide |
+| 0x0062 | 1 | shield power outputs (issue 0049): bit n = CTRL n of the master shield's 1x11 power header = power-board output n (`docs/hardware/power-board.md`; the host maps outputs to machines, as for the relay channels of ADR 0009). Complete state, not a toggle. **Power-off hold** (issue 0056): CTRL0 and CTRL1 are DUT0 and DUT1 of this board (power board CTRLn = DUTn on the master shield); when bit n goes from 1 to 0 (or is 0 when the shield first answers and DUT n is not sensed powered), DUT n's UART TXD, KIO10 and JTAG outputs are forced off from the next clock, before the I2C write drops CTRL n, until bit n is 1 again or DUT n's sense goes low and then high again (powered from elsewhere); target_flags b4 shows it. Bits 2-7 have no effect on this board's outputs. Default after configuration: what expander A already drives if the shield stayed powered (heartbeat shd_flags b5), else all off. Accepted on any board; it only has an effect where `shield_io` runs and the shield answers. Board-wide |
 | 0x0063 | 1 | keyboard JTAG quiet (issue 0054): 0 off (the physical keyboard host keeps scanning during keyboard JTAG; measured error floor ~1e-5 per bit on a 0.75 m cable); 1 (default since 2026-11-27: 0 errors in 3.6e7 bits at 2, 7.8 and 20.8 MHz) pause the physical keyboard host while the keyboard JTAG engine is busy: from admission until done, the host runs on to a clean point (MK-I sync phase, KIO8 high; MK-II between I2C transactions, bus released; type 3 between pairs, KIO9 idle high) and stops there with static lines; the first TCK edge waits for that plus a 4 µs guard (start anyway after 4 ms), the resume waits 4 µs after the last edge. The detected keyboard type is kept, the reported matrix is frozen until one complete frame after the resume. 2 physical keyboard host stopped (no keyboard reported, keys released; detection restarts when the key leaves 2); keyboard JTAG then needs key 0x0061 = 1 (the auto lease follows detection). Values > 2 -> bad value. Board-wide |
 | 0x0064 | 1 | JTAG TDO sampling (all three JTAG engines, issue 0054; latched when a JTAG_REQ is accepted): 0 one sample of the synchronised TDO at the end of the high half period (default); 1 majority of the last three clk_sys cycles of the high half period (tck_half_period >= 4, else one sample); 2 majority of the last five (half >= 6; half 4..5 -> three). Values > 2 -> bad value. Board-wide |
 

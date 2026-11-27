@@ -46,6 +46,9 @@ package proto_pkg is
   -- physical keyboard's CPLD; JTAG_RESP byte 17 = target (0 DUT, 1 keyboard)
   constant JF_ABORT  : natural := 0;
   constant JF_KBD    : natural := 1;
+  -- heartbeat byte 40 target_flags: b0 kbd 3V3, b1 VIO, b2 outputs enabled,
+  -- b3 sense valid, b4 shield power-off hold (issue 0056)
+  constant TF_PWR_HOLD : natural := 4;
   -- heartbeat byte 76 kbd_phys_type: 0 none, 1 MK-I, 2 MK-II, 3 type 3
   constant PHYS_TYPE3 : std_logic_vector(7 downto 0) := x"03";
 
@@ -84,7 +87,7 @@ package proto_pkg is
   constant K_CAPTURE_EN   : natural := 16#0040#;
   constant K_THUMB_FORCE  : natural := 16#0041#;  -- thumbnail relay to MAC(6) scale(1) div(1); MAC 0 = off
   constant K_HB_PERIOD    : natural := 16#0050#;
-  constant K_OUT_POLICY   : natural := 16#0060#;
+  constant K_OUT_POLICY   : natural := 16#0060#;  -- 0 auto (sense), 1 UART/KIO10 on, 2 all off incl. JTAG (issue 0056)
   constant K_PK_JTAG      : natural := 16#0061#;  -- physical kbd CPLD JTAG: 0 auto, 1 on, 2 off, 3 on + JTAGEN low (ADR 0014)
   constant K_PWR_CTL      : natural := 16#0062#;  -- shield power CTRL0..7 bitmask (bit n = power-board output n), issue 0049
   constant K_KJ_QUIET     : natural := 16#0063#;  -- kbd JTAG quiet: 0 off, 1 (default) pause the kbd host during kbd JTAG, 2 kbd host stopped (issue 0054)

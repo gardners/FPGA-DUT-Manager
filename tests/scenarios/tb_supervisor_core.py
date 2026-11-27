@@ -126,6 +126,12 @@ def scenario():
     f.append((5, udp_to(0, P.PORT_JTAG, P.jtag_req(0, 1, JTAG_TMS, JTAG_TDI, half=6))))
     f.append((600, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 24, P.K_KJ_QUIET, b"\x02"))))
     f.append((5, udp_to(0, P.PORT_JTAG, P.jtag_req(0, 3, JTAG_TMS, JTAG_TDI, half=4, flags=P.JF_KBD))))
+    # issue 0056: out-policy 2 also switches DUT0's JTAG off (status 4,
+    # nothing clocked, seq not consumed); back to 0 -> seq 2 reads IDCODE
+    f.append((100, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 25, P.K_OUT_POLICY, bytes([P.OUTPOL_OFF])))))
+    f.append((5, udp_to(0, P.PORT_JTAG, P.jtag_req(0, 2, JTAG_TMS, JTAG_TDI, half=2))))
+    f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 26, P.K_OUT_POLICY, bytes([P.OUTPOL_AUTO])))))
+    f.append((5, udp_to(0, P.PORT_JTAG, P.jtag_req(0, 2, JTAG_TMS, JTAG_TDI, half=2))))
     return f
 
 
@@ -208,13 +214,15 @@ def check(path):
             (15, P.K_PK_JTAG, 3), (16, P.K_PK_JTAG, 0), (17, P.K_PK_JTAG, 0),
             (18, P.K_PWR_CTL, 0), (19, P.K_PWR_CTL, 2),
             (20, P.K_KJ_QUIET, 3), (21, P.K_TDO_VOTE, 3), (22, P.K_KJ_QUIET, 0),
-            (23, P.K_TDO_VOTE, 0), (24, P.K_KJ_QUIET, 0)]
+            (23, P.K_TDO_VOTE, 0), (24, P.K_KJ_QUIET, 0),
+            (25, P.K_OUT_POLICY, 0), (26, P.K_OUT_POLICY, 0)]
     got = [(a["cmd_id"], a["key"], a["status"]) for a in acks]
     if got != want:
         err("MGMT acks %r != %r" % (got, want))
-    elif acks[-1]["cfg_gen"] != 16:  # baud, hb period, LED mode, LED vector, dest x2, capture,
-        # thumb force, DUT1 hb period, console screen, kbd JTAG x2, power, quiet x2, vote
-        err("cfg_gen %d != 16" % acks[-1]["cfg_gen"])
+    elif acks[-1]["cfg_gen"] != 18:  # baud, hb period, LED mode, LED vector, dest x2, capture,
+        # thumb force, DUT1 hb period, console screen, kbd JTAG x2, power, quiet x2, vote,
+        # out-policy x2
+        err("cfg_gen %d != 18" % acks[-1]["cfg_gen"])
 
     jrall = [(d["dut"], P.decode_jtag_resp(d["body"])) for d in parsed
              if d.get("kind") == "udp" and d.get("ptype") == P.T_JTAG_RESP]
@@ -237,9 +245,16 @@ def check(path):
             err("keyboard JTAG forced on: %r" % (jk[1],))
         elif (int.from_bytes(r1["tdo"], "little") >> 9) & 0xFFFFFFFF != KBD_IDCODE:
             err("keyboard IDCODE %08x" % ((int.from_bytes(r1["tdo"], "little") >> 9) & 0xFFFFFFFF))
-    if len(jr) != 4:
-        err("expected 4 JTAG responses, got %d" % len(jr))
+    if len(jr) != 6:
+        err("expected 6 JTAG responses, got %d" % len(jr))
     else:
+        r = jr[4]
+        if r["status"] != 4 or r["seq"] != 2 or r["next_seq"] != 2 or r["tdo_bytes"]:
+            err("DUT0 JTAG with out-policy 2 not refused as unpowered: %r" % r)
+        r = jr[5]
+        if r["status"] != 0 or r["seq"] != 2 or r["next_seq"] != 3 or \
+           (int.from_bytes(r["tdo"], "little") >> 9) & 0xFFFFFFFF != IDCODE:
+            err("DUT0 JTAG after out-policy 0: %r" % r)
         r = jr[3]
         if r["status"] != 0 or r["seq"] != 1 or r["next_seq"] != 2 or \
            (int.from_bytes(r["tdo"], "little") >> 9) & 0xFFFFFFFF != IDCODE:
@@ -276,10 +291,12 @@ def check(path):
         h = hb0[-1]
         if h["dna"] != DNA or h["kbd_udp"] != (1 << 10) | (1 << 63) or h["kbd_eff"] != h["kbd_udp"]:
             err("heartbeat DUT0 fields wrong: %r" % h)
-        if h["uart_rx_seq"] != 5 or h["uart_tx_acc"] != 5 or h["jtag_next_seq"] != 2:
+        if h["uart_rx_seq"] != 5 or h["uart_tx_acc"] != 5 or h["jtag_next_seq"] != 3:
             err("heartbeat DUT0 counters wrong: %r" % h)
         if h["rx_rejects"] != 1:
             err("DUT0 rx_rejects %d != 1" % h["rx_rejects"])
+        if h["target_flags"] & (P.TF_OUT_EN | P.TF_PWR_HOLD) != P.TF_OUT_EN:
+            err("DUT0 target_flags %02x: outputs not back on after out-policy 0" % h["target_flags"])
         if not h["caps"] & P.CAP_KBD_JTAG or h["phys_type"] != 0:
             err("heartbeat caps %x / phys_type %d" % (h["caps"], h["phys_type"]))
         seqs = [x["hb_seq"] for x in hb0]
