@@ -88,3 +88,13 @@ board build c73c7b23; 1000 probes per step):
   half 10, recommended 20 = 3.1 MHz because of the half-8 dip).
 * No DUT is attached to the octopus ports here (both endpoints report the
   target unpowered), so the DUT path is untested on hardware.
+
+### 2026-11-27 owner (round 13)
+
+* The keyboard cable is currently about 0.75 m long. The owner would not be
+  surprised if zero errors needs TCK below 6 MHz.
+* Lead: the measured floor (about 6e-5 per isolated 1) is the same at
+  0.6 MHz as at 15 MHz, and half 3 (20.8 MHz) was clean, so a slower TCK
+  alone is not expected to remove it; it does not behave like a timing limit
+  set by the cable length. Next step is a scope on TDI/TDO at half 8, and a
+  sweep with the keyboard protocol idle.
