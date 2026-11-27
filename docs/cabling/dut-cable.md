@@ -78,7 +78,9 @@ odd pins (pin-1 side), column A = JB1 even pins** (amendment 5).
 
 The column-B wires for rows 6-7 land
 on JB1 n.c. pins and can be left out. For VIO sensing, run one extra jumper
-from JB1 pin 6 (VIO) to Mimas row 6 column B (a 1-10 kOhm series resistor
+from JB1 pin 6 (VIO) to Mimas row 6 column B (a 1-2.2 kOhm series resistor: the
+sense ball has the FPGA's internal pull-down, as strong as ~10 kOhm (7-series
+IRPD up to ~330 uA at 3.3 V), so 10 kOhm can leave it below VIH; the resistor
 avoids back-feeding the Mimas when only the MEGA65 is powered); the
 heartbeat then shows `vio=1` when the MEGA65 is on.
 
@@ -137,3 +139,27 @@ CPLD can be read (`dutctl jtag-idcode IP --kbd`) and flashed through XVC
 * The later DUT adapter (issue 0008) adds series resistors and proper
   sense circuits; until then a DUT powered while the supervisor is off can
   back-power through the I/O protection diodes, so power the supervisor first.
+
+## 4. Xilinx K325T board, 6-pin JTAG header (owner, 2026-11-27)
+
+Header pins 1-6: 3V3, GND, TCK, TDO, TDI, TMS (3.3 V JTAG). No UART (the
+board's UART is on its mini-USB port). Wire it to the DUT port's rows 3-7
+(DUT1 = P13) as for JB1:
+
+| K325T pin | Signal | Mimas row / column |
+|---|---|---|
+| 1 | 3V3 | **1 kOhm** in series -> row 6 B (VIO sense) |
+| 2 | GND | row 3 (A or B) |
+| 3 | TCK | row 4 A |
+| 4 | TDO | row 5 A |
+| 5 | TDI | row 6 A |
+| 6 | TMS | row 7 A |
+
+Rows 4 B, 5 B and 7 B stay empty. The 3V3 wire is the board's power sense:
+without it (and with no keyboard harness) the supervisor keeps TCK/TMS/TDI
+tri-stated. The 1 kOhm keeps the sense reliable and limits current if the
+Mimas is unpowered (back-feed through its input clamp) or the ball is ever
+driven low by a wrong bitstream (3.3 mA instead of a short on the K325T
+3V3 rail). Workaround without the wire: `dutctl set IP out-policy 1` on
+that DUT's endpoint forces the outputs on (then power the K325T first and
+switch the policy back to 0 when it is off).
