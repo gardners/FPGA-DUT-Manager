@@ -315,3 +315,24 @@ Mimas.
   shield sockets match it pad-for-pad (checked: 0.000 mm).
 * GS105 behind the boards; LCD level shifter on the front panel (0050).
   shield.md stack table updated. ERC 0/0, DRC 0 errors on both boards.
+
+## 2026-11-27 Mimas A7 vendor STEP: corrections to apply (agent, feature/mimas-step-fix)
+
+The owner supplied the Numato 3D model (`docs/datasheets/MimasA7_3D_1.step`,
+git-ignored). The 0047 round-13 note lists differences between it and the
+repo's Mimas numbers. This branch re-checks them against the STEP (assembly
+transforms, B-rep vertex bounding boxes, board drill cylinders) and applies
+them to the shield generator and the case's Mimas model:
+
+* mounting holes at (5, 5), (5, 85), (115, 5), (115, 85), 3.2 mm;
+* header grid: row 1 at x 10.465; P13 A/B at y 1.346/3.886, P12 A/B at
+  86.106/88.646;
+* **RJ45 magjack**: the body runs to x 21.8 and 14.1 mm above the Mimas
+  (y 60.7-76.7 above x 18), while the shield underside is 11.04 mm up and
+  the cut-out stops at x 18.0. The cut-out has to grow to x >= 22.5 over
+  y 59-78;
+* Mimas PCB 1.16 mm in the model, against 1.6 assumed: the stack is
+  parametrised for both until the owner measures a board;
+* the HDMI receptacles are flush with the board edge in the model, and the
+  7-segment display (x 35.9-65.9, y 64.2-78.2) sits wider than the drawing
+  showed.
