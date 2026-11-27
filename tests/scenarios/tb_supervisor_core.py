@@ -114,6 +114,18 @@ def scenario():
     # shield power CTRL (key 0x0062, issue 0049): set, then a bad length
     f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 18, P.K_PWR_CTL, b"\xa5"))))
     f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 19, P.K_PWR_CTL, b"\xa5\x00"))))
+    # issue 0054: keyboard JTAG quiet (key 0x0063) and TDO majority voting
+    # (key 0x0064): bad values, then quiet 1 + vote 2 -> keyboard IDCODE
+    # (the engine waits for the keyboard host to pause) and DUT0 IDCODE at
+    # half 6; then quiet 2 (keyboard host stopped, JTAG forced on) -> seq 3
+    f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 20, P.K_KJ_QUIET, b"\x03"))))
+    f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 21, P.K_TDO_VOTE, b"\x03"))))
+    f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 22, P.K_KJ_QUIET, b"\x01"))))
+    f.append((5, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 23, P.K_TDO_VOTE, b"\x02"))))
+    f.append((5, udp_to(0, P.PORT_JTAG, P.jtag_req(0, 2, JTAG_TMS, JTAG_TDI, half=6, flags=P.JF_KBD))))
+    f.append((5, udp_to(0, P.PORT_JTAG, P.jtag_req(0, 1, JTAG_TMS, JTAG_TDI, half=6))))
+    f.append((600, udp_to(0, P.PORT_MGMT, P.mgmt_set(0, 24, P.K_KJ_QUIET, b"\x02"))))
+    f.append((5, udp_to(0, P.PORT_JTAG, P.jtag_req(0, 3, JTAG_TMS, JTAG_TDI, half=4, flags=P.JF_KBD))))
     return f
 
 
@@ -194,21 +206,28 @@ def check(path):
             (7, P.K_PK_LED_HOST, 2), (10, 0x0004, 0), (11, 0x0003, 0), (8, K_CAPTURE_EN, 0),
             (13, K_THUMB_FORCE, 0), (14, K_THUMB_FORCE, 3), (12, P.K_CON_SCREEN, 0),
             (15, P.K_PK_JTAG, 3), (16, P.K_PK_JTAG, 0), (17, P.K_PK_JTAG, 0),
-            (18, P.K_PWR_CTL, 0), (19, P.K_PWR_CTL, 2)]
+            (18, P.K_PWR_CTL, 0), (19, P.K_PWR_CTL, 2),
+            (20, P.K_KJ_QUIET, 3), (21, P.K_TDO_VOTE, 3), (22, P.K_KJ_QUIET, 0),
+            (23, P.K_TDO_VOTE, 0), (24, P.K_KJ_QUIET, 0)]
     got = [(a["cmd_id"], a["key"], a["status"]) for a in acks]
     if got != want:
         err("MGMT acks %r != %r" % (got, want))
-    elif acks[-1]["cfg_gen"] != 13:  # baud, hb period, LED mode, LED vector, dest x2, capture,
-        err("cfg_gen %d != 13" % acks[-1]["cfg_gen"])  # thumb force, DUT1 hb period, console screen, kbd JTAG x2, power
+    elif acks[-1]["cfg_gen"] != 16:  # baud, hb period, LED mode, LED vector, dest x2, capture,
+        # thumb force, DUT1 hb period, console screen, kbd JTAG x2, power, quiet x2, vote
+        err("cfg_gen %d != 16" % acks[-1]["cfg_gen"])
 
     jrall = [(d["dut"], P.decode_jtag_resp(d["body"])) for d in parsed
              if d.get("kind") == "udp" and d.get("ptype") == P.T_JTAG_RESP]
     jr = [r for (_, r) in jrall if r["target"] == P.JT_DUT]
     jk = [(dut, r) for (dut, r) in jrall if r["target"] == P.JT_KBD]
-    if len(jk) != 3:
-        err("expected 3 keyboard JTAG responses, got %d" % len(jk))
+    if len(jk) != 5:
+        err("expected 5 keyboard JTAG responses, got %d" % len(jk))
     else:
-        (d0, r0), (d1, r1), (d2, r2) = jk
+        (d0, r0), (d1, r1), (d2, r2), (d3, r3), (d4, r4) = jk
+        for (r, seq, what) in ((r3, 2, "quiet 1, vote 2"), (r4, 3, "quiet 2 (host stopped)")):
+            if r["status"] != 0 or r["seq"] != seq or r["next_seq"] != seq + 1 or \
+               (int.from_bytes(r["tdo"], "little") >> 9) & 0xFFFFFFFF != KBD_IDCODE:
+                err("keyboard JTAG with %s: %r" % (what, r))
         if r2["status"] != 0 or r2["seq"] != 1 or r2["next_seq"] != 2 or \
            (int.from_bytes(r2["tdo"], "little") >> 9) & 0xFFFFFFFF != KBD_IDCODE:
             err("keyboard JTAG in mode 3 (JTAGEN low): %r" % (jk[2],))
@@ -218,9 +237,13 @@ def check(path):
             err("keyboard JTAG forced on: %r" % (jk[1],))
         elif (int.from_bytes(r1["tdo"], "little") >> 9) & 0xFFFFFFFF != KBD_IDCODE:
             err("keyboard IDCODE %08x" % ((int.from_bytes(r1["tdo"], "little") >> 9) & 0xFFFFFFFF))
-    if len(jr) != 3:
-        err("expected 3 JTAG responses, got %d" % len(jr))
+    if len(jr) != 4:
+        err("expected 4 JTAG responses, got %d" % len(jr))
     else:
+        r = jr[3]
+        if r["status"] != 0 or r["seq"] != 1 or r["next_seq"] != 2 or \
+           (int.from_bytes(r["tdo"], "little") >> 9) & 0xFFFFFFFF != IDCODE:
+            err("DUT0 JTAG with TDO vote 2 at half 6: %r" % r)
         for r in jr[:2]:
             if r["status"] != 0 or r["bit_count"] != len(JTAG_TMS) or r["next_seq"] != 1:
                 err("JTAG response wrong: %r" % r)
@@ -253,7 +276,7 @@ def check(path):
         h = hb0[-1]
         if h["dna"] != DNA or h["kbd_udp"] != (1 << 10) | (1 << 63) or h["kbd_eff"] != h["kbd_udp"]:
             err("heartbeat DUT0 fields wrong: %r" % h)
-        if h["uart_rx_seq"] != 5 or h["uart_tx_acc"] != 5 or h["jtag_next_seq"] != 1:
+        if h["uart_rx_seq"] != 5 or h["uart_tx_acc"] != 5 or h["jtag_next_seq"] != 2:
             err("heartbeat DUT0 counters wrong: %r" % h)
         if h["rx_rejects"] != 1:
             err("DUT0 rx_rejects %d != 1" % h["rx_rejects"])

@@ -17,6 +17,10 @@ K_CON_SCREEN = 0x0035  # console screen: 0 auto, 1 editable, 2 no video, 3 selec
 K_PK_JTAG = 0x0061  # physical keyboard CPLD JTAG: 0 auto, 1 on, 2 off, 3 on + JTAGEN low (ADR 0014)
 PK_JTAG_AUTO, PK_JTAG_ON, PK_JTAG_OFF, PK_JTAG_ON_JTAGEN_LOW = 0, 1, 2, 3
 K_PWR_CTL = 0x0062  # shield power CTRL0..7 bitmask, bit n = power-board output n (issue 0049)
+K_KJ_QUIET = 0x0063  # kbd JTAG quiet: 0 off, 1 pause the kbd host during kbd JTAG, 2 kbd host stopped (issue 0054)
+KJ_QUIET_OFF, KJ_QUIET_PAUSE, KJ_QUIET_STOP = 0, 1, 2
+K_TDO_VOTE = 0x0064  # JTAG TDO sampling: 0 single, 1 majority of 3 (half >= 4), 2 of 5 (half >= 6) (issue 0054)
+TDO_VOTE_SINGLE, TDO_VOTE_3, TDO_VOTE_5 = 0, 1, 2
 # JTAG_REQ flags (offset 18): b0 abort/reset session, b1 target = physical
 # keyboard CPLD (ADR 0014); JTAG_RESP byte 17 = target (0 DUT, 1 keyboard)
 JF_ABORT, JF_KBD = 0x0001, 0x0002

@@ -22,6 +22,14 @@ architecture tb of tb_jtag_engine is
   signal nseq, lseq, lbits : unsigned(31 downto 0);
   signal tck, tms, tdi, tdo : std_logic;
   signal rises : natural := 0;
+  -- TDO sampling (key 0x0064) / start permission (key 0x0063)
+  signal vote  : unsigned(1 downto 0) := "00";
+  signal sok   : std_logic := '1';
+  -- glitch injector: TDO inverted on clk edges E(gl_first) .. E(gl_last)
+  -- after the edge E0 that raised TCK (0 = off)
+  signal gl_first, gl_last : natural := 0;
+  signal glit : std_logic := '0';
+  signal gk : natural := 0;
 
   -- TAP model
   type tap_t is (TLR, RTI, SELDR, CAPDR, SHDR, EX1DR, PADR, EX2DR, UPDR,
@@ -40,9 +48,21 @@ begin
     port map (clk, powered, req_valid, req_seq, req_bits, req_half, req_abort,
               dec_valid, dec_code, vec_we, vec_addr, vec_data, go,
               tdo_addr, tdo_data, busy, ready, dstb, aborted, nseq, lseq, lbits,
-              tck, tms, tdi, oe, tdo);
+              tck, tms, tdi, oe, tdo, vote => vote, start_ok => sok);
 
-  tdo <= tdo_r;
+  tdo <= tdo_r xor glit;
+
+  -- the engine samples pin(E(half-2)) (2-FF synchroniser), the votes add
+  -- pin(E(half-3)) .. pin(E(half-6))
+  -- gk = clk edges seen since TCK rose; the pin value sampled at E(gk + 1)
+  -- is the one driven now
+  glitch : process (clk)
+  begin
+    if rising_edge(clk) then
+      if tck = '1' then gk <= gk + 1; else gk <= 0; end if;
+    end if;
+  end process;
+  glit <= '1' when gl_first /= 0 and tck = '1' and gk + 1 >= gl_first and gk + 1 <= gl_last else '0';
 
   tapm : process (tck)
   begin
@@ -200,6 +220,55 @@ begin
 
     -- maximum length transaction
     shift(1000, rep('0', 8192), rep('1', 8192), 2);
+
+    -- TDO majority voting (key 0x0064, issue 0054) ------------------------
+    -- IDCODE still reads correctly with the votes
+    vote <= "10";
+    nb := 0; shift(1001, "11111" & "0100", rep('0', 9), 6);
+    nb := 0; shift(1002, rep('0', 31) & "1", rep('0', 32), 6);
+    assert tdo_bits(31 downto 0) = IDCODE report "IDCODE with vote 2" severity failure;
+    vote <= "01";
+    nb := 0; shift(1003, "11111" & "0100", rep('0', 9), 4);
+    nb := 0; shift(1004, rep('0', 31) & "1", rep('0', 32), 4);
+    assert tdo_bits(31 downto 0) = IDCODE report "IDCODE with vote 1" severity failure;
+    -- TAP held in Test-Logic-Reset: TDO '0', glitched to '1' near the sample
+    -- point. Half 6: sample point E4.
+    gl_first <= 4; gl_last <= 4;                     -- 1-cycle glitch
+    vote <= "00"; nb := 0; shift(1005, rep('1', 16), rep('0', 16), 6);
+    assert tdo_bits(15 downto 0) = x"FFFF" report "1-cycle glitch not seen with vote 0" severity failure;
+    vote <= "01"; nb := 0; shift(1006, rep('1', 16), rep('0', 16), 6);
+    assert tdo_bits(15 downto 0) = x"0000" report "1-cycle glitch not rejected with vote 1" severity failure;
+    vote <= "10"; nb := 0; shift(1007, rep('1', 16), rep('0', 16), 6);
+    assert tdo_bits(15 downto 0) = x"0000" report "1-cycle glitch not rejected with vote 2" severity failure;
+    gl_first <= 3; gl_last <= 4;                     -- 2-cycle glitch
+    vote <= "00"; nb := 0; shift(1008, rep('1', 16), rep('0', 16), 6);
+    assert tdo_bits(15 downto 0) = x"FFFF" report "2-cycle glitch not seen with vote 0" severity failure;
+    vote <= "01"; nb := 0; shift(1009, rep('1', 16), rep('0', 16), 6);
+    assert tdo_bits(15 downto 0) = x"FFFF" report "2-cycle glitch: vote 1 is 2 of 3" severity failure;
+    vote <= "10"; nb := 0; shift(1010, rep('1', 16), rep('0', 16), 6);
+    assert tdo_bits(15 downto 0) = x"0000" report "2-cycle glitch not rejected with vote 2" severity failure;
+    -- fallbacks: vote 2 at half 5 -> majority of 3; vote 1 at half 3 -> single
+    gl_first <= 3; gl_last <= 3;                     -- half 5: sample point E3
+    vote <= "10"; nb := 0; shift(1011, rep('1', 16), rep('0', 16), 5);
+    assert tdo_bits(15 downto 0) = x"0000" report "vote 2 at half 5 not 3-vote" severity failure;
+    gl_first <= 1; gl_last <= 1;                     -- half 3: sample point E1
+    vote <= "01"; nb := 0; shift(1012, rep('1', 16), rep('0', 16), 3);
+    assert tdo_bits(15 downto 0) = x"FFFF" report "vote 1 at half 3 not single sample" severity failure;
+    gl_first <= 0; gl_last <= 0; vote <= "00";
+
+    -- start permission (key 0x0063): no TCK edge until start_ok -----------
+    sok <= '0';
+    request(1013, 8, 2);
+    assert dec_code = "000" severity failure;
+    start_rises := rises;
+    go <= '1'; wait until rising_edge(clk); go <= '0';
+    wait for 2 us;
+    assert rises = start_rises report "TCK before start_ok" severity failure;
+    assert busy = '1' report "not busy while waiting for start_ok" severity failure;
+    sok <= '1';
+    wait until rising_edge(clk) and dstb = '1';
+    wait for 100 ns;
+    assert rises - start_rises = 8 report "no clocks after start_ok" severity failure;
 
     report "tb_jtag_engine PASSED";
     done <= true;

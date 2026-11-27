@@ -10,6 +10,11 @@
 -- HALF_CYCLES sets the clock half period (65 cycles at 40.5 MHz = 1.6 us
 -- upstream; 200 at 125 MHz here).
 --
+-- hold (key 0x0063, issue 0054): the scan runs on to the sync phase (KIO8
+-- high), then stops there with all lines static: the keyboard sees a long
+-- sync, which only restarts its frame, so the scan resumes cleanly. held =
+-- stopped.
+--
 -- Copyright (C) 2026 FPGA-DUT-Manager contributors. LGPL-2.1-or-later.
 library ieee;
 use ieee.std_logic_1164.all;
@@ -30,7 +35,9 @@ entity kbd_mk1_host is
     pressed    : out std_logic_vector(79 downto 0);
     strobe     : out std_logic;           -- once per complete scan
     present    : out std_logic;           -- KIO10 seen high (MK-I detected)
-    kbd_commit : out std_logic_vector(31 downto 0)
+    kbd_commit : out std_logic_vector(31 downto 0);
+    hold       : in  std_logic := '0';
+    held       : out std_logic
   );
 end entity;
 
@@ -44,8 +51,13 @@ architecture rtl of kbd_mk1_host is
   signal k10_s    : std_logic_vector(1 downto 0) := "00";
   signal seen_hi  : std_logic := '0';
   signal commit_r : std_logic_vector(31 downto 0) := (others => '0');
+  signal kio8_r   : std_logic := '0';
+  signal frz      : std_logic;
 begin
   present    <= seen_hi;
+  kio8       <= kio8_r;
+  frz        <= hold and sync and kio8_r;
+  held       <= frz;
   kbd_commit <= commit_r;
 
   process (clk)
@@ -58,12 +70,14 @@ begin
       if k10 = '1' then
         seen_hi <= '1';
       end if;
-      if div /= HALF_CYCLES - 1 then
+      if frz = '1' then
+        null;                           -- held in the sync phase
+      elsif div /= HALF_CYCLES - 1 then
         div <= div + 1;
       else
         div  <= 0;
         kclk <= not kclk;
-        kio8 <= kclk or sync;
+        kio8_r <= kclk or sync;
         if kclk = '1' and phase < 128 then
           sampled(phase) <= k10;
         end if;

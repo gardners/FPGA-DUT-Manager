@@ -98,3 +98,82 @@ board build c73c7b23; 1000 probes per step):
   alone is not expected to remove it; it does not behave like a timing limit
   set by the cable length. Next step is a scope on TDI/TDO at half 8, and a
   sweep with the keyboard protocol idle.
+
+### 2026-11-27 owner questions / plan (sub-agent, branch feature/kbd-jtag-si)
+
+Owner asks about the keyboard-path error floor: (a) did we stop the
+keyboard protocol while doing JTAG, to reduce cross-talk? (**No**: the
+physical keyboard host keeps scanning on the same ribbon during keyboard
+JTAG.) (b) Does de-bouncing (majority-voting) the TDO bit fix it?
+
+Plan: two board-wide diagnostic MGMT keys, so the lead can A/B test on
+hardware (protocol rule: ADR 0005, proto_pkg, dutproto.h, netproto.py):
+
+* **0x0063 kbd JTAG quiet** (1 byte): 0 as now (default); 1 pause the
+  physical keyboard host while the keyboard JTAG engine is busy (from
+  admission until done, plus a few-µs guard before the first TCK edge and
+  after the last): lines to the keyboard static at idle levels, matrix
+  frozen (no key events to the DUTs), detection (pk_present) held, clean
+  resume; 2 host stopped entirely (keyboard JTAG then needs key 0x0061 = 1).
+* **0x0064 JTAG TDO sampling** (1 byte, all three engines): 0 single sample
+  at the end of the high half period (default); 1 majority of 3 over the
+  last three clk_sys cycles of the high half (half ≥ 4); 2 majority of 5
+  (half ≥ 6); smaller half periods fall back.
+
+### 2026-11-27 keys 0x0063 / 0x0064 implemented (sub-agent, feature/kbd-jtag-si)
+
+* **0x0063 kbd JTAG quiet** (`dutctl set IP kbd-jtag-quiet N`): 1 = from
+  admission of a keyboard JTAG_REQ until 4 µs after its last TCK edge
+  `kbd_phys_host` is paused. The active protocol runs on to a clean point
+  and stops with static lines: MK-I in the sync phase (KIO8 held high = a
+  long sync, which only restarts the keyboard's frame; up to one frame,
+  ~450 µs, to get there), MK-II between I2C transactions (bus released,
+  ≤ ~200 µs), type 3 between pairs (KIO9 idle high, ≤ 10 µs). The
+  engine's first TCK edge waits until the host has been paused for 4 µs
+  (start anyway after 4 ms). Detection, re-probe and type-3 loss timers
+  stand still, so the keyboard type (pk_present) is kept; the reported
+  matrix is frozen and the first frame after the resume is dropped (it may
+  span the pause). 2 = host stopped: no keyboard reported (keys released,
+  heartbeat phys_type 0), lines static; keyboard JTAG then needs
+  `kbd-jtag 1` (the auto lease follows detection). Leaving 2 restarts
+  detection (type-3 probe first). Caveat: a type-3 keyboard keeps sending
+  on KIO10 for 100 ms after our last pair, so quiet 1 does not silence
+  KIO10 for type 3 (the owner's keyboard is MK-I: KIO10 is static during
+  the MK-I sync).
+* **0x0064 JTAG TDO sampling** (`dutctl set IP jtag-tdo-vote N`, all three
+  engines, latched per request): 0 single sample (default); 1 majority of
+  the last 3 clk_sys cycles of the high half (half ≥ 4); 2 majority of the
+  last 5 (half ≥ 6; half 4–5 uses 3; < 4 single).
+* Tests: tb_jtag_engine (1- and 2-cycle TDO glitches at the sample point:
+  seen with 0, 1-cycle rejected with 1 and 2, 2-cycle rejected with 2;
+  fallbacks; start_ok wait), tb_kbd_phys_host (pause in MK-II, MK-I with
+  keys changed during the pause, type 3; stop/restart), core scenario
+  (bad values, keyboard IDCODE with quiet 1 + vote 2 and with quiet 2,
+  DUT0 IDCODE with vote 2 at half 6). `make test` green. Vivado build 921fed47: TIMING MET, WNS +0.105 ns, WHS +0.008 ns, 18505 LUTs; bitstream `build/bits/supervisor-921fed47.bit` in this worktree.
+
+**To run on hardware** (lead; IP = the master's endpoint):
+
+```
+dutctl set IP kbd-jtag 1
+# A: baseline (as before)
+dutctl set IP kbd-jtag-quiet 0; dutctl set IP jtag-tdo-vote 0
+dutctl jtag-speed IP --kbd --reps 1000 -v
+# B: keyboard scan paused during each keyboard JTAG transaction
+dutctl set IP kbd-jtag-quiet 1
+dutctl jtag-speed IP --kbd --reps 1000 -v
+# C: keyboard scan stopped entirely
+dutctl set IP kbd-jtag-quiet 2
+dutctl jtag-speed IP --kbd --reps 1000 -v
+# D/E: TDO majority voting, keyboard scan running
+dutctl set IP kbd-jtag-quiet 0
+dutctl set IP jtag-tdo-vote 1; dutctl jtag-speed IP --kbd --reps 1000 --to 4 -v
+dutctl set IP jtag-tdo-vote 2; dutctl jtag-speed IP --kbd --reps 1000 --to 6 -v
+# restore
+dutctl set IP jtag-tdo-vote 0; dutctl set IP kbd-jtag-quiet 0; dutctl set IP kbd-jtag 0
+```
+
+Reading: if B/C remove the floor, it is cross-talk from the keyboard
+protocol (KIO8 clock at 312.5 kHz / KIO9 LED data) onto TDI/TDO; if D/E
+remove it, the corruption is a short glitch on TDO near the sample point;
+if neither, it is on TDI (the TAP shifts a wrong bit in) or longer than
+5 cycles (40 ns). Check that the keyboard still works after B and C.
