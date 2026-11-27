@@ -41,7 +41,7 @@ MAIN.update({
     'J5': (150, 70, 90), 'JP1': (163, 62),
     'U11': (140, 63), 'C7': (147, 58, 90),
     'R5': (130, 55, 90), 'R7': (133, 55, 90), 'R8': (136, 55, 90),
-    'R9': (150, 62, 90), 'R10': (153, 62, 90), 'R11': (130, 67, 90),
+    'R9': (150, 62, 90), 'R10': (153, 62, 90),
     'H1': (3.5, 40), 'H2': (166.5, 30), 'H3': (3.5, 76.5), 'H4': (166.5, 76.5),
     'H5': (226.5, 9), 'H6': (226.5, 67),
 })
@@ -51,12 +51,13 @@ MAIN['R6'] = (133, 67, 90)
 # Fan block (issue 0052): the board grows from 170 to 230 mm; the new 60 mm on
 # the right holds 8 fan cells (2 columns x 4 rows) on the always-on pour.
 # Issue 0055: the block moved 39 mm towards the front (rows from y 40) so that
-# the three 5 V DUT outputs fit on the rear edge at x 160-204.
+# the three 5 V DUT outputs fit on the rear edge at x 160-204; round 15 moved
+# it 20 mm further (rows from y 60) for the 6 V buck at x 171-229, y 40-58.
 # Cell: 4-pin header, BSP452 (tab = AON12) to its right, then a row with the
 # 2N7002 PWM inverter and the five resistors.
 FAN_CELLS = []
 for k in range(8):
-    ox, oy = 171 + 27 * (k // 4), 40 + 18.5 * (k % 4)
+    ox, oy = 171 + 27 * (k // 4), 60 + 18.5 * (k % 4)
     FAN_CELLS.append((ox, oy))
     base = 300 + 10 * k
     MAIN['J%d' % (30 + k)] = (ox + 3, oy + 4.5, 0)
@@ -150,6 +151,43 @@ for k, n in enumerate((5, 6, 7)):
     # channel selector by the CTRL header J3: pin 1 (rear) = 12 V, pin 3 (front) = 5 V
     MAIN['JP%d' % n] = (100 + 5 * k, 63, 0)
 
+# Dedicated 6 V outlet (0055 owner round 15). U71 (buck input eFuse) sits on
+# the VBUS pour right of the always-on cell; its output VIN6 runs on a B.Cu
+# strip (y 24.4-27.4, then down x 171.5-174) to the buck at x 171-205,
+# y 40-58 (where the fan block was). +6V -> U72 at the right end; its output
+# OUT6V runs up an F.Cu strip at x 223-229.5 to J70 (Micro-Fit 2x2, right
+# angle) on the rear edge between J63 and H5. LED, clamp and PG divider sit
+# on the strip by the connector.
+MAIN.update({
+    # control, by U11
+    'R700': (130, 67, 90), 'R701': (127.5, 67, 90), 'R702': (125, 67, 90),
+    # U71 on the VBUS pour: OUT (VIN6) up, IN down
+    'U71': (138.5, 31, 90), 'C713': (137.5, 26.5, 0), 'C712': (142.2, 32.6, 0),
+    'R710': (135.3, 32.4, 90), 'C710': (135.3, 35.5, 90), 'C711': (133, 34, 90),
+    # buck
+    'C720': (183, 42, 0), 'C721': (183, 44.6, 0), 'C722': (183, 53.5, 0), 'C723': (182, 49.5, 90),
+    'U73': (185.5, 49.5, 0), 'C724': (189, 47.5, 90),
+    'R720': (187, 43.5, 90), 'R721': (189, 43.5, 90), 'R722': (187, 54.5, 90), 'R723': (189, 54.5, 90),
+    'L70': (198, 48, 0),
+    'C725': (208, 42.5, 0), 'C726': (208, 45.2, 0), 'C727': (208, 47.9, 0),
+    # U72 and its passives
+    'U72': (225.5, 41.5, 90), 'C733': (226, 45.5, 0), 'C734': (226, 37.2, 0),
+    'R730': (212, 44, 0), 'C730': (215.2, 44, 0), 'C731': (218.4, 44, 0),
+    'R731': (212, 46.5, 0), 'R732': (215.2, 46.5, 0), 'C732': (218.4, 46.5, 0),
+    'R733': (212, 49, 0), 'R734': (215.2, 49, 0), 'D730': (218.6, 49, 0),
+    # outlet on the rear edge, LED / clamp / PG on the OUT6V strip
+    'J70': (214.7, 9.5, 0), 'D740': (226.2, 20, 90),
+    'R740': (224.5, 26, 90), 'D741': (227.5, 26, 90), 'R741': (224.5, 30.5, 90), 'R742': (227.5, 30.5, 90),
+})
+ZONES6 = [
+    ('VIN6', 'F', [(134.5, 24.5), (143, 24.5), (143, 30.9), (134.5, 30.9)], 1),
+    ('VIN6', 'B', [(134.5, 24.4), (174, 24.4), (174, 42.6), (171.5, 42.6), (171.5, 27.4), (134.5, 27.4)], 1),
+    ('VIN6', 'F', [(171.2, 40.2), (182.8, 40.2), (182.8, 57.6), (171.2, 57.6)]),
+    ('GND', 'F', [(183.1, 40.2), (200.3, 40.2), (200.3, 57.6), (183.1, 57.6)]),
+    ('+6V', 'F', [(200.6, 40.2), (222.6, 40.2), (222.6, 41.6), (229.5, 41.6), (229.5, 57.6), (200.6, 57.6)]),
+    ('OUT6V', 'F', [(211, 11.3), (229.5, 11.3), (229.5, 41.4), (222.9, 41.4), (222.9, 14.2), (211, 14.2)]),
+]
+
 BOARDS = {
     'main': {
         'name': 'mega-kvm-power-main',
@@ -169,8 +207,8 @@ BOARDS = {
                          (26, 105.2), (34.5, 105.2)]),
             ('V3', 'F', [(49.5, 98), (62, 98), (62, 104.8), (76, 104.8), (76, 113.5), (51, 113.5),
                          (51, 105.2), (49.5, 105.2)]),
-            ('AON12', 'F', [(118.5, 1), (158, 1), (158, 38), (229, 38), (229, 113), (170, 113),
-                            (170, 61), (146, 61), (146, 23.9), (118.5, 23.9)]),
+            ('AON12', 'F', [(118.5, 1), (158, 1), (158, 38), (170, 38), (170, 58.5), (229, 58.5),
+                            (229, 131), (170, 131), (170, 61), (146, 61), (146, 23.9), (118.5, 23.9)]),
             # 5 V (issue 0055): J53 pin 4 -> F4 pin 1 and F4 pin 2 -> eFuse row on B.Cu strips
             # (they cut the B.Cu GND plane; stitch GND around them when routing),
             # F.Cu pours at the TVS/caps and under the 5 V eFuse row
@@ -181,8 +219,11 @@ BOARDS = {
             ('+5V', 'F', [(169.6, 24.1), (222.5, 24.1), (222.5, 37), (169.6, 37), (169.6, 35.9),
                           (161.5, 35.9), (161.5, 34), (169.6, 34)]),
         ] + [('OUT5V%d' % n, 'F', [(cx - 1.4, 1), (cx + 11.4, 1), (cx + 11.4, 23.9), (cx - 1.4, 23.9)])
-             for n, cx in CELLS5.items()] + [('OUT%d' % n, 'F', [(8.6 + n * 13.5, 1), (21.4 + n * 13.5, 1),
+             for n, cx in CELLS5.items()] + ZONES6 + [('OUT%d' % n, 'F', [(8.6 + n * 13.5, 1), (21.4 + n * 13.5, 1),
                                  (21.4 + n * 13.5, 23.9), (8.6 + n * 13.5, 23.9)]) for n in range(8)],
+        # VIN6 B.Cu strip <-> F.Cu pours at U71 and at the buck (0055 round 15)
+        'vias': [('VIN6', x, y) for x, y in ((141.0, 25.4), (142.3, 25.4), (142.3, 26.7),
+                                             (172.2, 40.9), (173.4, 40.9), (172.8, 42.1))],
         'texts': [('MEGA-KVM power v0.4 (one board)  2 oz Cu  VBUS 12 V 25 A', 50, 50, 'F', 1.5),
                   ('IN1 BANANA 25A', 17.5, 137.3, 'F', 0.8), ('IN2 PCIe 15A', 46, 137.3, 'F', 0.8),
                   ('IN3 MOLEX 10A (+5V: F4)', 69, 137.3, 'F', 0.8), ('ROCKER', 88.5, 137.3, 'F', 0.8),
@@ -191,9 +232,13 @@ BOARDS = {
                   ('12V', 96.4, 63, 'F', 0.8), ('5V', 96.4, 68.1, 'F', 0.8),
                   ('5V ONLY (JST VH): channel set by JP5-7', 182, 39.0, 'F', 0.8),
                   ('DUT0', 10.5, 21, 'F', 1.0), ('DUT7', 105, 21, 'F', 1.0),
-                  ('MIMAS / GS105 (always on)', 140, 32, 'F', 1.0),
+                  ('MIMAS / GS105 (always on)', 146, 19.5, 'F', 1.0),
                   ('CTRL: 1 GND 2 KEY 3-10 CH0-7 11 PRESENT', 104, 78.5, 'F', 0.8),
-                  ('FANS 1 GND 2 +12V 3 TACH 4 PWM', 186, 116.5, 'F', 0.8)]
+                  ('FANS 1 GND 2 +12V 3 TACH 4 PWM', 186, 133.5, 'F', 0.8),
+                  # 6 V outlet (0055 round 15)
+                  ('DUT 6V ONLY (K325T)', 216.2, 15.7, 'F', 0.8), ('6V', 221.4, 26.0, 'F', 0.8),
+                  ('6V: U11 P1.5 on, P1.6 /FLT, P1.7 PG', 212, 38.9, 'F', 0.8),
+                  ('J70: 1-2 GND, 3-4 +6V', 215, 58.6, 'F', 0.8)]
                  + [('DUT%d 5V ONLY' % n, cx + 5, 14.2, 'F', 0.9) for n, cx in CELLS5.items()]
                  + [('FAN%d %s' % (k, ['KVM', 'KVM', 'A', 'A', 'A', 'B', 'B', 'B'][k]),
                      FAN_CELLS[k][0] + 7.6, FAN_CELLS[k][1] + 9.4, 'F', 0.8) for k in range(8)],

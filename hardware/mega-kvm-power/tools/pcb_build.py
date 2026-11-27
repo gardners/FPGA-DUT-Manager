@@ -139,6 +139,13 @@ def build(which):
         prio = z[3] if len(z) > 3 else 0
         lay = pcbnew.F_Cu if layer == 'F' else pcbnew.B_Cu
         add_zone(board, nets, net, lay, [(ox + a, oy + b) for a, b in pts], prio)
+    for net, x, y in cfg.get('vias', []):
+        v = pcbnew.PCB_VIA(board)
+        v.SetPosition(vec(ox + x, oy + y))
+        v.SetWidth(MM(0.8))
+        v.SetDrill(MM(0.4))
+        v.SetNet(nets[net])
+        board.Add(v)
     for t in cfg.get('texts', []):
         txt, x, y = t[:3]
         side = t[3] if len(t) > 3 else 'F'
@@ -146,6 +153,7 @@ def build(which):
         add_text(board, txt, ox + x, oy + y, pcbnew.F_SilkS if side == 'F' else pcbnew.B_SilkS,
                  size, mirror=(side == 'B'))
 
+    board.BuildConnectivity()   # island removal needs it; without it the fill varies run to run
     filler = pcbnew.ZONE_FILLER(board)
     filler.Fill(board.Zones())
     out = os.path.join(pdir, name + '.kicad_pcb')

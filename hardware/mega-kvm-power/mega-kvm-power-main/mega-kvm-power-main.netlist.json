@@ -1163,7 +1163,7 @@
   "value": "1u"
  },
  "C7": {
-  "dnp": true,
+  "dnp": false,
   "fields": {
    "LCSC": "C14663",
    "Voltage": "25V"
@@ -1176,6 +1176,270 @@
   },
   "uuid": "5c2866fb-339d-5c82-8994-7bb5e76fee44",
   "value": "100n"
+ },
+ "C710": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "TBD (X7R 50V)",
+   "Voltage": "50V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "DVDT6I",
+   "2": "GND"
+  },
+  "uuid": "f1d80f22-9d15-5c5d-b07d-7d4e4f4bac8a",
+  "value": "2n2"
+ },
+ "C711": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "TBD (X7R 50V)",
+   "Voltage": "50V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "ITMR6I",
+   "2": "GND"
+  },
+  "uuid": "7a1e7991-99ac-5547-9502-71c370079f51",
+  "value": "4n7"
+ },
+ "C712": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "TBD (X7R 50V)",
+   "Voltage": "50V"
+  },
+  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "VBUS",
+   "2": "GND"
+  },
+  "uuid": "225b39fd-1190-51bc-816d-be431dc3c608",
+  "value": "1u"
+ },
+ "C713": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "TBD (X7R 50V)",
+   "Voltage": "50V"
+  },
+  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "VIN6",
+   "2": "GND"
+  },
+  "uuid": "42a8c6b0-97bc-5df5-a1dc-34d5af0cf4d7",
+  "value": "1u"
+ },
+ "C720": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C13585",
+   "MPN": "Samsung CL31A106KBHNNNE 10 uF 50 V X5R 1206 (JLC basic)",
+   "Voltage": "50V"
+  },
+  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "VIN6",
+   "2": "GND"
+  },
+  "uuid": "f668b811-34d6-5bd4-8a41-e9ee4537f1f8",
+  "value": "10u"
+ },
+ "C721": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C13585",
+   "MPN": "Samsung CL31A106KBHNNNE 10 uF 50 V X5R 1206 (JLC basic)",
+   "Voltage": "50V"
+  },
+  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "VIN6",
+   "2": "GND"
+  },
+  "uuid": "db334c8b-d286-549d-bcc7-d3e04946a6a3",
+  "value": "10u"
+ },
+ "C722": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C13585",
+   "MPN": "Samsung CL31A106KBHNNNE 10 uF 50 V X5R 1206 (JLC basic)",
+   "Note": "3 x 10 uF: ~2.2 A rms input ripple current at 4.45 A out",
+   "Voltage": "50V"
+  },
+  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "VIN6",
+   "2": "GND"
+  },
+  "uuid": "4dded8b4-f60d-5f57-b198-3cb8ab7d5f56",
+  "value": "10u"
+ },
+ "C723": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C14663",
+   "Voltage": "25V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "VIN6",
+   "2": "GND"
+  },
+  "uuid": "948c9343-c1c2-5589-be00-23aabfc0b4fa",
+  "value": "100n"
+ },
+ "C724": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C14663",
+   "Note": "VBST - SW",
+   "Voltage": "25V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "BST6",
+   "2": "SW6"
+  },
+  "uuid": "7f4bc723-ae3b-51d1-a27e-736427c0ebd6",
+  "value": "100n"
+ },
+ "C725": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C12891",
+   "MPN": "Samsung CL31A226KAHNNNE 22 uF 25 V X5R 1206 (JLC basic)",
+   "Voltage": "25V"
+  },
+  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+6V",
+   "2": "GND"
+  },
+  "uuid": "3cea6d93-12a3-5606-9b5f-f4f26693a8c4",
+  "value": "22u"
+ },
+ "C726": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C12891",
+   "MPN": "Samsung CL31A226KAHNNNE 22 uF 25 V X5R 1206 (JLC basic)",
+   "Voltage": "25V"
+  },
+  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+6V",
+   "2": "GND"
+  },
+  "uuid": "f16e2660-e48f-54d1-8ccd-3972fda616e0",
+  "value": "22u"
+ },
+ "C727": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C12891",
+   "MPN": "Samsung CL31A226KAHNNNE 22 uF 25 V X5R 1206 (JLC basic)",
+   "Note": "3 x 22 uF (~40 uF at 6 V bias): TI range 20-68 uF; ~10 mV ripple",
+   "Voltage": "25V"
+  },
+  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+6V",
+   "2": "GND"
+  },
+  "uuid": "2b0a3bc6-d9e6-50ff-b1c8-b8b0c1a0b12d",
+  "value": "22u"
+ },
+ "C730": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "TBD (X7R 50V)",
+   "Voltage": "50V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "DVDT6O",
+   "2": "GND"
+  },
+  "uuid": "a4acea4b-3f7a-5f25-8141-382c9206caef",
+  "value": "2n2"
+ },
+ "C731": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "TBD (X7R 50V)",
+   "Voltage": "50V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "ITMR6O",
+   "2": "GND"
+  },
+  "uuid": "e8ee733a-758f-5b68-954c-ccad024260c2",
+  "value": "4n7"
+ },
+ "C732": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C14663",
+   "Voltage": "25V"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "OVLO6",
+   "2": "GND"
+  },
+  "uuid": "6cfea705-233e-50ce-bc56-aa8dad9d14d3",
+  "value": "100n"
+ },
+ "C733": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "TBD (X7R 50V)",
+   "Voltage": "50V"
+  },
+  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+6V",
+   "2": "GND"
+  },
+  "uuid": "cd632d72-46b4-5dac-8cae-043d82519020",
+  "value": "1u"
+ },
+ "C734": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "TBD (X7R 50V)",
+   "Voltage": "50V"
+  },
+  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "OUT6V",
+   "2": "GND"
+  },
+  "uuid": "79d82214-3218-5b8b-8324-4578a926a148",
+  "value": "1u"
  },
  "D1": {
   "dnp": false,
@@ -1766,6 +2030,53 @@
    "2": "LED5V7"
   },
   "uuid": "359cc7c7-136a-5d5a-ae50-60275f25ea92",
+  "value": "green"
+ },
+ "D730": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C124205",
+   "MPN": "Diodes BAT54WS-7-F 30 V 0.2 A Schottky SOD-323",
+   "Note": "6V_EN low pulls EN6O to ~0.2 V: U72 opens at once, not when +6V has decayed"
+  },
+  "footprint": "Diode_SMD:D_SOD-323",
+  "in_bom": true,
+  "pads": {
+   "1": "6V_EN",
+   "2": "EN6O"
+  },
+  "uuid": "a59e9ba6-347f-5b1e-837b-37549d24f7df",
+  "value": "BAT54WS"
+ },
+ "D740": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C8678",
+   "MPN": "SS34 40 V 3 A SMA",
+   "Note": "negative-spike clamp on OUT (TI 8.3 layout)"
+  },
+  "footprint": "Diode_SMD:D_SMA",
+  "in_bom": true,
+  "pads": {
+   "1": "OUT6V",
+   "2": "GND"
+  },
+  "uuid": "30e1d0ec-bb64-5b97-9953-60edfe5e912a",
+  "value": "SS34"
+ },
+ "D741": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "TBD (0603 green, JLC basic)",
+   "Note": "\"6V\" outlet live (by J70)"
+  },
+  "footprint": "LED_SMD:LED_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "GND",
+   "2": "LED6V"
+  },
+  "uuid": "d115e65e-9ab2-51a0-9535-6c3c47f6d95b",
   "value": "green"
  },
  "F1": {
@@ -2421,6 +2732,25 @@
   "uuid": "6bb8a84e-4e72-53f4-a388-8e1d2e215120",
   "value": "DUT7 5V ONLY"
  },
+ "J70": {
+  "dnp": false,
+  "fields": {
+   "Assembly": "THT",
+   "LCSC": "C122413",
+   "MPN": "Molex 43045-0400 Micro-Fit 3.0 2x2 right-angle header, 3.0 mm, 8.5 A per contact, positive latch, polarised; pins 1-2 GND, 3-4 +6 V (two contacts per pole). Mates 43025-0400 (C122417) + 43030-0001 crimps (C259786, 20-24 AWG)",
+   "Note": "deliberately not VH (5 V), screw terminal (12 V) or Mini-Fit Jr (Mimas 12 V)"
+  },
+  "footprint": "Connector_Molex:Molex_Micro-Fit_3.0_43045-0400_2x02_P3.00mm_Horizontal",
+  "in_bom": true,
+  "pads": {
+   "1": "GND",
+   "2": "GND",
+   "3": "OUT6V",
+   "4": "OUT6V"
+  },
+  "uuid": "0676a92e-31d7-52a3-9e92-78269e191100",
+  "value": "DUT 6V ONLY (K325T)"
+ },
  "JP1": {
   "dnp": false,
   "fields": {
@@ -2497,6 +2827,21 @@
   },
   "uuid": "37cd3efb-d851-53b3-aad1-ded1f7280653",
   "value": "CH7 12V|5V"
+ },
+ "L70": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C167230",
+   "MPN": "Changjiang FXL1040-4R7-M 4.7 uH, 20 mOhm, Irms 9 A, Isat 15 A, 11.5 x 10 mm"
+  },
+  "footprint": "Inductor_SMD:L_Changjiang_FXL1040",
+  "in_bom": true,
+  "pads": {
+   "1": "SW6",
+   "2": "+6V"
+  },
+  "uuid": "0873c893-0e55-58cf-901a-addffbd89aaa",
+  "value": "4.7u"
  },
  "Q30": {
   "dnp": false,
@@ -2960,22 +3305,6 @@
   "uuid": "3492a6a1-733d-5df5-8f2a-959414d3cae8",
   "value": "4k7"
  },
- "R11": {
-  "dnp": true,
-  "fields": {
-   "LCSC": "C25804",
-   "Note": "unused P15-P17 held low; firmware may also set them as outputs",
-   "Tolerance": "1%"
-  },
-  "footprint": "Resistor_SMD:R_0603_1608Metric",
-  "in_bom": true,
-  "pads": {
-   "1": "EXUNUSED",
-   "2": "GND"
-  },
-  "uuid": "e15e2a78-5630-55f1-86de-75513dc256bb",
-  "value": "10k"
- },
  "R110": {
   "dnp": false,
   "fields": {
@@ -3056,7 +3385,7 @@
   "dnp": false,
   "fields": {
    "LCSC": "C25804",
-   "Note": "/INT pull-up: EMC2302 ALERT, TMP75 ALERT, optional TCA9535",
+   "Note": "/INT pull-up: EMC2302 ALERT, TMP75 ALERT, TCA9535 /INT",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -3607,7 +3936,7 @@
   "dnp": false,
   "fields": {
    "LCSC": "TBD (1%, JLC basic if stocked)",
-   "Note": "OVLO 14.8 V shared by all 9 eFuses",
+   "Note": "OVLO 14.8 V shared by the 10 VBUS eFuses (8 DUT, always-on, 6 V buck input U71)",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -4490,7 +4819,7 @@
   "value": "10k"
  },
  "R5": {
-  "dnp": true,
+  "dnp": false,
   "fields": {
    "LCSC": "C25804",
    "Tolerance": "1%"
@@ -4887,7 +5216,7 @@
   "value": "100R"
  },
  "R6": {
-  "dnp": true,
+  "dnp": false,
   "fields": {
    "LCSC": "C25804",
    "Tolerance": "1%"
@@ -5123,7 +5452,7 @@
   "value": "1k"
  },
  "R7": {
-  "dnp": true,
+  "dnp": false,
   "fields": {
    "LCSC": "C25804",
    "Tolerance": "1%"
@@ -5136,6 +5465,257 @@
   },
   "uuid": "5af108a7-4e72-58b2-bf98-6376da7ef944",
   "value": "10k"
+ },
+ "R700": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C21190",
+   "Note": "from U11 P1.5 (push-pull output once the host configures it)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "6V_CTRL",
+   "2": "6V_EN"
+  },
+  "uuid": "12ff8fec-6216-5417-947c-33f77c08ee11",
+  "value": "1k"
+ },
+ "R701": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C4184",
+   "Note": "outlet off while U11 P1.5 is an input (power-on default), U11 unpowered or the shield off",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "6V_EN",
+   "2": "GND"
+  },
+  "uuid": "d2f05eb0-cbdd-5b97-9d85-18318ba90ca2",
+  "value": "20k"
+ },
+ "R702": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25804",
+   "Note": "/FLT of U71 and U72 (open drain, wire-OR) -> U11 P1.6",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+3V3",
+   "2": "~{FLT6V}"
+  },
+  "uuid": "bd7e75bc-2307-5f2d-b54d-32cc1859e774",
+  "value": "10k"
+ },
+ "R710": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "TBD (1%, JLC basic if stocked)",
+   "Note": "ILIM 5.0 A (3334/R), as the 12 V cells",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "ILM6I",
+   "2": "GND"
+  },
+  "uuid": "08a7d55c-7521-59c3-97ba-e4b5ae18c5a0",
+  "value": "665"
+ },
+ "R720": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25803",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "VIN6",
+   "2": "EN_BK"
+  },
+  "uuid": "88ff0843-2314-5ede-9c0b-288aeba0edc2",
+  "value": "100k"
+ },
+ "R721": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "TBD (1%, JLC basic if stocked)",
+   "Note": "EN 1.6 V max with REN 120-400k internal: buck starts at VIN6 ~6-8 V; EN 3.3 V at 14.8 V",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "EN_BK",
+   "2": "GND"
+  },
+  "uuid": "d7d21a5d-697c-5edc-9722-83f471c84d77",
+  "value": "33k"
+ },
+ "R722": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "TBD (0603 0.1 % thin film 27k, e.g. Yageo RT0603BRD07)",
+   "Note": "VOUT = 0.760 V x (1 + 27k / 3.92k) = 5.995 V",
+   "Tolerance": "0.1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+6V",
+   "2": "FB6"
+  },
+  "uuid": "cdeac8c1-14cf-510d-a105-c5c16778b646",
+  "value": "27k"
+ },
+ "R723": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "TBD (0603 0.1 % thin film 3k92, e.g. Yageo RT0603BRD07)",
+   "Tolerance": "0.1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "FB6",
+   "2": "GND"
+  },
+  "uuid": "daa57b7f-0c32-58cc-98c2-f9c537c31197",
+  "value": "3k92"
+ },
+ "R730": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C228047",
+   "Note": "ILIM 4.45 A (3334/R): below the buck valley limit (5.3 A min)",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "ILM6O",
+   "2": "GND"
+  },
+  "uuid": "0651025a-4c6e-5f4d-9131-9207c06f01de",
+  "value": "750"
+ },
+ "R731": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "TBD (1%, JLC basic if stocked)",
+   "Note": "OVLO 1.20 V x 5.75 = 6.90 V rising, 6.27 V falling",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+6V",
+   "2": "OVLO6"
+  },
+  "uuid": "a8cbd7da-a354-57a9-8369-95aabd917e7b",
+  "value": "475k"
+ },
+ "R732": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25803",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "OVLO6",
+   "2": "GND"
+  },
+  "uuid": "2b063993-9709-52cc-85f6-9460cbd89cb6",
+  "value": "100k"
+ },
+ "R733": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "TBD (1%, JLC basic if stocked)",
+   "Note": "UVLO 1.20 V x 4.48 = 5.38 V rising, 4.88 V falling; high impedance so that D730 cannot lift 6V_EN above 0.4 V through the 20 k pull-down",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "+6V",
+   "2": "EN6O"
+  },
+  "uuid": "60981b6e-a468-522a-a593-b54a759c5e75",
+  "value": "348k"
+ },
+ "R734": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C25803",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "EN6O",
+   "2": "GND"
+  },
+  "uuid": "c424fbdc-7bbb-5297-a6e0-93b69de19502",
+  "value": "100k"
+ },
+ "R740": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C21190",
+   "Note": "4 mA: \"6V\" LED at the outlet, also bleeds an unloaded output",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "OUT6V",
+   "2": "LED6V"
+  },
+  "uuid": "48296e82-0e1c-523c-be12-c0afd72a46ff",
+  "value": "1k"
+ },
+ "R741": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C4184",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "OUT6V",
+   "2": "6V_PG"
+  },
+  "uuid": "4a8da520-2907-55cf-891c-2a87671f3cbd",
+  "value": "20k"
+ },
+ "R742": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C4184",
+   "Note": "3.0 V at 6 V (3.45 V at 6.9 V); TCA9535 high above ~4.6 V on OUT6V; -> U11 P1.7",
+   "Tolerance": "1%"
+  },
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "in_bom": true,
+  "pads": {
+   "1": "6V_PG",
+   "2": "GND"
+  },
+  "uuid": "c162c5f1-b293-589d-8d24-7504b054f778",
+  "value": "20k"
  },
  "R8": {
   "dnp": true,
@@ -5209,10 +5789,10 @@
   "value": "L78L33ACUTR"
  },
  "U11": {
-  "dnp": true,
+  "dnp": false,
   "fields": {
    "LCSC": "C130204",
-   "Note": "DNP by default; P00-07 /FLT0-7 (5-7: 12 V or 5 V output), P10 /FLT_AON, P11 5V_PRESENT, P12-14 EN5V5-7"
+   "Note": "fitted (0055 round 15); P00-07 /FLT0-7 (5-7: 12 V or 5 V output), P10 /FLT_AON, P11 5V_PRESENT, P12-14 EN5V5-7, P15 6V outlet enable (output), P16 /FLT6V, P17 6V_PG"
   },
   "footprint": "Package_SO:TSSOP-24_4.4x7.8mm_P0.65mm",
   "in_bom": true,
@@ -5226,10 +5806,10 @@
    "15": "EN5V5",
    "16": "EN5V6",
    "17": "EN5V7",
-   "18": "EXUNUSED",
-   "19": "EXUNUSED",
+   "18": "6V_CTRL",
+   "19": "~{FLT6V}",
    "2": "EXA1",
-   "20": "EXUNUSED",
+   "20": "6V_PG",
    "21": "EXA0",
    "22": "SCL",
    "23": "SDA",
@@ -5783,6 +6363,74 @@
   },
   "uuid": "f29e7f64-8301-5040-b7d2-2f660151512f",
   "value": "TPS259470ARPWR"
+ },
+ "U71": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C3662799",
+   "MPN": "TI TPS259470ARPWR",
+   "Note": "keeps VBUS spikes (TVS clamp up to 24.4 V) off the 17 V buck; isolates a failed buck from VBUS; off = buck unpowered"
+  },
+  "footprint": "mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm",
+  "in_bom": true,
+  "pads": {
+   "1": "6V_EN",
+   "10": "ITMR6I",
+   "2": "OVLO",
+   "3": "unconnected-(U71-AUXOFF-Pad3)",
+   "4": "~{FLT6V}",
+   "5": "VBUS",
+   "6": "VIN6",
+   "7": "DVDT6I",
+   "8": "GND",
+   "9": "ILM6I"
+  },
+  "uuid": "629913e1-a519-5714-b084-a3ed31b9f4bb",
+  "value": "TPS259470ARPWR"
+ },
+ "U72": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C3662799",
+   "MPN": "TI TPS259470ARPWR",
+   "Note": "opens within 1.2 us above 6.9 V (e.g. a shorted buck high-side FET)"
+  },
+  "footprint": "mega-kvm-power:Texas_RPW0010A_VQFN-HR-10_2x2mm_P0.45mm",
+  "in_bom": true,
+  "pads": {
+   "1": "EN6O",
+   "10": "ITMR6O",
+   "2": "OVLO6",
+   "3": "unconnected-(U72-AUXOFF-Pad3)",
+   "4": "~{FLT6V}",
+   "5": "+6V",
+   "6": "OUT6V",
+   "7": "DVDT6O",
+   "8": "GND",
+   "9": "ILM6O"
+  },
+  "uuid": "13bb03a6-cdf3-5320-ac66-f0bc214a835c",
+  "value": "TPS259470ARPWR"
+ },
+ "U73": {
+  "dnp": false,
+  "fields": {
+   "LCSC": "C327676",
+   "MPN": "TI TPS565201DDCR 4.5-17 V, 5 A sync buck, D-CAP2, Eco-mode, 500 kHz, TSOT-23-6 (no pad); symbol of the TPS565208 (same pinout)",
+   "Note": "runs whenever U71 is on (EN from VIN6, starts at ~6-8 V); 1 ms internal soft start"
+  },
+  "footprint": "Package_TO_SOT_SMD:TSOT-23-6",
+  "in_bom": true,
+  "pads": {
+   "1": "GND",
+   "2": "SW6",
+   "3": "VIN6",
+   "4": "FB6",
+   "5": "EN_BK",
+   "6": "BST6"
+  },
+  "uuid": "7e2df438-36ad-5878-b13a-da903cc3d98b",
+  "value": "TPS565201DDCR"
  },
  "U8": {
   "dnp": false,
