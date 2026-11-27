@@ -134,6 +134,8 @@ class Panel:
         self.cuts = []                  # holes / inner cut-outs
         self.engrave = []               # ('line', pts) open polylines, ('fill', pts) closed
         self.ref = []                   # reference-only shapes (hidden layer)
+        self.refl = []                  # reference-only polylines (hidden layer)
+        self.raw = []                   # (matrix, svg text) embedded artwork, engrave layer
         self.material, self.qty, self.note = material, qty, note
         self.title = name
 
@@ -153,6 +155,11 @@ class Panel:
         self.cuts += [s.moved(f) for s in frag.cuts]
         self.engrave += [(k, [f(*p) for p in pts]) for k, pts in frag.engrave]
         self.ref += [s.moved(f) for s in frag.ref]
+        self.refl += [[f(*p) for p in pts] for pts in frag.refl]
+        self.raw += [(mat_mul((1, 0, 0, 1, du, dv), m), t) for m, t in frag.raw]
+
+    def refline(self, pts):
+        self.refl.append([tuple(p) for p in pts])
 
     def bbox(self):
         if self.outline:
@@ -171,15 +178,26 @@ class Panel:
         if rot:
             H = y1 - y0
             f = lambda u, v: (H - (v - y0) + du, (u - x0) + dv)
+            M = (0, 1, -1, 0, H + y0 + du, dv - x0)
         else:
             f = lambda u, v: (u - x0 + du, v - y0 + dv)
+            M = (1, 0, 0, 1, du - x0, dv - y0)
         p = Panel(self.name, self.w, self.h, None, self.material, self.qty, self.note)
         p.title = self.title
         p.outline = [f(*q) for q in self.outline] if self.outline else None
         p.cuts = [s.rot90(f) for s in self.cuts] if rot else [s.moved(f) for s in self.cuts]
         p.engrave = [(k, [f(*q) for q in pts]) for k, pts in self.engrave]
         p.ref = [s.rot90(f) for s in self.ref] if rot else [s.moved(f) for s in self.ref]
+        p.refl = [[f(*q) for q in pts] for pts in self.refl]
+        p.raw = [(mat_mul(M, m), t) for m, t in self.raw]
         return p
+
+
+def mat_mul(a, b):
+    """SVG matrices (a, b, c, d, e, f): the result applies b first, then a."""
+    return (a[0] * b[0] + a[2] * b[1], a[1] * b[0] + a[3] * b[1],
+            a[0] * b[2] + a[2] * b[3], a[1] * b[2] + a[3] * b[3],
+            a[0] * b[4] + a[2] * b[5] + a[4], a[1] * b[4] + a[3] * b[5] + a[5])
 
 
 def rect_pts(u0, v0, u1, v1):

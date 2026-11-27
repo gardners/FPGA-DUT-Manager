@@ -15,6 +15,8 @@ CUT = 'fill:none;stroke:#ff0000;stroke-width:0.01'
 ENG = 'fill:none;stroke:#000000;stroke-width:0.2;stroke-linecap:round;stroke-linejoin:round'
 ENG_FILL = 'fill:#000000;stroke:none'
 REF = 'fill:none;stroke:#0000ff;stroke-width:0.2;stroke-dasharray:1,1'
+REF_LINE = 'fill:none;stroke:#0000ff;stroke-width:0.2'
+SHOW_REF = False        # True: the reference layer is visible (preview renders)
 
 HEAD = ('<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n'
         '<svg xmlns="http://www.w3.org/2000/svg" '
@@ -69,8 +71,12 @@ def panel_layers(p, kerf, ident=''):
             eng.append('<path d="%s" style="%s"/>' % (poly_d(pts), ENG_FILL))
         else:
             eng.append('<path d="%s" style="%s"/>' % (poly_d(pts, closed=False), ENG))
+    for m, t in p.raw:
+        eng.append('<g transform="matrix(%s)">%s</g>' % (','.join(f(x) for x in m), t))
     for s in p.ref:
         ref.append(shape_el(s, REF))
+    for pts in p.refl:
+        ref.append('<path d="%s" style="%s"/>' % (poly_d(pts, closed=False), REF_LINE))
     return cut, eng, ref
 
 
@@ -83,7 +89,7 @@ def layered(cut, eng, ref, ident):
     out.append('</g>')
     if ref:
         out.append('<g inkscape:groupmode="layer" inkscape:label="reference (hidden, do not cut)" '
-                   'id="ref%s" style="display:none">' % ident)
+                   'id="ref%s"%s>' % (ident, '' if SHOW_REF else ' style="display:none"'))
         out += ref
         out.append('</g>')
     return out
