@@ -175,3 +175,9 @@ With the K325T build running:
 8. Failure modes: no picture -> check `board_n` (= 1), VLAN, the switch,
    the K325T's `refused` (enable); heartbeat rx_bad rises with every
    relay frame (oversize for the 2 KiB RX slots, as with thumbnails).
+
+Build (Vivado, commit e4f8df7, build id e4f8df7d): **TIMING MET, WNS
++0.143 ns, WHS +0.019 ns**; 19125 LUTs (58.7 %), 35 BRAM tiles (46.7 %),
+MMCMs 5/5, PLLs 2/5. `make test` green: 35 HDL testbenches, netproto
+selftest, 885 dutctl checks, 52 relay checks. Not loaded on hardware.
+Bitstream: build/vivado/supervisor.bit in the feature/hwvs-vlan worktree.
