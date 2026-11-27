@@ -87,7 +87,7 @@ package proto_pkg is
   constant K_OUT_POLICY   : natural := 16#0060#;
   constant K_PK_JTAG      : natural := 16#0061#;  -- physical kbd CPLD JTAG: 0 auto, 1 on, 2 off, 3 on + JTAGEN low (ADR 0014)
   constant K_PWR_CTL      : natural := 16#0062#;  -- shield power CTRL0..7 bitmask (bit n = power-board output n), issue 0049
-  constant K_KJ_QUIET     : natural := 16#0063#;  -- kbd JTAG quiet: 0 off, 1 pause the kbd host during kbd JTAG, 2 kbd host stopped (issue 0054)
+  constant K_KJ_QUIET     : natural := 16#0063#;  -- kbd JTAG quiet: 0 off, 1 (default) pause the kbd host during kbd JTAG, 2 kbd host stopped (issue 0054)
   constant K_TDO_VOTE     : natural := 16#0064#;  -- JTAG TDO sampling: 0 single, 1 majority of 3 (half >= 4), 2 of 5 (half >= 6) (issue 0054)
 
   -- MGMT_ACK status

@@ -204,7 +204,7 @@ static int cmd_set(int argc, char **argv)
             "         console-screen (0 auto incl. passthrough, 1 editable, 2 no video, 3 select)\n"
             "         kbd-jtag (keyboard CPLD JTAG: 0 auto, 1 on, 2 off, 3 on with JTAGEN low)\n"
             "         power-ctl (shield power outputs CTRL0..7 bitmask, e.g. 0x05)\n"
-            "         kbd-jtag-quiet (0 off, 1 pause the keyboard scan during keyboard JTAG,\n"
+            "         kbd-jtag-quiet (0 off, 1 (default) pause the keyboard scan during keyboard JTAG,\n"
             "                         2 keyboard scan stopped; needs kbd-jtag 1)\n"
             "         jtag-tdo-vote (TDO sampling: 0 single, 1 majority of 3, 2 majority of 5)\n"
             "         kbd-led-rgb RRGGBB,RRGGBB,RRGGBB,RRGGBB (LED0..3 for kbd-leds 2;\n"

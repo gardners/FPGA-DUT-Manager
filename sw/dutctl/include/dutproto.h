@@ -64,7 +64,7 @@ enum dp_key {
                             3 on with KB_JTAGEN driven low (diagnostic) (ADR 0014) */
   DP_K_PWR_CTL = 0x0062, /* shield power CTRL0..7 bitmask, bit n = power-board output n
                             (issue 0049); board-wide */
-  DP_K_KJ_QUIET = 0x0063, /* keyboard JTAG quiet (issue 0054): 0 off, 1 pause the physical
+  DP_K_KJ_QUIET = 0x0063, /* keyboard JTAG quiet (issue 0054): 0 off, 1 (default) pause the physical
                              keyboard host while keyboard JTAG runs, 2 keyboard host stopped */
   DP_K_TDO_VOTE = 0x0064, /* JTAG TDO sampling, all engines (issue 0054): 0 single sample,
                              1 majority of 3 (half >= 4), 2 majority of 5 (half >= 6) */
