@@ -979,14 +979,22 @@ static int cmd_xvc(int argc, char **argv)
     for (;;) {
       uint8_t in[8192];
       ssize_t n = recv(c, in, sizeof in, 0);
-      if (n <= 0 || xvc_feed(&xp, in, (size_t)n) < 0)
+      if (n <= 0)
         break;
+      if (xvc_feed(&xp, in, (size_t)n) < 0) {
+        fprintf(stderr, "xvc: input buffer overflow (%zu + %zd bytes); dropping the client\n", xp.len, n);
+        break;
+      }
       xvc_cmd_t cmd;
       int fail = 0;
       while ((cmd = xvc_next(&xp)) != XVC_NONE) {
         if (cmd == XVC_GETINFO) {
           char info[64];
-          int l = snprintf(info, sizeof info, "xvcServer_v1.0:%d\n", XVC_MAX_BYTES * 8);
+          /* XVC 1.0: the maximum shift vector in BYTES, TMS + TDI together
+           * (Xilinx reference server; openFPGALoader halves it per vector).
+           * Advertising bits here (as before 2026-11-27) let clients send
+           * 4x larger shifts than we accept, and they were dropped. */
+          int l = snprintf(info, sizeof info, "xvcServer_v1.0:%d\n", 2 * XVC_MAX_BYTES);
           send(c, info, (size_t)l, 0);
         } else if (cmd == XVC_SETTCK) {
           uint32_t half = (xp.settck_period_ns + 8) / 16; /* ns -> half periods of 8 ns */
@@ -998,11 +1006,18 @@ static int cmd_xvc(int argc, char **argv)
           send(c, r, 4, 0);
         } else if (cmd == XVC_SHIFT) {
           if (jtag_shift(&j, xp.shift_bits, xp.tms, xp.tdi, tdo) < 0) {
+            fprintf(stderr, "xvc: shift of %u bits failed; dropping the client\n", xp.shift_bits);
             fail = 1;
             break;
           }
           send(c, tdo, (xp.shift_bits + 7) / 8, 0);
         } else {
+          if (xp.len >= 10 && memcmp(xp.buf, "shift:", 6) == 0)
+            fprintf(stderr, "xvc: shift of %u bits is over the %u-bit limit; dropping the client\n",
+                    (unsigned)xp.buf[6] | (unsigned)xp.buf[7] << 8 | (unsigned)xp.buf[8] << 16 |
+                        (unsigned)xp.buf[9] << 24, XVC_MAX_BYTES * 8);
+          else
+            fprintf(stderr, "xvc: protocol error; dropping the client\n");
           fail = 1;
           break;
         }

@@ -18,7 +18,10 @@ Status: Proposed (2026-11-25); agreed in the brief (§12, O-13).
   (TCP) and maps `shift:` to sequenced UDP requests, splitting shifts at
   bit boundaries into requests that fit one unfragmented packet (path MTU,
   default 1500 -> 5792 bits; at most 7904, issue 0059) with no extra edges. `getinfo:` advertises
-  `xvcServer_v1.0:<maxbits>`; `settck:` maps to `tck_half_period`.
+  `xvcServer_v1.0:131072`, the maximum shift vector in **bytes, TMS + TDI
+  together** (XVC 1.0; 65536 bytes = 524288 bits per vector). Until
+  2026-11-27 it advertised 524288 (bits), so clients such as openFPGALoader
+  sent shifts 4x too large and were dropped. `settck:` maps to `tck_half_period`.
 * m65 support for the Mimas FTDI (USB JTAG to the Mimas itself, not to DUTs)
   is a separate patch to mega65-tools (issue 0010).
 
