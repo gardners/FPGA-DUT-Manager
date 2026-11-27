@@ -134,3 +134,10 @@ with the current value 0 and the bad values).
 8. Last resort (no lease on the VLAN, e.g. dnsmasq down: the board is then
    silent and has no address to talk to): reload (`make jtagload BIT=...`
    or `make jtagload-good`); keys are volatile, so it comes back untagged.
+
+Build (Vivado, commit b413b49 = the HDL of this branch; later commits are
+docs/scripts only; build id b413b496): **TIMING MET, WNS +0.115 ns, WHS
++0.049 ns**; 20803 LUTs (63.8 %), 53.5 BRAM tiles. `make test` green: 37
+HDL testbenches (incl. tb_host_vlan), netproto selftest, 909 dutctl checks,
+52 relay checks. Not loaded on hardware. Bitstream:
+build/vivado/supervisor.bit in the feature/host-vlan worktree.
