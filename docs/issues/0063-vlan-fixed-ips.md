@@ -103,3 +103,12 @@ C/scripts/docs only; build id 1fa1b802): **TIMING MET, WNS +0.039 ns, WHS
 HDL testbenches (incl. tb_vlan_ident), netproto selftest, 917 dutctl
 checks, 52 relay checks. Not loaded on hardware. Bitstream:
 build/bits/supervisor-1fa1b802.bit in the feature/vlan-fixed-ip worktree.
+
+### 2026-11-28 lead: on hardware (build 1fa1b802)
+
+`dutctl listen`: vlan-ip 10.231.50.16 (vlan 1650). `ping -I eno2.1650
+10.231.50.16` answers (0.2 ms), neighbour 02:4d:36:35:00:00. hwtest 68/1:
+PASS "ping vlan identity" 20/20; the FAIL is raster capture, which also
+fails on the previous build b413b496 now: bob's eno2 MTU is 1500 after
+the reboot and raster packets are larger (host configuration, the owner's
+call). Promoted to known-good.
