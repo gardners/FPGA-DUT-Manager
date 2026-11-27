@@ -91,6 +91,8 @@ static void test_encoders(void)
   check_bytes("mgmt_ip", b, dp_encode_mgmt_set(b, DP_DUT_ANY, 7, DP_K_IP, ip, 4));
   uint8_t pw = 0xA5;
   check_bytes("mgmt_pwr_ctl", b, dp_encode_mgmt_set(b, 1, 0x0BAD, DP_K_PWR_CTL, &pw, 1));
+  uint8_t rv = 0;
+  check_bytes("mgmt_relay_view", b, dp_encode_mgmt_set(b, 0, 0x0045, DP_K_RELAY_VIEW, &rv, 1));
   uint8_t bm[10] = {0};
   bm[10 / 8] |= 1 << (10 % 8);
   bm[63 / 8] |= 1 << (63 % 8);
@@ -180,6 +182,15 @@ static void test_decoders(void)
   CHECK(hb.rl_rx_foreign == 0x1213 && hb.rl_full_pics == 0x1415 && hb.rl_full_swaps == 0x1617);
   CHECK(hb.rl_flags == (DP_RLF_FULL_WANT | DP_RLF_FULL_STALE | DP_RLF_LAST_VALID));
   CHECK(hb.rl_last_machine == 1 && hb.rl_last_scale == 3 && hb.rl_full_age == 0xFF);
+  CHECK(!hb.has_rxload && hb.rl_fifo_hwm == 0 && hb.rl_fifo_aw == 0);
+
+  v = vec("heartbeat_rxload");
+  CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && h.length == 188 && h.dut == 1);
+  CHECK(dp_decode_heartbeat(v->data + 8, h.length, &hb) == 0);
+  CHECK(hb.has_relay && hb.rl_full_swaps == 0x1617 && hb.has_rxload);
+  CHECK(hb.rl_flags == (DP_RLF_FULL_WANT | DP_RLF_FULL_FRESH | DP_RLF_LIVE));
+  CHECK(hb.rl_fifo_hwm == 0x3FFC && hb.rl_wr_stall == 0x0102 && hb.rl_mem_wait == 0xFEDC);
+  CHECK(hb.rl_wf_hwm == 0x7F && hb.rl_fifo_aw == 14);
 
   v = vec("snapshot");
   CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && h.type == DP_T_UART_SNAP);

@@ -78,8 +78,11 @@ package mem_pkg is
     return unsigned;
 
   -- full-resolution relayed picture (issue 0060): three buffers above the
-  -- thumbnail store, xRGB32 as above, row stride 256 words (1024 px):
-  --   word address = 0x200000 + buf * 0x40000 + row * 256 + col / 4
+  -- thumbnail store, xRGB32 as above, row stride 256 words (1024 px), each
+  -- in its own DDR3 bank (MIG BANK_ROW_COLUMN: word address bits 23..21 are
+  -- the bank; the thumbnail store is bank 0, the self-test region bank 7),
+  -- so the writer and full_display never fight over one bank's open row:
+  --   word address = (1 + buf) * 0x200000 + row * 256 + col / 4
   constant FULL_BASE      : natural := 16#200000#;
   constant FULL_ROW_WORDS : natural := 256;
   constant FULL_MAX_W     : natural := 1020;   -- pixels stored per line (255 words)
@@ -103,8 +106,7 @@ package body mem_pkg is
     return unsigned is
     variable a : unsigned(MEM_AW - 1 downto 0) := (others => '0');
   begin
-    a(21)           := '1';                -- FULL_BASE
-    a(19 downto 18) := buf;
+    a(23 downto 21) := resize(buf, 3) + 1; -- bank 1 + buf
     a(17 downto 8)  := row;
     a(7 downto 0)   := word;
     return a;

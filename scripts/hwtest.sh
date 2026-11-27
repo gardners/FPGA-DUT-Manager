@@ -151,9 +151,13 @@ l=${hb[${eps[0]}]}
 # thumbnail relay counters (issue 0061, heartbeat relay block, board-wide)
 if (($(field "$l" has_relay))); then
 	rf=$(field "$l" rl_flags)
-	report INFO "relay counters" "req sent $(field "$l" rl_req_sent) (full $(field "$l" rl_req_full)) heard $(field "$l" rl_rx_req); rx lines $(field "$l" rl_rx_lines) bad $(field "$l" rl_rx_bad) (fifo ovf $(field "$l" rl_rx_ovf)) nosrc $(field "$l" rl_rx_nosrc) vlan-drop $(field "$l" rl_rx_vlan) long $(field "$l" rl_rx_long) foreign $(field "$l" rl_rx_foreign); full pics $(field "$l" rl_full_pics) shown $(field "$l" rl_full_swaps) age $(($(field "$l" rl_full_age) * 8)) ms; flags $rf (b0 want, b1 live, b2 no picture 1 s, b3 last valid, b4 last nosrc, b5 streaming)$( ((rf & 8)) && echo "; last machine $(field "$l" rl_last_machine) scale $(field "$l" rl_last_scale)")"
+	report INFO "relay counters" "req sent $(field "$l" rl_req_sent) (full $(field "$l" rl_req_full)) heard $(field "$l" rl_rx_req); rx lines $(field "$l" rl_rx_lines) bad $(field "$l" rl_rx_bad) (fifo ovf $(field "$l" rl_rx_ovf)) nosrc $(field "$l" rl_rx_nosrc) vlan-drop $(field "$l" rl_rx_vlan) long $(field "$l" rl_rx_long) foreign $(field "$l" rl_rx_foreign); full pics $(field "$l" rl_full_pics) shown $(field "$l" rl_full_swaps) age $(($(field "$l" rl_full_age) * 8)) ms; flags $rf (b0 want, b1 live, b2 no picture 1 s, b3 last valid, b4 last nosrc, b5 streaming, b6 live view)$( ((rf & 8)) && echo "; last machine $(field "$l" rl_last_machine) scale $(field "$l" rl_last_scale)")"
 else
 	report INFO "relay counters" "no relay block (payload $(field "$l" plen))"
+fi
+# relay receive load (relay-rx-speed): FIFO peaks in the last second, DDR3 back-pressure
+if (($(field "$l" has_rxload))); then
+	report INFO "relay rx load" "rx fifo peak $(field "$l" rl_fifo_hwm)/$((1 << $(field "$l" rl_fifo_aw))) entries, word fifo peak $((2 * $(field "$l" rl_wf_hwm)))/512, writer stalls $(field "$l" rl_wr_stall) x 2.048 us, memory waits $(field "$l" rl_mem_wait) x 2.048 us (wrapping)"
 fi
 caps=$(field "$l" caps)
 report INFO capabilities "$(printf 0x%x "$caps"): uart $((caps & 1)) jtag $((caps >> 1 & 1)) kbd-dev $((caps >> 2 & 1)) phys-kbd $((caps >> 3 & 1)) capture $((caps >> 4 & 1)) chain $((caps >> 5 & 1)) audio $((caps >> 6 & 1))"
@@ -296,6 +300,8 @@ keytest capture        0x0040 ep    00       "00"              ""         "0000"
 # owner (restored to 0: set it again after hwtest for a relayed slot)
 keytest vlan           0x0043 board 0672     "0000 0ffe 0672"  "0fff ffff" "06 067200"
 keytest hdmi-owner     0x0044 board 00       "01 02 03 00"     "04"       "0000"
+# relay-rx-speed: relayed full view, restored to 1 (live, the default)
+keytest relay-view     0x0045 board 01       "00 01"           "02"       "0000"
 keytest hb-period-ms   0x0050 ep    "$(printf %04x "${orig_period[${eps[0]}]}")" "$(printf %04x "${orig_period[${eps[0]}]}")" "0000" "14 001400"
 keytest out-policy     0x0060 ep    00       "00"              "03"       "0000"
 # (0x0041 became the thumbnail forced-destination key, issue 0038; 0x0042 is the first unused one)

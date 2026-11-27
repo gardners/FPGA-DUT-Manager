@@ -212,6 +212,8 @@ static int cmd_set(int argc, char **argv)
             "         vlan (inter-board relay VLAN ID, default 1650, 0 = untagged)\n"
             "         hdmi-owner (DUT on the HDMI IN: 0 the video target's (default), 1 DUT0, 2 DUT1,\n"
             "                     3 none; the others show relayed video, full-screen when selected)\n"
+            "         relay-view (relayed full-screen view: 0 complete pictures only, 1 live line by\n"
+            "                     line, lost lines keep the previous picture (default))\n"
             "         kbd-led-rgb RRGGBB,RRGGBB,RRGGBB,RRGGBB (LED0..3 for kbd-leds 2;\n"
             "                     LED0/1 = drive LED, LED2/3 = power LED)\n");
     return 2;
@@ -235,6 +237,7 @@ static int cmd_set(int argc, char **argv)
     {"kbd-jtag", DP_K_PK_JTAG, 1}, {"power-ctl", DP_K_PWR_CTL, 1},
     {"kbd-jtag-quiet", DP_K_KJ_QUIET, 1}, {"jtag-tdo-vote", DP_K_TDO_VOTE, 1},
     {"vlan", DP_K_VLAN, 2}, {"hdmi-owner", DP_K_HDMI_OWNER, 1},
+    {"relay-view", DP_K_RELAY_VIEW, 1},
   };
   if (!strcmp(name, "kbd-led-rgb")) {
     unsigned c[4];
@@ -400,6 +403,10 @@ static void print_hb_kv(const char *ip, const dp_hdr_t *h, const dp_heartbeat_t 
            hb->rl_rx_ovf, hb->rl_rx_nosrc, hb->rl_rx_vlan, hb->rl_rx_long, hb->rl_rx_foreign,
            hb->rl_full_pics, hb->rl_full_swaps, hb->rl_flags, hb->rl_last_machine,
            hb->rl_last_scale, hb->rl_full_age);
+  printf(" has_rxload=%u", hb->has_rxload);
+  if (hb->has_rxload)
+    printf(" rl_fifo_hwm=%u rl_wr_stall=%u rl_mem_wait=%u rl_wf_hwm=%u rl_fifo_aw=%u", hb->rl_fifo_hwm,
+           hb->rl_wr_stall, hb->rl_mem_wait, hb->rl_wf_hwm, hb->rl_fifo_aw);
   printf("\n");
   fflush(stdout);
 }
@@ -494,8 +501,13 @@ static int cmd_listen(int argc, char **argv)
       if (hb.rl_flags & DP_RLF_FULL_WANT)
         printf(" %s age %u ms", (hb.rl_flags & DP_RLF_FULL_FRESH) ? "LIVE" : "NO-PICTURE",
                hb.rl_full_age * 8u);
+      if (hb.rl_flags & DP_RLF_FULL_WANT)
+        printf(" %s", (hb.rl_flags & DP_RLF_LIVE) ? "live-view" : "complete-view");
       if (hb.rl_flags & DP_RLF_STREAMING)
         printf(" streaming");
+      if (hb.has_rxload)
+        printf("  rx fifo peak %u/%u wf peak %u stall %u wait %u", hb.rl_fifo_hwm, 1u << hb.rl_fifo_aw,
+               2u * hb.rl_wf_hwm, hb.rl_wr_stall, hb.rl_mem_wait);
     }
     if (hb.phys_type) {
       printf("  phys");

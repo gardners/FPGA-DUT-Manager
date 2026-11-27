@@ -197,7 +197,7 @@ begin
     -- two drops: the deliberately oversize JTAG_REQ (issue 0059) and the
     -- 2214-byte relay frame (longer than a MAC slot, taken by thumb_rx_tap)
     assert bad = 2 report "RX CRC errors/drops" severity failure;
-    assert good = 62 report "expected 62 good RX frames" severity failure;
+    assert good = 64 report "expected 64 good RX frames" severity failure;
     assert pk_jtagen_seen_low report "JTAGEN never driven low in key 0x0061 mode 3" severity failure;
     -- thumbnails: local machines 0 (DUT0, video target: captured) and 3
     -- (DUT1) seen; machine 5's picture from a peer stored at 1/4 scale

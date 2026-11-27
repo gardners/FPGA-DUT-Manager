@@ -127,7 +127,8 @@ entity supervisor_core is
     full_buf    : out unsigned(1 downto 0);
     full_width  : out unsigned(10 downto 0);
     full_height : out unsigned(9 downto 0);
-    full_shown  : in  unsigned(1 downto 0) := "00"
+    full_shown  : in  unsigned(1 downto 0) := "00";
+    full_frame  : in  std_logic := '0'           -- full_display latched a frame (clk_sys pulse)
   );
 end entity;
 
@@ -212,6 +213,10 @@ architecture rtl of supervisor_core is
   -- relay counters (issue 0061, heartbeat relay block)
   signal rl_req_sent, rl_req_full, rl_swaps : unsigned(15 downto 0) := (others => '0');
   signal rl_shown_d : unsigned(1 downto 0) := "00";
+  signal rl_upd : std_logic := '0';     -- live view: new lines since the last displayed frame
+  constant RL_FIFO_AW : natural := 14;  -- relay receive FIFO: 2**14 entries
+  signal rl_win : std_logic := '0';     -- 1 s windows for the FIFO peaks
+  signal rl_wms : unsigned(9 downto 0) := (others => '0');
   signal rl_lv, rl_lns, th_streaming : std_logic;
   signal rl_lm : unsigned(4 downto 0);
   signal rl_lsc : std_logic_vector(7 downto 0);
@@ -825,8 +830,10 @@ begin
               seen_ev => tr_sev, seen_machine => tr_sm,
               seen => th_seen, fresh => th_fresh, cur => th_cur, quarter => th_q, n_seen => th_nseen);
   thumb_seen <= th_seen; thumb_fresh <= th_fresh; thumb_cur <= th_cur; thumb_quarter <= th_q;
+  -- 16384 entries = 16 BRAM36, ~7.5 whole 1/1 RAW888 frames (~400 us of
+  -- line rate with the writer stopped; issue 0060 relay-rx-speed)
   thtap : entity work.thumb_rx_tap
-    generic map (FIFO_AW => 11)
+    generic map (FIFO_AW => RL_FIFO_AW)
     port map (clk => clk_rx, rx_dv => rx_dv, rxd => rxd, mac0 => cfg(0).mac, mac1 => cfg(1).mac,
               vlan => bcfg.vlan,
               sclk => clk_sys, f_valid => tf_valid, f_dout => tf_dout, f_pop => tf_pop,
@@ -837,7 +844,8 @@ begin
               c_bad => bstat.relay.rx_bad, c_ovf => bstat.relay.rx_ovf,
               c_nosrc => bstat.relay.rx_nosrc, c_vlan => bstat.relay.rx_vlan,
               c_long => bstat.relay.rx_long,
-              last_valid => rl_lv, last_nosrc => rl_lns, last_m => rl_lm, last_scale => rl_lsc);
+              last_valid => rl_lv, last_nosrc => rl_lns, last_m => rl_lm, last_scale => rl_lsc,
+              win => rl_win, hwm => bstat.relay.fifo_hwm);
   trw : entity work.thumb_rx_writer
     port map (clk => clk_sys, f_valid => tf_valid, f_dout => tf_dout, f_pop => tf_pop,
               local0 => m0, local1 => m1, relay0 => not own(0), relay1 => not own(1), cur => th_cur,
@@ -845,9 +853,13 @@ begin
               ev => tr_ev, ev_machine => tr_m, ev_buf => tr_buf, ev_quarter => tr_q,
               seen_ev => tr_sev, seen_machine => tr_sm, pictures => open,
               full_en => full_want, full_m => full_m, full_shown => full_shown,
+              full_live => bcfg.relay_live,
               full_ev => full_ev, full_buf => full_buf, full_width => full_width,
               full_height => full_height, full_pics => bstat.relay.full_pics,
-              foreign => bstat.relay.rx_foreign);
+              foreign => bstat.relay.rx_foreign,
+              win => rl_win, stall => bstat.relay.wr_stall, mwait => bstat.relay.mem_wait,
+              wf_hwm => bstat.relay.wf_hwm);
+  bstat.relay.fifo_aw <= to_unsigned(RL_FIFO_AW, 8);
   full_on <= full_fresh;
   ttx : entity work.thumb_tx
     generic map (MS_PER_S => THUMB_MS_PER_S)
@@ -872,18 +884,35 @@ begin
   process (clk_sys)
   begin
     if rising_edge(clk_sys) then
+      rl_win <= '0';
+      if tick_1ms = '1' then
+        if rl_wms = THUMB_MS_PER_S - 1 then rl_wms <= (others => '0'); rl_win <= '1';
+        else rl_wms <= rl_wms + 1; end if;
+      end if;
       if tq_taken = '1' then
         rl_req_sent <= rl_req_sent + 1;
         if tq_fl(0) = '1' and tq_sc = x"03" then rl_req_full <= rl_req_full + 1; end if;
       end if;
+      -- shown: complete pictures (key 0x0045 = 0) = buffer changes; live
+      -- view = displayed frames with new lines since the frame before
       rl_shown_d <= full_shown;
-      if full_shown /= rl_shown_d then rl_swaps <= rl_swaps + 1; end if;
+      if bcfg.relay_live = '0' then
+        if full_shown /= rl_shown_d then rl_swaps <= rl_swaps + 1; end if;
+        rl_upd <= '0';
+      else
+        if full_frame = '1' then
+          if rl_upd = '1' or full_ev = '1' then rl_swaps <= rl_swaps + 1; end if;
+          rl_upd <= '0';
+        elsif full_ev = '1' then
+          rl_upd <= '1';
+        end if;
+      end if;
     end if;
   end process;
   bstat.relay.req_sent   <= rl_req_sent;
   bstat.relay.req_full   <= rl_req_full;
   bstat.relay.full_swaps <= rl_swaps;
-  bstat.relay.flags      <= "00" & th_streaming & rl_lns & rl_lv & (full_want and not full_fresh) &
+  bstat.relay.flags      <= '0' & bcfg.relay_live & th_streaming & rl_lns & rl_lv & (full_want and not full_fresh) &
                             full_fresh & full_want;
   bstat.relay.last_m     <= "000" & std_logic_vector(rl_lm) when rl_lv = '1' else x"FF";
   bstat.relay.last_scale <= rl_lsc when rl_lv = '1' else x"00";

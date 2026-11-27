@@ -49,7 +49,8 @@ architecture tb of tb_full_display is
     variable o : mem_req_t := q;
   begin
     o.addr := (others => '0');
-    o.addr(19 downto 0) := q.addr(19 downto 0);    -- buf(19:18) row(17:8) word(7:0)
+    o.addr(19 downto 18) := resize(q.addr(23 downto 21) - 1, 2);  -- buffer b in bank 1 + b
+    o.addr(17 downto 0) := q.addr(17 downto 0);    -- row(17:8) word(7:0)
     return o;
   end function;
 begin

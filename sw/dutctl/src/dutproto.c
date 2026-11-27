@@ -208,6 +208,17 @@ int dp_decode_heartbeat(const uint8_t *p, size_t len, dp_heartbeat_t *hb)
     hb->rl_flags = hb->rl_last_scale = hb->rl_full_age = 0;
     hb->rl_last_machine = 0xFF;
   }
+  hb->has_rxload = len >= 188;
+  if (hb->has_rxload) {
+    hb->rl_fifo_hwm = dp_get16(p + 180);
+    hb->rl_wr_stall = dp_get16(p + 182);
+    hb->rl_mem_wait = dp_get16(p + 184);
+    hb->rl_wf_hwm = p[186];
+    hb->rl_fifo_aw = p[187];
+  } else {
+    hb->rl_fifo_hwm = hb->rl_wr_stall = hb->rl_mem_wait = 0;
+    hb->rl_wf_hwm = hb->rl_fifo_aw = 0;
+  }
   return 0;
 }
 

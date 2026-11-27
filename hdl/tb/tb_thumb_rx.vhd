@@ -44,8 +44,8 @@ architecture tb of tb_thumb_rx is
     variable o : mem_req_t := r;
   begin
     o.addr := (others => '0');
-    if r.addr(21) = '1' then
-      o.addr(17 downto 0) := '1' & r.addr(19 downto 18) & '0' & r.addr(13 downto 0);
+    if r.addr(23 downto 21) /= "000" then           -- full buffer b in bank 1 + b
+      o.addr(17 downto 0) := '1' & resize(r.addr(23 downto 21) - 1, 2) & '0' & r.addr(13 downto 0);
     else
       o.addr(17 downto 0) := '0' & r.addr(20 downto 15) & r.addr(10 downto 7) & r.addr(6 downto 0);
     end if;

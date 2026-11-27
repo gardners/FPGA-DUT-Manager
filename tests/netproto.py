@@ -27,6 +27,8 @@ K_TDO_VOTE = 0x0064  # JTAG TDO sampling: 0 single, 1 majority of 3 (half >= 4),
 TDO_VOTE_SINGLE, TDO_VOTE_3, TDO_VOTE_5 = 0, 1, 2
 K_VLAN = 0x0043  # inter-board VLAN ID u16 (0..4094, default 1650; 0 = untagged), issue 0060
 K_HDMI_OWNER = 0x0044  # HDMI IN owner: 0 follows the video target (default), 1 DUT0, 2 DUT1, 3 none
+K_RELAY_VIEW = 0x0045  # relayed full view: 0 complete pictures (triple buffered), 1 live line by line (default)
+RELAY_VIEW_COMPLETE, RELAY_VIEW_LIVE = 0, 1
 HDMI_OWNER_FOLLOW, HDMI_OWNER_DUT0, HDMI_OWNER_DUT1, HDMI_OWNER_NONE = 0, 1, 2, 3
 VLAN_DEFAULT = 1650
 # JTAG_REQ flags (offset 18): b0 abort/reset session, b1 target = physical
@@ -206,6 +208,8 @@ def decode_heartbeat(b):
     if len(b) >= 180:  # relay block (ADR 0005 section 3d), bytes 160..187 of the datagram
         vals = struct.unpack(">12HBBBB", b[152:180])
         f.update(zip(RELAY_FIELDS, vals))
+    if len(b) >= 188:  # relay receive load (ADR 0005 section 3d), bytes 188..195 of the datagram
+        f.update(zip(RXLOAD_FIELDS, struct.unpack(">HHHBB", b[180:188])))
     return f
 
 
@@ -220,9 +224,14 @@ SF_BUILD, SF_PROBED, SF_PRESENT, SF_SENSE, SF_PWRB, SF_ADOPTED = 0x01, 0x02, 0x0
 RELAY_FIELDS = ("rl_req_sent", "rl_req_full", "rl_rx_req", "rl_rx_lines", "rl_rx_bad", "rl_rx_ovf",
                 "rl_rx_nosrc", "rl_rx_vlan", "rl_rx_long", "rl_rx_foreign", "rl_full_pics",
                 "rl_full_swaps", "rl_flags", "rl_last_machine", "rl_last_scale", "rl_full_age")
-# relay_flags bits (heartbeat byte 184)
+# relay_flags bits (heartbeat byte 184); b6 = key 0x0045 is 1 (live view)
 RLF_FULL_WANT, RLF_FULL_FRESH, RLF_FULL_STALE, RLF_LAST_VALID, RLF_LAST_NOSRC, RLF_STREAMING = \
     0x01, 0x02, 0x04, 0x08, 0x10, 0x20
+RLF_LIVE = 0x40
+# relay receive load (ADR 0005 section 3d, bytes 188..195; issue 0060 relay-rx-speed):
+# receive FIFO peak fill in the last second (entries), writer stalls and memory
+# waits (wrapping, 2.048 us units), word FIFO peak / 2, log2 receive FIFO entries
+RXLOAD_FIELDS = ("rl_fifo_hwm", "rl_wr_stall", "rl_mem_wait", "rl_wf_hwm", "rl_fifo_aw")
 
 
 MEM_FIELDS = ("mem_flags", "mem_errors", "mem_dq_fail", "mem_test_kib", "mem_first_err")
@@ -356,6 +365,9 @@ def encode_heartbeat(dut, f):
     if "rl_req_sent" in f:  # relay block (needs the shield block) -> 180-byte payload
         assert len(b) == 152
         b += struct.pack(">12HBBBB", *(f[k] for k in RELAY_FIELDS))
+    if "rl_fifo_hwm" in f:  # relay receive load (needs the relay block) -> 188-byte payload
+        assert len(b) == 180
+        b += struct.pack(">HHHBB", *(f[k] for k in RXLOAD_FIELDS))
     return custom(T_HEARTBEAT, dut, b)
 
 
@@ -611,6 +623,13 @@ def selftest():
         errors.append("relay block layout %s" % p[160:].hex(" "))
     elif any(decode_heartbeat(p[8:])[k] != v for k, v in rl.items()):
         errors.append("relay block round trip")
+    # relay receive load (relay-rx-speed): offsets 188..195
+    rx = dict(rl_fifo_hwm=0x1234, rl_wr_stall=0xFFFF, rl_mem_wait=2, rl_wf_hwm=0x80, rl_fifo_aw=14)
+    p = encode_heartbeat(0, dict(hb, **rl, **rx))
+    if len(p) != 196 or p[188:196] != bytes([0x12, 0x34, 0xFF, 0xFF, 0, 2, 0x80, 14]):
+        errors.append("relay receive load layout %s" % p[188:].hex(" "))
+    elif any(decode_heartbeat(p[8:])[k] != v for k, v in dict(rl, **rx).items()):
+        errors.append("relay receive load round trip")
     for e in errors:
         print("ERROR:", e)
     print("netproto selftest", "FAILED" if errors else "PASSED")

@@ -7,6 +7,13 @@
 -- never on a long combinational chain. The grant rotates: after port i is
 -- served, port i+1 has the highest priority.
 --
+-- Bursts (BURST > 1, issue 0060 relay-rx-speed): a port that keeps its
+-- request valid keeps the grant for up to BURST consecutive requests before
+-- the rotation moves on. Every change between clients that read and write
+-- different DDR3 rows costs a bus turnaround and often a precharge +
+-- activate (~80 ns in all); one-word round robin between the full-view
+-- writer and the full_display reader paid that for every word.
+--
 -- Reads return in request order downstream; the port of every accepted read
 -- is queued in a tag FIFO and the returning data is steered to that port.
 -- At most TAG_DEPTH - 1 reads are outstanding (ready drops otherwise), so
@@ -20,7 +27,8 @@ use work.mem_pkg.all;
 entity mem_arbiter is
   generic (
     N         : positive := 2;
-    TAG_BITS  : positive := 6       -- tag FIFO depth 2**TAG_BITS
+    TAG_BITS  : positive := 6;      -- tag FIFO depth 2**TAG_BITS
+    BURST     : positive := 1       -- requests a port may make in a row
   );
   port (
     clk  : in  std_logic;
@@ -46,12 +54,14 @@ architecture rtl of mem_arbiter is
   signal tag_wp, tag_rp : unsigned(TAG_BITS - 1 downto 0) := (others => '0');
   signal pending: natural range 0 to TAG_DEPTH := 0;   -- reads not yet returned
   signal room   : std_logic;
+  signal hold   : natural range 0 to BURST - 1 := 0;  -- requests `last` may still add
+  signal keep   : std_logic;                         -- registered: hold /= 0
 begin
   -- round-robin pick: first valid port after the last one served. Written
   -- as two fixed-priority encoders (ports above `last`, then all ports)
   -- rather than (last + k) mod N: far fewer logic levels for N = 5
   -- (thumbnail ports, timing).
-  process (reqs, last)
+  process (reqs, last, keep)
     variable gh, ga : port_t;
     variable fh, fa : std_logic;
   begin
@@ -65,7 +75,13 @@ begin
         end if;
       end if;
     end loop;
-    if fh = '1' then grant <= gh; else grant <= ga; end if;
+    if keep = '1' and reqs(last).valid = '1' then
+      grant <= last;
+    elsif fh = '1' then
+      grant <= gh;
+    else
+      grant <= ga;
+    end if;
     any_v <= fa;
   end process;
 
@@ -93,6 +109,15 @@ begin
         o <= reqs(grant);
         o.valid <= '1';
         last <= grant;
+        if BURST > 1 then
+          if grant /= last or hold = 0 then
+            hold <= BURST - 1;
+            keep <= '1';
+          else
+            hold <= hold - 1;
+            if hold = 1 then keep <= '0'; end if;
+          end if;
+        end if;
         if reqs(grant).we = '0' then
           tags(to_integer(tag_wp)) <= grant;
           tag_wp <= tag_wp + 1;

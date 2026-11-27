@@ -120,7 +120,7 @@ architecture rtl of net_rx is
   signal cfg_init: std_logic := '0';
   signal bcfg_r  : board_cfg_t := (x"FF", x"FF", '1', "00", (others => '0'), x"00", (others => '0'), x"00",
                                    (others => '0'), x"01", x"02", x"00", x"00", '0', "01", "00",
-                                   DEFAULT_VLAN, "00");
+                                   DEFAULT_VLAN, "00", '1');
   signal last_cmd: u16_arr_t := (others => (others => '0'));
   signal last_cmd_v : std_logic_vector(1 downto 0) := "00";
   signal mgmt_arm : std_logic := '0';
@@ -561,6 +561,9 @@ begin
                   elsif vlen = 2 then st := ST_BAD_VALUE; else st := ST_BAD_LEN; end if;
                 when K_HDMI_OWNER =>
                   if vlen = 1 and unsigned(h(56)) <= 3 then bcfg_r.hdmi_own <= h(56)(1 downto 0);
+                  elsif vlen = 1 then st := ST_BAD_VALUE; else st := ST_BAD_LEN; end if;
+                when K_RELAY_VIEW =>
+                  if vlen = 1 and unsigned(h(56)) <= 1 then bcfg_r.relay_live <= h(56)(0);
                   elsif vlen = 1 then st := ST_BAD_VALUE; else st := ST_BAD_LEN; end if;
                 when K_PK_JTAG =>
                   if vlen = 1 and unsigned(h(56)) <= 3 then bcfg_r.pk_jtag <= h(56);
