@@ -16,6 +16,8 @@ hdl/src/kbd/kbd_mk2_host.vhd
 hdl/src/kbd/kbd_t3_host.vhd
 hdl/src/kbd/kbd_phys_host.vhd
 hdl/sim/i2c_expander_model.vhd
+hdl/sim/tca6424a_model.vhd
+hdl/src/common/i2c_master.vhd
 hdl/src/kbd/kbd_arbiter.vhd
 hdl/src/kbd/kbd_led_status.vhd
 hdl/src/kbd/kvm_hotkey.vhd
@@ -67,6 +69,7 @@ hdl/src/video/text_rx_tap.vhd
 hdl/src/video/seg7_status.vhd
 hdl/src/video/edid_pkg.vhd
 hdl/src/video/ddc_edid.vhd
+hdl/src/top/shield_io.vhd
 hdl/src/top/supervisor_core.vhd
 hdl/src/platform/xc7/xc7_prims_pkg.vhd
 hdl/src/video/hdmi_framer.vhd

@@ -88,6 +88,8 @@ static void test_encoders(void)
   check_bytes("mgmt_baud", b, dp_encode_mgmt_set(b, 0, 0x1234, DP_K_UART_BAUD, v, 4));
   uint8_t ip[4] = {10, 1, 2, 3};
   check_bytes("mgmt_ip", b, dp_encode_mgmt_set(b, DP_DUT_ANY, 7, DP_K_IP, ip, 4));
+  uint8_t pw = 0xA5;
+  check_bytes("mgmt_pwr_ctl", b, dp_encode_mgmt_set(b, 1, 0x0BAD, DP_K_PWR_CTL, &pw, 1));
   uint8_t bm[10] = {0};
   bm[10 / 8] |= 1 << (10 % 8);
   bm[63 / 8] |= 1 << (63 % 8);
@@ -156,6 +158,15 @@ static void test_decoders(void)
   CHECK(hb.has_link && hb.rx_bad_frames == 300 && hb.has_mem);
   CHECK(hb.mem_flags == (DP_MEM_CALIBRATED | DP_MEM_ST_DONE) && hb.mem_errors == 513);
   CHECK(hb.mem_dq_fail == 0x8001 && hb.mem_test_kib == 1024 && hb.mem_first_err == 0x00ABCDEF);
+  CHECK(!hb.has_shield);
+
+  v = vec("heartbeat_shield");
+  CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && h.length == 152 && h.dut == 1);
+  CHECK(dp_decode_heartbeat(v->data + 8, h.length, &hb) == 0);
+  CHECK(hb.has_mem && hb.mem_first_err == 0x00ABCDEF && hb.has_shield);
+  CHECK(hb.shd_flags == (DP_SF_BUILD | DP_SF_PROBED | DP_SF_PRESENT | DP_SF_SENSE | DP_SF_PWRB));
+  CHECK(hb.shd_revision == 1 && hb.shd_features == 0x7F && hb.shd_sense == 0x31);
+  CHECK(hb.shd_hdmi == 0x5D && hb.shd_pwr == 0xA5 && hb.shd_i2c_errors == 0x0102);
 
   v = vec("snapshot");
   CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && h.type == DP_T_UART_SNAP);

@@ -62,6 +62,8 @@ enum dp_key {
   DP_K_OUT_POLICY = 0x0060,
   DP_K_PK_JTAG = 0x0061, /* physical keyboard CPLD JTAG: 0 auto, 1 force on, 2 force off,
                             3 on with KB_JTAGEN driven low (diagnostic) (ADR 0014) */
+  DP_K_PWR_CTL = 0x0062, /* shield power CTRL0..7 bitmask, bit n = power-board output n
+                            (issue 0049); board-wide */
 };
 
 /* JTAG_REQ flags (offset 18) and JTAG_RESP target (byte 17), ADR 0005 s7 / ADR 0014 */
@@ -138,7 +140,27 @@ typedef struct {
   uint16_t mem_dq_fail;   /* bit i: DDR3 DQ i read a wrong bit */
   uint16_t mem_test_kib;  /* self-test region size, KiB */
   uint32_t mem_first_err; /* word address of the first failing word, 0xFFFFFFFF none */
+  /* shield block (ADR 0005 section 3c, issue 0049); valid only when has_shield
+     (payload >= 152) */
+  uint8_t has_shield;
+  uint8_t shd_flags;       /* DP_SF_* */
+  uint8_t shd_revision;    /* expander A port 0 straps (valid with DP_SF_PRESENT) */
+  uint8_t shd_features;    /* expander A port 1 straps */
+  uint8_t shd_sense;       /* b0-3 VIO sense DUT0..3, b4-7 kbd 3V3 sense DUT0..3 (DP_SF_SENSE) */
+  uint8_t shd_hdmi;        /* b0-2 +5V HDMI1..3, b3 PK_JTAGEN driven, b4-6 HPD HDMI1..3 */
+  uint8_t shd_pwr;         /* power CTRL0..7 as driven */
+  uint16_t shd_i2c_errors; /* failed shield I2C transactions (saturates) */
 } dp_heartbeat_t;
+
+/* heartbeat shd_flags (ADR 0005 section 3c, issue 0049) */
+enum dp_shield_flag {
+  DP_SF_BUILD = 0x01,   /* bitstream has the shield I2C master */
+  DP_SF_PROBED = 0x02,  /* first probe finished */
+  DP_SF_PRESENT = 0x04, /* expander A answered */
+  DP_SF_SENSE = 0x08,   /* last poll of expander B succeeded */
+  DP_SF_PWRB = 0x10,    /* power board PRESENT (valid with DP_SF_SENSE) */
+  DP_SF_ADOPTED = 0x20, /* CTRL state kept from before an FPGA reconfiguration */
+};
 
 /* heartbeat mem_flags (ADR 0005 section 3b, issue 0034) */
 enum dp_mem_flag {

@@ -102,6 +102,11 @@ entity supervisor_core is
     pt_active   : in  std_logic := '0';
     -- DDR3 frame store status (issue 0034, clk_sys): heartbeat memory block
     mem_status  : in  mem_status_t := MEM_STATUS_NONE;
+    -- shield I2C status (issue 0049, shield_io, clk_sys): heartbeat shield
+    -- block; power CTRL state set by the host (key 0x0062) for shield_io
+    shd_status  : in  shd_status_t := SHD_STATUS_NONE;
+    pwr_ctl     : out std_logic_vector(7 downto 0);
+    pwr_set     : out std_logic;
     -- thumbnails (issues 0035/0038): frame-store ports (mem_pkg, clk_sys):
     -- 0 local capture writer, 1 relay receive writer, 2 relay sender reader
     thumb_mem_req : out mem_req_arr_t(0 to 2);
@@ -591,6 +596,9 @@ begin
   bstat.rx_bad      <= hu_badcnt;
   bstat.rx_flags    <= "000000" & lock_s(2) & hu_hunting;
   bstat.mem         <= mem_status;
+  bstat.shd         <= shd_status;
+  pwr_ctl           <= bcfg.pwr_ctl;
+  pwr_set           <= bcfg.pwr_set;
   -- b0 TMDS clock present = dvi2rgb's MMCM locked to it (its output free-runs
   -- otherwise, so a measured frequency alone means nothing); b1 decoding =
   -- also active video measured. Values read 0 while unlocked. b2 per DUT.
