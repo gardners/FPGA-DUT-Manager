@@ -215,3 +215,26 @@ front edge, so they are easy to pull when the drawer is out. No power
 connectors pass through the front panel any more. The rocker stays on the
 front panel, wired to the board. The input-board and LM74700 projects stay
 in the tree as legacy and are no longer developed.
+
+## 2026-11-27 progress: round 12 applied, one board (agent, feature/power-oneboard)
+
+* The input stage is on the power board (`mega-kvm-power-main`, v0.4,
+  generator `tools/input_stage.py`): banana pair, PCIe 8-pin, Molex 4-pin,
+  ATO fuses, TVS, LTC4417CGN with the back-to-back FET columns (banana third
+  pair Q512/Q513 DNP; columns 11-14 mm apart on their Vn/VSn pours, output
+  drains straight into the VBUS pour), soft start, input-selected LEDs and the
+  rocker connector J54. VBUS lugs J1/J2 are gone.
+* **Outline 230 x 138.5 mm** (was 230 x 80): a 58.5 mm input strip added at
+  the front. Front-edge connectors, x from the left edge: banana J50 8.0 /
+  J51 27.05 (centres 7.5 mm from the edge); PCIe J52 35.3-54.4; Molex J53
+  57.3-80.0; rocker J54 (XH-3) 83-94. All vertical, plugged from the open
+  top; no front-panel cut-outs.
+* One TMP75 (0x48) between the banana FETs and the PCIe pair is enough on
+  one board (the FETs are the only multi-watt source); the 0x49 sensor and
+  the J6/J8 cable are dropped.
+* Banana sockets are now PCB-mount 24 A parts (24.243.1/.2, C7437321/2):
+  24 A covers the 20 A design point but not the 25 A fuse; footprint to be
+  checked against the part.
+* The input-board projects stay as legacy: `build_all.sh` builds only the one
+  board (`LEGACY=1` rebuilds the old ones); their stale outputs were removed.
+* ERC 0, DRC 0 with schematic parity (unrouted only); BOM/CPL regenerated.
