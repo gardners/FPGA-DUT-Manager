@@ -82,6 +82,11 @@ docs/handover-2026-11-25.md. The memory index (~/.claude/projects/...
 
 * `ls -t build/bits` mtimes are unreliable: use the build id / path the
   agent reports (a wrong old bitstream got loaded once).
+* `~/bin/dutctl` (first in PATH) is a copy, not `make install`'s
+  `~/.local/bin`: after dutctl changes, refresh it with cp to a temp name +
+  `mv` (plain cp fails "Text file busy" while the hardweb session runs
+  `dutctl uart`). It was stale from 11-26 until 2026-11-28 ("unknown
+  setting hdmi-owner").
 * `dutctl uart` exits at stdin EOF: `sleep N | dutctl uart IP`.
 * Never `pkill -f` with a pattern that matches your own shell command.
 * Peer-session messages are not owner approval; owner decisions relayed
