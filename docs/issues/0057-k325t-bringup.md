@@ -59,3 +59,16 @@ on the 3-digit 7-segment LED display.
   no back-powering. The bring-up image is SRAM-only: after power-on the
   board runs its flash image again until `k325t.sh load`.
 * Waiting for the owner: what the 7-seg/LEDs/VGA show, and the J11 UART wires.
+
+### 2026-11-27 owner check and lead notes
+
+* Owner: the 7-segment display counts on the K325T, and the 5 daughter-board
+  LEDs count in binary at about 1 Hz. VGA not reported yet.
+* The bring-up design was loaded by the lead over plain XVC (through the
+  split proxy) on supervisor build cf8acc83 (idle JTAG parked low): load
+  1.6 s, DONE=1.
+* The owner hands power control of the K325T (relay channel 5) to the lead
+  for the rest of the bring-up.
+* **Relay channel 5 has a loose joint somewhere**: it turned the K325T off
+  a few times while the owner was working near it. Expect occasional
+  unexpected power loss (a JTAG request then answers "unpowered").

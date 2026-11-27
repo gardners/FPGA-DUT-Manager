@@ -27,13 +27,13 @@
 <circle cx="105" cy="172.98" r="1.6" style="fill:#fff;stroke:#c00;stroke-width:0.3"/>
 <text x="65" y="227.98" style="font-family:sans-serif;font-size:6px;text-anchor:middle">MIMAS A7 #2</text>
 <text x="65" y="234.98" style="font-family:sans-serif;font-size:4px;text-anchor:middle;fill:#555">90 x 120</text>
-<rect x="90" y="68.58" width="135" height="50" style="fill:#ffe0b2;stroke:#333;stroke-width:0.4"/>
-<circle cx="93" cy="115.58" r="1.6" style="fill:#fff;stroke:#c00;stroke-width:0.3"/>
-<circle cx="222" cy="115.58" r="1.6" style="fill:#fff;stroke:#c00;stroke-width:0.3"/>
-<circle cx="93" cy="71.58" r="1.6" style="fill:#fff;stroke:#c00;stroke-width:0.3"/>
-<circle cx="222" cy="71.58" r="1.6" style="fill:#fff;stroke:#c00;stroke-width:0.3"/>
-<text x="157.5" y="93.58" style="font-family:sans-serif;font-size:6px;text-anchor:middle">XC4418 RELAYS</text>
-<text x="157.5" y="100.58" style="font-family:sans-serif;font-size:4px;text-anchor:middle;fill:#555">135 x 50</text>
+<rect x="85" y="68.58" width="140" height="50" style="fill:#ffe0b2;stroke:#333;stroke-width:0.4"/>
+<circle cx="89" cy="113.58" r="1.6" style="fill:#fff;stroke:#c00;stroke-width:0.3"/>
+<circle cx="221" cy="113.58" r="1.6" style="fill:#fff;stroke:#c00;stroke-width:0.3"/>
+<circle cx="89" cy="73.58" r="1.6" style="fill:#fff;stroke:#c00;stroke-width:0.3"/>
+<circle cx="221" cy="73.58" r="1.6" style="fill:#fff;stroke:#c00;stroke-width:0.3"/>
+<text x="155" y="93.58" style="font-family:sans-serif;font-size:6px;text-anchor:middle">XC4418 RELAYS</text>
+<text x="155" y="100.58" style="font-family:sans-serif;font-size:4px;text-anchor:middle;fill:#555">140 x 50</text>
 <rect x="20" y="50" width="53.34" height="68.58" style="fill:#e1bee7;stroke:#333;stroke-width:0.4"/>
 <rect x="27.34" y="101.58" width="16" height="21.4" style="fill:#999;stroke:#333;stroke-width:0.3"/>
 <circle cx="70.8" cy="104.61" r="1.6" style="fill:#fff;stroke:#c00;stroke-width:0.3"/>

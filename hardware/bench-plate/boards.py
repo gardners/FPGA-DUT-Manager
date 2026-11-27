@@ -87,14 +87,20 @@ YUN = Board(
 # --- Jaycar XC4418 8-channel relay module, 135 x 50 mm ----------------------
 # 135 (L) x 50 (W) x 19 (H) mm: Jaycar XC4418 datasheet
 # (media.jaycar.com.au/product/resources/XC4418_datasheetMain_67843.pdf).
-# Holes ASSUMED: 4 x 3 mm, 3 mm in from each corner (usual for these
-# modules; not in the datasheet). Two orientations: long side along Y
-# (main layout, least X) or along X (alternative layout, rear row).
-_RELAY_L, _RELAY_W, _RELAY_IN = 135.0, 50.0, 3.0
+# Holes: owner, 2026-11-27: Ø4 mm; inside-jaw caliper readings across two
+# holes (far wall to far wall = centre distance + 4 mm): just under 44 mm on
+# the short axis, ~136 mm on the long axis -> centres ~40 x ~132 mm. 132 mm
+# centres don't fit a 135 mm PCB with Ø4 holes, so the outline is ASSUMED
+# 140 x 50 (holes 4 mm in from the ends, 5 mm from the sides) until the owner
+# measures it. Two orientations: long side along Y (main layout, least X) or
+# along X (alternative layout, rear row).
+_RELAY_CX, _RELAY_CY = 132.0, 40.0      # hole centre spacing (long, short)
+_RELAY_L, _RELAY_W = max(135.0, _RELAY_CX + 8.0), 50.0
 
 
 def relay(long_along_x=False):
     w, d = (_RELAY_L, _RELAY_W) if long_along_x else (_RELAY_W, _RELAY_L)
-    i = _RELAY_IN
+    cx, cy = (_RELAY_CX, _RELAY_CY) if long_along_x else (_RELAY_CY, _RELAY_CX)
+    x0, y0 = (w - cx) / 2, (d - cy) / 2
     return Board(key='relay', name='XC4418 RELAYS', w=w, d=d,
-                 holes=[(i, i), (w - i, i), (i, d - i), (w - i, d - i)])
+                 holes=[(x0, y0), (x0 + cx, y0), (x0, y0 + cy), (x0 + cx, y0 + cy)])

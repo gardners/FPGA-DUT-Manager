@@ -4,7 +4,7 @@ Margins: front 50 (from the jack fronts), rear 50, sides 20. Gaps: K325T/Mimas 2
 
 ### Bench plate (owner layout, one row)
 
-**Plate 517.05 x 238.62 mm (X x Y) -- WIDER THAN 400 mm.**
+**Plate 517.05 x 240.5 mm (X x Y) -- WIDER THAN 400 mm.**
 
 Coordinates in mm from the plate's front-left corner (X right, Y towards the rear; in the SVG the front is at the bottom).
 
@@ -13,10 +13,10 @@ Coordinates in mm from the plate's front-left corner (X right, Y towards the rea
 | QMTECH K325T + DB | 388.34..497.05 | 54..188.62 | 50 | 108.71 x 134.62 |
 | MIMAS A7 #1 | 273.34..363.34 | 50.5..170.5 | 50 | 90 x 120 |
 | MIMAS A7 #2 | 158.34..248.34 | 50.5..170.5 | 50 | 90 x 120 |
-| XC4418 RELAYS | 88.34..138.34 | 50.5..185.5 | - | 50 x 135 |
+| XC4418 RELAYS | 88.34..138.34 | 50.5..190.5 | - | 50 x 140 |
 | ARDUINO YUN | 20..73.34 | 54.4..122.98 | 50 | 53.34 x 68.58 |
 
-Corner holes: (10, 10), (507.05, 10), (10, 228.62), (507.05, 228.62). Between-board holes: (375.84, 119.31), (260.84, 119.31), (148.34, 119.31). All Ø3.2.
+Corner holes: (10, 10), (507.05, 10), (10, 230.5), (507.05, 230.5). Between-board holes: (375.84, 120.25), (260.84, 120.25), (148.34, 120.25). All Ø3.2.
 
 ### Bench plate (alternative, <= 400 mm)
 
@@ -28,7 +28,7 @@ Coordinates in mm from the plate's front-left corner (X right, Y towards the rea
 |---|---|---|---|---|
 | QMTECH K325T + DB | 250..358.71 | 54..188.62 | 50 | 108.71 x 134.62 |
 | MIMAS A7 #1 | 135..225 | 50.5..170.5 | 50 | 90 x 120 |
-| XC4418 RELAYS | 90..225 | 219.9..269.9 | - | 135 x 50 |
+| XC4418 RELAYS | 85..225 | 219.9..269.9 | - | 140 x 50 |
 | MIMAS A7 #2 | 20..110 | 50.5..170.5 | 50 | 90 x 120 |
 | ARDUINO YUN | 20..73.34 | 219.9..288.48 | 215.5 | 53.34 x 68.58 |
 

@@ -56,3 +56,13 @@ All jack fronts on one line 50 mm behind the plate front; holes Ø3.2
   holes (3 mm in from the corners). Measure these before cutting; they all
   live in `hardware/bench-plate/boards.py`.
 * Open for the owner: which layout; MDF sheet size (both fit 600 x 900).
+
+### 2026-11-27 owner measurements (round 1)
+
+* Daughter board size confirmed with a vernier (108.71 x 134.62).
+* XC4418 relay board: Ø4 mm holes; inside-jaw caliper across two holes
+  reads just under 44 mm (short axis) and ~136 mm (long axis), taken as
+  far wall to far wall, so hole centres ~40 x ~132 mm. 132 mm centres don't
+  fit the datasheet's 135 mm length with Ø4 holes, so the outline is now
+  ASSUMED 140 x 50 until measured. Main plate 517.0 x 240.5 (still > 400),
+  alternative 378.7 x 338.5.
