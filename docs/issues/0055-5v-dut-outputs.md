@@ -99,3 +99,17 @@ full load.
     bucks with ≥ 17 V input exist in SOT-23-6 / TSOT-23-8 (TPS563201-,
     MP2315-class; to be checked for stock). The 5 V eFuse OVLO (5.9 V)
     would then move to about 6.9 V.
+
+### 2026-11-27 owner (round 15): dedicated 6 V outlet
+
+* Better to have an **on-board 12 V -> 6 V step-down for the K325T board**,
+  as a **dedicated 6 V outlet** (a 9th output), still behind an eFuse so it
+  can be switched off, controlled from the I2C IO expander if it has a GPIO
+  for it. The owner will still report the K325T at 4.5 V.
+* Lead: the power board's TCA9535 (U11, 0x24) has P1.5-P1.7 spare. P1.5
+  drives the 6 V enable (the expander powers up with all pins as inputs, so
+  a pull-down keeps the outlet off until the host turns it on); a spare pin
+  reads back its /FLT or power-good. U11 becomes fitted by default. The 5 V
+  outputs stay as they are. Host control needs a supervisor change (the
+  shield I2C master must write U11; today it only runs the shield
+  expanders): follow-up together with the fan control.
