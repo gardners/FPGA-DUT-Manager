@@ -204,6 +204,9 @@ static int cmd_set(int argc, char **argv)
             "         console-screen (0 auto incl. passthrough, 1 editable, 2 no video, 3 select)\n"
             "         kbd-jtag (keyboard CPLD JTAG: 0 auto, 1 on, 2 off, 3 on with JTAGEN low)\n"
             "         power-ctl (shield power outputs CTRL0..7 bitmask, e.g. 0x05)\n"
+            "         kbd-jtag-quiet (0 off, 1 pause the keyboard scan during keyboard JTAG,\n"
+            "                         2 keyboard scan stopped; needs kbd-jtag 1)\n"
+            "         jtag-tdo-vote (TDO sampling: 0 single, 1 majority of 3, 2 majority of 5)\n"
             "         kbd-led-rgb RRGGBB,RRGGBB,RRGGBB,RRGGBB (LED0..3 for kbd-leds 2;\n"
             "                     LED0/1 = drive LED, LED2/3 = power LED)\n");
     return 2;
@@ -225,6 +228,7 @@ static int cmd_set(int argc, char **argv)
     {"hb-period-ms", DP_K_HB_PERIOD, 2}, {"out-policy", DP_K_OUT_POLICY, 1},
     {"kbd-leds", DP_K_PK_LED_MODE, 1}, {"console-screen", DP_K_CON_SCREEN, 1},
     {"kbd-jtag", DP_K_PK_JTAG, 1}, {"power-ctl", DP_K_PWR_CTL, 1},
+    {"kbd-jtag-quiet", DP_K_KJ_QUIET, 1}, {"jtag-tdo-vote", DP_K_TDO_VOTE, 1},
   };
   if (!strcmp(name, "kbd-led-rgb")) {
     unsigned c[4];

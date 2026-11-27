@@ -272,6 +272,16 @@ architecture rtl of supervisor_core is
   constant KJ_LEASE_MS : natural := 10_000;
   signal kj_lease : integer range 0 to KJ_LEASE_MS := 0;
   signal kj_pow   : std_logic := '0';
+  -- keyboard JTAG quiet (key 0x0063, issue 0054): guard before the first
+  -- and after the last TCK edge, and a start timeout should the keyboard
+  -- host never report paused
+  constant KQ_GUARD   : natural := CLK_HZ / 250_000;     -- 4 us
+  constant KQ_TIMEOUT : natural := CLK_HZ / 250;         -- 4 ms
+  signal kq_post  : integer range 0 to KQ_GUARD := 0;
+  signal kq_pre   : integer range 0 to KQ_GUARD := 0;
+  signal kq_to    : integer range 0 to KQ_TIMEOUT := 0;
+  signal kq_pause, kq_stop, kq_ok, pk_paused : std_logic := '0';
+  signal tdo_vote : unsigned(1 downto 0);
 
   -- sense / enables
   signal vio_s, kb_s, powered, out_en : std_logic_vector(1 downto 0);
@@ -536,7 +546,7 @@ begin
         aborted => jab(i), next_seq => j_next(i), last_seq => j_last(i),
         last_bits => j_bits(i),
         tck => jtck(i), tms => jtms(i), tdi => jtdi(i), jtag_oe => jtag_oe(i),
-        tdo => jtdo(i));
+        tdo => jtdo(i), vote => tdo_vote, start_ok => '1');
 
     kd : entity work.kbd_mk1_device
       generic map (SYNC_CYCLES => (CLK_HZ / 1000) * 61 / 10000)
@@ -657,7 +667,43 @@ begin
       aborted => jab(JT_KBD), next_seq => j_next(JT_KBD), last_seq => j_last(JT_KBD),
       last_bits => j_bits(JT_KBD),
       tck => pk_tck, tms => pk_tms, tdi => pk_tdi, jtag_oe => pk_jtag_oe,
-      tdo => pk_tdo);
+      tdo => pk_tdo, vote => tdo_vote, start_ok => kq_ok);
+  tdo_vote <= unsigned(bcfg.tdo_vote);   -- key 0x0064, all three engines
+
+  -- key 0x0063 (issue 0054): 1 pauses the physical keyboard host while the
+  -- keyboard engine is busy (admission .. done + KQ_GUARD); the first TCK
+  -- edge waits until the host has been paused for KQ_GUARD (or KQ_TIMEOUT
+  -- passed). 2 stops the host (no keyboard reported).
+  process (clk_sys)
+  begin
+    if rising_edge(clk_sys) then
+      if bcfg.kj_quiet = "10" then kq_stop <= '1'; else kq_stop <= '0'; end if;
+      if bcfg.kj_quiet = "01" and jbusy(JT_KBD) = '1' then
+        kq_post  <= KQ_GUARD;
+        kq_pause <= '1';
+      elsif kq_post /= 0 then
+        kq_post  <= kq_post - 1;
+        kq_pause <= '1';
+      else
+        kq_pause <= '0';
+      end if;
+      if pk_paused = '0' then
+        kq_pre <= 0;
+      elsif kq_pre /= KQ_GUARD then
+        kq_pre <= kq_pre + 1;
+      end if;
+      if jbusy(JT_KBD) = '0' or bcfg.kj_quiet = "00" then
+        kq_to <= 0;
+      elsif kq_to /= KQ_TIMEOUT then
+        kq_to <= kq_to + 1;
+      end if;
+      if bcfg.kj_quiet = "00" or kq_to = KQ_TIMEOUT or (pk_paused = '1' and kq_pre = KQ_GUARD) then
+        kq_ok <= '1';
+      else
+        kq_ok <= '0';
+      end if;
+    end if;
+  end process;
 
   ---------------------------------------------------------------- raster capture
   -- Lines are captured for the video target when it is one of this board's
@@ -764,7 +810,8 @@ begin
               -- K_PK_LED_MODE: 0 status (machine colour), 1 DUT's own, 2 host
               leds => pk_leds_o,
               pressed => pk_keys, strobe => pk_stb, kbd_type => pk_type,
-              kbd_commit => pk_commit);
+              kbd_commit => pk_commit,
+              pause => kq_pause, stop => kq_stop, paused => pk_paused);
   pk_present <= '1' when pk_type /= "00" else '0';
 
   -- KVM hotkey (issue 0029): both SHIFTs >= 1 s, tap MEGA, then 1..9,0

@@ -47,6 +47,9 @@ package net_pkg is
     -- since configuration (until then shield_io keeps what it found)
     pwr_ctl    : std_logic_vector(7 downto 0);
     pwr_set    : std_logic;
+    -- keyboard JTAG quiet (key 0x0063) / TDO sampling (key 0x0064), issue 0054
+    kj_quiet   : std_logic_vector(1 downto 0);
+    tdo_vote   : std_logic_vector(1 downto 0);
   end record;
 
   -- a pending reply addressed to a requester
