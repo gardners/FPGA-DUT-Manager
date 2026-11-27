@@ -263,14 +263,19 @@ FAN_PLATE = {
 
 KVM = {
     'ru': 3,
-    # Owner round 10 asked for 2 x 120 mm fans. With the 227 mm display PCB and
-    # the 197 mm input board beside them that needs ~477 mm behind a 425 mm
-    # deck, so the default is 2 x 92 mm (fits). fan 120 / fan_count 1 also fits.
+    # Owner round 10 asked for 2 x 120 mm fans. Beside the 227 mm display PCB
+    # they need ~480 mm behind a 425 mm deck (the 126 x 64 input board stacks
+    # under the display and is not the limit), so the default is 2 x 92 mm.
+    # fan 120 / fan_count 1 also fits.
     'fan': 92, 'fan_count': 2, 'fan_gap': 1.0, 'fan_edge': 3.0,
     'guard': 'grille', 'grille_hole': 5.0, 'grille_pitch': 6.5,
     'side_margin': 5.0,         # behind-panel parts -> deck edge
-    'pcb_top': 4.0,             # front-panel PCB top edge below the panel top
-    'input_above_deck': 4.0,    # input board bottom edge above the deck top
+    'pcb_top': 3.0,             # front-panel PCB top edge below the panel top
+    # The input board (v0.3: 126 x 64) stacks under the display PCB in the right-hand
+    # column, 'stack_gap' below it. Its bottom edge goes 'input_above_deck' above the
+    # deck top if there is room, otherwise lower, into a notch in the KVM deck.
+    'stack_gap': 4.0,
+    'input_above_deck': 4.0,
     'rocker_pos': 'input_row',  # 'input_row' (right of the input board) or 'json' (panel-holes.json x/y)
     'front_holes': '../mega-kvm-front/out/panel-holes.json',
     'front_zone_extra': 4.0,

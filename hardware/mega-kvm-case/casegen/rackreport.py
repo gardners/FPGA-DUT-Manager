@@ -189,10 +189,16 @@ def report(cfg, fp, res, boards, files, OUT):
       '(x %.1f-%.1f): needs %.1f of %.1f mm.' % (K['fan_count'], K['fan'], K['side_margin'], kv['fans_end'],
                                                  kv['right_w'], g.W - K['side_margin'] - kv['right_w'],
                                                  g.W - K['side_margin'], kv['width_need'], g.W))
-    w('* **2 x 120 mm fans do not fit** beside the 227 mm display PCB and the 197 mm input board: they need '
-      '%.0f mm (5 + 2 x 120 + 1 + 2 + %.0f + 5) behind a %.0f mm deck. Options: 2 x 92 mm (default, fits), '
-      '1 x 120 mm (fits), or move the input board to the rear plate and the display group onto a narrower PCB.'
-      % (5 + 241 + 2 + kv['right_w'] + 5, kv['right_w'], g.W))
+    pcbw = kv['pcb'][2]
+    w('* **2 x 120 mm fans still do not fit.** The input board (%.0f x %.0f) now stacks under the display PCB, so the '
+      'limit is the %.0f mm display PCB: 2 x 120 mm fans need %.0f mm (%.0f + 2 x 120 + 1 + 2 + %.0f + %.0f) '
+      'behind a %.0f mm deck. They would fit with a display PCB of at most %.0f mm (the input board, %.0f mm, '
+      'already does). Options: 2 x 92 mm (default), 1 x 120 mm, or a narrower display board.' % (
+          kv['ib'][2], kv['ib'][3], pcbw, 2 * K['side_margin'] + 243 + pcbw, K['side_margin'], pcbw, K['side_margin'],
+          g.W, g.W - 2 * K['side_margin'] - 243, kv['ib'][2]))
+    w('* Right-hand column: display PCB z %.1f-%.1f (x %.1f-%.1f); input board z %.1f-%.1f (x %.1f-%.1f).' % (
+        kv['pcb'][1], kv['pcb'][1] + kv['pcb'][3], kv['pcb'][0], kv['pcb'][0] + kv['pcb'][2],
+        kv['ib'][1], kv['ib'][1] + kv['ib'][3], kv['ib'][0], kv['ib'][0] + kv['ib'][2]))
     w('* Fans %s the deck%s.' % ('cross' if kv['fan_cross_deck'] else 'clear',
                                  ' (the KVM deck is notched for them)' if kv['fan_cross_deck'] else ' (top-aligned, no notch)'))
     w('* Rocker: %s (deck x %.1f, z %.1f).' % (K['rocker_pos'], kv['rock'][0], kv['rock'][1]))

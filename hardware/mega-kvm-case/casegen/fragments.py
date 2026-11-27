@@ -202,6 +202,14 @@ def power_inputs(cfg, board, bottom_z=0.0, title_z=None):
     bh = board['h'] if board else P['h']
     fp = board['fp'] if board else {}
     zof = lambda y: bottom_z + bh - y
+    # LED light holes that would run into a connector cut-out are left out (reported)
+    cl = P['conn_clear']
+    rects = [(fp[r]['crt'][0] - cl, fp[r]['crt'][1] - cl, fp[r]['crt'][2] + cl, fp[r]['crt'][3] + cl)
+             for r in ('J3', 'J4') if r in fp and fp[r]['crt']]
+    rl = P['led_hole'] / 2 + 1.5        # hole radius + minimum web
+    skipped = [r for r in ('D7', 'D8', 'D9') if r in fp and any(
+        a - rl < fp[r]['x'] < c + rl and b - rl < fp[r]['y'] < d + rl for (a, b, c, d) in rects)]
+    stacked = bool(fp) and abs(fp['J1']['x'] - fp['J2']['x']) < 5.0
 
     def draw(p, u0, V):
         if not fp:
@@ -212,7 +220,11 @@ def power_inputs(cfg, board, bottom_z=0.0, title_z=None):
             p.cut(Circle(u0 + f['x'], V(zof(f['y'])), P['banana_hole'] / 2))
             label(p, txt, u0 + f['x'], V(zof(f['y']) - P['banana_hole'] / 2 - 2.0), 1.8)
         j1, j2 = fp['J1'], fp['J2']
-        label(p, '1 BANANA 25A', u0 + (j1['x'] + j2['x']) / 2, V(zof(j1['y']) + 9.5), 1.8)
+        if stacked:         # v0.3 board: bananas one above the other; title under the lower one
+            jl = j1 if j1['y'] > j2['y'] else j2
+            label(p, '1 BANANA 25A', u0 + jl['x'] + 4.0, V(zof(jl['y']) - P['banana_hole'] / 2 - 5.5), 1.8)
+        else:
+            label(p, '1 BANANA 25A', u0 + (j1['x'] + j2['x']) / 2, V(zof(j1['y']) + 9.5), 1.8)
         for ref, txt in (('J3', '2 PCIE 8P 15A'), ('J4', '3 MOLEX 10A')):
             c = fp[ref]['crt']
             cl = P['conn_clear']
@@ -221,16 +233,18 @@ def power_inputs(cfg, board, bottom_z=0.0, title_z=None):
             p.cut(RRect(uc, vc, c[2] - c[0] + 2 * cl, c[3] - c[1] + 2 * cl, 1.0))
             label(p, txt, uc, V(zof(c[1]) + cl + 2.6), 1.6)
         for ref, txt in (('D7', '1'), ('D8', '2'), ('D9', '3')):
-            if ref in fp:
+            if ref in fp and ref not in skipped:
                 f = fp[ref]
                 p.cut(Circle(u0 + f['x'], V(zof(f['y'])), P['led_hole'] / 2))
-        for ref in ('H1', 'H2'):
+        for ref in sorted(r for r in fp if r[0] == 'H' and r[1:].isdigit()):
             if ref in fp:
                 f = fp[ref]
                 p.cut(Circle(u0 + f['x'], V(zof(f['y'])), 1.7))
         label(p, '12V IN  1 > 2 > 3', u0 + 45, V(zof(0) - 3.2 if title_z is None else title_z), 1.8)
-    return Item('power_inputs', bw, draw, P['behind_panel'] + P['depth'], (bottom_z, bottom_z + bh),
-                title='rear power inputs (input board 0047)')
+    it = Item('power_inputs', bw, draw, P['behind_panel'] + P['depth'], (bottom_z, bottom_z + bh),
+              title='rear power inputs (input board 0047)')
+    it.skipped_leds = skipped
+    return it
 
 
 def fan_wall(cfg, zc):
