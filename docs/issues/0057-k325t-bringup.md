@@ -110,3 +110,8 @@ on the 3-digit 7-segment LED display.
   reads 0 with a card. 16 GB SanDisk SL16G SDHC (2017-04), 15193 MiB.
   Full CID/CSD in docs/hardware/qmtech-k325t.md.
 * Board switched off afterwards (`k325t.sh off`). SPI flash untouched.
+* **Correction (owner, later on 2026-11-27):** the "VGA works" report and the
+  "storage ready" message came from the MEGA65 running HewnWeb on its HDMI
+  output, not from the K325T. **The K325T's VGA output is still
+  unverified**, and the K325T's flash image is unknown (it is configured at
+  power-on, status 0x401079fc).
