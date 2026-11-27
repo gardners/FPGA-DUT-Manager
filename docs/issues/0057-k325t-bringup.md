@@ -119,3 +119,13 @@ on the 3-digit 7-segment LED display.
   card, key card on the 2 GB J11 card) is the HewnWeb session's job, not
   ours. The lead sent the K325T facts (pin map, SD slots, UART, loading,
   what's unverified) to the hardweb session (hardweb-95).
+
+### 2026-11-28 lead: K325T link drops (for the hardweb session)
+
+The HewnWeb K325T's gigabit link drops under heavy TX (~15-25 per 2-min
+load). A/B: unchanged with our relay requests stopped, so not the relay
+or jumbo frames (we received 63677 relay frames over 2047 bytes, all good).
+Our DUT1 power sense logged at 20 ms during a load with 23 link downs
+(01:47:48-01:50:23 ACDT): vio stayed 1, no heartbeat gaps, so no 3.3 V
+collapse below ~2 V for >= 20 ms. A shallow or short sag needs a scope.
+The hardweb session is trying slow-slew / 8 mA GMII TX next.
