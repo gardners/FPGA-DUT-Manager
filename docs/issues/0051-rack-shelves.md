@@ -340,3 +340,27 @@ rocker. Fit report must stay at "Conflicts / problems: none".
   25 mm behind the panel; the power board starts at 40 mm.
 * Fit report: **Conflicts / problems: none**. The old 2 x 92 mm layout
   (`'fan': 92, 'rocker_pos': 'below_pcb'`, logos 'left'/'right') still builds.
+
+## 2026-11-27 owner answers (round 13)
+
+1. **M.E.G.A. e.V. logo**: use
+   https://www.m-e-g-a.org/wp-content/uploads/2012/06/mlogo.png (owner: not
+   really a PNG despite the name). Convert to a clean vector
+   `logos/mega-ev.svg` for laser etching; use it on the KVM front and the fan
+   plates instead of the placeholder.
+2. **MEGA65 tallest part**: assume the IEC serial (6-pin DIN) socket is the
+   tallest part. Find its height in the MEGA65 PCB sources (else a standard
+   right-angle DIN socket, stated as assumed); check it, and the other tall
+   connectors, against the next shelf's battens (13.45 mm above the deck)
+   as well as the 38.45 mm between the decks. The drawers have no top: the
+   next shelf's deck/battens are effectively the top.
+3. **Rails**: assume standard server slides, ~12.7 mm (1/2 in) per side,
+   ASSUMED until the owner measures them.
+4. **Fan plate clearance**: **set-back mode**: the other shelves of a group
+   are mounted further back on their rails; no fan cut-outs in the shelf
+   decks. (The KVM deck's notch for its own front fans is a separate matter.)
+5. **LCD**: the owner has none yet; use a cheap Jaycar 16x2 module, ideally
+   with an I2C backpack matching the front board's I2C LCD header (0050).
+
+Plan (agent, branch `feature/rack-case-4`): implement 1-4 in the case
+generator, the LCD part in 0050 / the front board generator.

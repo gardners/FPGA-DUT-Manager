@@ -123,3 +123,12 @@ silkscreen and engraving updated; ERC/DRC, then re-route with
 * `make -B pcb-routing`: 666 tracks, 68 vias, 0 incomplete. One starved
   thermal (U2 GND pin) fixed in the generator: IC GND pads connect solid to
   the pours. **ERC 0; DRC 0 violations, 0 unconnected**, schematic parity.
+
+## 2026-11-27 owner answer (round 13): LCD part
+
+The owner has no LCD yet: use a cheap 16x2 module that Jaycar sells, ideally
+one with an I2C backpack matching J2 (the PCA9306 I2C LCD header). Record the
+Jaycar part number, outline, holes, bezel and view area (datasheet vs
+typical); update the case `lcd` block and `tools/layout.py` if they differ
+from the 80 x 36 / 75 x 31 assumptions, and fix J2's pin order if the
+backpack's differs (re-route, DRC 0). Agent, branch `feature/rack-case-4`.
