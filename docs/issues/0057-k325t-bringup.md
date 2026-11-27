@@ -87,3 +87,26 @@ on the 3-digit 7-segment LED display.
   open (`sleep N | dutctl uart IP`), as hwtest does. Worth an option.
 * The owner plugged a 6-pin PMOD microSD adapter into J11 pins 1-6
   (orientation guessed; J11 pin 5 = GND, 6 = 3.3 V).
+
+### 2026-11-27 microSD probe (agent, branch feature/k325t-sd)
+
+* Probe design `targets/qmtech-k325t/hdl/k325t_sdprobe.vhd` (+ nvc testbench
+  with an SPI-mode card model, `k325t_sdprobe.xdc`, `build_sdprobe.tcl`
+  building one bitstream per J11 weak pull: up/down/none; WNS +11.6 ns). It
+  reports on the JP1 UART: J11 and J9 pin levels; a drive, read-back and
+  release test of J11 pins 1-4; CMD0 (up to 4 tries) on all 24
+  CS/DI/DO/SCK assignments of J11 pins 1-4 and on J9; and a full init with
+  CID/CSD decode wherever a card answers. UART commands p/j/d/a.
+* **J11 adapter pinout found**: J11-1 = DO (MISO), 2 = SCK, 3 = CS, 4 = DI
+  (MOSI), 5 GND, 6 VCC (assignment p16). The adapter has no pull-ups
+  (all pins follow the FPGA's weak pull; with no pull, only CS has the
+  card's internal pull-up). No pin is tied to a rail. The card ignored
+  the first CMD0 after power-up: the first build (a single CMD0) saw no
+  answer anywhere. With retries it answers on the 2nd try, and at once
+  on later runs. Reproduced twice.
+* J11 card: 2 GB no-name SDSC (MID 0x7F, PNM "1232 ", 2011-11), CSD 1.0,
+  1932 MiB, CMD8 accepted, CCS = 0 (byte addressing).
+* J9 (DB slot): pinout confirmed from the DB schematic; CD = J3:8 (AE21)
+  reads 0 with a card. 16 GB SanDisk SL16G SDHC (2017-04), 15193 MiB.
+  Full CID/CSD in docs/hardware/qmtech-k325t.md.
+* Board switched off afterwards (`k325t.sh off`). SPI flash untouched.

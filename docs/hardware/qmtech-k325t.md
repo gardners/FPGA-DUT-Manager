@@ -62,7 +62,7 @@ switch to GND).
 | VGA G5..G0 | J3:51, 50, 53, 52, 54, 55 | | T22, U25, R22, T23, R23, R25 | |
 | VGA B4..B0 | J3:46, 45, 48, 47, 49 | | V26, U26, V24, V23, U24 | |
 | Ethernet RTL8211EG (GMII) | J3:15-42 | | (LiteX `eth`) | PHY drives RX pins: leave as inputs |
-| microSD | J3:8-14 | | | |
+| microSD J9 (CD, DAT1, DAT0, CLK, CMD, DAT3, DAT2) | J3:8, 9, 10, 11, 12, 13, 14 | U4-6..12 | AE21, AE22, AF22, AE23, AF23, V21, W21 | 4.7k pull-ups (R68-R74); see below |
 | PMOD J10 (pins 1-4 / 7-10) | J2:17, 19, 21, 23 / 18, 20, 22, 24 | U5-15..22 | C11, A12, D13, A14 / C12, A13, D14, B14 | |
 | PMOD J11 | see below | | | |
 
@@ -88,6 +88,46 @@ Digit order (which of DIG_1..3 is the leftmost digit) is from the usual
 | 6 | 3.3 V | | 12 | 3.3 V | |
 
 Bank 16 (HR, 3.3 V).
+
+### microSD (issue 0057, verified 2026-11-27)
+
+Probe design: `targets/qmtech-k325t/hdl/k325t_sdprobe.vhd` (README there).
+
+**Daughter-board slot J9** (DB schematic, LiteX `sdcard` agrees): J9-1
+DAT2 = J3:14 (W21), J9-2 CD/DAT3 = J3:13 (V21), J9-3 CMD = J3:12 (AF23),
+J9-5 CLK = J3:11 (AE23), J9-7 DAT0 = J3:10 (AF22), J9-8 DAT1 = J3:9 (AE22),
+J9-9 card detect = J3:8 (AE21). All seven have 4.7k pull-ups to 3.3 V.
+**CD reads 0 with a card inserted, 1 when empty.** SPI mode (CS = DAT3,
+DI = CMD, DO = DAT0, SCK = CLK) works at 250 kHz.
+
+**PMOD microSD adapter on J11 pins 1-6** (the owner's no-silkscreen
+adapters, plugged in the orientation used on 2026-11-27): found by trying
+all 24 assignments of J11 pins 1-4:
+
+| J11 pin | Ball | Adapter signal (SPI) | SD pin |
+|---|---|---|---|
+| 1 | A8 | DO (MISO) | DAT0 |
+| 2 | B9 | SCK | CLK |
+| 3 | A10 | CS | DAT3 |
+| 4 | D10 | DI (MOSI) | CMD |
+| 5 | GND | GND | VSS |
+| 6 | 3.3 V | VCC | VDD |
+
+This is not the Digilent PmodSD order (CS, MOSI, MISO, SCK). The adapter
+has no pull-up resistors: with the FPGA's weak pull-down all four pins read
+0. With no FPGA pull, J11-3 recovers to 1 after being driven low (the card's
+own DAT3 pull-up) and pins 1, 2 and 4 float. No pin is tied to a rail. J11
+pins 7-10 follow the FPGA pull (nothing connected). Use the FPGA's pull-ups
+(PULLUP on all four, at least on DO and CS) when talking to the card. A
+card fresh from power-up ignored the first CMD0 here; send CMD0 again
+until it answers 0x01.
+
+Cards seen (2026-11-27):
+
+| Slot | CID | Decoded | CSD | Capacity |
+|---|---|---|---|---|
+| J11 adapter | `7FFFFF3132333220100000003A00BBB7` | MID 0x7F, OID 0xFFFF, PNM "1232 ", PRV 1.0, PSN 0x0000003A, MDT 2011-11 (no-name) | `007F00325B5A83C5FFFFCF8016800013` (CSD 1.0, READ_BL_LEN 10, C_SIZE 3863, C_SIZE_MULT 7) | 1932 MiB (2 GB SDSC: CMD8 accepted, OCR 0x80FF8000, CCS = 0, byte addressing) |
+| J9 (DB slot) | `035344534C31364780C486104C01147D` | MID 0x03 (SanDisk), OID "SD", PNM "SL16G", PRV 8.0, PSN 0xC486104C, MDT 2017-04 | `400E00325B59000076B27F800A404013` (CSD 2.0, C_SIZE 30386) | 15193 MiB (16 GB SDHC, OCR 0xC0FF8000, CCS = 1) |
 
 ### JP1 (2x9, daughter board)
 
