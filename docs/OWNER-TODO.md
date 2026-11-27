@@ -31,8 +31,9 @@ of each section. Tick or delete an item when it is done (or tell the lead).
 
 | Since | Item | Issue |
 |---|---|---|
+| 2026-11-27 | **K325T board on a bench supply at ~4.5 V** (worst case through the Molex 5 V path at 3 A): does it just draw more current, or misbehave (watch the gigabit link-up, SD card and GPIO load, not only idle)? Also its real current. If it misbehaves, the 5 V outputs become 12 V -> 6 V bucks | 0055 |
 | 2026-11-27 | Measure a real Mimas: **PCB thickness** (vendor STEP 1.16 mm, we assumed 1.6: set `MIMAS_PCB` in `hardware/mega-kvm-shield/scripts/geometry.py`); RJ45 depth/height (STEP 21.8 / 14.1 mm; the shield cut-out now clears it); whether the HDMI sockets are flush (STEP) or 1.5 mm proud, and that the plugs mate fully through the rear panel; hole positions with calipers | 0045 |
-| 2026-11-27 | Before fab: JLC shows **0 in stock** for LTC4417CGN (C688500) and TPS259470LRPWR (C3662793, now 11 per board) today; re-check or pre-order through JLC sourcing. Stocked fallbacks: TPS259470A (auto-retry, C3662799) or TPS259474L (latch-off, power-good instead of /FLT, so the fault wiring changes). The new LTC4417 soft-start (RS 1 k / CS 22 nF) values need a bench check | 0047 |
+| 2026-11-27 | Before fab: JLC shows **0 in stock** for LTC4417CGN (C688500) today; re-check or pre-order. (The eFuses are now the stocked auto-retry TPS259470A.) The new LTC4417 soft-start (RS 1 k / CS 22 nF) values need a bench check | 0047 |
 | 2026-11-27 | When the power board exists: measure the always-on group's **inrush at master-on** (8 fans at 100 % + 2 Mimas + GS105). If it trips the 5 A limit, raise it via R182 (to 5.5 A) or feed the fan switches from VBUS | 0052 |
 | 2026-11-27 | Before fab: check the 0.28 mm MSOP-10 land pattern against Microchip's drawing; EMC2302-1 stock is modest (217) and TCA9548APWR stock unconfirmed | 0052 |
 | 2026-11-27 | Plug a **USB JTAG adaptor** (TE0790 or FT2232H) onto a powered DUT to test `dutctl jtag-discover --scan` and the openFPGALoader commands; `--power-cycle --yes` needs your go-ahead at run time | 0053 |
