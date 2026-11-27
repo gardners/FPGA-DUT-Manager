@@ -20,9 +20,9 @@ fan clearances, the KVM fit and the sheet count.
 | `strain-bar` | 371 x 36 | 8 | Stands in the deck's rear slots (30 mm tall); cable-tie slot pairs every 40 mm. |
 | `fan-plate` | 482.6 x 177.8 | 2 | 4RU (`FAN_PLATE['ru']`, 1-4). 3 x 120 mm fans at 125 mm pitch, staggered low/high/low (centres 63 / 114.8 mm above the plate bottom), cut grille or plain bore (`guard`). Screws into the carrier shelf's batten ends and two gussets. MEGA65 logo etch above fan 1, M.E.G.A. e.V. slot above fan 3, "MEGA-KVM" under fan 2. |
 | `fan-gusset` | 90 x 36 | 4 | Stands on the carrier deck over each batten. |
-| `kvm-front` | 482.6 x 133.35 | 1 | 2 x 92 mm fans (left, above the deck). Right-hand column: the 0050 display PCB from `mega-kvm-front/out/panel-holes.json` at the top (PCB 3 mm behind the panel), the 126 x 64 mm input board (v0.3) stacked under it, with its connectors taken from its KiCad file, then the rocker and the "MEGA-KVM" etch to its right. Logo slots sit in the band in front of the deck (the right-hand slot stops short of the input board). |
-| `kvm-deck` | 425 x 291 | 1 | Front notch x 191-321, 33 mm deep: the input board drops 4.6 mm below the deck top. Mimas, keyboard sub-board and shield support holes for both bays, power main board, GS105 tie slots, vents under the Mimas boards. |
-| `kvm-rear` | 425 x 132 | 1 | The two bay cut-outs (sub-SVGs `out/rack/fragments/bay1.svg`, `bay2.svg`), Ethernet bulkhead + 8 DUT power lead holes, keyboard feed-through, vent slots. |
+| `kvm-front` | 482.6 x 133.35 | 1 | No power connectors (owner round 12). 2 x 92 mm fans on the left, above the deck. Right-hand column: the 0050 display PCB from `mega-kvm-front/out/panel-holes.json` at the top (PCB 3 mm behind the panel), the master rocker under it (wired to J54 on the power board), the "MEGA-KVM" etch (10 mm letters) to the rocker's right. Logo slots sit in the band in front of the deck. |
+| `kvm-deck` | 425 x 349 | 1 | No notch. The 230 x 138.5 mm power board at the front (x 25-255, front edge 40 mm behind the panel, inputs along its front edge, plugged from the open top), the GS105 beside it (x 263-357), and the two bays at the rear (x 40.8-422). Holes: the board's eight M3 holes, Mimas, keyboard sub-board and shield-support holes, GS105 tie slots, tie-slot pairs for the DUT lead bundle, vents under the Mimas boards. The board and GS105 outlines are etched. |
+| `kvm-rear` | 425 x 132 | 1 | Seen from the rear: the two bay cut-outs at the left (sub-SVGs `out/rack/fragments/bay1.svg`, `bay2.svg`). At the right (= the deck's left, behind the power board's DUT terminals): the Ethernet bulkhead + 8 DUT power lead holes, with the keyboard feed-through above them. Vent slots fill the rest. |
 | `kvm-gusset` | 90 x 24 | 4 | Under the KVM deck, front and rear, against the battens' inner faces (moved inwards where a deck hole is in the way). |
 
 Not cut: 25 x 25 mm timber battens, 2 per shelf and 2 for the KVM. In notch
@@ -66,19 +66,23 @@ rocker position, gussets, logos); `LOGOS`; `FOOTPRINT`.
   5 mm spacers 30.4 mm; gussets 36 mm (all under 37.45).
 * Widths: deck 425, 375 between the battens; board + 10 + floppy = 325.6 mm.
   Fans span x 27.5-397.5: 2.5 mm from the battens of the shelves above.
-* **KVM front (input board v0.3, 126 x 64 mm, 2026-11-27):** the display
-  PCB (z 94.4-130.4) and the input board (z 26.4-90.4) stack in one 227 mm
-  column with a 4 mm gap. The input board sits 4.6 mm below the deck top, in
-  a notch in the KVM deck (the KVM deck is not the common shelf deck). The
-  rocker and the MEGA-KVM etch (9.5 mm letters) sit to the input board's right.
-  The input board's LEDs D7-D9 are less than a 1.5 mm web from the PCIe/Molex
-  cut-outs, so they get no light hole of their own (they show at the
-  cut-out edges). Moving them about 3 mm down on the input board would fix that.
-* **KVM fans:** 2 x 120 mm still do not fit. The input board is no longer the
-  limit; the 227 mm display PCB is: about 480 mm is needed behind a 425 mm
-  deck. 2 x 120 mm would fit with a display board of at most 172 mm. The
-  default is 2 x 92 mm (424 of 425 mm). Setting `KVM['fan']=120,
-  'fan_count'=1` also fits (that fan then crosses the deck, which gets a notch).
+* **KVM (owner round 12, one power board, 2026-11-27):** no input board and no power
+  cut-outs on the front. The power board (230 x 138.5 mm, read from its KiCad
+  file) lies flat at the front of the deck: its front edge is 40 mm behind the front
+  panel, its corner holes clear the left batten, and 40 mm of free height is kept
+  above its front 25 mm strip for the plugs (55.8 mm left to the next unit above).
+  The DUT leads leave the terminals on its rear edge and cross a 15 mm cable gap to
+  the bulkhead/DUT-power column at the rear left (x 3-37). The Mimas Mini-Fit leads
+  run back to the bays, and the GS105 jack lead runs sideways to the switch (routes are
+  dashed in `out/rack/kvm-topview.png`). Deck depth: 40 + 138.5 + 15 + 35 (RJ45
+  patch) + 120 (Mimas) = **349 mm**. The 381 mm of bays are wider than the 375 mm
+  between the battens, so three outer bay holes (keyboard sub-board, two shield
+  supports) land on the right batten: drill them through and use M3 x 40 screws.
+* **KVM fans:** 2 x 120 mm still do not fit: the 227 mm display PCB is now the only
+  thing beside the fans, and they need about 480 mm behind a 425 mm deck. They would fit
+  with a display board of at most 172 mm. The default is 2 x 92 mm (424 of 425 mm);
+  `KVM['fan']=120, 'fan_count'=1` also fits (that fan crosses the deck, which then
+  gets a notch).
 * KVM rear: the bays (381.2 mm) and the bulkhead/DUT power column leave 3.8 mm.
 
 # Options A and B (issue 0048, no longer developed)

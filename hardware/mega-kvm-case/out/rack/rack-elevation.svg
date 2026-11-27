@@ -81,14 +81,7 @@
 <rect x="466.55" y="253.55" width="4.5" height="4.5" style="fill:#ffffff;fill-opacity:1.0;stroke:#c00;stroke-width:0.25"/>
 <rect x="477.55" y="253.55" width="4.5" height="4.5" style="fill:#ffffff;fill-opacity:1.0;stroke:#c00;stroke-width:0.25"/>
 <rect x="488.55" y="253.55" width="4.5" height="4.5" style="fill:#ffffff;fill-opacity:1.0;stroke:#c00;stroke-width:0.25"/>
-<rect x="405.8" y="303.2" width="13" height="19.2" style="fill:#ffffff;fill-opacity:1.0;stroke:#c00;stroke-width:0.25"/>
-<rect x="277.2" y="288.2" width="8.2" height="8.2" style="fill:#ffffff;fill-opacity:1.0;stroke:#c00;stroke-width:0.25"/>
-<rect x="277.2" y="307.25" width="8.2" height="8.2" style="fill:#ffffff;fill-opacity:1.0;stroke:#c00;stroke-width:0.25"/>
-<rect x="287.1" y="281.55" width="21" height="14" style="fill:#ffffff;fill-opacity:1.0;stroke:#c00;stroke-width:0.25"/>
-<rect x="308.55" y="282.5" width="24.74" height="11.6" style="fill:#ffffff;fill-opacity:1.0;stroke:#c00;stroke-width:0.25"/>
-<rect x="273.6" y="282.6" width="3.4" height="3.4" style="fill:#ffffff;fill-opacity:1.0;stroke:#c00;stroke-width:0.25"/>
-<rect x="392.6" y="339.6" width="3.4" height="3.4" style="fill:#ffffff;fill-opacity:1.0;stroke:#c00;stroke-width:0.25"/>
-<rect x="392.6" y="282.6" width="3.4" height="3.4" style="fill:#ffffff;fill-opacity:1.0;stroke:#c00;stroke-width:0.25"/>
+<rect x="291.8" y="298.875" width="13" height="19.2" style="fill:#ffffff;fill-opacity:1.0;stroke:#c00;stroke-width:0.25"/>
 <rect x="89.3" y="361.15" width="4" height="4" style="fill:#ffffff;fill-opacity:1.0;stroke:#c00;stroke-width:0.25"/>
 <rect x="89.3" y="352.15" width="4" height="4" style="fill:#ffffff;fill-opacity:1.0;stroke:#c00;stroke-width:0.25"/>
 <rect x="489.3" y="361.15" width="4" height="4" style="fill:#ffffff;fill-opacity:1.0;stroke:#c00;stroke-width:0.25"/>
@@ -158,27 +151,27 @@
 <rect x="758.6" y="376.5" width="97" height="1.6" style="fill:#5f7fbf;fill-opacity:1.0;stroke:#333;stroke-width:0.2"/>
 <rect x="872.6" y="354.6" width="6" height="30" style="fill:#e8c890;fill-opacity:1.0;stroke:#333;stroke-width:0.2"/>
 <text x="889.6" y="397.6" style="font-family:sans-serif;font-size:3.5px;fill:#000;text-anchor:start;font-weight:normal">shelf 4</text>
-<rect x="632.6" y="346.15" width="291" height="25" style="fill:#c8a070;fill-opacity:1.0;stroke:#333;stroke-width:0.3"/>
-<rect x="632.6" y="340.15" width="291" height="6" style="fill:#e8c890;fill-opacity:1.0;stroke:#333;stroke-width:0.3"/>
+<rect x="632.6" y="346.15" width="349" height="25" style="fill:#c8a070;fill-opacity:1.0;stroke:#333;stroke-width:0.3"/>
+<rect x="632.6" y="340.15" width="349" height="6" style="fill:#e8c890;fill-opacity:1.0;stroke:#333;stroke-width:0.3"/>
 <rect x="626.6" y="237.8" width="6" height="133.35" style="fill:#e8d8a8;fill-opacity:1.0;stroke:#333;stroke-width:0.4"/>
-<rect x="923.6" y="239.15" width="6" height="132" style="fill:#e8d8a8;fill-opacity:1.0;stroke:#333;stroke-width:0.4"/>
+<rect x="981.6" y="239.15" width="6" height="132" style="fill:#e8d8a8;fill-opacity:1.0;stroke:#333;stroke-width:0.4"/>
 <rect x="632.6" y="240.8" width="25" height="92" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
 <rect x="632.6" y="240.8" width="25" height="92" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
 <rect x="635.6" y="240.8" width="28.6" height="36" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
-<rect x="640.6" y="280.8" width="22" height="64" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
-<rect x="632.6" y="303.2" width="22" height="19.2" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
-<rect x="668.2" y="313.15" width="100" height="27" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
-<rect x="668.2" y="317.55" width="80" height="17.6" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
-<rect x="803.4" y="322.01" width="120" height="18.14" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
-<rect x="803.4" y="306.41" width="120" height="15.6" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
-<rect x="889.4" y="326.65" width="34" height="13.5" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
-<rect x="889.4" y="326.65" width="34" height="13.5" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
-<rect x="803.4" y="322.01" width="120" height="18.14" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
-<rect x="803.4" y="306.41" width="120" height="15.6" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
-<rect x="889.4" y="326.65" width="34" height="13.5" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
-<rect x="889.4" y="326.65" width="34" height="13.5" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
-<text x="778.1" y="245.8" style="font-family:sans-serif;font-size:3.5px;fill:#000;text-anchor:middle;font-weight:normal">KVM: fans + display + inputs | GS105, power | Mimas+shield bays</text>
-<text x="935.6" y="304.475" style="font-family:sans-serif;font-size:3.5px;fill:#000;text-anchor:start;font-weight:normal">DUT HDMI, JTAG, KBD, 12V leads, LAN</text>
+<rect x="632.6" y="298.875" width="22" height="19.2" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
+<rect x="672.6" y="308.55" width="138.5" height="26.6" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
+<rect x="672.6" y="293.55" width="25" height="40" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
+<rect x="672.6" y="313.15" width="100" height="27" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
+<rect x="861.4" y="322.01" width="120" height="18.14" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
+<rect x="861.4" y="306.41" width="120" height="15.6" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
+<rect x="947.4" y="326.65" width="34" height="13.5" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
+<rect x="947.4" y="326.65" width="34" height="13.5" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
+<rect x="861.4" y="322.01" width="120" height="18.14" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
+<rect x="861.4" y="306.41" width="120" height="15.6" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
+<rect x="947.4" y="326.65" width="34" height="13.5" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
+<rect x="947.4" y="326.65" width="34" height="13.5" style="fill:#9fc79f;fill-opacity:0.6;stroke:#333;stroke-width:0.2"/>
+<text x="807.1" y="245.8" style="font-family:sans-serif;font-size:3.5px;fill:#000;text-anchor:middle;font-weight:normal">KVM: fans + display + inputs | GS105, power | Mimas+shield bays</text>
+<text x="993.6" y="304.475" style="font-family:sans-serif;font-size:3.5px;fill:#000;text-anchor:start;font-weight:normal">DUT HDMI, JTAG, KBD, 12V leads, LAN</text>
 <rect x="632.6" y="212.8" width="253" height="25" style="fill:#c8a070;fill-opacity:1.0;stroke:#333;stroke-width:0.3"/>
 <rect x="660.6" y="206.8" width="225" height="6" style="fill:#e8c890;fill-opacity:1.0;stroke:#333;stroke-width:0.3"/>
 <rect x="632.6" y="206.8" width="253" height="6" style="fill:none;fill-opacity:1.0;stroke:#333;stroke-width:0.2;stroke-dasharray:1,1"/>
@@ -220,10 +213,10 @@
 <rect x="758.6" y="65.35" width="97" height="1.6" style="fill:#5f7fbf;fill-opacity:1.0;stroke:#333;stroke-width:0.2"/>
 <rect x="872.6" y="43.45" width="6" height="30" style="fill:#e8c890;fill-opacity:1.0;stroke:#333;stroke-width:0.2"/>
 <text x="889.6" y="86.45" style="font-family:sans-serif;font-size:3.5px;fill:#000;text-anchor:start;font-weight:normal">shelf 8</text>
-<rect x="953.6" y="60" width="274" height="488.95" style="fill:#ffe0e0;fill-opacity:0.5;stroke:#c66;stroke-width:0.3;stroke-dasharray:3,2"/>
-<text x="1090.6" y="298.475" style="font-family:sans-serif;font-size:5px;fill:#000;text-anchor:middle;font-weight:bold">CABLE LOOP ZONE</text>
-<text x="1090.6" y="306.475" style="font-family:sans-serif;font-size:3.5px;fill:#000;text-anchor:middle;font-weight:normal">slack &gt;= slide travel</text>
-<text x="1090.6" y="311.475" style="font-family:sans-serif;font-size:3.5px;fill:#000;text-anchor:middle;font-weight:normal">(~253 mm per shelf)</text>
+<rect x="1011.6" y="60" width="216" height="488.95" style="fill:#ffe0e0;fill-opacity:0.5;stroke:#c66;stroke-width:0.3;stroke-dasharray:3,2"/>
+<text x="1119.6" y="298.475" style="font-family:sans-serif;font-size:5px;fill:#000;text-anchor:middle;font-weight:bold">CABLE LOOP ZONE</text>
+<text x="1119.6" y="306.475" style="font-family:sans-serif;font-size:3.5px;fill:#000;text-anchor:middle;font-weight:normal">slack &gt;= slide travel</text>
+<text x="1119.6" y="311.475" style="font-family:sans-serif;font-size:3.5px;fill:#000;text-anchor:middle;font-weight:normal">(~253 mm per shelf)</text>
 <text x="932.6" y="50" style="font-family:sans-serif;font-size:6px;fill:#000;text-anchor:middle;font-weight:bold">SIDE VIEW (front at the left)</text>
 <text x="30" y="596.95" style="font-family:sans-serif;font-size:3.8px;fill:#000;text-anchor:start;font-weight:normal">Shelves: 6 mm deck on 25 x 25 battens; MEGA65 board (green), floppy (dashed), Cart64out (blue), strain bar at the rear.</text>
 <text x="30" y="602.95" style="font-family:sans-serif;font-size:3.8px;fill:#000;text-anchor:start;font-weight:normal">Fan plates (4RU, 3 x 120 mm fans, staggered) screw to the front ends of the bottom shelf of each group; gusset in brown.</text>

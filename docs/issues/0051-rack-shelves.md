@@ -280,3 +280,29 @@ The power inputs move onto the power main board (0047 round 12) and are
 reached from the open top. The KVM front panel loses the input-board
 cut-outs and keeps the display group, the rocker, the fans and the etching.
 The main board goes at the front of the KVM deck.
+
+## 2026-11-27 progress: KVM re-fit for the single power board (agent, branch feature/rack-case-3)
+
+* The KVM front has no power cut-outs any more (owner round 12): fans on
+  the left (2 x 92 mm, unchanged), the display PCB at the top right, the
+  master rocker under it, and the MEGA-KVM etch (10 mm) beside the rocker.
+  The deck notch for the old input board is gone.
+* The 230 x 138.5 mm power board is read from its KiCad file. It lies at
+  the front of the KVM deck: x 25-255 (its corner holes clear the left
+  batten), front edge 40 mm behind the front panel. A checked 40 mm free
+  height sits above its front 25 mm strip for the input plugs from the
+  open top, with 55.8 mm left to the next unit above. The GS105 is beside
+  it (x 263-357). The bays sit at the rear right, and the bulkhead/DUT-power
+  column at the rear left (rear plate seen from the rear: bays left, column
+  right), directly behind the DUT terminals. Cable routes (DUT leads across
+  a 15 mm gap and along the left strip, Mimas Mini-Fit leads, GS105 jack)
+  are drawn in the KVM top view. Tie-slot pairs hold the DUT bundle.
+* Deck depth 349 mm (was 291): 40 + 138.5 + 15 + 35 RJ45 patch + 120
+  Mimas. That still leaves about 250 mm for the cable loops in a 600 mm rack
+  (rack depth to be measured).
+* 2 x 120 mm fans: still no. The display PCB alone limits it (about 480 mm
+  needed in 425 mm; it would work with a display board of at most 172 mm).
+* New check: deck holes over a batten. The power board avoids them. The
+  381 mm of bays are wider than the 375 mm between the battens, so three outer
+  bay holes land on the right batten: drill through, M3 x 40 (noted in the
+  report). Fit report: 0 conflicts.

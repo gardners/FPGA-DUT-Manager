@@ -300,12 +300,12 @@ def build_kvm(g, boards, problems, notes):
     m = K['side_margin']
     js = load_front(cfg)
     pcb_w, pcb_h = (js['board']['w'], js['board']['h']) if js else (227.0, 36.0)
-    ib = boards.get('inputs')
-    ib_w, ib_h = (ib['w'], ib['h']) if ib else (cfg.POWER_IN['w'], cfg.POWER_IN['h'])
     rw, rh = cfg.FRONT['rocker']
     boxes = []
-    zone = []                                  # (name, x0, x1, y0, y1, z0, z1)
     # ---------------- front-panel layout (deck x)
+    # Owner round 12: no power connectors on the front any more. Fans on the
+    # left; right-hand column: display PCB at the top, the rocker under it,
+    # the MEGA-KVM etch to the rocker's right.
     fans = []
     x = m
     for i in range(K['fan_count']):
@@ -313,30 +313,23 @@ def build_kvm(g, boards, problems, notes):
         fans.append((x + K['fan'] / 2, zc))
         x += K['fan'] + K['fan_gap']
     fans_end = x - K['fan_gap']
-    # Right-hand column (seen from the front): the display PCB at the top, the
-    # input board stacked under it (left-aligned), the rocker to the input
-    # board's right, the MEGA-KVM etch beside the rocker. If the input board
-    # does not fit above the deck, it drops into a notch in the KVM deck.
-    P = cfg.POWER_IN
     pcb_x0 = W - m - pcb_w
     pcb_z1 = H - K['pcb_top']
-    right_w = max(pcb_w, ib_w + 5.0 + rw + 6.0 if K['rocker_pos'] == 'input_row' else ib_w)
-    col_x0 = W - m - right_w
-    ib_x0 = col_x0
-    ib_z1 = pcb_z1 - pcb_h - K['stack_gap']
-    ib_z0 = min(top + K['input_above_deck'], ib_z1 - ib_h)
+    pcb_z0 = pcb_z1 - pcb_h
+    right_w = pcb_w
+    col_x0 = pcb_x0
     if K['rocker_pos'] == 'json' and js:
         rock_x = pcb_x0 + js['rocker']['x']
         rock_z = H - K['pcb_top'] - js['rocker']['y']
-    else:
-        rock_x = col_x0 + ib_w + 5.0 + rw / 2 + 3.0
-        rock_z = ib_z0 + ib_h / 2
+    else:                                       # 'below_pcb'
+        rock_x = pcb_x0 + K['rocker_dx'] + rw / 2
+        rock_z = (top + 2.0 + pcb_z0 - 2.0) / 2
     width_need = m + (fans_end - m) + 2.0 + right_w + m
-    if fans_end + 2.0 > min(col_x0, pcb_x0) + 1e-6:
-        problems.append('KVM front: %d x %d mm fans (%.0f mm) and the display/input column (%.0f mm) need %.0f mm, '
+    if fans_end + 2.0 > pcb_x0 + 1e-6:
+        problems.append('KVM front: %d x %d mm fans (%.0f mm) and the display column (%.0f mm) need %.0f mm, '
                         'the deck is %.0f mm' % (K['fan_count'], K['fan'], fans_end - m, right_w, width_need, W))
-    if rock_x + rw / 2 > W - 1:
-        problems.append('KVM front: the rocker (deck x %.0f) is outside the deck width' % rock_x)
+    if rock_x + rw / 2 > W - 1 or rock_z - rh / 2 < top + 1:
+        problems.append('KVM front: the rocker (deck x %.0f, z %.0f) does not fit' % (rock_x, rock_z))
     fan_bottom = fans[0][1] - K['fan'] / 2 if fans else H
     fan_cross_deck = fan_bottom < top + 1.0
     kvm_notches = []                           # (x0, x1, depth)
@@ -345,54 +338,53 @@ def build_kvm(g, boards, problems, notes):
             kvm_notches.append((xc - K['fan'] / 2 - 1, xc + K['fan'] / 2 + 1, fs['thick'] + 3))
             if xc - K['fan'] / 2 < BT + 1 or xc + K['fan'] / 2 > W - BT - 1:
                 problems.append('KVM front: a %d mm fan reaches below the deck and over a batten' % K['fan'])
-    ib_drop = ib_z0 < top + 1.0
-    if ib_drop:
-        kvm_notches.append((ib_x0 - 2.0, ib_x0 + ib_w + 2.0, P['behind_panel'] + P['depth'] + 3.0))
-        notes.append('KVM front: the input board (%.0f x %.0f) sits at z %.1f-%.1f, %.1f mm below the deck top, in a '
-                     '%.0f mm deep notch in the KVM deck' % (ib_w, ib_h, ib_z0, ib_z0 + ib_h, top - ib_z0,
-                                                             P['behind_panel'] + P['depth'] + 3.0))
-        if ib_x0 - 2 < BT + 1 or ib_x0 + ib_w + 2 > W - BT - 1:
-            problems.append('KVM front: the input board reaches below the deck over a batten')
-        if ib_z0 < 1.0:
-            problems.append('KVM front: the input board reaches below the unit (z %.1f)' % ib_z0)
     # ---------------- front zone boxes
     for i, (xc, zc) in enumerate(fans):
         boxes.append(Box('KVM fan %d' % (i + 1), xc - K['fan'] / 2, xc + K['fan'] / 2, 0, fs['thick'],
                          zc - K['fan'] / 2, zc + K['fan'] / 2, 'fan'))
     lcd_d = cfg.FRONT['lcd']['depth']
     gap = js['board']['panel_gap'] if js else 3.0
-    boxes.append(Box('front PCB + LCD', pcb_x0, pcb_x0 + pcb_w, gap, gap + 1.6 + lcd_d, pcb_z1 - pcb_h, pcb_z1, 'front'))
-    boxes.append(Box('input board', ib_x0, ib_x0 + ib_w, P['behind_panel'], P['behind_panel'] + P['depth'],
-                     ib_z0, ib_z0 + ib_h, 'inputs'))
+    boxes.append(Box('front PCB + LCD', pcb_x0, pcb_x0 + pcb_w, gap, gap + 1.6 + lcd_d, pcb_z0, pcb_z1, 'front'))
     boxes.append(Box('rocker', rock_x - rw / 2, rock_x + rw / 2, 0, 22.0, rock_z - rh / 2, rock_z + rh / 2, 'front'))
     zone_d = max(b.y1 for b in boxes) + K['front_zone_extra']
-    # ---------------- inside: GS105, power main board, bays
+    # ---------------- inside: power board at the front, GS105 beside it, bays at the rear
     G5 = cfg.GS105
     pm = boards.get('main')
     pm_w, pm_d = (pm['w'], pm['h']) if pm else (cfg.POWER_MAIN['w'], cfg.POWER_MAIN['d'])
-    gx0 = K['gs105_x']
-    y0 = zone_d
+    PM = cfg.POWER_MAIN
+    px0 = K['power_x']
+    y0 = max(zone_d, K['power_front'])          # power board front edge (deck y)
+    yr = y0 + pm_d                              # its rear edge (DUT terminals, Mimas Mini-Fit, GS105 jack)
+    pz0 = top + PM['standoff']
+    pzt = pz0 + 1.6
+    boxes.append(Box('power board', px0, px0 + pm_w, y0, yr, pz0, pzt + PM['tallest'], 'power'))
+    # plugs and cable bends above the input connectors along the front edge (open top)
+    fx = [f for r, f in (pm['fp'].items() if pm else []) if r in ('J50', 'J51', 'J52', 'J53', 'J54')]
+    ix1 = max([(f['crt'][2] if f['crt'] else f['x'] + 6) for f in fx] + [94.0])
+    boxes.append(Box('input plugs (from above)', px0, px0 + ix1 + 2, y0, y0 + K['plug_strip'], pzt,
+                     pzt + K['plug_clear'], 'inputs'))
+    gx0 = px0 + pm_w + K['power_gap']
+    if gx0 + G5['w'] > W - m:
+        problems.append('KVM deck: power board + GS105 (%.0f mm) wider than the deck' % (gx0 + G5['w']))
     boxes.append(Box('GS105', gx0, gx0 + G5['w'], y0, y0 + G5['d'], top, top + G5['h'], 'gs105'))
-    px0 = gx0 + G5['w'] + K['power_gap']
-    if px0 + pm_w > W - m:
-        problems.append('KVM deck: GS105 + power main board (%.0f mm) wider than the deck' % (px0 + pm_w))
-    pz0 = top + cfg.POWER_MAIN['standoff']
-    boxes.append(Box('power main board', px0, px0 + pm_w, y0, y0 + pm_d, pz0, pz0 + 1.6 + cfg.POWER_MAIN['tallest'], 'power'))
     bays = baymod.make_bays(cfg, 0.0, ztop=H - top)
     M = cfg.MIMAS
-    D = float(math.ceil(y0 + max(G5['d'], pm_d) + M['rj45_plug_clear'] + M['d'] + bays[0].setback))
-    # rear plate: bays at the right seen from the rear, bulkhead + DUT power at the left
+    D = float(math.ceil(max(yr, y0 + G5['d']) + K['cable_gap'] + M['rj45_plug_clear'] + M['d'] + bays[0].setback))
+    # rear plate (seen from the rear): bays at the left, bulkhead + DUT power at the right,
+    # i.e. at the deck's LEFT, behind the power board's DUT terminals
     Hr = H - K['rear_clear']
     bay_gap = cfg.CASE_A['bay_gap']
     bays_w = sum(b.width for b in bays) + bay_gap * (len(bays) - 1)
     rm = 3.0
-    ub0 = W - rm - bays_w
+    ub0 = rm
     _bk, _dp = fr.bulkhead(cfg, zc=9.5), fr.dut_power(cfg, z_rows=(31.0, 39.5))
     npw = fr.Item('bulkhead+dut_power', max(_bk.width, _dp.width),
                   lambda p, u0, V: (_bk.draw(p, u0 + (max(_bk.width, _dp.width) - _bk.width) / 2, V),
                                     _dp.draw(p, u0 + (max(_bk.width, _dp.width) - _dp.width) / 2, V)),
                   _bk.depth, (_bk.z[0], _dp.z[1]), title='Ethernet bulkhead + DUT power leads')
-    if ub0 - (rm + npw.width) < 2.0:
+    u_col = W - rm - npw.width
+    rear_free = u_col - (ub0 + bays_w)
+    if rear_free < 2.0:
         problems.append('KVM rear: bays (%.1f) + bulkhead/DUT power (%.1f) do not fit %.0f mm' % (bays_w, npw.width, W))
     deck_holes = []
     bay_u = []
@@ -407,9 +399,38 @@ def build_kvm(g, boards, problems, notes):
     if pm:
         for ref, f in pm['fp'].items():
             if ref.startswith('H'):
-                deck_holes.append((px0 + f['x'], y0 + pm_d - f['y'], 1.7, 'power main'))
-    # cable-tie slots in front of and behind the GS105 (ties run front-to-back over it)
+                deck_holes.append((px0 + f['x'], y0 + pm_d - f['y'], 1.7, 'power board'))
+    # Stand-off screws over a batten need a hole drilled through the batten too. The power
+    # board is placed to avoid that; the two bays (381 mm) are wider than the 375 mm
+    # between the battens, so their outermost support holes land on one batten.
+    over = []
+    for (hx, hy, r, what) in deck_holes:
+        if hx - r < BT + 0.5 or hx + r > W - BT - 0.5:
+            if what == 'power board':
+                problems.append('KVM deck: a %s hole at x %.1f is over a batten' % (what, hx))
+            else:
+                over.append('%s (x %.1f, y %.1f)' % (what, hx, hy))
+    if over:
+        notes.append('KVM deck: %d bay holes are over the %s batten: %s. Drill them on through the batten and '
+                     'use M3 x 40 screws from below' % (len(over), 'right' if hx > W / 2 else 'left', '; '.join(over)))
+    # cable routes (soft): DUT leads to the rear column, Mimas Mini-Fit leads, GS105 jack
+    col_x0, col_x1 = W - (u_col + npw.width), W - u_col
+    bay_x0 = min(bx.x0 for bx in boxes if bx.kind in ('mimas', 'shield', 'kbd'))
+    term = [f for r, f in (pm['fp'].items() if pm else []) if r.startswith('J1') and len(r) == 3 and f['crt']]
+    tx0 = px0 + min([f['crt'][0] for f in term] + [7.0])
+    tx1 = px0 + max([f['crt'][2] for f in term] + [113.0])
+    routes = [('DUT leads', tx0, tx1, yr, yr + K['cable_gap']),
+              ('DUT leads to the rear', col_x0, max(col_x1, bay_x0 - 1.0), yr, D),
+              ('Mimas power leads', px0 + 118.0, px0 + 145.0, yr, D - M['d']),
+              ('GS105 12V lead', px0 + 144.0, gx0 + 10.0, yr - 2.0, yr + 8.0)]
+    for name, xa, xb, ya, yb in routes:
+        boxes.append(Box(name, xa, xb, ya, yb, top, top + 10.0, 'cable', False))
+    if col_x1 > bay_x0 + 0.01:
+        problems.append('KVM: the rear DUT-power column (x %.0f-%.0f) overlaps the bays (from x %.0f)' % (col_x0, col_x1, bay_x0))
+    # cable-tie slots in front of and behind the GS105 (ties run front-to-back over it),
+    # and tie points along the DUT lead route behind the power board
     ties = [(gx0 + G5['w'] * q, yy) for q in (0.3, 0.7) for yy in (y0 - 2.5, y0 + G5['d'] + 2.5)]
+    tie_pairs = [(xc, yr + K['cable_gap'] / 2) for xc in (tx0 + 20, (tx0 + tx1) / 2, tx1 - 10)]
     # gussets under the deck against the battens' inner faces: front and rear
     gk = K['gusset']
     # each gusset starts against its batten's inner face and moves inwards until it clears the deck holes
@@ -456,7 +477,16 @@ def build_kvm(g, boards, problems, notes):
         deck.cut(Circle(hx, V(hy), r))
     for (tx, ty) in ties:
         deck.cut(RRect(tx, V(ty), 5.0, 2.5, 1.0))
-    for bx in [b for b in boxes if b.name.startswith('Mimas')]:
+    tw_, th_, tp_ = cfg.SHELF['tie_slot']
+    for (tx, ty) in tie_pairs:                  # slot pairs across the lead bundle
+        for sy in (-1, 1):
+            deck.cut(RRect(tx, V(ty + sy * (tp_ / 2 + 4)), th_, tw_, tw_ / 2))
+    label(deck, 'POWER BOARD', px0 + pm_w / 2, V(y0 + pm_d / 2), 4.0)
+    label(deck, 'INPUTS (FRONT EDGE)', px0 + 50.0, V(y0 + 14.0), 2.5)
+    outline_engrave(deck, rect_pts(px0, V(yr), px0 + pm_w, V(y0)))           # placement outlines
+    outline_engrave(deck, rect_pts(gx0, V(y0 + G5['d']), gx0 + G5['w'], V(y0)))
+    label(deck, 'GS105', gx0 + G5['w'] / 2, V(y0 + G5['d'] / 2), 4.0)
+    for bx in [b for b in boxes if b.kind == 'mimas']:
         for i in range(6):
             deck.cut(RRect(bx.x0 + 20 + i * 10, V((bx.y0 + bx.y1) / 2), 3.0, 40.0, 1.5))
     label(deck, 'MEGA-KVM DECK - FRONT', W / 2, V(zone_d / 2 + 2), 3.0)
@@ -489,18 +519,11 @@ def build_kvm(g, boards, problems, notes):
     label(fp_, 'I', du + rock_x, Vf(rock_z + rh / 2 + 2.2), 2.0)
     label(fp_, 'O', du + rock_x, Vf(rock_z - rh / 2 - 2.2), 2.0)
     label(fp_, 'POWER', du + rock_x, Vf(rock_z - rh / 2 - 5.4), 1.8)
-    pw = fr.power_inputs(cfg, ib, bottom_z=ib_z0, title_z=ib_z0 + ib_h - 45.0)
-    if pw.skipped_leds:
-        notes.append('KVM front: input-board LEDs %s leave less than a 1.5 mm web to the PCIe/Molex header cut-outs '
-                     '(%.1f mm holes), so they get no own light hole (they show at the cut-out edge). Moving them >= 3 mm further from the '
-                     'headers on the input board would give them separate windows' % (
-                         ', '.join(pw.skipped_leds), cfg.POWER_IN['led_hole']))
-    pw.draw(fp_, du + ib_x0, Vf)
     # MEGA-KVM etch: beside the rocker under the display PCB, else in the band in front of the deck
     size = K['text_size']
-    ex0 = (rock_x + rw / 2 + 4.0) if K['rocker_pos'] == 'input_row' else (ib_x0 + ib_w + 4.0)
+    ex0 = rock_x + rw / 2 + 6.0
     ex1 = W - m
-    ez0, ez1 = max(ib_z0, top + 1.0), pcb_z1 - pcb_h - 2.0
+    ez0, ez1 = top + 1.0, pcb_z0 - 2.0
     while size > 5.0 and font.text_width(K['text'], size) > ex1 - ex0 - 2:
         size -= 0.5
     if font.text_width(K['text'], size) <= ex1 - ex0 - 2 and ez1 - ez0 > size + 4:
@@ -525,14 +548,9 @@ def build_kvm(g, boards, problems, notes):
         lw = spec['w']
         if where == 'left':
             x0 = BT + g.T + 8
-            if ib_drop and x0 + lw > ib_x0 - 3:
-                lw = max(ib_x0 - 3 - x0, 40.0)
         else:
             x1 = W - BT - g.T - 2
             x0 = x1 - lw
-            if ib_drop and x0 < ib_x0 + ib_w + 3:            # keep clear of the dropped input board
-                x0 = ib_x0 + ib_w + 3
-                lw = x1 - x0
         if lw < 40:
             notes.append('KVM front: no room for the %s logo slot in the band' % name)
             continue
@@ -544,13 +562,14 @@ def build_kvm(g, boards, problems, notes):
     Vr = lambda z: Hr - (top + z)          # z above the deck top (bay floor)
     for b, ub in zip(bays, bay_u):
         b.item.draw(rp, ub, Vr)
-    npw.draw(rp, rm, Vr)
+    npw.draw(rp, u_col, Vr)
     kb = fr.keyboard(cfg, zc=60.0)
-    kb.draw(rp, rm, Vr)
-    vu0 = rm + kb.width + 8.0
+    kb.draw(rp, W - rm - kb.width, Vr)
+    vu0 = rm + 6.0
+    vu1 = W - rm - kb.width - 8.0
     zv0, zv1 = 40.0, Hr - top - 15.0
     if zv1 - zv0 > 15:
-        fr.vents('rear vents', W - rm - 6 - vu0, zv0, zv1, slot_w=4.0, pitch=9.0).draw(rp, vu0, Vr)
+        fr.vents('rear vents', vu1 - vu0, zv0, zv1, slot_w=4.0, pitch=9.0).draw(rp, vu0, Vr)
     for xs in (BT / 2, W - BT / 2):
         for z in cfg.FAN_PLATE['batten_screws']:
             rp.cut(Circle(W - xs, Hr - z, cfg.FAN_PLATE['screw_d'] / 2))
@@ -558,17 +577,17 @@ def build_kvm(g, boards, problems, notes):
         for z in (BT - gk['h'] * 0.7, BT - gk['h'] * 0.3):
             if not front:
                 rp.cut(Circle(W - xg, Hr - z, 1.75))
-    label(rp, 'MEGA-KVM', W - 60, Vr(Hr - top - 6.0), 5.0)
+    label(rp, 'MEGA-KVM', 60, Vr(Hr - top - 6.0), 5.0)
     kg = gusset_panel('kvm-gusset', gk['h'], gk['l'], gk['chamfer'], 4, 'KVM gusset (under the deck, glued + screwed)')
     frags = [('bay%d' % (i + 1), fr.standalone(b.item, Hr, Vr)) for i, b in enumerate(bays)]
     frags.append(('kvm-rear-bulkhead-dut_power', fr.standalone(npw, Hr, Vr)))
-    frags.append(('kvm-front-power-inputs', fr.standalone(pw, H, Vf)))
     probs_fit = []
     return {'H': H, 'D': D, 'Hr': Hr, 'deck': deck, 'front': fp_, 'rear': rp, 'gusset': kg, 'boxes': boxes,
             'fans': fans, 'fan_cross_deck': fan_cross_deck, 'zone_d': zone_d, 'pcb_x0': pcb_x0, 'col_x0': col_x0,
             'fans_end': fans_end, 'right_w': right_w, 'width_need': width_need, 'bays': bays, 'bays_w': bays_w,
-            'rear_free': ub0 - (rm + npw.width), 'frags': frags, 'logo_notes': logo_notes, 'rock': (rock_x, rock_z),
-            'ib': (ib_x0, ib_z0, ib_w, ib_h), 'pcb': (pcb_x0, pcb_z1 - pcb_h, pcb_w, pcb_h)}
+            'rear_free': rear_free, 'frags': frags, 'logo_notes': logo_notes, 'rock': (rock_x, rock_z),
+            'pcb': (pcb_x0, pcb_z0, pcb_w, pcb_h), 'pm': (px0, y0, pm_w, pm_d, pzt), 'gs': (gx0, y0),
+            'col': (col_x0, col_x1), 'bay_x0': bay_x0, 'yr': yr}
 
 
 # ====================================================================== group clearance check
@@ -812,7 +831,8 @@ def build(cfg, boards, fp, log=print):
     # KVM fit check
     from . import layout
     interior = (0.0, g.W, -1.0, kv['D'], 0.0, kv['H'])   # floor 0: the input board may drop into a deck notch
-    kprobs, kclear = layout.check([bx for bx in kv['boxes'] if bx.inside], interior, [])
+    kprobs, kclear = layout.check([bx for bx in kv['boxes'] if bx.inside], interior,
+                                  [('power board', 'input plugs (from above)')])   # the plugs go into the board's connectors
     problems += ['KVM: ' + p for p in kprobs]
     for (hx, hy, r) in [(s.cx, kv['D'] - s.cy, s.r) for s in kv['deck'].cuts if s.kind == 'circle' and s.r > 1.6]:
         for gb in [bx for bx in kv['boxes'] if bx.name == 'KVM gusset']:

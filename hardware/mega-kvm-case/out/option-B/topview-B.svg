@@ -18,8 +18,8 @@
 <text x="236" y="195" style="font-family:sans-serif;font-size:1.8px;fill:#000;text-anchor:middle;font-weight:normal">standoff</text>
 <rect x="433.5" y="191.5" width="5" height="5" style="fill:#606060;fill-opacity:0.5;stroke:#c66;stroke-width:0.3;stroke-dasharray:2,1"/>
 <text x="436" y="195" style="font-family:sans-serif;font-size:1.8px;fill:#000;text-anchor:middle;font-weight:normal">standoff</text>
-<rect x="21.25" y="157.8" width="391.2" height="262.7" style="fill:#f4f0d0;fill-opacity:0.5;stroke:#c66;stroke-width:0.3;stroke-dasharray:2,1"/>
-<text x="216.85" y="290.15" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">mounting plate</text>
+<rect x="21.25" y="119.3" width="391.2" height="301.2" style="fill:#f4f0d0;fill-opacity:0.5;stroke:#c66;stroke-width:0.3;stroke-dasharray:2,1"/>
+<text x="216.85" y="270.9" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">mounting plate</text>
 <rect x="136.85" y="265.8" width="15.8" height="35" style="fill:#ffe0e0;fill-opacity:0.5;stroke:#c66;stroke-width:0.3;stroke-dasharray:2,1"/>
 <text x="144.75" y="284.3" style="font-family:sans-serif;font-size:1.8px;fill:#000;text-anchor:middle;font-weight:normal">RJ45 patch 1</text>
 <rect x="328.45" y="265.8" width="15.8" height="35" style="fill:#ffe0e0;fill-opacity:0.5;stroke:#c66;stroke-width:0.3;stroke-dasharray:2,1"/>
@@ -44,8 +44,8 @@
 <text x="242.95" y="404.8" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">kbd sub 2B</text>
 <rect x="36.25" y="162.8" width="94" height="100" style="fill:#8fa8d8;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
 <text x="83.25" y="213.8" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">GS105</text>
-<rect x="140.25" y="182.8" width="230" height="80" style="fill:#e0a060;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
-<text x="255.25" y="223.8" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">power main board</text>
+<rect x="140.25" y="124.3" width="230" height="138.5" style="fill:#e0a060;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
+<text x="255.25" y="194.55" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">power main board</text>
 <rect x="26.25" y="300.8" width="189.6" height="120" style="fill:#a0d0a0;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
 <text x="121.05" y="361.8" style="font-family:sans-serif;font-size:2.6px;fill:#000;text-anchor:middle;font-weight:normal">shield 1</text>
 <rect x="217.85" y="300.8" width="189.6" height="120" style="fill:#a0d0a0;fill-opacity:0.75;stroke:#333;stroke-width:0.3"/>
