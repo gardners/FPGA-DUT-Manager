@@ -34994,7 +34994,7 @@
 		)
 		(uuid "96b2ff23-9358-589f-8f69-ed4c25618145")
 	)
-	(label "EXUNUSED"
+	(label "EN5V5"
 		(at 76.2 256.54 0)
 		(effects
 			(font
@@ -35002,9 +35002,9 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "7d86830f-8302-5e5a-bb1e-8d19187a2ceb")
+		(uuid "6d8ff9f7-9bc5-52a2-ba3c-23d2787a8753")
 	)
-	(label "EXUNUSED"
+	(label "EN5V6"
 		(at 76.2 259.08 0)
 		(effects
 			(font
@@ -35012,9 +35012,9 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "34b174dc-2679-5b0d-89cd-bf687529c440")
+		(uuid "24fbcca2-48b3-52b0-a7a9-811b2f7e42f1")
 	)
-	(label "EXUNUSED"
+	(label "EN5V7"
 		(at 76.2 261.62 0)
 		(effects
 			(font
@@ -35022,7 +35022,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "9e724f38-3027-568d-aad1-76eec6deccab")
+		(uuid "d6d621b5-4575-5b4e-95e8-e3dd52d426af")
 	)
 	(label "EXUNUSED"
 		(at 76.2 264.16 0)
@@ -35155,7 +35155,7 @@
 				(hide yes)
 			)
 		)
-		(property "Note" "DNP by default; P00-07 /FLT0-7 (5-7: 12 V or 5 V output), P10 /FLT_AON, P11 5V_PRESENT"
+		(property "Note" "DNP by default; P00-07 /FLT0-7 (5-7: 12 V or 5 V output), P10 /FLT_AON, P11 5V_PRESENT, P12-14 EN5V5-7"
 			(at 58.42 248.92 0)
 			(effects
 				(font
@@ -35337,7 +35337,7 @@
 				(hide yes)
 			)
 		)
-		(property "Note" "unused P12-P17 held low; firmware may also set them as outputs"
+		(property "Note" "unused P15-P17 held low; firmware may also set them as outputs"
 			(at 96.52 271.78 0)
 			(effects
 				(font

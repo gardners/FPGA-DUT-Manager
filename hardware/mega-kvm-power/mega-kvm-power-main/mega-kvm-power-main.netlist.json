@@ -2964,7 +2964,7 @@
   "dnp": true,
   "fields": {
    "LCSC": "C25804",
-   "Note": "unused P12-P17 held low; firmware may also set them as outputs",
+   "Note": "unused P15-P17 held low; firmware may also set them as outputs",
    "Tolerance": "1%"
   },
   "footprint": "Resistor_SMD:R_0603_1608Metric",
@@ -5212,7 +5212,7 @@
   "dnp": true,
   "fields": {
    "LCSC": "C130204",
-   "Note": "DNP by default; P00-07 /FLT0-7 (5-7: 12 V or 5 V output), P10 /FLT_AON, P11 5V_PRESENT"
+   "Note": "DNP by default; P00-07 /FLT0-7 (5-7: 12 V or 5 V output), P10 /FLT_AON, P11 5V_PRESENT, P12-14 EN5V5-7"
   },
   "footprint": "Package_SO:TSSOP-24_4.4x7.8mm_P0.65mm",
   "in_bom": true,
@@ -5223,9 +5223,9 @@
    "12": "GND",
    "13": "~{FLT_AON}",
    "14": "5V_PRESENT",
-   "15": "EXUNUSED",
-   "16": "EXUNUSED",
-   "17": "EXUNUSED",
+   "15": "EN5V5",
+   "16": "EN5V6",
+   "17": "EN5V7",
    "18": "EXUNUSED",
    "19": "EXUNUSED",
    "2": "EXA1",

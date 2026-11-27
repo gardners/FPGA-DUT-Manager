@@ -233,14 +233,16 @@ nets = {'VCC': '+3V3', 'GND': 'GND', 'SDA': 'SDA', 'SCL': 'SCL', '~{INT}': '~{I2
 for k in range(8):
     nets['P0%d' % k] = '~{FLT%d}' % k
 nets['P11'] = '5V_PRESENT'          # issue 0055: Molex +5 V present (divider R601/R602)
-for k in range(2, 8):
+for k, n in enumerate(five_volt.CHANNELS):   # 0055: 5 V eFuse EN = channel n on and set to 5 V
+    nets['P1%d' % (2 + k)] = 'EN5V%d' % n
+for k in range(5, 8):
     nets['P1%d' % k] = 'EXUNUSED'
 S.place('Interface_Expansion:TCA9535PWR', 'U11', 'TCA9535PWR', ex, ey, nets,
         footprint='Package_SO:TSSOP-24_4.4x7.8mm_P0.65mm', dnp=True,
         fields={'LCSC': 'C130204', 'Note': 'DNP by default; P00-07 /FLT0-7 (5-7: 12 V or 5 V output), '
-                                           'P10 /FLT_AON, P11 5V_PRESENT'})
+                                           'P10 /FLT_AON, P11 5V_PRESENT, P12-14 EN5V5-7'})
 P(r('10k'), 'R11', bx + 83.82, by + 58.42, {'1': 'EXUNUSED', '2': 'GND'}, dnp=True,
-  fields={'Note': 'unused P12-P17 held low; firmware may also set them as outputs'})
+  fields={'Note': 'unused P15-P17 held low; firmware may also set them as outputs'})
 P(c('100n'), 'C7', bx + 83.82, by + 15.24, {'1': '+3V3', '2': 'GND'}, dnp=True)
 for k, (net, to) in enumerate([('EXA0', 'GND'), ('EXA1', 'GND'), ('EXA2', '+3V3')]):
     a, b = ('1', '2') if to == 'GND' else ('2', '1')
