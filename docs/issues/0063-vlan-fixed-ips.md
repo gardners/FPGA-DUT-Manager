@@ -96,3 +96,10 @@ Status: implemented and simulated; not tried on hardware. Details in ADR
    nothing).
 4. `scripts/hwtest.sh` (it pings the identity via eno2.1650 and reports
    PASS, or SKIP without the interface).
+
+Build (Vivado, commit 1fa1b80 = the HDL of this branch; later commits are
+C/scripts/docs only; build id 1fa1b802): **TIMING MET, WNS +0.039 ns, WHS
++0.050 ns**; 21078 LUTs (64.7 %), 53.5 BRAM tiles. `make test` green: 38
+HDL testbenches (incl. tb_vlan_ident), netproto selftest, 917 dutctl
+checks, 52 relay checks. Not loaded on hardware. Bitstream:
+build/bits/supervisor-1fa1b802.bit in the feature/vlan-fixed-ip worktree.
