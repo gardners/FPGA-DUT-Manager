@@ -36,7 +36,6 @@ of each section. Tick or delete an item when it is done (or tell the lead).
 | 2026-11-27 | Before fab: check the 0.28 mm MSOP-10 land pattern against Microchip's drawing; EMC2302-1 stock is modest (217) and TCA9548APWR stock unconfirmed | 0052 |
 | 2026-11-27 | Plug a **USB JTAG adaptor** (TE0790 or FT2232H) onto a powered DUT to test `dutctl jtag-discover --scan` and the openFPGALoader commands; `--power-cycle --yes` needs your go-ahead at run time | 0053 |
 | 2026-11-27 | A **DUT on an octopus port** for `dutctl jtag-speed` on the DUT path | 0054 |
-| 2026-11-27 | **Keyboard JTAG error floor**: `jtag-speed --kbd` sees isolated 1s read as 0 at about 6e-5 at every TCK (worse at 7.8 MHz; clean at 20.8 MHz). Looks like signal integrity, not timing. A scope on TDI/TDO of the keyboard cable (at half period 8) would tell; matters for CPLD flashing | 0046, 0054 |
 | 2026-11-27 | Cable tests to a real DUT: VIO sense, JTAG IDCODE/XVC with Vivado, UART, DUT keyboard emulation, m65 (mimas-a7-jtag branch) | 0045, 0011 |
 | 2026-11-27 | A real MEGA65 as HDMI-with-audio source: passthrough, EDID, screenshot | 0037, 0042 |
 | 2026-11-27 | Measure a MEGA65's 12 V current (idle and busy, with floppy) | 0047 sizing |
@@ -48,3 +47,4 @@ of each section. Tick or delete an item when it is done (or tell the lead).
 * 2026-11-27 KVM front fans: owner wants standard 2 x 120 mm PC fans. The
   display board is being re-laid out in two rows (at most ~172 mm wide) so
   they fit (0050, 0051).
+* 2026-11-27 Keyboard JTAG error floor: cross-talk from the keyboard scan; pausing the scan during keyboard JTAG (now the default) gives 0 errors up to 20.8 MHz. No scope needed (0054).
