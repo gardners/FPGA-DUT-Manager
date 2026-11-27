@@ -336,3 +336,31 @@ them to the shield generator and the case's Mimas model:
 * the HDMI receptacles are flush with the board edge in the model, and the
   7-segment display (x 35.9-65.9, y 64.2-78.2) sits wider than the drawing
   showed.
+
+## 2026-11-27 progress: STEP corrections applied (branch feature/mimas-step-fix)
+
+* Re-checked against the STEP with my own scan (B-rep **vertex** bounding
+  boxes, not all control points, which inflate curved parts): holes (5, 5),
+  (5, 85), (115, 5), (115, 85) at 3.2 mm; header pins row 1 x 10.465 to row
+  40 x 109.525, P13 y 1.346/3.886, P12 y 86.106/88.646; RJ45 body x 0-21.8,
+  y 60.7-76.7 above x 18, top 14.11 mm (two 0.1 mm LED features reach
+  15.2 at x 6.4, inside the old cut-out); 7-seg x 35.86-65.86, y
+  64.24-78.25, 5.7 mm tall; HDMI shells x 110.8-119.96 (flush), 0-6.07 mm
+  tall; mDP boxes are usable from vertices (x 107.3-119.94, y 9.6-21.0 /
+  25.9-37.3, 4.2 mm). Board 1.16 mm thick in the model. Only the RJ45
+  reaches the shield underside (11.04 mm) outside the cut-out.
+* Shield: Mimas facts moved into `scripts/geometry.py` (`ROW1_X`,
+  `P12_A_Y`/`P13_A_Y`, `MIMAS_HOLES`, `MIMAS_TALL`, `NOTCHES`). The cut-out
+  is x 0-18 over y 12.4-78.0 plus a step to **x 23 over y 59-78** (RJ45
+  margin 1.2 mm in x, 1.3 mm in y); `geometry.py` asserts that every part
+  taller than the shield underside lies inside it. The P12 VIN track on
+  B.Cu steps around it. `MIMAS_PCB` (1.6, STEP 1.16) picks a 5.5 or 6.0 mm
+  Mimas standoff so the shield stays level with the sub-board stack either
+  way (18.14 / 18.20 mm). User.Drawings outlines follow the STEP. Only H1,
+  H3 (holes) and the two 2x40 sockets moved; no packed part sat in the new
+  cut-out area. ERC 0/0, DRC 0 errors (106 silk warnings as before, 499
+  unrouted), schematic parity 0; kbd-sub unchanged apart from regeneration.
+* Case (0051): Mimas holes, `hdmi_cz` 3.0, RJ45 span; fit report clean.
+* **For the owner to measure**: Mimas PCB thickness (1.6 vs 1.16), the RJ45
+  depth and height (x 21.8 / 14.1 mm), whether the Mimas HDMIs are flush or
+  1.5 mm proud, and the hole positions.
