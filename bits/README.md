@@ -10,6 +10,7 @@ Board must run from the DC jack (USB power alone browns out).
 
 | Build id | Commit | Verified on hardware (2026-11-25) | Notes |
 |---|---|---|---|
+| 3c536491 | 3c53649 | 2026-11-27: hwtest 63/0; K325T bitstream loaded over plain `dutctl xvc` (no proxy) at MTU 1500 (5792-bit requests, 1.5 s) and 2028 (7904-bit), DONE=1 | JTAG_REQ max 7904 bits (2 KiB MAC slots), oversize requests answered bad-format, dutctl splits shifts per MTU (0059); WNS +0.276 ns. **known-good** |
 | cf8acc83 | cf8acc8 | 2026-11-27: hwtest 63/0; K325T on DUT1: IDCODE, out-policy 2 -> unpowered, power-off lets the sense drop (no back-feed), 1.6 s XVC bitstream load; kbd JTAG clean to 20.8 MHz | idle JTAG pins parked low, out-policy 2 covers JTAG, shield power-off output hold, dutctl relay hooks (0056); WNS +0.095 ns. **known-good** |
 | 618e7266 | 618e726 | 2026-11-27: hwtest 63/0; `jtag-speed --kbd` clean at every step to half 3 (20.8 MHz) with default settings | keyboard scan paused during keyboard JTAG by default (key 0x0063 = 1), optional TDO voting (key 0x0064) (0054); WNS +0.191 ns. **known-good** |
 | 7b9a7921 | 7b9a792 | 2026-11-27: hwtest 63/0; keyboard IDCODE 0x012ba043 | merges rack case, dutctl JTAG tools (0053/0054), shield I2C master + heartbeat shield block + power-ctl key 0x0062 (0049 step 2); WNS +0.204 ns. **known-good** |
