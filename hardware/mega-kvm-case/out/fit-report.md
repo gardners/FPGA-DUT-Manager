@@ -96,7 +96,7 @@ Gussets: 36 mm tall x 90 mm long on the carrier deck over each batten.
 * Etched: mega_ev logo at x 278-388, z 2.0-23.2 (checked against the fans, display PCB, rocker and screws).
 * Rocker: left (deck x 19.0, z 70.4).
 * Rear plate 425 x 132.0 mm (seen from the rear): bays 381.2 mm at the left, the bulkhead/DUT power column at the right (= deck left, behind the DUT terminals); 3.4 mm spare. The keyboard feed-through sits above the column; vent slots fill the upper part.
-* KVM deck: 3 bay holes are over the left batten: kbd sub (x 416.9, y 317.8); shield support (x 416.6, y 233.8); shield support (x 416.6, y 298.8). Drill them on through the batten and use M3 x 40 screws from below
+* KVM deck: 3 bay holes are over the right batten: kbd sub (x 416.9, y 317.8); shield support (x 416.6, y 233.8); shield support (x 416.6, y 298.8). Drill them on through the batten and use M3 x 40 screws from below
 * KVM rear gusset moved 6 mm inwards off the batten to clear deck holes
 * KVM front: MEGA-KVM etched under the display PCB (deck x 276-420), 10.0 mm letters
 * Gussets: 4 under the deck against the battens' inner faces (24 x 90 mm), front and rear.

@@ -440,10 +440,12 @@ def build_kvm(g, boards, problems, notes):
             if what == 'power board':
                 problems.append('KVM deck: a %s hole at x %.1f is over a batten' % (what, hx))
             else:
-                over.append('%s (x %.1f, y %.1f)' % (what, hx, hy))
+                over.append(('right' if hx > W / 2 else 'left', '%s (x %.1f, y %.1f)' % (what, hx, hy)))
     if over:
-        notes.append('KVM deck: %d bay holes are over the %s batten: %s. Drill them on through the batten and '
-                     'use M3 x 40 screws from below' % (len(over), 'right' if hx > W / 2 else 'left', '; '.join(over)))
+        sides = sorted(set(sd for sd, _ in over))
+        notes.append('KVM deck: %d bay holes are over the %s batten%s: %s. Drill them on through the batten and '
+                     'use M3 x 40 screws from below' % (len(over), ' and '.join(sides), 's' if len(sides) > 1 else '',
+                                                        '; '.join(t for _, t in over)))
     # cable routes (soft): DUT leads to the rear column, Mimas Mini-Fit leads, GS105 jack
     col_x0, col_x1 = W - (u_col + npw.width), W - u_col
     bay_x0 = min(bx.x0 for bx in boxes if bx.kind in ('mimas', 'shield', 'kbd'))
