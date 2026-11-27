@@ -214,3 +214,6 @@ the first IDCODE read through a DUT port (build 618e7266): the DUT1 path
 * Later the same day, with the K325T fitted: `dutctl jtag-idcode
   203.28.176.87` read **IDCODE 0x43651093** (XC7K325T, rev 4), relay
   channel 5 on, then off again.
+* K325T mated on its daughter board (after a no-3.3 V episode that cleared
+  by itself, probably a solder whisker bridging header pins): relay 5 on,
+  `jtag-idcode 203.28.176.87` -> 0x43651093, relay 5 off. Working.
