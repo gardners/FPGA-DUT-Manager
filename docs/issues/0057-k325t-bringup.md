@@ -80,3 +80,10 @@ on the 3-digit 7-segment LED display.
   adapters): JP1-6 (B26) = K325T TX -> Mimas P13 row 4 B; JP1-4 (C26,
   4.7k pull-up) = K325T RX <- row 5 B. Bring-up design rebuilt with the new
   pins (DRC clean). JP1 pinout in docs/hardware/qmtech-k325t.md.
+* **UART works both ways** over JP1 (owner wired it): `dutctl uart
+  203.28.176.87` shows "K325T 20.0 up 0x0014" lines once a second at
+  2 Mbaud, and bytes sent are echoed. Note: `dutctl uart` exits at once when
+  its stdin is at EOF (e.g. run from a script with stdin closed); hold stdin
+  open (`sleep N | dutctl uart IP`), as hwtest does. Worth an option.
+* The owner plugged a 6-pin PMOD microSD adapter into J11 pins 1-6
+  (orientation guessed; J11 pin 5 = GND, 6 = 3.3 V).
