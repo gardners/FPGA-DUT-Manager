@@ -1,6 +1,6 @@
 # 0064: Permanent jumbo frames on bob's eno2
 
-Status: script ready, owner to run (owner, 2026-11-28). Related: 0063
+Status: done for eno2 (owner ran the script, 2026-11-28); eno2.1650 still 1500, see below (refreshed 2026-11-28; was: script ready, owner to run (owner, 2026-11-28). Related: 0063)
 (hwtest raster FAIL), ADR 0005 sections 8 and 10.
 
 ## Owner (2026-11-28)

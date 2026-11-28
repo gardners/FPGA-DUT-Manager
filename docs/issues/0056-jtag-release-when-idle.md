@@ -1,6 +1,6 @@
 # 0056: Release (tri-state) DUT JTAG outputs when idle
 
-Status: implemented on `feature/no-backfeed` (2026-11-27), hardware check pending. Owner question 2026-11-27. Related: 0054, 0055,
+Status: done, on hardware (build cf8acc83: no JTAG back-feed on the K325T; UART follow-up 0067) (refreshed 2026-11-28; was: implemented on `feature/no-backfeed` (2026-11-27), hardware check pending. Owner question 2026-11-27. Related: 0054, 0055,)
 docs/cabling/dut-cable.md section 4.
 
 ## Question (owner, 2026-11-27)

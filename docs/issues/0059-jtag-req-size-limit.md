@@ -1,6 +1,6 @@
 # 0059: JTAG_REQ above 7904 bits is never answered; MTU limits
 
-Status: open (found 2026-11-27 during 0057). Related: ADR 0005, 0057.
+Status: done, on hardware (JTAG_REQ max 7904 bits, dutctl splits per MTU, XVC getinfo 16384) (refreshed 2026-11-28; was: open (found 2026-11-27 during 0057). Related: ADR 0005, 0057.)
 
 ## Problem
 

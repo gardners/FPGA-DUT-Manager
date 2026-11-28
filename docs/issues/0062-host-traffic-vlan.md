@@ -1,6 +1,6 @@
 # 0062: Supervisor host traffic on VLAN 1650
 
-Status: open (owner decision relayed by the hardweb session, 2026-11-27).
+Status: done (build b413b496; the bench keeps key 0x0046 = 0 since 0063) (refreshed 2026-11-28; was: open (owner decision relayed by the hardweb session, 2026-11-27).)
 Related: 0060 (relay already on VLAN 1650), hardweb 0169/0174.
 
 ## Request

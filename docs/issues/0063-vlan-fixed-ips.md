@@ -1,6 +1,6 @@
 # 0063: Fixed private IPs on the inter-board VLAN (1650), no DHCP
 
-Status: open (owner, 2026-11-28). Related: 0060 (relay on VLAN 1650), 0062
+Status: done, on hardware (build 1fa1b802) (refreshed 2026-11-28; was: open (owner, 2026-11-28). Related: 0060 (relay on VLAN 1650), 0062)
 (host VLAN; superseded for the bench, see below).
 
 ## Owner (2026-11-28)

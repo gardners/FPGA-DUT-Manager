@@ -1,6 +1,6 @@
 # 0060: DUT video over the network for boards without HDMI capture (K325T)
 
-Status: waiting for the owner's module (owner request 2026-11-27). Related:
+Status: done, on hardware (build 77ee3d26: relayed full view from the K325T at ~60 pictures/s) (refreshed 2026-11-28; was: waiting for the owner's module (owner request 2026-11-27). Related:)
 0057 (K325T), the thumbnail/mosaic work (0034, 0038), hardweb issue 0169
 (~/Projects/hardweb/issues/0169-inter-board-vlan-and-video-stream.md,
 protocol docs/console_video_stream_protocol.md in that repo, "HWVS v1").

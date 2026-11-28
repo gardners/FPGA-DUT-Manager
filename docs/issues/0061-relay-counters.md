@@ -1,6 +1,6 @@
 # 0061: thumbnail relay / full-view counters in the heartbeat
 
-Status: implemented and simulated (branch feature/relay-counters); not yet
+Status: done, on hardware (build 77ee3d26: relay counters in the heartbeat) (refreshed 2026-11-28; was: implemented and simulated (branch feature/relay-counters); not yet)
 loaded on hardware. Related: 0060 (relayed full-screen view of the K325T),
 0038 (relay), ADR 0005 sections 3d and 10.
 
