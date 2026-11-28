@@ -149,3 +149,7 @@ backpack's differs (re-route, DRC 0). Agent, branch `feature/rack-case-4`.
   bezel opening, which did not change.
 * `make -B pcb-routing`: 632 tracks, 70 vias; **ERC 0, DRC 0 violations,
   0 unconnected**.
+
+## 2026-11-28 owner: routed front panel approved ("Sounds reasonable")
+
+Next: JLC fab outputs (gerbers, drill, BOM, CPL) from the routed board.

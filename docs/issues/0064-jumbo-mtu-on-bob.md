@@ -29,3 +29,11 @@ on the wire for 720 px RGB888) and relayed thumbnails to the host (up to
 
 Parser dry-run tested against a synthetic netplan tree (non-root cannot
 read /etc/netplan). Not run on bob yet (needs sudo).
+
+## 2026-11-28 owner ran it
+
+eno2 now MTU 9000 (/etc/netplan/60-jumbo-mtu.yaml, 96 bytes). eno2.1650
+and eno2.3101 are still 1500: the VLAN override did not apply (the script
+did not find the NM-made VLAN definitions, or their ID differs). Host
+raster traffic is untagged on eno2, so the raster capture is unaffected;
+eno2.1650 at 1500 only limits sniffing relay frames there.

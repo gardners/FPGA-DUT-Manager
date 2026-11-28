@@ -1,6 +1,6 @@
 # 0067: Drive UART TX low when the DUT is known to be powered off
 
-Status: done, on hardware 6f2fdc94 (owner, 2026-11-28); meter check pending. Supersedes the open-drain (+kick)
+Status: done (owner-confirmed on the K325T, 2026-11-28). Supersedes the open-drain (+kick)
 UART TX proposal (handover 2026-11-28). Related: 0056, 0057.
 
 ## Owner (2026-11-28)
@@ -46,3 +46,7 @@ capture, bob's MTU, 0064). hdmi-owner 1 re-applied. Promoted to
 known-good, `main` = 6f2fdc9. The low level itself has no readback here:
 owner meter check (DUT0 UART pin 0 V with out-policy 2, MEGA65 off) is
 in the rendezvous TODO. Status: done pending that check.
+
+2026-11-28 owner: meter check not needed: with the K325T switched off via
+the relay (outputs forced off, TX low) all its LEDs were off, i.e. no
+back-powering. Done.

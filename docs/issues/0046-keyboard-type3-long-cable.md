@@ -290,3 +290,10 @@ JTAG_PORT=ENABLE (the default), and pin 3 doesn't gate JTAG, whether or not
 it goes to JTAGENB. Flashing over remote JTAG doesn't depend on pin 3. The
 type-3 firmware keeps the same setting (strategy unchanged). hwtest 63/0
 on this build; c73c7b23 known-good.
+
+## 2026-11-28 owner: push it, as `long-keyboard-cable-protocol`
+
+"Push the keyboard code, but call the branch long-keyboard-cable-protocol,
+since that's much truer." Local branch `type3` renamed and pushed to
+github.com/MEGA65/mega65-keyboard-cpld as **`long-keyboard-cable-protocol`**
+(head 88d6066; not yet built: Diamond licence pending).

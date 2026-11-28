@@ -1,6 +1,6 @@
 # 0066: Bench settings that survive a supervisor reload
 
-Status: proposal, waiting on owner (owner asked "which settings? be
+Status: approved (owner, 2026-11-28), to implement.
 specific", 2026-11-28).
 
 ## Settings the bench depends on today
@@ -30,3 +30,9 @@ default.
 unit `dutctl keeper` listens to heartbeats and re-applies when a board's
 boot id changes (heartbeat `boot` field), so nobody has to remember. No
 HDL change; build defaults stay the vendor-neutral ones.
+
+## 2026-11-28 owner: approved ("bench-settings persistence sounds good")
+
+Recommended option taken: `[board <dna>]` sections in duts.conf, `dutctl
+apply`, and a user systemd `dutctl keeper` re-applying on a heartbeat
+boot-id change. Status: approved, to implement.
