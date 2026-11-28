@@ -31,6 +31,15 @@ create_clock -period 8.000 -name rgmii_rxc [get_ports rgmii_rxc]
 set_property -dict {PACKAGE_PIN Y22 IOSTANDARD LVCMOS33} [get_ports usb_uart_rx]
 set_property -dict {PACKAGE_PIN Y21 IOSTANDARD LVCMOS33} [get_ports usb_uart_tx]
 
+## Neighbour link (issue 0069, ADR 0007 point 2; shield pin plan NB_UART_TX /
+## NB_UART_RX): crossover UART to the unit's other supervisor on P12 row 23
+## (A = G17 GPIO_14_P TX out, B = G18 GPIO_14_N RX in; GND on row 24). Same
+## pins in the normal and the shield build. Board-to-board only (both boards
+## are powered together), so TX is always driven (idle high); the RX PULLUP
+## makes an open link read idle.
+set_property -dict {PACKAGE_PIN G17 IOSTANDARD LVCMOS33 DRIVE 8 SLEW SLOW} [get_ports nb_uart_tx]
+set_property -dict {PACKAGE_PIN G18 IOSTANDARD LVCMOS33 PULLUP TRUE} [get_ports nb_uart_rx]
+
 ## LEDs, DIP switch, push buttons
 set_property -dict {PACKAGE_PIN K17 IOSTANDARD LVCMOS33} [get_ports {led[0]}]
 set_property -dict {PACKAGE_PIN J17 IOSTANDARD LVCMOS33} [get_ports {led[1]}]

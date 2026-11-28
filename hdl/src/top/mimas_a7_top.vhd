@@ -70,6 +70,10 @@ entity mimas_a7_top is
     -- USB UART (FTDI channel A), unused in phase 1
     usb_uart_tx  : out   std_logic;
     usb_uart_rx  : in    std_logic;
+    -- neighbour link to the unit's other supervisor (issue 0069, ADR 0007):
+    -- P12 row 23, G17 TX (idles high), G18 RX (PULLUP: open link = idle)
+    nb_uart_tx   : out   std_logic;
+    nb_uart_rx   : in    std_logic;
     -- DUT0 (P12) / DUT1 (P13): J block
     dut0_tck, dut0_tms, dut0_tdi, dut0_uart_to : out std_logic;
     dut0_tdo, dut0_uart_from, dut0_vio_sense   : in  std_logic;
@@ -279,7 +283,8 @@ begin
       thumb_quarter => core_th_q,
       vid_machine => vid_machine, vid_machine_ok => vid_machine_ok,
       full_on => fv_core_on, full_buf => fv_buf, full_width => fv_w, full_height => fv_h,
-      full_shown => fv_shown, full_frame => fv_frame);
+      full_shown => fv_shown, full_frame => fv_frame,
+      nb_txd => nb_uart_tx, nb_rxd => nb_uart_rx, nb_status => open);
 
   ---------------------------------------------------------------- DDR3
   -- Nothing waits on DDR3: until calibration the subsystem holds ready='0'
