@@ -1,6 +1,6 @@
 # 0065: Owner TODO and status move to the ai-agent-rendezvous repo
 
-Status: in progress (owner, 2026-11-28).
+Status: done (owner, 2026-11-28).
 
 ## Owner (2026-11-28)
 
@@ -26,3 +26,16 @@ that I can share it with my other minions, too."
 * skills/agent-rendezvous/: SKILL.md + rv.py (section replace, sync with
   pull --rebase, conflict-free re-apply of the agent's own sections).
 * docs/OWNER-TODO.md here becomes a pointer.
+
+## 2026-11-28 lead: done
+
+Owner (mid-task): check it out inside the work dir, so agents on one
+machine don't share a checkout and edits need no permission prompts. So:
+`./rendezvous` (git-ignored), skill linked as
+`.claude/skills/agent-rendezvous` (git-ignored). Pushed cc5ca96: README,
+TODO.md, STATUS.md, agents/fpga-dut-manager/{TODO,STATUS}.md (the 25 old
+rows with git-blame times + 4 new), skills/agent-rendezvous/{SKILL.md,rv.py}.
+rv.py tested with three agents in two clones against a local bare repo:
+rebase conflicts merged per section, unpublished drafts of a second agent
+in the same checkout stay uncommitted and intact. docs/OWNER-TODO.md is a
+pointer now.
