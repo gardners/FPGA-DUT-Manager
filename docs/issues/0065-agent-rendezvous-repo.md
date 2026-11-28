@@ -60,3 +60,9 @@ should be explicitly written with the recommended and alternative
 decisions, and what to do/say/tell to effect each decision". Rule added to
 SKILL.md; all our open questions rewritten (Rec/Alt + exact reply),
 published 1fb0a76.
+
+2026-11-28 owner: questions and the Rec/Alt options on separate lines, key
++/− consequences as bullets under each. TODO items are now
+`### P · Since · title · links` blocks (tables can't hold it); rv sorts
+and lints them (heading, link, Rec first, reply per option, consequence
+bullets). Our 12 items rewritten; published 34ee45e/46fcc9f/964d4e8.
