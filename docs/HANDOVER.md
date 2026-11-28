@@ -108,8 +108,9 @@ docs/handover-2026-11-25.md. The memory index (~/.claude/projects/...
 ## Gotchas
 
 * **Mimas boards on bob's USB** (2026-11-28): NL4IT7JQ = our supervisor
-  B0. A second Mimas (ours, to become B1) and a third (the hardweb
-  session's, a K325T link peripheral) are coming: never load a new serial
+  B0. **NL44M36K = the hardweb session's link Mimas** (relay 2 is theirs;
+  `[link-mimas]` in duts.conf is theirs, keep it). Our second Mimas (B1)
+  is still to come: never load a new serial
   until the owner has said which physical board it is; tell the hardweb
   session our serials and ask for theirs.
 
