@@ -226,6 +226,8 @@ def decode_heartbeat(b):
         f.update(zip(NET_FIELDS, struct.unpack(">HH", b[188:192])))
     if len(b) >= 200:  # VLAN identity (ADR 0005 section 3e), bytes 200..207 of the datagram
         f.update(zip(VIDENT_FIELDS, struct.unpack(">4sHH", b[192:200])))
+    if len(b) >= 228:  # neighbour block (ADR 0005 section 3f), bytes 208..235 of the datagram
+        f.update(zip(NB_FIELDS, struct.unpack(NB_HB_FMT, b[200:228])))
     return f
 
 
@@ -254,6 +256,65 @@ NET_FIELDS = ("host_vlan", "host_vlan_drops")
 # VLAN identity (bytes 200..207, issue 0063): vlan_ip (4 bytes, 0.0.0.0 = off),
 # vlan = key 0x0043, vlan_hits = ARP/ICMP requests answered for vlan_ip (wrapping)
 VIDENT_FIELDS = ("vlan_ip", "vlan", "vlan_hits")
+# neighbour block (bytes 208..235, issue 0069; ADR 0007 point 2): link state,
+# the peer's last HELLO and the link counters (u16, wrapping)
+NB_FIELDS = ("nb_flags", "nb_role", "nb_peer_dip", "nb_peer_role", "nb_peer_dna", "nb_peer_build",
+             "nb_rx_frames", "nb_crc_errs", "nb_uart_errs", "nb_fmt_errs", "nb_tx_frames", "nb_peer_seq")
+NB_HB_FMT = ">BBBBQI6H"
+# nb_flags bits (heartbeat byte 208)
+NBF_BUILD, NBF_PRESENT, NBF_CLASH, NBF_LOOPBACK, NBF_HEARD_US, NBF_VALID, NBF_MISMATCH = \
+    0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40
+NB_ROLES = {0: "standalone", 1: "primary", 2: "secondary"}
+NB_STANDALONE, NB_PRIMARY, NB_SECONDARY = 0, 1, 2
+
+
+# ------------------------------------------- neighbour link (ADR 0007, issue 0069)
+# UART 8N1 at 1 Mbaud between the two supervisors of a unit. Frame:
+#   A5 5A type len(u16 BE) payload crc(u16 BE)
+# CRC-16/CCITT-FALSE (poly 0x1021, init 0xFFFF, no reflection, no final xor)
+# over type, len and payload. Types: 0x01 HELLO; others reserved (phase 2).
+NB_SYNC = b"\xa5\x5a"
+NB_T_HELLO = 0x01
+NB_LEN_MAX = 1600
+NB_HELLO_MAGIC = 0x4E42   # "NB"
+NB_HELLO_VERSION = 1
+NB_HELLO_FMT = ">HBBBBQIII2x"   # 28 bytes
+# HELLO flags (payload byte 5): b0 the sender hears a peer, b1 B clash, b2 loopback
+NBH_PRESENT, NBH_CLASH, NBH_LOOPBACK = 0x01, 0x02, 0x04
+
+
+def crc16_ccitt(data, crc=0xFFFF):
+    for byte in data:
+        crc ^= byte << 8
+        for _ in range(8):
+            crc = ((crc << 1) ^ 0x1021) & 0xFFFF if crc & 0x8000 else (crc << 1) & 0xFFFF
+    return crc
+
+
+def nb_frame(ftype, payload):
+    body = bytes([ftype]) + struct.pack(">H", len(payload)) + payload
+    return NB_SYNC + body + struct.pack(">H", crc16_ccitt(body))
+
+
+def nb_hello(dip, role, flags, dna, build_id, boot_id, seq):
+    return nb_frame(NB_T_HELLO, struct.pack(NB_HELLO_FMT, NB_HELLO_MAGIC, NB_HELLO_VERSION, dip, role,
+                                            flags, dna, build_id, boot_id, seq))
+
+
+def nb_decode(frame):
+    """One complete neighbour-link frame -> dict (type, len, crc_ok, payload;
+    HELLO fields for type 1). Raises ValueError on bad sync/length."""
+    if frame[:2] != NB_SYNC or len(frame) < 7:
+        raise ValueError("no sync")
+    ftype, n = frame[2], struct.unpack(">H", frame[3:5])[0]
+    if len(frame) != 7 + n:
+        raise ValueError("length %d != %d" % (len(frame), 7 + n))
+    d = {"type": ftype, "len": n, "payload": frame[5:5 + n],
+         "crc_ok": crc16_ccitt(frame[2:5 + n]) == struct.unpack(">H", frame[5 + n:])[0]}
+    if ftype == NB_T_HELLO and n >= 26:
+        (d["magic"], d["version"], d["dip"], d["role"], d["flags"], d["dna"], d["build_id"],
+         d["boot_id"], d["seq"]) = struct.unpack(">HBBBBQIII", frame[5:31])
+    return d
 
 
 MEM_FIELDS = ("mem_flags", "mem_errors", "mem_dq_fail", "mem_test_kib", "mem_first_err")
@@ -396,6 +457,9 @@ def encode_heartbeat(dut, f):
     if "vlan_ip" in f:  # VLAN identity (needs the host VLAN fields) -> 200-byte payload
         assert len(b) == 192
         b += struct.pack(">4sHH", *(f[k] for k in VIDENT_FIELDS))
+    if "nb_flags" in f:  # neighbour block (needs the VLAN identity) -> 228-byte payload
+        assert len(b) == 200
+        b += struct.pack(NB_HB_FMT, *(f[k] for k in NB_FIELDS))
     return custom(T_HEARTBEAT, dut, b)
 
 
@@ -684,6 +748,27 @@ def selftest():
         errors.append("VLAN identity layout %s" % p[200:].hex(" "))
     elif any(decode_heartbeat(p[8:])[k] != v for k, v in vi.items()):
         errors.append("VLAN identity round trip")
+    # neighbour block (issue 0069): offsets 208..235
+    nbf = dict(nb_flags=NBF_BUILD | NBF_PRESENT, nb_role=NB_SECONDARY, nb_peer_dip=0x21, nb_peer_role=1,
+               nb_peer_dna=0x0123456789ABCDEF, nb_peer_build=0xC0DE0069, nb_rx_frames=0x0102,
+               nb_crc_errs=3, nb_uart_errs=4, nb_fmt_errs=5, nb_tx_frames=0xFFFF, nb_peer_seq=0x0A0B)
+    p = encode_heartbeat(0, dict(hb, **rl, **rx, **nb, **vi, **nbf))
+    if len(p) != 236 or p[208:212] != bytes([3, 2, 0x21, 1]) or p[212:220] != bytes.fromhex("0123456789abcdef") \
+            or p[220:224] != bytes.fromhex("c0de0069") or p[224:236] != bytes.fromhex("0102 0003 0004 0005 ffff 0a0b"):
+        errors.append("neighbour block layout %s" % p[208:].hex(" "))
+    elif any(decode_heartbeat(p[8:])[k] != v for k, v in nbf.items()):
+        errors.append("neighbour block round trip")
+    # neighbour link frames (ADR 0007): CRC check value, HELLO layout
+    if crc16_ccitt(b"123456789") != 0x29B1:
+        errors.append("crc16_ccitt check value %04x" % crc16_ccitt(b"123456789"))
+    hf = nb_hello(0x21, NB_PRIMARY, NBH_PRESENT, 0x0123456789ABCDEF, 0xC0DE0069, 0x11223344, 5)
+    if len(hf) != 35 or hf[:5] != bytes.fromhex("a55a01001c") or hf[5:11] != bytes.fromhex("4e4201210101"):
+        errors.append("HELLO layout %s" % hf.hex(" "))
+    hd = nb_decode(hf)
+    if not hd["crc_ok"] or (hd["dna"], hd["seq"], hd["boot_id"]) != (0x0123456789ABCDEF, 5, 0x11223344):
+        errors.append("HELLO round trip %r" % hd)
+    if nb_decode(hf[:-1] + bytes([hf[-1] ^ 1]))["crc_ok"]:
+        errors.append("HELLO bad CRC accepted")
     if vlan_ident(ip("10.231.50.0"), 0) != ip("10.231.50.16") or vlan_ident(ip("10.231.50.0"), 15) != \
             ip("10.231.50.31") or vlan_ident(ip("10.231.50.0"), 0, vid=0) != bytes(4):
         errors.append("vlan_ident")

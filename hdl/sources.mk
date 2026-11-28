@@ -19,6 +19,7 @@ SYNTH_SOURCES := \
 	$(HDL_SRC)/video/raster_capture.vhd \
 	$(HDL_SRC)/proto/proto_pkg.vhd \
 	$(HDL_SRC)/net/net_pkg.vhd \
+	$(HDL_SRC)/net/neighbour_link.vhd \
 	$(HDL_SRC)/uart/uart_tx.vhd \
 	$(HDL_SRC)/uart/uart_rx.vhd \
 	$(HDL_SRC)/uart/uart_bridge.vhd \

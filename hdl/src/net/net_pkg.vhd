@@ -129,6 +129,38 @@ package net_pkg is
     fifo_aw    : unsigned(7 downto 0);    -- log2 of the tap FIFO's entries
   end record;
 
+  -- neighbour link between two supervisors (issue 0069, ADR 0007 point 2;
+  -- heartbeat neighbour block, ADR 0005 section 3f). Peer fields hold the
+  -- last valid HELLO (valid = one was ever received); counters wrap.
+  type nb_status_t is record
+    present    : std_logic;                      -- valid HELLO from another board in the last LOST_MS
+    clash      : std_logic;                      -- present and the peer has the same B (DIP[7:4])
+    loopback   : std_logic;                      -- a HELLO with our own DNA in the last LOST_MS
+    heard_us   : std_logic;                      -- present and the peer's HELLO says it hears us
+    mismatch   : std_logic;                      -- present and the peer's role claim is not the complement of ours
+    valid      : std_logic;                      -- peer fields below hold a received HELLO
+    role       : std_logic_vector(1 downto 0);   -- NB_ROLE_*
+    primary    : std_logic;                      -- role = primary (hook for issue 0044)
+    peer_dip   : std_logic_vector(7 downto 0);   -- peer's DIP switches (B = bits 7..4)
+    peer_role  : std_logic_vector(7 downto 0);   -- role the peer claims
+    peer_dna   : std_logic_vector(63 downto 0);
+    peer_build : std_logic_vector(31 downto 0);
+    peer_seq   : unsigned(31 downto 0);
+    rx_frames  : unsigned(15 downto 0);          -- frames with a good CRC (any type)
+    crc_errs   : unsigned(15 downto 0);          -- complete frames with a bad CRC
+    uart_errs  : unsigned(15 downto 0);          -- UART stop-bit (framing) errors
+    fmt_errs   : unsigned(15 downto 0);          -- bad length / HELLO header, byte timeout mid-frame
+    tx_frames  : unsigned(15 downto 0);          -- HELLOs sent
+  end record;
+  constant NB_ROLE_STANDALONE : std_logic_vector(1 downto 0) := "00";
+  constant NB_ROLE_PRIMARY    : std_logic_vector(1 downto 0) := "01";
+  constant NB_ROLE_SECONDARY  : std_logic_vector(1 downto 0) := "10";
+  constant NB_STATUS_NONE : nb_status_t := (
+    present => '0', clash => '0', loopback => '0', heard_us => '0', mismatch => '0', valid => '0',
+    role => NB_ROLE_STANDALONE, primary => '0', peer_dip => x"00", peer_role => x"00",
+    peer_dna => (others => '0'), peer_build => (others => '0'), peer_seq => (others => '0'),
+    others => (others => '0'));
+
   -- per-DUT live status for heartbeats
   type dut_status_t is record
     target_flags  : std_logic_vector(7 downto 0);
@@ -183,6 +215,8 @@ package net_pkg is
     -- (0 = off) and the ARP/ICMP requests answered for it
     vlan_ip     : ip_t;
     vlan_hits   : unsigned(15 downto 0);
+    -- neighbour link (issue 0069), heartbeat neighbour block
+    nb          : nb_status_t;
   end record;
 
   -- UART snapshot counters (latched by uart_bridge on snap_ack)
