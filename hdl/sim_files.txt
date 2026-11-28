@@ -79,3 +79,7 @@ hdl/src/video/hdmi_rx_period.vhd
 hdl/src/platform/xc7/dvi_tx_xc7.vhd
 hdl/sim/dna_port_model.vhd
 hdl/src/platform/xc7/dna_xc7.vhd
+# test_dut bitstream for a second Mimas (issue 0068)
+hdl/src/testdut/jtag_tap_soft.vhd
+hdl/src/testdut/testdut_uart.vhd
+hdl/src/testdut/test_dut_top.vhd

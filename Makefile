@@ -11,6 +11,7 @@
 #   make flash       # write bitstream to the Mimas SPI flash
 #   make dutctl      # build the Linux control CLI
 #   make vivado      # same as make bitstream FLOW=vivado (needs Vivado)
+#   make bitstream-test-dut  # test_dut for a 2nd Mimas on DUT0 (issue 0068)
 #   make pcb-routing # autoroute generated PCBs whose generator changed (Freerouting)
 #   make pcb-fab     # front panel: DRC/ERC, Gerbers+drill zip, JLC BOM/CPL (out/fab)
 #
@@ -58,13 +59,13 @@ endif
 
 .DELETE_ON_ERROR:
 FORCE:
-.PHONY: vivado all help deps toolchain test test-hdl test-sw bitstream jtagload jtagload-good flash relay-fw relay-flash \
+.PHONY: vivado bitstream-test-dut all help deps toolchain test test-hdl test-sw bitstream jtagload jtagload-good flash relay-fw relay-flash \
         detect dutctl list-boards check-board clean distclean pcb-routing pcb-fab
 
 all: test bitstream dutctl
 
 help:
-	@sed -n '2,15p' $(REPO)/Makefile
+	@sed -n '2,16p' $(REPO)/Makefile
 
 # ---------------------------------------------------------------- toolchain
 deps:
@@ -163,6 +164,18 @@ vivado:
 	@rm -f $(BUILD)/vivado/timing_verdict.txt $(BUILD)/vivado/supervisor.bit
 	cd $(BUILD)/vivado && $(REPO)/scripts/vivado_wrapper -mode batch -notrace \
 	    -log vivado.log -journal vivado.jou -source $(REPO)/vivado/build.tcl
+
+# test_dut bitstream for a second Mimas on the supervisor's DUT0 port
+# (issue 0068): build/vivado-test-dut/test_dut.bit (VIVADO_OUT overrides).
+# Independent of the supervisor build; load with
+#   make jtagload BIT=build/vivado-test-dut/test_dut.bit FTDI_SERIAL=<board 2>
+TEST_DUT_OUT := $(or $(VIVADO_OUT),$(BUILD)/vivado-test-dut)
+bitstream-test-dut:
+	@mkdir -p $(TEST_DUT_OUT)
+	@rm -f $(TEST_DUT_OUT)/timing_verdict.txt $(TEST_DUT_OUT)/test_dut.bit
+	cd $(TEST_DUT_OUT) && VIVADO_OUT=$(TEST_DUT_OUT) $(REPO)/scripts/vivado_wrapper -mode batch -notrace \
+	    -log vivado.log -journal vivado.jou -source $(REPO)/vivado/build_test_dut.tcl
+	@cat $(TEST_DUT_OUT)/timing_verdict.txt
 
 # ---------------------------------------------------------------- board access
 list-boards:
