@@ -107,6 +107,12 @@ docs/handover-2026-11-25.md. The memory index (~/.claude/projects/...
 
 ## Gotchas
 
+* **Mimas boards on bob's USB** (2026-11-28): NL4IT7JQ = our supervisor
+  B0. A second Mimas (ours, to become B1) and a third (the hardweb
+  session's, a K325T link peripheral) are coming: never load a new serial
+  until the owner has said which physical board it is; tell the hardweb
+  session our serials and ask for theirs.
+
 * **Supervisor fell back to its SPI flash image** (2026-11-28 ~15:45-15:58,
   around the owner's cable moves): heartbeats showed build `d29ea748` (an
   old 2026-11-25 image) with a new boot id; DUT1 UART dead, hdmi-owner key
