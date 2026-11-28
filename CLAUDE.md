@@ -15,6 +15,13 @@ pre-V4 Numato Mimas A7 boards (XC7A50T-1FGG484). Start with
   (`git push origin <commit>:main`), copy the `.bit` into `bits/`, point
   `bits/known-good.bit` at it and add a row to `bits/README.md`. Keep doing
   this as work progresses; never put unverified commits on `main`.
+* **Known-good policy** (owner, 2026-11-28): always keep the most recent
+  good `.bit` (`bits/known-good.bit` and its target are never deleted or
+  overwritten; older good ones may stay). `main`'s tip must always be the
+  exact commit that bitstream was built from, so `git checkout main && make
+  bitstream` rebuilds it. All unproven work (including `feature/foundation`,
+  the integration branch) lives on branches until a build of it is proven
+  on hardware.
 * **Commit often**, with descriptive messages (what and why), ending with
   `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
 * **Decisions** go in `docs/adrs/NNNN-short-title.md` (+ index in

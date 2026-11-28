@@ -1,0 +1,28 @@
+# 0065: Owner TODO and status move to the ai-agent-rendezvous repo
+
+Status: in progress (owner, 2026-11-28).
+
+## Owner (2026-11-28)
+
+"The owner TODO stuff we're now going to move into a separate private
+repo: git@github.com:gardners/ai-agent-rendezvous.git. Don't make it a
+sub-module, but have a local checkout so that you can put stuff in there.
+You're allowed to make subdirectories in there for your bodies of work, and
+your separate TODO tracking for me, and then do pull rebases to be able to
+merge and repush that with the top-level TODO with a section for you, among
+the sections for other agents. The requests should be priority sorted and
+date/time stamped. You should also maintain a section in a STATUS.md in the
+top level in the same way where you keep track of where you're up to, and
+you can have a longer version in your private directory. So make a skill
+from that, and have the skill in a skills/ directory of this new repo, so
+that I can share it with my other minions, too."
+
+## Plan
+
+* Checkout at ~/Projects/ai-agent-rendezvous (not a submodule).
+* Top level TODO.md / STATUS.md: one marked section per agent; this
+  project's agent is `fpga-dut-manager`. Detail in
+  agents/fpga-dut-manager/{TODO,STATUS}.md.
+* skills/agent-rendezvous/: SKILL.md + rv.py (section replace, sync with
+  pull --rebase, conflict-free re-apply of the agent's own sections).
+* docs/OWNER-TODO.md here becomes a pointer.
