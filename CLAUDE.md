@@ -24,6 +24,15 @@ pre-V4 Numato Mimas A7 boards (XC7A50T-1FGG484). Start with
   on hardware.
 * **Commit often**, with descriptive messages (what and why), ending with
   `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
+* **Owner TODO / status** (owner, 2026-11-28, issue 0065): not in this
+  repo any more but in the private rendezvous repo, our checkout at
+  `./rendezvous` (git-ignored, not a submodule; clone
+  `git@github.com:gardners/ai-agent-rendezvous.git rendezvous` if
+  missing). Use the `agent-rendezvous` skill (symlinked as
+  `.claude/skills/agent-rendezvous`); our agent name is
+  **`fpga-dut-manager`**. Requests priority-sorted (P0-P3) and
+  timestamped; publish as soon as a request is added or resolved, and the
+  STATUS at milestones / end of session.
 * **Decisions** go in `docs/adrs/NNNN-short-title.md` (+ index in
   `0000-index.md`). **Open questions / work items** go in
   `docs/issues/NNNN-short-description.md`; append dated progress notes rather

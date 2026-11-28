@@ -1,6 +1,8 @@
 # Handover — 2026-11-28 (lead session → next lead session)
 
-Read CLAUDE.md first, then this, then docs/OWNER-TODO.md. Older handover:
+Read CLAUDE.md first, then this, then the owner TODO/STATUS in
+`rendezvous/` (agent-rendezvous skill, section `fpga-dut-manager`; run
+`python3 rendezvous/skills/agent-rendezvous/rv.py sync` first). Older handover:
 docs/handover-2026-11-25.md. The memory index (~/.claude/projects/...
 /memory/MEMORY.md) holds the bench-network and DUT-power rules.
 
@@ -67,7 +69,15 @@ docs/handover-2026-11-25.md. The memory index (~/.claude/projects/...
 * The hardweb session is chasing K325T gigabit link drops under TX load
   (not our relay; no 3V3 collapse seen by our 20 ms vio log; see 0057).
 
-## Waiting on the owner (also docs/OWNER-TODO.md)
+## 2026-11-28 later
+
+* 0064: `scripts/setup-jumbo-mtu.sh` written (owner to run with sudo);
+  0065: owner TODO moved to rendezvous/ + agent-rendezvous skill (rv.py,
+  tested for concurrent agents); 0066: bench-settings proposal (only
+  hdmi-owner 1 matters). Known-good policy added to CLAUDE.md. Local
+  `main` branch was stale (e739313); fast-forwarded to origin/main 1fa1b80.
+
+## Waiting on the owner (canonical list: rendezvous/agents/fpga-dut-manager/TODO.md)
 
 * Open-drain(+kick) UART TX option per DUT to stop back-feeding the K325T
   through its UART RX pull-up (proposed, not approved).

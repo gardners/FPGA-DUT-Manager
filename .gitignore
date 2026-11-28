@@ -13,3 +13,5 @@ bits/*.bit
 /tools/dl/
 /tools/arduino/
 docs/datasheets/
+/rendezvous/
+/.claude/skills/agent-rendezvous
