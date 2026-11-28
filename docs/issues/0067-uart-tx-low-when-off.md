@@ -29,3 +29,11 @@ Why low rather than Z: a defined level on the DUT's RX instead of a
 floating input, and no drive high into a dead rail by construction.
 Backwards compatible: only the forced-off states change, and those
 carried no UART traffic.
+
+## 2026-11-28 lead: built
+
+Commit 6f2fdc9, build **6f2fdc94**: TIMING MET, WNS +0.137 ns, WHS +0.022
+ns. `make test` green: 38 HDL testbenches (tb_dut_out_gate checks tx_low
+in every state), 917 dutctl checks, 52 relay checks. CLAUDE.md and ADR
+0005 (key 0x0060) updated. Hardware check next (coordinated with the
+hardweb session, which uses DUT1's UART).
