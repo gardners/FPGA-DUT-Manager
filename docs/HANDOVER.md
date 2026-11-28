@@ -33,8 +33,9 @@ docs/handover-2026-11-25.md. The memory index (~/.claude/projects/...
 ## Who owns what
 
 * **The K325T (relay channel 5, DUT1 JTAG/UART) belongs to the hardweb
-  session** (peer Claude session, currently named `hardweb-c3`; was
-  `hardweb-95`; repo ~/Projects/hardweb). Don't power or load it; message
+  session** (peer Claude session, currently named "HewnWeb Development (and K325T bring-up)",
+  agent `hardweb` in the rendezvous repo; earlier `hardweb-c3`/`hardweb-95`; this
+  session is "MEGA KVM Development"; repo ~/Projects/hardweb). Don't power or load it; message
   that session (SendMessage) instead. It loads via
   `targets/qmtech-k325t/k325t.sh` (our XVC) and runs HewnWeb with a HWVS
   video source (board_n 1, VLAN 1650).
@@ -66,7 +67,7 @@ docs/handover-2026-11-25.md. The memory index (~/.claude/projects/...
   on VLAN 1650 at 10.231.50.(16+B), key 0x0047 vlan-base; verified with
   `ping -I eno2.1650 10.231.50.16`. Sources use .32+M (K325T = .33, the
   hardweb session will configure it).
-* The hardweb session is chasing K325T gigabit link drops under TX load
+* K325T gigabit link drops under TX load: **handed over to the hardweb session** (owner, 2026-11-28); not ours
   (not our relay; no 3V3 collapse seen by our 20 ms vio log; see 0057).
 
 ## 2026-11-28 later
@@ -80,7 +81,7 @@ docs/handover-2026-11-25.md. The memory index (~/.claude/projects/...
 * 0067 (owner decision instead of open-drain): UART TXD driven low when
   the DUT is known off (out-policy 2 / shield hold). Build 6f2fdc94 on
   hardware, hwtest 68/1, known-good, main = 6f2fdc9. Reloads of the
-  supervisor: message hardweb-c3 first (it pauses its UART bridge).
+  supervisor: message the hardweb session first (it pauses its UART bridge).
 
 ## Waiting on the owner (canonical list: rendezvous/agents/fpga-dut-manager/TODO.md)
 

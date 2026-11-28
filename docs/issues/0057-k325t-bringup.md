@@ -129,3 +129,10 @@ Our DUT1 power sense logged at 20 ms during a load with 23 link downs
 (01:47:48-01:50:23 ACDT): vio stayed 1, no heartbeat gaps, so no 3.3 V
 collapse below ~2 V for >= 20 ms. A shallow or short sag needs a scope.
 The hardweb session is trying slow-slew / 8 mA GMII TX next.
+
+### 2026-11-28 lead: link drops handed over to hardweb
+
+Owner: the K325T Ethernet drops are not this project's problem; the
+hardweb session owns them (sent it the findings above and the RTL8211E(G)
+datasheet pointers). This project keeps only the supervisor plumbing
+(UART/JTAG/XVC, relay power with outputs-off, VLAN relay/video).
