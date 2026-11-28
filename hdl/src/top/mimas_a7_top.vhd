@@ -116,6 +116,7 @@ architecture rtl of mimas_a7_top is
   signal rx_dv, rx_er, tx_en : std_logic;
   signal rxd, txd : std_logic_vector(7 downto 0);
   signal jtck, jtms, jtdi, jtdo, joe, utx, uoe, urx : std_logic_vector(1 downto 0);
+  signal ulow : std_logic_vector(1 downto 0);
   signal kio8, kio9, kio10, kio10_oe, vio, kbs : std_logic_vector(1 downto 0);
   signal pk8_o, pk9_o, pk8_oe, pk9_oe : std_logic;
   signal pkj_tck, pkj_tms, pkj_tdi, pkj_oe, pkj_en : std_logic;
@@ -250,7 +251,7 @@ begin
       dna => dna, dip => dip, link_flags => link_flags,
       vio_sense => vio, kb3v3_sense => kbs,
       jtck => jtck, jtms => jtms, jtdi => jtdi, jtdo => jtdo, jtag_oe => joe,
-      utx => utx, utx_oe => uoe, urx => urx,
+      utx => utx, utx_oe => uoe, utx_low => ulow, urx => urx,
       kio8 => kio8, kio9 => kio9, kio10 => kio10, kio10_oe => kio10_oe,
       pk_kio8 => pk8_o, pk_kio9 => pk9_o, pk_kio8_oe => pk8_oe, pk_kio9_oe => pk9_oe,
       pk_kio8_in => pk_kio8, pk_kio10 => pk_kio10,
@@ -532,8 +533,10 @@ begin
   dut1_tms <= jtms(1) when joe(1) = '1' else 'Z';
   dut1_tdi <= jtdi(1) when joe(1) = '1' else 'Z';
   jtdo <= dut1_tdo & dut0_tdo;
-  dut0_uart_to <= utx(0) when uoe(0) = '1' else 'Z';
-  dut1_uart_to <= utx(1) when uoe(1) = '1' else 'Z';
+  -- push-pull while outputs are on; low when the DUT is known off (out-policy
+  -- 2 or the power-off hold, issue 0067); otherwise tri-stated
+  dut0_uart_to <= utx(0) when uoe(0) = '1' else '0' when ulow(0) = '1' else 'Z';
+  dut1_uart_to <= utx(1) when uoe(1) = '1' else '0' when ulow(1) = '1' else 'Z';
   urx <= dut1_uart_from & dut0_uart_from;
   -- DUT powered sense: the J/K block pins (normal build) ...
   g_sense_pins : if SHIELD_RX = 0 generate

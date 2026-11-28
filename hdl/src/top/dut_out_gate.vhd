@@ -13,6 +13,12 @@
 --   (the DUT powered from somewhere else). Without a shield (shd_present
 --   '0') pwr_eff is ignored. The hold overrides out-policy 1.
 --
+-- tx_low (issue 0067): the DUT is known to be powered off (out-policy 2 or
+-- the power-off hold): UART TXD is driven low then instead of tri-stated,
+-- so a dead DUT's RX sees a defined low and is never fed from a high line.
+-- A merely low sense (policy 0) still tri-states (an unwired VIO row on a
+-- powered DUT must not see a permanent UART break).
+--
 -- jtag_pow feeds jtag_engine's "powered": while it is low the engine
 -- refuses requests (status unpowered), aborts a running one and tri-states.
 --
@@ -29,7 +35,8 @@ entity dut_out_gate is
     pwr_eff     : in  std_logic;                      -- CTRL bit for this DUT
     out_en      : out std_logic;                      -- UART TXD, KIO10
     jtag_pow    : out std_logic;                      -- jtag_engine powered
-    hold        : out std_logic                       -- power-off hold active
+    hold        : out std_logic;                      -- power-off hold active
+    tx_low      : out std_logic                       -- drive UART TXD low (known off)
   );
 end entity;
 
@@ -62,4 +69,5 @@ begin
               powered;
   jtag_pow <= powered and not off;
   hold     <= hold_r;
+  tx_low   <= off;
 end architecture;
