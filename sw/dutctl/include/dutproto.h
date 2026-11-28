@@ -220,7 +220,36 @@ typedef struct {
   uint8_t vlan_ip[4];       /* board's address on the inter-board VLAN, 0.0.0.0 = off */
   uint16_t vlan;            /* key 0x0043: inter-board VLAN ID (0 = untagged, identity off) */
   uint16_t vlan_hits;       /* ARP/ICMP requests answered for vlan_ip (wrapping) */
+  /* neighbour block (bytes 208..235, issue 0069, ADR 0007 point 2); valid
+     only when has_nb (payload >= 228). Board-wide; counters u16, wrapping. */
+  uint8_t has_nb;
+  uint8_t nb_flags;         /* DP_NBF_* */
+  uint8_t nb_role;          /* DP_NB_* role of this board */
+  uint8_t nb_peer_dip;      /* peer's DIP switches (its B = bits 7..4) */
+  uint8_t nb_peer_role;     /* role the peer claims (DP_NB_*) */
+  uint64_t nb_peer_dna;     /* peer's 57-bit DNA */
+  uint32_t nb_peer_build;   /* peer's build id */
+  uint16_t nb_rx_frames;    /* neighbour frames with a good CRC */
+  uint16_t nb_crc_errs;     /* complete frames with a bad CRC */
+  uint16_t nb_uart_errs;    /* UART stop-bit errors */
+  uint16_t nb_fmt_errs;     /* bad length / HELLO header, byte timeout mid-frame */
+  uint16_t nb_tx_frames;    /* HELLOs sent */
+  uint16_t nb_peer_seq;     /* low 16 bits of the peer's HELLO sequence number */
 } dp_heartbeat_t;
+
+/* heartbeat nb_flags (byte 208, ADR 0005 section 3f, issue 0069) */
+enum dp_nb_flag {
+  DP_NBF_BUILD = 0x01,    /* bitstream has the neighbour link */
+  DP_NBF_PRESENT = 0x02,  /* valid HELLO from another board in the last ~350 ms */
+  DP_NBF_CLASH = 0x04,    /* present and the peer has the same B (DIP[7:4]) */
+  DP_NBF_LOOPBACK = 0x08, /* own HELLO heard back (TX looped to RX) */
+  DP_NBF_HEARD_US = 0x10, /* present and the peer says it hears us */
+  DP_NBF_VALID = 0x20,    /* peer fields hold a received HELLO */
+  DP_NBF_MISMATCH = 0x40, /* present and the peer's role claim does not complement ours */
+};
+/* heartbeat nb_role / nb_peer_role (bytes 209/211) */
+enum dp_nb_role { DP_NB_STANDALONE = 0, DP_NB_PRIMARY = 1, DP_NB_SECONDARY = 2 };
+const char *dp_nb_role_name(unsigned role);
 
 /* heartbeat relay_flags (byte 184, ADR 0005 section 3d, issue 0061) */
 enum dp_relay_flag {

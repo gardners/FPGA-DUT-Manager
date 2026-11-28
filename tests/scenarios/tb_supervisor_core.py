@@ -518,6 +518,33 @@ def check(path):
             err("relay view / receive load %r flags %#x" % (x, r["rl_flags"]))
         print("receive load: %s" % " ".join("%s=%d" % (k[3:], v) for k, v in x.items()))
         print("relay counters: %s" % " ".join("%s=%d" % (k[3:], v) for k, v in r.items()))
+    # neighbour block (issue 0069): the testbench's other supervisor has
+    # B = 0 (DIP 0x0A), DNA 0x77, build C0DE0077 and claims primary; HELLOs
+    # every 1 ms both ways. Every heartbeat has the block; once the first
+    # HELLO is in, both endpoints report the same peer and the core (B = 1)
+    # is secondary; no link errors.
+    nbs = [h for _, h in hbs]
+    if any("nb_flags" not in h for h in nbs):
+        err("heartbeat without the neighbour block (expected 228-byte payload)")
+    else:
+        if any(not h["nb_flags"] & P.NBF_BUILD for h in nbs):
+            err("nb_flags without b0 (bitstream has the link)")
+        want_f = P.NBF_BUILD | P.NBF_PRESENT | P.NBF_HEARD_US | P.NBF_VALID
+        for d, h in hbs[-4:]:
+            n = {k: h[k] for k in P.NB_FIELDS}
+            want = dict(nb_flags=want_f, nb_role=P.NB_SECONDARY, nb_peer_dip=0x0A, nb_peer_role=P.NB_PRIMARY,
+                        nb_peer_dna=0x77, nb_peer_build=0xC0DE0077, nb_crc_errs=0, nb_uart_errs=0, nb_fmt_errs=0)
+            if any(n[k] != v for k, v in want.items()) or n["nb_rx_frames"] < 2 or n["nb_tx_frames"] < 2 or \
+                    n["nb_peer_seq"] != n["nb_rx_frames"] - 1:
+                err("DUT%d neighbour block %r (want %r)" % (d, n, want))
+                break
+        early = [h for h in nbs if not h["nb_flags"] & P.NBF_VALID]
+        if any(h["nb_role"] != P.NB_STANDALONE or h["nb_flags"] != P.NBF_BUILD or h["nb_rx_frames"]
+               for h in early):
+            err("neighbour block before the first HELLO not standalone/zero")
+        print("neighbour: %d heartbeats before the first HELLO, last role %s rx %d tx %d" %
+              (len(early), P.NB_ROLES.get(nbs[-1]["nb_role"], "?"), nbs[-1]["nb_rx_frames"],
+               nbs[-1]["nb_tx_frames"]))
     print("full view: %d tagged requests (%s), console shown %r"
           % (len(full), full[0][14:22].hex() if full else "-", shown))
 

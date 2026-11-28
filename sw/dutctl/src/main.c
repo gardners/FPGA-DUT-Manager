@@ -400,6 +400,14 @@ static void print_hb_kv(const char *ip, const dp_hdr_t *h, const dp_heartbeat_t 
   if (hb->has_vident)
     printf(" vlan_ip=%u.%u.%u.%u vlan=%u vlan_hits=%u", hb->vlan_ip[0], hb->vlan_ip[1], hb->vlan_ip[2],
            hb->vlan_ip[3], hb->vlan, hb->vlan_hits);
+  printf(" has_nb=%u", hb->has_nb);
+  if (hb->has_nb)
+    printf(" nb_flags=%u nb_role=%u nb_peer_dip=%u nb_peer_b=%u nb_peer_role=%u nb_peer_dna=%016llx "
+           "nb_peer_build=%08x nb_rx_frames=%u nb_crc_errs=%u nb_uart_errs=%u nb_fmt_errs=%u "
+           "nb_tx_frames=%u nb_peer_seq=%u",
+           hb->nb_flags, hb->nb_role, hb->nb_peer_dip, hb->nb_peer_dip >> 4, hb->nb_peer_role,
+           (unsigned long long)hb->nb_peer_dna, hb->nb_peer_build, hb->nb_rx_frames, hb->nb_crc_errs,
+           hb->nb_uart_errs, hb->nb_fmt_errs, hb->nb_tx_frames, hb->nb_peer_seq);
   printf("\n");
   fflush(stdout);
 }
@@ -510,6 +518,25 @@ static int cmd_listen(int argc, char **argv)
                hb.vlan_ip[2], hb.vlan_ip[3], hb.vlan, hb.vlan_hits);
       else
         printf("  vlan-ip off");
+    }
+    if (hb.has_nb && (hb.nb_flags & DP_NBF_BUILD)) {
+      /* neighbour link (issue 0069): role, peer, link counters */
+      printf("  nb %s", dp_nb_role_name(hb.nb_role));
+      if (hb.nb_flags & DP_NBF_PRESENT)
+        printf(" peer B%u (%s) dna %016llx build %08x%s%s%s", hb.nb_peer_dip >> 4,
+               dp_nb_role_name(hb.nb_peer_role), (unsigned long long)hb.nb_peer_dna, hb.nb_peer_build,
+               (hb.nb_flags & DP_NBF_CLASH) ? " B-CLASH" : "",
+               (hb.nb_flags & DP_NBF_HEARD_US) ? "" : " NOT-HEARD-BY-PEER",
+               (hb.nb_flags & DP_NBF_MISMATCH) ? " ROLE-MISMATCH" : "");
+      else if (hb.nb_flags & DP_NBF_VALID)
+        printf(" (peer B%u lost)", hb.nb_peer_dip >> 4);
+      else
+        printf(" (no peer)");
+      if (hb.nb_flags & DP_NBF_LOOPBACK)
+        printf(" LOOPBACK");
+      printf(" rx %u tx %u", hb.nb_rx_frames, hb.nb_tx_frames);
+      if (hb.nb_crc_errs | hb.nb_uart_errs | hb.nb_fmt_errs)
+        printf(" err crc %u uart %u fmt %u", hb.nb_crc_errs, hb.nb_uart_errs, hb.nb_fmt_errs);
     }
     if (hb.phys_type) {
       printf("  phys");

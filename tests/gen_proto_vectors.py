@@ -59,6 +59,11 @@ def vectors():
     v.append(("mgmt_host_vlan", P.mgmt_set(1, 0x0062, P.K_HOST_VLAN, b"\x06\x72")))
     hbi = dict(hbn, vlan_ip=P.vlan_ident(P.VLAN_BASE_DEFAULT, 3), vlan=1650, vlan_hits=0x0102)
     v.append(("heartbeat_vident", P.encode_heartbeat(1, hbi)))   # VLAN identity (issue 0063)
+    hbnb = dict(hbi, nb_flags=P.NBF_BUILD | P.NBF_PRESENT | P.NBF_CLASH | P.NBF_HEARD_US | P.NBF_VALID,
+                nb_role=P.NB_PRIMARY, nb_peer_dip=0x3A, nb_peer_role=P.NB_SECONDARY,
+                nb_peer_dna=0x01FEDCBA98765432, nb_peer_build=0xC0DE0069, nb_rx_frames=0x0102,
+                nb_crc_errs=3, nb_uart_errs=4, nb_fmt_errs=0xFFFE, nb_tx_frames=0x0506, nb_peer_seq=0x0101)
+    v.append(("heartbeat_nb", P.encode_heartbeat(0, hbnb)))      # neighbour block (issue 0069)
     v.append(("mgmt_vlan_base", P.mgmt_set(0, 0x0063, P.K_VLAN_BASE, P.VLAN_BASE_DEFAULT)))
     v.append(("mgmt_relay_view", P.mgmt_set(0, 0x0045, P.K_RELAY_VIEW, b"\x00")))
     v.append(("mgmt_pwr_ctl", P.mgmt_set(1, 0x0BAD, P.K_PWR_CTL, b"\xa5")))

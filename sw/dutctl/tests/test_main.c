@@ -215,6 +215,18 @@ static void test_decoders(void)
   CHECK(hb.vlan_ip[0] == 10 && hb.vlan_ip[1] == 231 && hb.vlan_ip[2] == 50 &&
         hb.vlan_ip[3] == DP_VLAN_IDENT_OFFSET + 3);
   CHECK(hb.vlan == 1650 && hb.vlan_hits == 0x0102);
+  CHECK(!hb.has_nb && hb.nb_flags == 0 && hb.nb_peer_dna == 0);
+
+  v = vec("heartbeat_nb");
+  CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && h.length == 228 && h.dut == 0);
+  CHECK(dp_decode_heartbeat(v->data + 8, h.length, &hb) == 0);
+  CHECK(hb.has_vident && hb.vlan_hits == 0x0102 && hb.has_nb);
+  CHECK(hb.nb_flags == (DP_NBF_BUILD | DP_NBF_PRESENT | DP_NBF_CLASH | DP_NBF_HEARD_US | DP_NBF_VALID));
+  CHECK(hb.nb_role == DP_NB_PRIMARY && hb.nb_peer_dip == 0x3A && hb.nb_peer_role == DP_NB_SECONDARY);
+  CHECK(hb.nb_peer_dna == 0x01FEDCBA98765432ULL && hb.nb_peer_build == 0xC0DE0069);
+  CHECK(hb.nb_rx_frames == 0x0102 && hb.nb_crc_errs == 3 && hb.nb_uart_errs == 4);
+  CHECK(hb.nb_fmt_errs == 0xFFFE && hb.nb_tx_frames == 0x0506 && hb.nb_peer_seq == 0x0101);
+  CHECK(strcmp(dp_nb_role_name(DP_NB_SECONDARY), "secondary") == 0 && strcmp(dp_nb_role_name(7), "?") == 0);
 
   v = vec("snapshot");
   CHECK(dp_parse_hdr(v->data, v->len, &h) == 0 && h.type == DP_T_UART_SNAP);

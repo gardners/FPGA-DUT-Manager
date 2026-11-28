@@ -9,12 +9,17 @@
 -- Thumbnails (issues 0035/0038): the three frame-store ports share one
 -- mem_model; the scenario forces relay streaming to the host and sends a
 -- peer's picture of machine 5, checked here through the status ports.
+-- Neighbour link (issue 0069): a second neighbour_link instance plays the
+-- other supervisor (B = 0, so the core, B = 1, is secondary); HELLOs every
+-- 1 ms (NB_HELLO_MS => 1). The heartbeat neighbour block is checked by the
+-- scenario, the peer's view of the core here.
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use std.textio.all;
 use ieee.std_logic_textio.all;
 use work.mem_pkg.all;
+use work.net_pkg.all;
 
 entity tb_supervisor_core is
   generic (
@@ -52,6 +57,8 @@ architecture tb of tb_supervisor_core is
   signal mreq : mem_req_arr_t(0 to 2);
   signal mrsp : mem_rsp_arr_t(0 to 2);
   signal th_seen, th_fresh, th_cur, th_q : std_logic_vector(31 downto 0);
+  signal nb_core_tx, nb_peer_tx, nb_tick : std_logic := '0';
+  signal nb_peer, nb_core : nb_status_t;
 begin
   clk_sys <= not clk_sys after 4 ns when not done;
   clk_rx  <= not clk_rx after 4.0016 ns when not done;   -- 200 ppm offset
@@ -66,7 +73,8 @@ begin
 
   dut : entity work.supervisor_core
     generic map (CLK_HZ => 125_000_000, BUILD_ID => x"C0DE0001",
-                 DHCP_FALLBACK_MS => 1, DHCP_MS_PER_S => 1, THUMB_MS_PER_S => 1)
+                 DHCP_FALLBACK_MS => 1, DHCP_MS_PER_S => 1, THUMB_MS_PER_S => 1,
+                 NB_HELLO_MS => 1, NB_LOST_MS => 3)
     port map (
       clk_sys => clk_sys, clk_rx => clk_rx,
       rx_dv => rx_dv, rx_er => rx_er, rxd => rxd, tx_en => tx_en, txd => txd,
@@ -90,7 +98,23 @@ begin
       pt_request => pt_req, pt_active => pt_req,
       thumb_mem_req => mreq, thumb_mem_rsp => mrsp,
       thumb_seen => th_seen, thumb_fresh => th_fresh, thumb_cur => th_cur, thumb_quarter => th_q,
-      full_on => full_on);
+      full_on => full_on,
+      nb_txd => nb_core_tx, nb_rxd => nb_peer_tx, nb_status => nb_core);
+
+  -- the unit's other supervisor (issue 0069)
+  nb_ticker : process (clk_sys)
+    variable n : natural := 0;
+  begin
+    if rising_edge(clk_sys) then
+      nb_tick <= '0';
+      if n = 124_999 then n := 0; nb_tick <= '1'; else n := n + 1; end if;
+    end if;
+  end process;
+  nb_other : entity work.neighbour_link
+    generic map (HELLO_MS => 1, LOST_MS => 3)
+    port map (clk => clk_sys, tick_1ms => nb_tick, dip => x"0A", dna => x"0000_0000_0000_0077",
+              build_id => x"C0DE0077", boot_id => x"0000B007", txd => nb_peer_tx, rxd => nb_core_tx,
+              status => nb_peer);
   mm : entity work.mem_mux_model generic map (N => 3, ADDR_BITS => 17, LATENCY => 20, STALL_EVERY => 7)
     port map (clk => clk_sys, req => mreq, rsp => mrsp);
   pt_seen <= true when pt_req = '1';
@@ -213,6 +237,16 @@ begin
     assert th_fresh(3) = '1' or th_q(3) = '1' report "relayed thumbnail of local machine 3 not stored" severity failure;
     assert full_seen report "full view never shown" severity failure;
     assert pt_req = '0' report "passthrough requested with a forced screen" severity failure;
+    -- neighbour link (issue 0069): the other board sees the core (B = 1,
+    -- its DNA and build) and is primary; the core is secondary
+    assert nb_peer.present = '1' and nb_peer.role = NB_ROLE_PRIMARY and nb_peer.heard_us = '1' and
+      nb_peer.peer_dip = x"10" and nb_peer.peer_dna = x"0123456789ABCDEF" and
+      nb_peer.peer_build = x"C0DE0001" and nb_peer.peer_role = x"02" and nb_peer.mismatch = '0'
+      report "neighbour: the other board's view of the core" severity failure;
+    assert nb_peer.crc_errs = 0 and nb_peer.fmt_errs = 0 and nb_peer.uart_errs = 0 and
+      nb_peer.rx_frames >= 3 report "neighbour: errors at the other board" severity failure;
+    assert nb_core.role = NB_ROLE_SECONDARY and nb_core.primary = '0'
+      report "neighbour: core role (status port)" severity failure;
     report "tb_supervisor_core PASSED (frame-level); run core_scenario.py check";
     done <= true;
     wait;
