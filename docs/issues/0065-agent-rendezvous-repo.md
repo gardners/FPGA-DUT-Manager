@@ -39,3 +39,18 @@ rv.py tested with three agents in two clones against a local bare repo:
 rebase conflicts merged per section, unpublished drafts of a second agent
 in the same checkout stay uncommitted and intact. docs/OWNER-TODO.md is a
 pointer now.
+
+## 2026-11-28 owner: retiring agents
+
+"We do also need a mechanism to retire content from dead/extinct agents
+that don't need to return into an attic/ folder of it." Plan: `rv retire
+AGENT -r REASON` moves agents/AGENT/ and its TODO/STATUS sections into
+attic/AGENT/ and publishes; `rv agents` lists sections with their last
+Updated time so stale ones are easy to spot.
+
+2026-11-28 lead: `rv agents` and `rv retire` done and tested (with an
+adjacent concurrent edit); published b77d812. Owner (same day): "The TODO
+list should have live links for each item" -> every TODO row's Ref is a
+GitHub link (rv lint enforces it), files to open/run are linked in the
+Item; published 69c44ab. Owner will confirm the hardweb session's setup
+once the repo and its use are improved.
