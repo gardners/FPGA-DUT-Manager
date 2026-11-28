@@ -1,4 +1,5 @@
--- tb_dut_out_gate: out-policy and shield power-off hold (issue 0056).
+-- tb_dut_out_gate: out-policy and shield power-off hold (issue 0056); UART
+-- TXD driven low when the DUT is known off (tx_low, issue 0067).
 library ieee;
 use ieee.std_logic_1164.all;
 
@@ -10,12 +11,12 @@ architecture tb of tb_dut_out_gate is
   signal done : boolean := false;
   signal policy : std_logic_vector(7 downto 0) := x"00";
   signal powered, present, pwr : std_logic := '0';
-  signal out_en, jpow, hold : std_logic;
+  signal out_en, jpow, hold, tx_low : std_logic;
 begin
   clk <= not clk after 4 ns when not done;
 
   dut : entity work.dut_out_gate
-    port map (clk, policy, powered, present, pwr, out_en, jpow, hold);
+    port map (clk, policy, powered, present, pwr, out_en, jpow, hold, tx_low);
 
   stim : process
     procedure tick(n : natural := 1) is
@@ -30,6 +31,11 @@ begin
       assert out_en = o and jpow = j and hold = h
         report what & ": out_en " & std_logic'image(out_en) & " jtag " & std_logic'image(jpow) &
                " hold " & std_logic'image(hold) severity failure;
+      -- known off (hold or policy 2) <=> TXD driven low; never while enabled
+      assert (tx_low = '1') = (hold = '1' or policy = x"02")
+        report what & ": tx_low " & std_logic'image(tx_low) severity failure;
+      assert not (tx_low = '1' and out_en = '1')
+        report what & ": tx_low with outputs on" severity failure;
     end procedure;
   begin
     tick(2);

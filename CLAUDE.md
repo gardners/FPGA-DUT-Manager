@@ -101,7 +101,9 @@ pre-V4 Numato Mimas A7 boards (XC7A50T-1FGG484). Start with
   soft CPU. DDR3 is used only as a thumbnail frame store (owner,
   2026-11-25, issue 0034); baseline features must not depend on it. DDR3
   clients use the `hdl/src/mem/mem_pkg.vhd` port contract. Policy lives in host software.
-* DUT-facing outputs are tri-stated unless the DUT is sensed powered.
+* DUT-facing outputs are tri-stated unless the DUT is sensed powered;
+  exception (owner, 2026-11-28, issue 0067): UART TXD is driven low when
+  the DUT is *known* off (out-policy 2 or the shield power-off hold).
 
 ## Hardware facts worth remembering
 

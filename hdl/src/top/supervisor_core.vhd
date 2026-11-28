@@ -45,6 +45,7 @@ entity supervisor_core is
     -- DUT UART
     utx       : out std_logic_vector(1 downto 0);
     utx_oe    : out std_logic_vector(1 downto 0);
+    utx_low   : out std_logic_vector(1 downto 0);   -- drive TXD low when not oe (0067)
     urx       : in  std_logic_vector(1 downto 0);
     -- DUT keyboard (MK-I device side)
     kio8      : in  std_logic_vector(1 downto 0);
@@ -533,7 +534,8 @@ begin
     og : entity work.dut_out_gate
       port map (clk => clk_sys, policy => cfg(i).out_policy, powered => powered(i),
                 shd_present => shd_status.flags(2), pwr_eff => pwr_eff(i),
-                out_en => out_en(i), jtag_pow => jpow(i), hold => phold(i));
+                out_en => out_en(i), jtag_pow => jpow(i), hold => phold(i),
+                tx_low => utx_low(i));
     baud(i) <= cfg(i).baud_inc;
 
     dc : block
