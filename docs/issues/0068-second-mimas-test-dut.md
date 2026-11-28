@@ -29,7 +29,7 @@ the opposite direction:
 | 3 | A, B | GND | GND |
 | 4 | B | J21 UART from DUT (in) | J21 UART TX (out) |
 | 5 | B | K22 UART to DUT (out) | K22 UART RX (in) |
-| 6 | B | G20 VIO sense (in, pulldown) | G20 "powered" (out, high via ~1k... see below) |
+| 6 | B | G20 VIO sense (in, pulldown) | G20 "powered" (out, driven high) |
 | 7 | B | H19 spare | H19 spare (unconnected in logic) |
 | 4 | A | J20 TCK (out) | J20 TCK (in) |
 | 5 | A | K21 TDO (in) | K21 TDO (out) |
