@@ -107,6 +107,13 @@ docs/handover-2026-11-25.md. The memory index (~/.claude/projects/...
 
 ## Gotchas
 
+* **Supervisor fell back to its SPI flash image** (2026-11-28 ~15:45-15:58,
+  around the owner's cable moves): heartbeats showed build `d29ea748` (an
+  old 2026-11-25 image) with a new boot id; DUT1 UART dead, hdmi-owner key
+  rejected (keeper retried 29x). Fix: `FTDI_SERIAL=NL4IT7JQ
+  scripts/hwcheck.sh bits/known-good.bit`. If heartbeats show a build other
+  than known-good, this is why. Owner question: write known-good to flash.
+
 * `ls -t build/bits` mtimes are unreliable: use the build id / path the
   agent reports (a wrong old bitstream got loaded once).
 * `~/bin/dutctl` (first in PATH) is a copy, not `make install`'s
