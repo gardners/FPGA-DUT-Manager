@@ -169,8 +169,14 @@ RGMII RX self-calibration status (issue 0028).
 | 133 | 1 | rx_eye_width: passing positions found by the last hunt (0 = never hunted) |
 | 134 | 2 | rx_hunts: hunts since configuration |
 | 136 | 2 | rx_bad_frames: frames seen (RX_CTL >= 64 cycles) without a good FCS |
-| 138 | 1 | rx_link_flags: b0 hunting, b1 RX MMCM locked |
-| 139 | 1 | reserved |
+| 138 | 1 | rx_link_flags: b0 hunting, b1 RX MMCM locked, b3:2 link speed (issue 0070: 0 none, 1 = 10, 2 = 100, 3 = 1000 Mb/s, measured from RXC), b4 PHY held in reset for a gigabit renegotiation |
+| 139 | 1 | rx_reneg: gigabit renegotiation attempts (PHY resets, issue 0070) since configuration, saturates at 255 |
+
+Byte 139 was reserved (0) before issue 0070 and b3:2 of byte 138 were 0, so
+a speed code of 0 in a received heartbeat means an older build (a heartbeat
+only leaves the board at 1000 Mb/s). The heartbeat cannot report a link that
+is down or at 10/100 while it is so; the counter shows afterwards how many
+attempts it took.
 
 ### 3b. Heartbeat memory block (bytes 140..151; payload >= 144)
 

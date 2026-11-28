@@ -59,3 +59,6 @@ a node number (ADR 0005 draft) need per-board configuration and collide easily.
   5-bit ID. DHCP host name `m65dutNN` now uses **lower-case hex** NN = ID
   (= MAC byte 5), e.g. `m65dut0a`, `m65dut1f`.
 * Seven-segment: `n-1m`, e.g. `0-10` for DIP = 0x00.
+  While the Ethernet link is not at gigabit (issue 0070) it shows ` 100`,
+  `  10` or `noLk` (no RX clock: no link, or PHY held for renegotiation)
+  instead of `dHCP` / the IDs.
