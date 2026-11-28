@@ -8,6 +8,10 @@ are git-ignored; this index is tracked. Load with
 
 Board must run from the DC jack (USB power alone browns out).
 
+The bench supervisor (board B = 0) is FTDI serial **NL4IT7JQ**. With more
+than one Mimas on USB, every load must name its board, e.g.
+`make jtagload-good FTDI_SERIAL=NL4IT7JQ` (check-board refuses otherwise).
+
 | Build id | Commit | Verified on hardware (2026-11-25) | Notes |
 |---|---|---|---|
 | 6f2fdc94 | 6f2fdc9 | 2026-11-28: hwcheck PASS (ping 20/20 both, mgmt ok); hwtest 68/1, same as 1fa1b802 (the FAIL is raster dut1, bob eno2 MTU 1500, 0064). The TX-low level itself is not measured yet (no pin readback; meter check listed for the owner) | UART TXD driven low instead of tri-stated while the DUT is known off: out-policy 2 or shield power-off hold (0067); WNS +0.137 ns. **known-good**. 2026-11-28 later, bob eno2 at MTU 9000: **hwtest 69/0** (raster capture PASS) |

@@ -168,7 +168,7 @@ list-boards:
 	@$(REPO)/scripts/find-mimas.sh --list
 
 check-board:
-	@$(REPO)/scripts/find-mimas.sh --require
+	@FTDI_SERIAL=$(FTDI_SERIAL) $(REPO)/scripts/find-mimas.sh --require
 
 detect: check-board | $(STAMPS)/openfpgaloader
 	$(OFL) $(CABLE_ARGS) --detect

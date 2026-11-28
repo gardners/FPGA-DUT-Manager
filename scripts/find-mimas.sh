@@ -3,7 +3,9 @@
 #   --list     list boards with USB serial and UART tty
 #   --require  exit non-zero with guidance unless at least one board has its
 #              UART tty bound (i.e. the udev rule is installed and the board
-#              was reinserted afterwards)
+#              was reinserted afterwards). With several boards attached it
+#              also requires FTDI_SERIAL (environment) to name one of them,
+#              so a JTAG load can never pick the wrong board.
 set -euo pipefail
 VID=2a19
 PID=1009
@@ -11,11 +13,13 @@ mode=${1:---list}
 
 found=0
 ttyok=0
+serials=()
 for dev in /sys/bus/usb/devices/*; do
 	[[ -f $dev/idVendor ]] || continue
 	[[ $(<"$dev/idVendor") == "$VID" && $(<"$dev/idProduct") == "$PID" ]] || continue
 	found=$((found + 1))
 	serial=$(cat "$dev/serial" 2>/dev/null || echo '?')
+	serials+=("$serial")
 	tty=""
 	for t in "$dev"/*:1.0/ttyUSB*; do
 		[[ -e $t ]] && tty=/dev/$(basename "$t")
@@ -35,6 +39,15 @@ error: Mimas A7 found but its USB UART is not bound to a tty.
   Run:  scripts/setup-mimas-udev-rule.sh
   then unplug and reinsert the board, and try again.
 EOF
+		exit 1
+	fi
+	if [[ $found -gt 1 && -z ${FTDI_SERIAL:-} ]]; then
+		echo "error: $found Mimas A7 boards attached (serials: ${serials[*]})." >&2
+		echo "  Name the one to use: make ... FTDI_SERIAL=<serial>  (bench supervisor: see bits/README.md)" >&2
+		exit 1
+	fi
+	if [[ -n ${FTDI_SERIAL:-} ]] && ! printf '%s\n' "${serials[@]}" | grep -qx "$FTDI_SERIAL"; then
+		echo "error: FTDI_SERIAL=$FTDI_SERIAL is not attached (serials: ${serials[*]})." >&2
 		exit 1
 	fi
 fi
