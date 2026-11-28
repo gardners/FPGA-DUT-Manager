@@ -110,6 +110,8 @@ pre-V4 Numato Mimas A7 boards (XC7A50T-1FGG484). Start with
 * USB 2a19:1009 = FT2232H: channel A = UART (`/dev/mimas-<serial>` after
   `scripts/setup-mimas-udev-rule.sh`), channel B = JTAG (ADBUS6 buffer OE
   active low). openFPGALoader `-b mimas_a7`, TCK ≤ 6 MHz (30 MHz fails).
+  Bench supervisor = serial NL4IT7JQ; with several boards attached, loads
+  need `FTDI_SERIAL=` (check-board refuses an ambiguous load).
 * **Power the Mimas from the DC barrel jack, not USB alone** (2026-11-25):
   on USB power the full design browns out a few seconds after configuration
   (about when the gigabit link comes up): DONE drops, the FPGA reloads from
