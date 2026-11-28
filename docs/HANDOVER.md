@@ -18,14 +18,16 @@ docs/handover-2026-11-25.md. The memory index (~/.claude/projects/...
   203.28.176.87** (QMTECH XC7K325T + daughter board, machine 1). Host
   traffic is **untagged + DHCP** (key 0x0046 host-vlan = 0; owner,
   2026-11-28). VLAN 1650 is only for board-to-board/source traffic.
-* Volatile keys to re-apply after any supervisor reload:
-  `dutctl set 203.28.176.86 hdmi-owner 1` (lets DUT1's slot show relayed
-  video). Relay VLAN key 0x0043 defaults to 1650, relay-view 0x0045
+* Volatile keys after a supervisor reload: re-applied automatically by
+  the `dutctl-keeper` user service from `[board 00124c296998c854]` in
+  ~/.config/dutctl/duts.conf (0066; currently hdmi-owner 1). By hand:
+  `dutctl apply`. Agent shells need `XDG_RUNTIME_DIR=/run/user/1001` for
+  `systemctl --user` / `journalctl --user -u dutctl-keeper`. Relay VLAN key 0x0043 defaults to 1650, relay-view 0x0045
   defaults to 1 (live).
 * hwtest: `scripts/hwtest.sh` (68/1 on 1fa1b802: raster capture fails since
   bob rebooted, eno2 MTU 1500 < raster packet size; also fails on older
   builds; owner to decide on the MTU or we split raster packets). It resets
-  hdmi-owner to 0 at exit: set it back.
+  hdmi-owner to 0 at exit: run `dutctl apply` afterwards.
 * Relay controller `/dev/ttyACM0`; `~/.config/dutctl/duts.conf` maps
   `k325t` → 203.28.176.87 dut 1, relay `/dev/ttyACM0 5` (so `dutctl relay
   ... POWER 5 OFF` forces DUT1's outputs off first, issue 0056).

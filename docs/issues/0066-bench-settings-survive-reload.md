@@ -1,7 +1,7 @@
 # 0066: Bench settings that survive a supervisor reload
 
-Status: implemented on `feature/dutctl-keeper` (2026-11-28), awaiting integration and a bench check.
-specific", 2026-11-28).
+Status: merged and running on bob (2026-11-28); reload check pending
+(next coordinated supervisor reload).
 
 ## Settings the bench depends on today
 
@@ -108,3 +108,19 @@ Then:
     loginctl enable-linger "$USER"       # optional: keep it running without a login
     journalctl --user -u dutctl-keeper -f
     systemctl --user reload dutctl-keeper   # after editing duts.conf
+
+## 2026-11-28 lead: integrated and running
+
+Merged into feature/foundation; `make test` green (38 HDL, 981 dutctl, 52
+relay). Installed dutctl (~/.local/bin and the ~/bin copy), added to
+~/.config/dutctl/duts.conf:
+
+    [board 00124c296998c854]
+    set = hdmi-owner 1
+
+`dutctl apply` -> "via 203.28.176.86 (boot 4cda5eb9): hdmi-owner 1 -
+applied". User unit installed and enabled; journal: "first seen, boot
+4cda5eb9: hdmi-owner 1 - applied". Note: systemctl --user needs
+XDG_RUNTIME_DIR=/run/user/1001 in agent shells. Linger is off, so the
+keeper runs only while the owner is logged in on bob (owner question).
+Still to see on hardware: a "boot X -> Y" re-apply after a JTAG load.
