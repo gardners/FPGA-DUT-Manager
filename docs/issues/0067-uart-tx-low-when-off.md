@@ -1,6 +1,6 @@
 # 0067: Drive UART TX low when the DUT is known to be powered off
 
-Status: in progress (owner, 2026-11-28). Supersedes the open-drain (+kick)
+Status: done, on hardware 6f2fdc94 (owner, 2026-11-28); meter check pending. Supersedes the open-drain (+kick)
 UART TX proposal (handover 2026-11-28). Related: 0056, 0057.
 
 ## Owner (2026-11-28)
@@ -37,3 +37,12 @@ ns. `make test` green: 38 HDL testbenches (tb_dut_out_gate checks tx_low
 in every state), 917 dutctl checks, 52 relay checks. CLAUDE.md and ADR
 0005 (key 0x0060) updated. Hardware check next (coordinated with the
 hardweb session, which uses DUT1's UART).
+
+## 2026-11-28 lead: on hardware, known-good
+
+Loaded 6f2fdc94 (hardweb session paused its UART bridge for the window):
+hwcheck PASS; hwtest 68/1, identical to 1fa1b802 (the FAIL is the raster
+capture, bob's MTU, 0064). hdmi-owner 1 re-applied. Promoted to
+known-good, `main` = 6f2fdc9. The low level itself has no readback here:
+owner meter check (DUT0 UART pin 0 V with out-policy 2, MEGA65 off) is
+in the rendezvous TODO. Status: done pending that check.

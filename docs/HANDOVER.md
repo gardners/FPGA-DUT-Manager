@@ -10,8 +10,8 @@ docs/handover-2026-11-25.md. The memory index (~/.claude/projects/...
 
 * Branch `feature/foundation` (pushed) is the integration branch; agents
   branch from `origin/feature/foundation` in worktrees and the lead merges
-  with `--no-ff`. `main` = **1fa1b80**, known-good bitstream
-  **bits/supervisor-1fa1b802.bit** (`bits/known-good.bit`; bits/*.bit are
+  with `--no-ff`. `main` = **6f2fdc9**, known-good bitstream
+  **bits/supervisor-6f2fdc94.bit** (`bits/known-good.bit`; bits/*.bit are
   git-ignored, only README + symlink tracked). It is loaded on the board.
 * Bench: one Mimas A7 supervisor, endpoints **DUT0 = 203.28.176.86**
   (MEGA65, owner has it off the network for now) and **DUT1 =
@@ -77,10 +77,13 @@ docs/handover-2026-11-25.md. The memory index (~/.claude/projects/...
   hdmi-owner 1 matters). Known-good policy added to CLAUDE.md. Local
   `main` branch was stale (e739313); fast-forwarded to origin/main 1fa1b80.
 
+* 0067 (owner decision instead of open-drain): UART TXD driven low when
+  the DUT is known off (out-policy 2 / shield hold). Build 6f2fdc94 on
+  hardware, hwtest 68/1, known-good, main = 6f2fdc9. Reloads of the
+  supervisor: message hardweb-c3 first (it pauses its UART bridge).
+
 ## Waiting on the owner (canonical list: rendezvous/agents/fpga-dut-manager/TODO.md)
 
-* Open-drain(+kick) UART TX option per DUT to stop back-feeding the K325T
-  through its UART RX pull-up (proposed, not approved).
 * Make bench settings (hdmi-owner 1) survive reloads: build default, or
   dutctl re-applying from duts.conf.
 * Relay-board outline length; which bench-plate layout to cut (main is
