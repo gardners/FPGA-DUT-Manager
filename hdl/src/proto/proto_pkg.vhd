@@ -55,8 +55,16 @@ package proto_pkg is
   -- payload lengths (after the 8-byte common header)
   -- 100 fixed + 24 video block + 8 link block + 12 memory block + 8
   -- shield block + 28 relay block + 8 relay receive load + 12 network block
-  -- (ADR 0005 sections 3, 3a, 3b, 3c, 3d, 3e, 8)
-  constant HB_PAYLOAD_LEN   : natural := 200;
+  -- + 28 neighbour block (ADR 0005 sections 3, 3a, 3b, 3c, 3d, 3e, 3f, 8)
+  constant HB_PAYLOAD_LEN   : natural := 228;
+  -- heartbeat byte 208 nb_flags (ADR 0005 section 3f, issue 0069)
+  constant NBF_BUILD    : natural := 0;   -- bitstream has the neighbour link
+  constant NBF_PRESENT  : natural := 1;   -- valid HELLO from another board in the last ~350 ms
+  constant NBF_CLASH    : natural := 2;   -- present and the peer has the same B (DIP[7:4])
+  constant NBF_LOOPBACK : natural := 3;   -- own HELLO heard back (TX looped to RX)
+  constant NBF_HEARD_US : natural := 4;   -- present and the peer says it hears us
+  constant NBF_VALID    : natural := 5;   -- bytes 210..223 / 234 hold a received HELLO
+  constant NBF_MISMATCH : natural := 6;   -- present and the peer's role claim does not complement ours
   -- heartbeat byte 184 relay_flags (ADR 0005 section 3d, issue 0061)
   constant RLF_FULL_WANT  : natural := 0;   -- full view wanted (selected target without local video)
   constant RLF_FULL_FRESH : natural := 1;   -- a full picture in the last second (shown)

@@ -155,7 +155,8 @@ the relay block (section 3d, issue 0061) 188 bytes (header + 180); with
 the relay receive load (section 3d, bytes 188..195, issue 0060) 196 bytes
 (header + 188); with the network block (section 3e, issue 0062) 200
 bytes (header + 192); with the VLAN identity (section 3e, bytes 200..207,
-issue 0063) 208 bytes (header + 200).
+issue 0063) 208 bytes (header + 200); with the neighbour block (section
+3f, issue 0069) 236 bytes (header + 228).
 Decoders must accept >= 100 and use the blocks only when present.
 
 ### 3a. Heartbeat link block (bytes 132..139; payload >= 132)
@@ -259,6 +260,29 @@ appended 2026-11-28. All board-wide (both endpoints send the same values).
 | 200 | 4 | vlan_ip: the board's VLAN identity (section 1), key 0x0047 base + 16 + DIP[7:4]; 0.0.0.0 while key 0x0043 is 0 (off) |
 | 204 | 2 | vlan: key 0x0043, the inter-board VLAN ID the identity (and the relay) uses |
 | 206 | 2 | vlan_hits: ARP requests and ICMP echoes answered for vlan_ip, wrapping |
+
+### 3f. Heartbeat neighbour block (bytes 208..235; payload >= 228)
+
+Neighbour link to the unit's other supervisor (issue 0069, ADR 0007 point
+2 and its "Neighbour link protocol" section). Appended 2026-11-28.
+Board-wide (both endpoints send the same values); counters are u16 and
+wrap. Bytes 210..223 and 234..235 hold the last valid HELLO from another
+board (b5), also after the peer is lost.
+
+| Off | Size | Field |
+|---|---|---|
+| 208 | 1 | nb_flags: b0 bitstream has the neighbour link, b1 peer present (a valid HELLO from another board in the last ~350 ms), b2 B clash (present and the peer has the same B = DIP[7:4]; boards should have distinct B), b3 loopback (a HELLO with this board's own DNA in the last ~350 ms: TX wired to RX), b4 the peer hears us (present and its last HELLO flags b0), b5 peer fields valid (a HELLO was received since configuration), b6 role mismatch (present and the peer's role claim is not the complement of ours: one-way link or the peer still deciding), b7 0 |
+| 209 | 1 | nb_role: 0 standalone (no peer), 1 primary, 2 secondary. Rule: lower B is primary; equal B -> lower DNA |
+| 210 | 1 | nb_peer_dip: the peer's DIP switches (its B = bits 7..4) |
+| 211 | 1 | nb_peer_role: the role the peer claims (same coding) |
+| 212 | 8 | nb_peer_dna: the peer's 57-bit DNA (as bytes 20..27) |
+| 220 | 4 | nb_peer_build: the peer's build_id |
+| 224 | 2 | nb_rx_frames: neighbour frames received with a good CRC (any type) |
+| 226 | 2 | nb_crc_errs: complete frames with a bad CRC |
+| 228 | 2 | nb_uart_errs: UART framing errors (stop bit 0, e.g. a break) |
+| 230 | 2 | nb_fmt_errs: format errors: length out of range for the type, HELLO with a bad magic/version, a frame whose bytes stopped mid-way |
+| 232 | 2 | nb_tx_frames: HELLOs sent |
+| 234 | 2 | nb_peer_seq: low 16 bits of the peer's HELLO sequence number |
 
 ## 4. Management (port 6500)
 

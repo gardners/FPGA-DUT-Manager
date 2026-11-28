@@ -5,6 +5,8 @@
 # receiver i = shd_d_*[3*i+k]. P balls are on header column A (vendor XDC:
 # GPIO_n_P). TMDS_33 needs VCCO 3.3 V (banks 15/16 are fixed at 3.3 V) and
 # has no internal termination: the shield has 50 ohm to 3.3 V per line.
+# The neighbour UART (NB_UART_TX G17 / NB_UART_RX G18, P12 row 23, issue
+# 0069) is the same in both builds and constrained in mimas_a7.xdc.
 
 ## HDMI1 (DUT1): P13 (bank 16). Clock on IO_L13 MRCC (row 11).
 set_property -dict {PACKAGE_PIN C18 IOSTANDARD TMDS_33} [get_ports {shd_clk_p[0]}]

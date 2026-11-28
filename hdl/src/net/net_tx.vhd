@@ -141,7 +141,7 @@ architecture rtl of net_tx is
   type state_t is (S_IDLE, S_DISCARD, S_LATCH, S_HIST, S_PREP, S_CSUM, S_START, S_WRITE, S_WAIT_MAC);
   signal state : state_t := S_IDLE;
 
-  constant PF_MAX : natural := 208;   -- heartbeat: 8 + 200
+  constant PF_MAX : natural := 236;   -- heartbeat: 8 + 228
   type pf_t is array (0 to PF_MAX - 1) of byte_t;
   type hdr_t is array (0 to 41) of byte_t;
   signal hdr   : hdr_t := (others => (others => '0'));
@@ -638,6 +638,21 @@ begin
               pf(204) <= "0000" & std_logic_vector(bcfg.vlan(11 downto 8));
               pf(205) <= std_logic_vector(bcfg.vlan(7 downto 0));
               pf(206) <= bu(bstat.vlan_hits, 0); pf(207) <= bu(bstat.vlan_hits, 1);
+              -- 208..235 neighbour block (ADR 0005 s3f, issue 0069)
+              pf(208) <= '0' & bstat.nb.mismatch & bstat.nb.valid & bstat.nb.heard_us &
+                         bstat.nb.loopback & bstat.nb.clash & bstat.nb.present & '1';
+              pf(209) <= "000000" & bstat.nb.role;
+              pf(210) <= bstat.nb.peer_dip;   pf(211) <= bstat.nb.peer_role;
+              for i in 0 to 7 loop pf(212 + i) <= b(bstat.nb.peer_dna, i); end loop;
+              for i in 0 to 3 loop pf(220 + i) <= b(bstat.nb.peer_build, i); end loop;
+              for i in 0 to 1 loop
+                pf(224 + i) <= bu(bstat.nb.rx_frames, i);
+                pf(226 + i) <= bu(bstat.nb.crc_errs, i);
+                pf(228 + i) <= bu(bstat.nb.uart_errs, i);
+                pf(230 + i) <= bu(bstat.nb.fmt_errs, i);
+                pf(232 + i) <= bu(bstat.nb.tx_frames, i);
+                pf(234 + i) <= bu(bstat.nb.peer_seq(15 downto 0), i);
+              end loop;
             when others => null;
           end case;
 

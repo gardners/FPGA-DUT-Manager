@@ -48,6 +48,7 @@ hdl/src/uart/uart_bridge.vhd
 hdl/src/jtag/jtag_engine.vhd
 hdl/src/proto/proto_pkg.vhd
 hdl/src/net/net_pkg.vhd
+hdl/src/net/neighbour_link.vhd
 hdl/src/eth/eth_mac_rx.vhd
 hdl/src/eth/eth_mac_tx.vhd
 hdl/src/net/dhcp_client.vhd

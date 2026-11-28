@@ -21,7 +21,11 @@ entity supervisor_core is
     DHCP_MS_PER_S    : positive := 1000;
     THUMB_MS_PER_S   : positive := 1000;  -- thumbnail relay timers (shortened in simulation)
     THUMB_CROP_W     : positive := 640;   -- thumbnail source crop (centre of the picture)
-    THUMB_CROP_H     : positive := 400
+    THUMB_CROP_H     : positive := 400;
+    -- neighbour link (issue 0069): HELLO period and presence timeout in
+    -- tick_1ms units (shortened in simulation)
+    NB_HELLO_MS      : positive := 100;
+    NB_LOST_MS       : positive := 350
   );
   port (
     clk_sys   : in  std_logic;
@@ -129,7 +133,14 @@ entity supervisor_core is
     full_width  : out unsigned(10 downto 0);
     full_height : out unsigned(9 downto 0);
     full_shown  : in  unsigned(1 downto 0) := "00";
-    full_frame  : in  std_logic := '0'           -- full_display latched a frame (clk_sys pulse)
+    full_frame  : in  std_logic := '0';          -- full_display latched a frame (clk_sys pulse)
+    -- neighbour link to the other supervisor of the unit (issue 0069, ADR
+    -- 0007 point 2): UART TX (idles high), RX (pulled up at the pin, '1' =
+    -- idle when unconnected); link state, role and peer for the rest of
+    -- the design (nb_status.primary: hook for issue 0044)
+    nb_txd      : out std_logic;
+    nb_rxd      : in  std_logic := '1';
+    nb_status   : out nb_status_t
   );
 end entity;
 
@@ -142,6 +153,7 @@ architecture rtl of supervisor_core is
   signal boot_cnt : unsigned(31 downto 0) := (others => '0');
   signal boot_id  : std_logic_vector(31 downto 0) := (others => '0');
   signal boot_latched : std_logic := '0';
+  signal nb_st : nb_status_t;
 
   -- RX slots
   signal rxm_we : std_logic;
@@ -660,6 +672,7 @@ begin
   bstat.rx_bad      <= hu_badcnt;
   bstat.rx_flags    <= "000000" & lock_s(2) & hu_hunting;
   bstat.mem         <= mem_status;
+  bstat.nb          <= nb_st;
   bstat.shd         <= shd_status;
   pwr_ctl           <= bcfg.pwr_ctl;
   pwr_set           <= bcfg.pwr_set;
@@ -676,6 +689,17 @@ begin
   bstat.vid_h_active <= vid_h_active when vid_ok else (others => '0');
   bstat.vid_v_active <= vid_v_active when vid_ok else (others => '0');
   bstat.vid_pixel_hz <= vid_pixel_hz when vid_ok else (others => '0');
+
+  ---------------------------------------------------------------- neighbour link
+  -- Issue 0069: HELLOs to and from the other supervisor of the unit; role
+  -- standalone / primary / secondary. Phase 1 only reports it (heartbeat
+  -- neighbour block); nb_status.primary is the hook for issue 0044 (which
+  -- board drives the unit's shared keyboard/video selection).
+  nbl : entity work.neighbour_link
+    generic map (HELLO_MS => NB_HELLO_MS, LOST_MS => NB_LOST_MS)
+    port map (clk => clk_sys, tick_1ms => tick_1ms, dip => dip, dna => dna, build_id => BUILD_ID,
+              boot_id => boot_id, txd => nb_txd, rxd => nb_rxd, status => nb_st);
+  nb_status <= nb_st;
 
   ---------------------------------------------------------------- keyboard CPLD JTAG
   -- Third JTAG engine on the physical keyboard's J5 JTAG pins (issue 0046,

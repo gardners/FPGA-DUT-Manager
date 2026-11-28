@@ -235,7 +235,34 @@ int dp_decode_heartbeat(const uint8_t *p, size_t len, dp_heartbeat_t *hb)
     memset(hb->vlan_ip, 0, 4);
     hb->vlan = hb->vlan_hits = 0;
   }
+  hb->has_nb = len >= 228;
+  if (hb->has_nb) {
+    hb->nb_flags = p[200];
+    hb->nb_role = p[201];
+    hb->nb_peer_dip = p[202];
+    hb->nb_peer_role = p[203];
+    hb->nb_peer_dna = ((uint64_t)dp_get32(p + 204) << 32) | dp_get32(p + 208);
+    hb->nb_peer_build = dp_get32(p + 212);
+    hb->nb_rx_frames = dp_get16(p + 216);
+    hb->nb_crc_errs = dp_get16(p + 218);
+    hb->nb_uart_errs = dp_get16(p + 220);
+    hb->nb_fmt_errs = dp_get16(p + 222);
+    hb->nb_tx_frames = dp_get16(p + 224);
+    hb->nb_peer_seq = dp_get16(p + 226);
+  } else {
+    hb->nb_flags = hb->nb_role = hb->nb_peer_dip = hb->nb_peer_role = 0;
+    hb->nb_peer_dna = 0;
+    hb->nb_peer_build = 0;
+    hb->nb_rx_frames = hb->nb_crc_errs = hb->nb_uart_errs = hb->nb_fmt_errs = 0;
+    hb->nb_tx_frames = hb->nb_peer_seq = 0;
+  }
   return 0;
+}
+
+const char *dp_nb_role_name(unsigned role)
+{
+  static const char *const names[] = {"standalone", "primary", "secondary"};
+  return role < 3 ? names[role] : "?";
 }
 
 int dp_decode_raster(const uint8_t *p, size_t len, dp_raster_t *r)
