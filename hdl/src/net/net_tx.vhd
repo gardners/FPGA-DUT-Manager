@@ -590,7 +590,7 @@ begin
               pf(132) <= bstat.rx_phase; pf(133) <= bstat.rx_eye;
               pf(134) <= bu(bstat.rx_hunts, 0); pf(135) <= bu(bstat.rx_hunts, 1);
               pf(136) <= bu(bstat.rx_bad, 0);   pf(137) <= bu(bstat.rx_bad, 1);
-              pf(138) <= bstat.rx_flags;        pf(139) <= x"00";
+              pf(138) <= bstat.rx_flags;        pf(139) <= std_logic_vector(bstat.rx_reneg);
               -- 140..151 memory block (ADR 0005 s3b, issue 0034)
               pf(140) <= "0000" & bstat.mem.st_pass & bstat.mem.st_done &
                          bstat.mem.st_running & bstat.mem.calibrated;

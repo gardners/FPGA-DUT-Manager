@@ -55,6 +55,8 @@ hdl/src/net/dhcp_client.vhd
 hdl/src/net/net_rx.vhd
 hdl/src/net/net_tx.vhd
 hdl/src/net/rx_phase_hunter.vhd
+hdl/src/net/link_speed_meter.vhd
+hdl/src/net/gig_renegotiate.vhd
 hdl/src/net/rx_frame_observer.vhd
 hdl/sim/tap_model.vhd
 third_party/mega65-core/hdmi_tx_encoder.vhdl

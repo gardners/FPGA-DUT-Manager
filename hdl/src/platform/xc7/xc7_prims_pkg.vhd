@@ -10,6 +10,12 @@ package xc7_prims_pkg is
     port (O : out std_logic; I : in std_logic);
   end component;
 
+  -- regional clock buffer: RGMII RXC to the link speed meter (issue 0070)
+  component BUFR
+    generic (BUFR_DIVIDE : string := "BYPASS"; SIM_DEVICE : string := "7SERIES");
+    port (O : out std_logic; CE : in std_logic; CLR : in std_logic; I : in std_logic);
+  end component;
+
   component MMCME2_BASE
     generic (
       BANDWIDTH          : string := "OPTIMIZED";

@@ -7,8 +7,12 @@
 --       for fine trim. Replaces BUFG-only RXC, whose ~5.2 ns insertion made
 --       the sample point depend on the BUFG route (issue 0019).
 --       The MMCM is re-reset from clk_sys whenever it has not been locked for
---       ~1 ms (PHY reset, link down, cable change). Gigabit only: at 100 Mb/s
---       RXC is 25 MHz and the MMCM will not lock (issue 0018).
+--       ~1 ms (PHY reset, link down, cable change), and held in reset while
+--       rx_hold = '1' (PHY held in reset by the renegotiation, issue 0070) so
+--       its phase restarts at the default with the hunter. Gigabit only: at
+--       100 Mb/s RXC is 25 MHz and the MMCM will not lock (issue 0018).
+--   rxc_meas: RXC through a BUFR (not the MMCM, which needs 125 MHz) for the
+--       link speed meter (issue 0070); runs at 125/25/2.5 MHz or stops.
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -33,6 +37,8 @@ entity rgmii_xc7 is
     rgmii_rxd    : in  std_logic_vector(3 downto 0);
     -- GMII side
     clk_rx    : out std_logic;
+    rxc_meas  : out std_logic;   -- raw RXC (BUFR) for link_speed_meter, issue 0070
+    rx_hold   : in  std_logic := '0';   -- clk_sys: hold the RX MMCM in reset
     rx_locked : out std_logic;   -- RX MMCM locked (clk_sys domain)
     ps_en     : in  std_logic := '0';   -- dynamic phase shift (clk_sys): +1 fine
     ps_done   : out std_logic;          -- step (VCO/56 = 17.9 ps), issue 0028
@@ -86,13 +92,19 @@ begin
   bfb : BUFG port map (O => rx_fb_g, I => rx_fb);
   bg  : BUFG port map (O => rxc_g, I => rx_c0);
   clk_rx <= rxc_g;
+  bmeas : BUFR generic map (BUFR_DIVIDE => "BYPASS", SIM_DEVICE => "7SERIES")
+    port map (O => rxc_meas, CE => '1', CLR => '0', I => rgmii_rxc);
 
   -- lock watchdog (clk_sys): 16-cycle reset pulse after ~1 ms without lock
   process (clk_sys)
   begin
     if rising_edge(clk_sys) then
       lock_s <= lock_s(0) & rx_lock;
-      if rst_n /= 0 then
+      if rx_hold = '1' then
+        rst_n    <= (others => '1');      -- released 31 cycles after rx_hold
+        mmcm_rst <= '1';
+        unlock_n <= (others => '0');
+      elsif rst_n /= 0 then
         rst_n    <= rst_n - 1;
         mmcm_rst <= '1';
         unlock_n <= (others => '0');

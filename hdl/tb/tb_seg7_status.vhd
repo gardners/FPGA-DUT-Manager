@@ -11,6 +11,7 @@ architecture tb of tb_seg7_status is
   signal clk : std_logic := '0';
   signal done : boolean := false;
   signal have_ip : std_logic := '0';
+  signal speed : std_logic_vector(1 downto 0) := "11";
   signal seg : std_logic_vector(7 downto 0);
   signal en : std_logic_vector(3 downto 0);
 
@@ -29,7 +30,8 @@ architecture tb of tb_seg7_status is
 begin
   clk <= not clk after 5 ns when not done;
   dut : entity work.seg7_status generic map (CLK_HZ => 40_000)
-    port map (clk, have_ip, "00011", "11010", seg, en);   -- 0x03, 0x1A
+    port map (clk => clk, have_ip => have_ip, speed => speed, id0 => "00011", id1 => "11010",
+              seg => seg, seg_en => en);   -- 0x03, 0x1A
 
   process
     type exp_t is array (0 to 3) of std_logic_vector(7 downto 0);
@@ -43,6 +45,8 @@ begin
             assert seg = e(d) report what & " digit " & integer'image(d) & " got " &
               to_hstring(seg) & " want " & to_hstring(e(d)) severity failure;
             seen(d) := '1';
+          elsif en(d) = '0' and e(d) = x"FF" then
+            seen(d) := '1';                -- blank digit, shown blank
           end if;
         end loop;
       end loop;
@@ -55,6 +59,23 @@ begin
     wait for 1 us;
     -- 3 - 1 A  (P12 0x03, P13 0x1A; issue 0026)
     check((pins("ABCDG"), pins("G"), pins("BC"), pins("ABCEFG")), "ids");
+    -- link not at gigabit overrides the IDs (issue 0070)
+    speed <= "10";
+    wait for 1 us;
+    check((x"FF", pins("BC"), pins("ABCDEF"), pins("ABCDEF")), " 100");
+    speed <= "01";
+    wait for 1 us;
+    check((x"FF", x"FF", pins("BC"), pins("ABCDEF")), "  10");
+    speed <= "00";
+    wait for 1 us;
+    check((pins("CEG"), pins("CDEG"), pins("DEF"), pins("ACEFG")), "noLk");
+    have_ip <= '0';
+    wait for 1 us;
+    check((pins("CEG"), pins("CDEG"), pins("DEF"), pins("ACEFG")), "noLk before DHCP");
+    speed <= "11";
+    have_ip <= '1';
+    wait for 1 us;
+    check((pins("ABCDG"), pins("G"), pins("BC"), pins("ABCEFG")), "ids again");
     report "tb_seg7_status PASSED";
     done <= true;
     wait;

@@ -210,7 +210,8 @@ def decode_heartbeat(b):
          f["tmds_decode_errors"], _) = struct.unpack(">BBHHHHIIHHH", b[100:124])
     if len(b) >= 132:  # link block (ADR 0005 section 3a), bytes 132..139 of the datagram
         (f["rx_phase_pos"], f["rx_eye_width"], f["rx_hunts"], f["rx_bad_frames"],
-         f["rx_link_flags"]) = struct.unpack(">BBHHBx", b[124:132])
+         f["rx_link_flags"], f["rx_reneg"]) = struct.unpack(">BBHHBB", b[124:132])
+        f["link_speed"] = (f["rx_link_flags"] >> 2) & 3   # issue 0070
     if len(b) >= 144:  # memory block (ADR 0005 section 3b), bytes 140..151 of the datagram
         (f["mem_flags"], f["mem_errors"], f["mem_dq_fail"], f["mem_test_kib"],
          f["mem_first_err"]) = struct.unpack(">BxHHHI", b[132:144])
@@ -322,7 +323,14 @@ MEM_FIELDS = ("mem_flags", "mem_errors", "mem_dq_fail", "mem_test_kib", "mem_fir
 # b3 self-test passed (valid when done)
 MEM_CALIBRATED, MEM_ST_RUNNING, MEM_ST_DONE, MEM_ST_PASS = 1, 2, 4, 8
 
-LINK_FIELDS = ("rx_phase_pos", "rx_eye_width", "rx_hunts", "rx_bad_frames", "rx_link_flags")
+LINK_FIELDS = ("rx_phase_pos", "rx_eye_width", "rx_hunts", "rx_bad_frames", "rx_link_flags", "rx_reneg")
+# rx_link_flags (byte 138): b0 hunting, b1 RX MMCM locked, b3:2 link speed
+# (issue 0070: LINK_SPEED_*), b4 PHY held in reset for renegotiation;
+# rx_reneg (byte 139): gigabit renegotiation attempts since configuration
+# (saturates at 255)
+RXF_HUNTING, RXF_LOCKED, RXF_PHY_HOLD = 1, 2, 16
+LINK_SPEED_NONE, LINK_SPEED_10, LINK_SPEED_100, LINK_SPEED_1000 = 0, 1, 2, 3
+LINK_SPEED_NAMES = ("none", "10", "100", "1000")
 
 VIDEO_FIELDS = ("video_flags", "h_total", "v_total", "h_active", "v_active", "pixel_clock_hz",
                 "frames_captured", "raster_lines_dropped", "tmds_decode_errors")
@@ -436,7 +444,7 @@ def encode_heartbeat(dut, f):
     if "rx_phase_pos" in f:  # link block (needs the video block) -> 132-byte payload
         assert len(b) == 124
         b += struct.pack(">BBHHBB", f["rx_phase_pos"], f["rx_eye_width"], f["rx_hunts"],
-                         f["rx_bad_frames"], f["rx_link_flags"], 0)
+                         f["rx_bad_frames"], f["rx_link_flags"], f.get("rx_reneg", 0))
     if "mem_flags" in f:  # memory block (needs the link block) -> 144-byte payload
         assert len(b) == 132
         b += struct.pack(">BBHHHI", f["mem_flags"], 0, f["mem_errors"], f["mem_dq_fail"],
@@ -711,6 +719,22 @@ def selftest():
     if vid != VLAN_DEFAULT or (t["scale"], t["width"], t["height"], t["row"], t["enc"]) != (3, 720, 480, 479, 1) \
             or t["lines"] != [line] or t["payload_bytes"] != 12:
         errors.append("scale 3 lines frame %r" % {k: v for k, v in t.items() if k != "lines"})
+    # link block (issue 0070): speed in rx_link_flags b3:2, attempts in byte 139
+    lk = dict(rx_phase_pos=1, rx_eye_width=2, rx_hunts=0x0304, rx_bad_frames=0x0506,
+              rx_link_flags=RXF_LOCKED | (LINK_SPEED_1000 << 2), rx_reneg=7)
+    hlk = dict(hb_seq=1, boot_id=2, build_id=3, dna=4, topo_index=0, topo_count=1, dip=0, link_flags=0,
+               caps=0, cfg_gen=0, target_flags=0, kbd_owner=0, kbd_policy=0, selected=0, kbd_eff=0,
+               kbd_udp=0, kbd_phys=0, phys_change=0, phys_type=0, jtag_status=0, jtag_next_seq=0,
+               uart_rx_seq=0, uart_tx_acc=0, rx_rejects=0, tx_drops=0, dut_leds=bytes(12),
+               video_flags=0, h_total=0, v_total=0, h_active=0, v_active=0, pixel_clock_hz=0,
+               frames_captured=0, raster_lines_dropped=0, tmds_decode_errors=0, **lk)
+    p = encode_heartbeat(0, hlk)
+    if len(p) != 140 or p[132:140] != bytes([1, 2, 3, 4, 5, 6, 0x0E, 7]):
+        errors.append("link block layout %s" % p[132:].hex(" "))
+    else:
+        d = decode_heartbeat(p[8:])
+        if any(d[k] != v for k, v in lk.items()) or d["link_speed"] != LINK_SPEED_1000:
+            errors.append("link block round trip %r" % d)
     # heartbeat relay block (issue 0061): offsets 160..187 of the datagram
     hb = dict(hb_seq=1, boot_id=2, build_id=3, dna=4, topo_index=0, topo_count=1, dip=0, link_flags=0,
               caps=0, cfg_gen=0, target_flags=0, kbd_owner=0, kbd_policy=0, selected=0, kbd_eff=0,

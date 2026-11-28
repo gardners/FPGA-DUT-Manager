@@ -160,8 +160,11 @@ int dp_decode_heartbeat(const uint8_t *p, size_t len, dp_heartbeat_t *hb)
     hb->rx_hunts = dp_get16(p + 126);
     hb->rx_bad_frames = dp_get16(p + 128);
     hb->rx_link_flags = p[130];
+    hb->rx_reneg = p[131];
+    hb->link_speed = (p[130] >> DP_RXF_SPEED_SHIFT) & 3;
   } else {
     hb->rx_phase_pos = hb->rx_eye_width = hb->rx_link_flags = 0;
+    hb->rx_reneg = hb->link_speed = 0;
     hb->rx_hunts = hb->rx_bad_frames = 0;
   }
   hb->has_mem = len >= 144;
@@ -398,6 +401,12 @@ const char *dp_con_shown_name(int v)
 {
   static const char *const names[] = {"editable", "no-video", "select", "passthrough", "relayed"};
   return (v >= 0 && v < 5) ? names[v] : "?";
+}
+
+const char *dp_link_speed_name(int v)
+{
+  static const char *const names[] = {"none", "10M", "100M", "1000M"};
+  return (v >= 0 && v < 4) ? names[v] : "?";
 }
 
 const char *dp_key_name(int key)

@@ -38,6 +38,8 @@ SYNTH_SOURCES := \
 	$(HDL_SRC)/net/net_rx.vhd \
 	$(HDL_SRC)/net/net_tx.vhd \
 	$(HDL_SRC)/net/rx_phase_hunter.vhd \
+	$(HDL_SRC)/net/link_speed_meter.vhd \
+	$(HDL_SRC)/net/gig_renegotiate.vhd \
 	$(HDL_SRC)/net/rx_frame_observer.vhd \
 	$(HDL_SRC)/net/thumb_rx_tap.vhd \
 	$(HDL_SRC)/net/thumb_rx_writer.vhd \

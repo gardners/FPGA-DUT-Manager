@@ -37,3 +37,46 @@ the switch.
 * Possible later addition (not this issue): MDIO, to advertise 1000BASE-T
   only (and/or disable EEE) so a link partner can't pick 100 at all; the
   datasheet has the registers.
+
+## Progress 2026-11-28 (agent, branch feature/gig-renegotiate)
+
+Implemented, simulated and built (Vivado build `dfb35f76`: TIMING MET, WNS
++0.028 ns, WHS +0.050 ns; worst path is the existing rxmem -> net_rx one;
+LUTs 66.9 %; 2 BUFR). Not yet on hardware.
+
+* `hdl/src/net/link_speed_meter.vhd`: RXC -> BUFR (in `rgmii_xc7`, port
+  `rxc_meas`; the RX MMCM cannot lock below 125 MHz) -> 3-bit divider; its
+  MSB crosses into clk_sys through 2 flip-flops (one bit, so a stopped or
+  floating RXC is harmless) and transitions are counted over 2^15 cycles
+  (262 us): > 62.5 MHz = 3 (1000), > 8 MHz = 2 (100), > 0.5 MHz = 1 (10),
+  else 0 (none). The speed changes after 5 equal windows (~1.3 ms).
+* `hdl/src/net/gig_renegotiate.vhd`: after the unchanged power-up reset
+  (~33 ms after the MMCM locks) it waits SETTLE 3 s, then if the speed is
+  10/100 for 1 s without a break it holds the PHY in reset 2 s (`phy_hold`,
+  registered into `phy_rst_n`), then waits 3 s + back-off before judging
+  again. Back-off after attempt n of an episode: 2 s, 10 s, 30 s, then 60 s
+  every time. So a 100-only partner loses the link at t = ~4 s, ~12 s,
+  ~28 s, ~64 s, ~130 s, then every ~66 s. 60 s at gigabit ends the episode
+  (next fault retries quickly again). Speed "none" neither triggers nor
+  counts as good. Attempts counter saturates at 255.
+* RX MMCM held in reset while the PHY is held; the RX phase hunter (0028)
+  is held in reset while the MMCM is unlocked (previously: only reset on the
+  relock edge), the speed is not 1000 or the PHY is held, so it cannot hunt
+  on an absent/25 MHz clock and always restarts from the default phase.
+* Heartbeat link block (ADR 0005 s3a): byte 138 `rx_link_flags` b3:2 =
+  speed code, b4 = PHY held; byte 139 `rx_reneg` = attempts (was
+  reserved). Speed code 0 on the wire = older build. dutctl `listen`
+  prints `eth 1000M reneg N` (only when the code is non-zero), `--kv` adds
+  `link_speed=` and `rx_reneg=`.
+* Seven-segment: ` 100`, `  10`, `noLk` while not at gigabit (overrides
+  `dHCP` and the IDs).
+* Tests: `tb_link_speed` (meter at 125/123.5/25/2.5 MHz/stopped, a 40 us
+  glitch, FSM timing/back-off/episode reset/no-link/disable/saturation),
+  `tb_seg7_status` codes, `tb_supervisor_core` heartbeat check (speed 3,
+  5 attempts), netproto selftest layout, dutctl vector `heartbeat_link`.
+
+Unknowns for hardware: what RXC the RTL8211E drives with no cable (2.5 or
+25 MHz, or stopped in link-down power saving). If it runs at 2.5/25 MHz
+with the cable out, the board will show `  10`/` 100` and reset the PHY
+with the back-off (harmless, at most once a minute after the first few);
+MDIO (or RGMII in-band status) would tell link-down from 10/100 later.

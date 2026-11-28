@@ -89,6 +89,8 @@ begin
       pk_jtagen_o => pk_jen,
       leds => leds, text_we => open, text_addr => open, text_data => open,
       addr_src0 => open, addr_src1 => open, ep_enable_o => open, stat_rx_good => good, stat_rx_bad => bad,
+      -- link speed / renegotiation (issue 0070): heartbeat link block check
+      link_speed => "11", link_hold => '0', link_reneg => to_unsigned(5, 8),
       vid_present => '1', vid_locked => '1',
       vid_h_total => to_unsigned(858, 16), vid_v_total => to_unsigned(12, 16),
       vid_h_active => to_unsigned(720, 16), vid_v_active => to_unsigned(8, 16),

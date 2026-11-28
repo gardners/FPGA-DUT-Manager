@@ -2,6 +2,9 @@
 -- Until every enabled endpoint has an address: blinking "dHCP".
 -- Then: P12 DUT ID (1 hex digit), '-', P13 DUT ID (2 hex digits, 1m), e.g.
 -- "0-10" (issue 0026).
+-- Link not at gigabit (issue 0070; the MAC is gigabit only) overrides both:
+-- " 100" at 100 Mb/s, "  10" at 10 Mb/s, "noLk" with no RX clock (no link,
+-- or the PHY held in reset while it renegotiates).
 -- Mimas A7 V3.1 schematic (sheet 12): pins 7SEG_0..7 drive segments
 -- G, F, A, B, DP, C, D, E of a common-anode display; all active low.
 -- Digit n is enable(n) = DIG(n+1) via a PNP (active low).
@@ -14,6 +17,7 @@ entity seg7_status is
   port (
     clk      : in  std_logic;
     have_ip  : in  std_logic;               -- all enabled endpoints addressed
+    speed    : in  std_logic_vector(1 downto 0) := "11";   -- link: 0 none, 1 10, 2 100, 3 1000
     id0, id1 : in  unsigned(4 downto 0);     -- 0x0n, 0x1m
     seg      : out std_logic_vector(7 downto 0);
     seg_en   : out std_logic_vector(3 downto 0)
@@ -44,6 +48,12 @@ architecture rtl of seg7_status is
   constant CH_P : std_logic_vector(6 downto 0) := "1110011";
   constant CH_DASH : std_logic_vector(6 downto 0) := "1000000";
   constant CH_OFF  : std_logic_vector(6 downto 0) := "0000000";
+  constant CH_n : std_logic_vector(6 downto 0) := "1010100";
+  constant CH_o : std_logic_vector(6 downto 0) := "1011100";
+  constant CH_L : std_logic_vector(6 downto 0) := "0111000";
+  constant CH_k : std_logic_vector(6 downto 0) := "1110101";
+  constant CH_1 : std_logic_vector(6 downto 0) := "0000110";
+  constant CH_0 : std_logic_vector(6 downto 0) := "0111111";
 begin
   process (clk)
     variable lit : std_logic_vector(6 downto 0);
@@ -56,7 +66,22 @@ begin
       else
         cnt <= cnt + 1;
       end if;
-      if have_ip = '0' then
+      if speed = "00" then
+        case to_integer(digit) is
+          when 0 => lit := CH_n; when 1 => lit := CH_o;
+          when 2 => lit := CH_L; when others => lit := CH_k;
+        end case;
+      elsif speed = "10" then
+        case to_integer(digit) is
+          when 0 => lit := CH_OFF; when 1 => lit := CH_1;
+          when others => lit := CH_0;
+        end case;
+      elsif speed = "01" then
+        case to_integer(digit) is
+          when 2 => lit := CH_1; when 3 => lit := CH_0;
+          when others => lit := CH_OFF;
+        end case;
+      elsif have_ip = '0' then
         case to_integer(digit) is
           when 0 => lit := CH_d; when 1 => lit := CH_H;
           when 2 => lit := CH_C; when others => lit := CH_P;

@@ -160,7 +160,11 @@ static void test_decoders(void)
   CHECK(dp_decode_heartbeat(v->data + 8, h.length, &hb) == 0);
   CHECK(hb.has_video && hb.video_flags == 7 && hb.tmds_decode_errors == 6);
   CHECK(hb.has_link && hb.rx_phase_pos == 3 && hb.rx_eye_width == 24);
-  CHECK(hb.rx_hunts == 2 && hb.rx_bad_frames == 300 && hb.rx_link_flags == 2);
+  CHECK(hb.rx_hunts == 2 && hb.rx_bad_frames == 300 && hb.rx_link_flags == 0x1A);
+  CHECK(hb.link_speed == DP_LINK_100 && hb.rx_reneg == 0xFE && (hb.rx_link_flags & DP_RXF_PHY_HOLD));
+  CHECK(strcmp(dp_link_speed_name(DP_LINK_1000), "1000M") == 0);
+  CHECK(strcmp(dp_link_speed_name(DP_LINK_NONE), "none") == 0);
+  CHECK(strcmp(dp_link_speed_name(7), "?") == 0);
   CHECK(!hb.has_mem);
 
   v = vec("heartbeat_mem");

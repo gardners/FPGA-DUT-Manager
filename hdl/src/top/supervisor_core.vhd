@@ -85,6 +85,11 @@ entity supervisor_core is
     rx_ps_en    : out std_logic;
     rx_ps_done  : in  std_logic := '0';
     rx_locked   : in  std_logic := '1';
+    -- link speed / gigabit renegotiation (issue 0070, clk_sys): measured
+    -- speed 0 none, 1 = 10, 2 = 100, 3 = 1000; PHY held in reset; attempts
+    link_speed  : in  std_logic_vector(1 downto 0) := "11";
+    link_hold   : in  std_logic := '0';
+    link_reneg  : in  unsigned(7 downto 0) := (others => '0');
     -- HDMI IN measurement (clk_sys domain, issue 0022): heartbeat video block
     vid_present, vid_locked : in std_logic := '0';
     vid_h_total, vid_v_total, vid_h_active, vid_v_active : in unsigned(15 downto 0) := (others => '0');
@@ -391,7 +396,12 @@ begin
       hu_bad  <= ob_b_s(2) xor ob_b_s(1);
       if hu_bad = '1' then hu_badcnt <= hu_badcnt + 1; end if;
       lock_s <= lock_s(1 downto 0) & rx_locked;
-      hu_rst <= lock_s(1) and not lock_s(2);   -- MMCM (re)locked: phase = default
+      -- held while the RX MMCM is unlocked (its phase restarts at the
+      -- default when it relocks), while the link is not at gigabit and while
+      -- the PHY is held in reset for renegotiation (issue 0070): no hunting
+      -- on a clock that is absent or 25/2.5 MHz
+      hu_rst <= not (lock_s(1) and lock_s(2)) or link_hold or
+                (link_speed(1) nand link_speed(0));
     end if;
   end process;
   hunter : entity work.rx_phase_hunter
@@ -670,7 +680,9 @@ begin
   bstat.rx_eye      <= std_logic_vector(hu_eye);
   bstat.rx_hunts    <= hu_hunts;
   bstat.rx_bad      <= hu_badcnt;
-  bstat.rx_flags    <= "000000" & lock_s(2) & hu_hunting;
+  -- b0 hunting, b1 RX MMCM locked, b3:2 link speed, b4 PHY held (issue 0070)
+  bstat.rx_flags    <= "000" & link_hold & link_speed & lock_s(2) & hu_hunting;
+  bstat.rx_reneg    <= link_reneg;
   bstat.mem         <= mem_status;
   bstat.nb          <= nb_st;
   bstat.shd         <= shd_status;
