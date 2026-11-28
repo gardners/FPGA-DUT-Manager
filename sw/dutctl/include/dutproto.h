@@ -164,7 +164,9 @@ typedef struct {
   uint8_t rx_phase_pos;  /* RX sample phase, positions of 5.625 deg from power-up */
   uint8_t rx_eye_width;  /* passing positions in the last hunt (0 = never hunted) */
   uint16_t rx_hunts, rx_bad_frames;
-  uint8_t rx_link_flags; /* b0 hunting, b1 RX MMCM locked */
+  uint8_t rx_link_flags; /* DP_RXF_*: b0 hunting, b1 RX MMCM locked, b3:2 link speed, b4 PHY held */
+  uint8_t rx_reneg;      /* gigabit renegotiation attempts since configuration (saturates), 0070 */
+  uint8_t link_speed;    /* DP_LINK_* = (rx_link_flags >> 2) & 3 (issue 0070) */
   /* memory block (ADR 0005 section 3b); valid only when has_mem (payload >= 144) */
   uint8_t has_mem;
   uint8_t mem_flags;      /* DP_MEM_* */
@@ -366,6 +368,15 @@ enum {
   DP_CON_RELAYED = 4,     /* full-resolution relayed picture of the video target (issue 0060) */
 };
 const char *dp_con_shown_name(int v); /* "editable" .. "relayed", "?" */
+/* heartbeat byte 138 (rx_link_flags), ADR 0005 section 3a */
+enum {
+  DP_RXF_HUNTING = 0x01,  /* RX phase hunt in progress (issue 0028) */
+  DP_RXF_LOCKED = 0x02,   /* RX MMCM locked */
+  DP_RXF_SPEED_SHIFT = 2, /* b3:2 measured link speed, DP_LINK_* (issue 0070) */
+  DP_RXF_PHY_HOLD = 0x10, /* PHY held in reset for a gigabit renegotiation (issue 0070) */
+};
+enum { DP_LINK_NONE = 0, DP_LINK_10 = 1, DP_LINK_100 = 2, DP_LINK_1000 = 3 };
+const char *dp_link_speed_name(int v); /* "none", "10M", "100M", "1000M", "?" */
 /* heartbeat byte 108 (video_flags), ADR 0005 section 8 */
 enum {
   DP_VF_CLOCK = 0x01,   /* TMDS clock present */

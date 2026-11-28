@@ -196,7 +196,9 @@ package net_pkg is
     rx_eye      : std_logic_vector(7 downto 0);
     rx_hunts    : unsigned(15 downto 0);
     rx_bad      : unsigned(15 downto 0);
-    rx_flags    : std_logic_vector(7 downto 0);   -- b0 hunting, b1 RX MMCM locked
+    rx_flags    : std_logic_vector(7 downto 0);   -- b0 hunting, b1 RX MMCM locked,
+                                                  -- b3:2 link speed, b4 PHY held (0070)
+    rx_reneg    : unsigned(7 downto 0);           -- gigabit renegotiations (0070)
     -- HDMI IN (issue 0022), heartbeat video block
     vid_flags   : std_logic_vector(7 downto 0);   -- b0 clock present, b1 locked
     vid_h_total, vid_v_total, vid_h_active, vid_v_active : unsigned(15 downto 0);

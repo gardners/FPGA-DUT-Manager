@@ -36,7 +36,7 @@ def vectors():
                tmds_decode_errors=6)
     v.append(("heartbeat_video", P.encode_heartbeat(0, hbv)))
     hbl = dict(hbv, rx_phase_pos=3, rx_eye_width=24, rx_hunts=2, rx_bad_frames=300,
-               rx_link_flags=0x02)
+               rx_link_flags=0x02 | (P.LINK_SPEED_100 << 2) | P.RXF_PHY_HOLD, rx_reneg=0xFE)
     v.append(("heartbeat_link", P.encode_heartbeat(1, hbl)))
     hbm = dict(hbl, mem_flags=P.MEM_CALIBRATED | P.MEM_ST_DONE, mem_errors=513, mem_dq_fail=0x8001,
                mem_test_kib=1024, mem_first_err=0x00ABCDEF)

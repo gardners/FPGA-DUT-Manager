@@ -368,8 +368,10 @@ static void print_hb_kv(const char *ip, const dp_hdr_t *h, const dp_heartbeat_t 
            hb->pixel_clock_hz, hb->frames_captured, hb->raster_lines_dropped, hb->tmds_decode_errors);
   printf(" has_link=%u", hb->has_link);
   if (hb->has_link)
-    printf(" rx_phase_pos=%u rx_eye_width=%u rx_hunts=%u rx_bad_frames=%u rx_link_flags=%u",
-           hb->rx_phase_pos, hb->rx_eye_width, hb->rx_hunts, hb->rx_bad_frames, hb->rx_link_flags);
+    printf(" rx_phase_pos=%u rx_eye_width=%u rx_hunts=%u rx_bad_frames=%u rx_link_flags=%u"
+           " link_speed=%u rx_reneg=%u",
+           hb->rx_phase_pos, hb->rx_eye_width, hb->rx_hunts, hb->rx_bad_frames, hb->rx_link_flags,
+           hb->link_speed, hb->rx_reneg);
   printf(" has_mem=%u", hb->has_mem);
   if (hb->has_mem)
     printf(" mem_flags=%u mem_errors=%u mem_dq_fail=%u mem_test_kib=%u mem_first_err=%u",
@@ -464,7 +466,11 @@ static int cmd_listen(int argc, char **argv)
       printf("  kbd %s  rx phase %u eye %u hunts %u bad %u%s",
              hb.phys_type < 4 ? ktypes[hb.phys_type] : "?", hb.rx_phase_pos,
              hb.rx_eye_width, hb.rx_hunts, hb.rx_bad_frames,
-             (hb.rx_link_flags & 1) ? " HUNTING" : "");
+             (hb.rx_link_flags & DP_RXF_HUNTING) ? " HUNTING" : "");
+    /* issue 0070: measured speed + renegotiations; older builds send 0 here */
+    if (hb.has_link && hb.link_speed != DP_LINK_NONE)
+      printf("  eth %s reneg %u%s", dp_link_speed_name(hb.link_speed), hb.rx_reneg,
+             (hb.rx_link_flags & DP_RXF_PHY_HOLD) ? " PHY-HELD" : "");
     if (hb.has_video) {
       if (hb.video_flags & DP_VF_CLOCK)
         printf("  video %s %ux%u of %ux%u %.3f MHz%s%s%s",

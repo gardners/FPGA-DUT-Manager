@@ -132,6 +132,11 @@ architecture rtl of mimas_a7_top is
   signal rst_cnt : unsigned(21 downto 0) := (others => '0');
   signal phy_rst : std_logic := '0';
   signal rx_locked, rx_ps_en, rx_ps_done : std_logic;
+  -- link speed / gigabit renegotiation (issue 0070)
+  signal rxc_meas, phy_hold : std_logic;
+  signal phy_rst_q : std_logic := '0';
+  signal link_speed : std_logic_vector(1 downto 0);
+  signal link_reneg : unsigned(7 downto 0);
   signal dna : std_logic_vector(63 downto 0);
   signal clk100_g : std_logic;
   signal con_screen : unsigned(1 downto 0);
@@ -228,7 +233,23 @@ begin
       end if;
     end if;
   end process;
-  phy_rst_n <= phy_rst;
+  -- Issue 0070: the MAC is gigabit only. Measure the link speed from RXC
+  -- and, if the link sits at 10/100, hold the PHY in reset for 2 s so it
+  -- renegotiates (backing off up to once a minute); see gig_renegotiate.
+  spd : entity work.link_speed_meter
+    generic map (CLK_HZ => 125_000_000, WIN_LOG2 => 15, DEBOUNCE => 4)
+    port map (rxc => rxc_meas, clk => clk_sys, speed => link_speed, count => open);
+  reneg : entity work.gig_renegotiate
+    generic map (TICK_CYC => 125_000)
+    port map (clk => clk_sys, enable => phy_rst, speed => link_speed,
+              phy_hold => phy_hold, attempts => link_reneg, level => open);
+  process (clk_sys)   -- registered: no decode glitches on the PHY reset pin
+  begin
+    if rising_edge(clk_sys) then
+      phy_rst_q <= phy_rst and not phy_hold;
+    end if;
+  end process;
+  phy_rst_n <= phy_rst_q;
   phy_mdc   <= '0';
   phy_mdio  <= 'Z';
 
@@ -241,7 +262,7 @@ begin
       clk_sys => clk_sys, clk_tx90 => clk_tx90,
       rgmii_txc => rgmii_txc, rgmii_tx_ctl => rgmii_tx_ctl, rgmii_txd => rgmii_txd,
       rgmii_rxc => rgmii_rxc, rgmii_rx_ctl => rgmii_rx_ctl, rgmii_rxd => rgmii_rxd,
-      clk_rx => clk_rx, rx_locked => rx_locked, ps_en => rx_ps_en, ps_done => rx_ps_done,
+      clk_rx => clk_rx, rxc_meas => rxc_meas, rx_hold => phy_hold, rx_locked => rx_locked, ps_en => rx_ps_en, ps_done => rx_ps_done,
       rx_dv => rx_dv, rx_er => rx_er, rxd => rxd,
       tx_en => tx_en, tx_er => '0', txd => txd);
 
@@ -266,6 +287,7 @@ begin
       addr_src0 => src0, addr_src1 => src1, ep_enable_o => ep_en,
       stat_rx_good => good, stat_rx_bad => bad,
       rx_ps_en => rx_ps_en, rx_ps_done => rx_ps_done, rx_locked => rx_locked,
+      link_speed => link_speed, link_hold => phy_hold, link_reneg => link_reneg,
       vid_present => hb_present, vid_locked => hb_locked,
       vid_h_total => hb_ht, vid_v_total => hb_vt, vid_h_active => hb_ha,
       vid_v_active => hb_va, vid_pixel_hz => hb_hz,
@@ -527,7 +549,7 @@ begin
 
   have_ip <= '1' when (src0 /= x"00" or ep_en(0) = '0') and (src1 /= x"00" or ep_en(1) = '0') else '0';
   seg7 : entity work.seg7_status
-    port map (clk => clk_sys, have_ip => have_ip, id0 => unsigned('0' & dip(3 downto 0)),
+    port map (clk => clk_sys, have_ip => have_ip, speed => link_speed, id0 => unsigned('0' & dip(3 downto 0)),
               id1 => unsigned('1' & dip(7 downto 4)), seg => seg, seg_en => seg_en);
 
   -- DUT pins: outputs tri-stated unless the core enables them

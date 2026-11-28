@@ -363,7 +363,10 @@ def check(path):
         if (h["mem_flags"], h["mem_errors"], h["mem_dq_fail"], h["mem_first_err"]) != (0, 0, 0, 0xFFFFFFFF):
             err("memory block unexpected: %r" % ({k: h[k] for k in P.MEM_FIELDS},))
             break
-        if h["rx_hunts"] != 0 or h["rx_phase_pos"] != 0:
+        # testbench: gigabit, 5 renegotiation attempts (issue 0070), RX MMCM
+        # locked, not hunting, PHY not held
+        if h["rx_hunts"] != 0 or h["rx_phase_pos"] != 0 or h["link_speed"] != P.LINK_SPEED_1000 \
+                or h["rx_reneg"] != 5 or h["rx_link_flags"] != P.RXF_LOCKED | (P.LINK_SPEED_1000 << 2):
             err("link block unexpected: %r" % ({k: h[k] for k in P.LINK_FIELDS},))
             break
         # testbench HDMI IN: clock present + locked; capture enabled on DUT0 only
