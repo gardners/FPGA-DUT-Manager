@@ -12,6 +12,7 @@
 #   make dutctl      # build the Linux control CLI
 #   make vivado      # same as make bitstream FLOW=vivado (needs Vivado)
 #   make pcb-routing # autoroute generated PCBs whose generator changed (Freerouting)
+#   make pcb-fab     # front panel: DRC/ERC, Gerbers+drill zip, JLC BOM/CPL (out/fab)
 #
 # JOBS controls toolchain compile parallelism (default: min(nproc/2, free GB/3)).
 
@@ -58,7 +59,7 @@ endif
 .DELETE_ON_ERROR:
 FORCE:
 .PHONY: vivado all help deps toolchain test test-hdl test-sw bitstream jtagload jtagload-good flash relay-fw relay-flash \
-        detect dutctl list-boards check-board clean distclean pcb-routing
+        detect dutctl list-boards check-board clean distclean pcb-routing pcb-fab
 
 all: test bitstream dutctl
 
@@ -234,6 +235,13 @@ $(FRONT_PCB)/tracks.json: $(wildcard $(FRONT_PCB)/tools/*.py) $(FRONT_PCB)/tools
                           $(REPO)/scripts/route-front-panel.sh | $(FREEROUTING_JAR)
 	$(REPO)/scripts/route-front-panel.sh $(FREEROUTING_JAR)
 	touch $@
+
+# JLCPCB package for the routed front panel (issue 0050): ERC, DRC with
+# schematic parity (fails on any violation), Gerbers + Excellon zipped, JLC
+# BOM and CPL with rotation corrections. Reads the KiCad sources only; writes
+# hardware/mega-kvm-front/out/fab. Needs the KiCad 10 flatpak (or KICAD_CLI).
+pcb-fab:
+	$(FRONT_PCB)/tools/fab.sh
 
 # ---------------------------------------------------------------- housekeeping
 clean:

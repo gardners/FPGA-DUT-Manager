@@ -153,3 +153,59 @@ backpack's differs (re-route, DRC 0). Agent, branch `feature/rack-case-4`.
 ## 2026-11-28 owner: routed front panel approved ("Sounds reasonable")
 
 Next: JLC fab outputs (gerbers, drill, BOM, CPL) from the routed board.
+
+## 2026-11-28 progress: JLC fabrication package (agent, branch feature/front-panel-fab)
+
+`make pcb-fab` (`hardware/mega-kvm-front/tools/fab.sh` + `tools/jlc_fab.py`)
+writes `hardware/mega-kvm-front/out/fab/` from the committed KiCad files
+(read only; no source changed). Details and ordering options:
+`out/fab/README.md`.
+
+* Checks on the current files: **ERC 0 errors 0 warnings; DRC 0 violations,
+  0 unconnected, 0 footprint errors, schematic parity**. The target fails on
+  any DRC violation or ERC error.
+* `mega-kvm-front-gerbers.zip`: F/B Cu, Paste, Silkscreen, Mask, Edge.Cuts
+  (JLC's KiCad settings) + Excellon PTH/NPTH. Board 140.00 x 66.00 mm with
+  the 73 x 26 mm LCD window cutout, 2 layers, 1.6 mm assumed. Smallest
+  feature 0.30/0.60 mm vias, 0.2 mm tracks: JLC standard capability.
+* JLC BOM/CPL (`-bom-jlc.csv`, `-cpl-jlc.csv`): the 33 SMT parts (8 lines)
+  JLC places, all top side. THT parts (LEDs, switches, J1/J2/JP1 on the
+  bottom) are in `-handfit.csv`; `-with-tht` variants cover JLC's THT
+  assembly as an option. J3 stays DNP.
+* Problems in the old `out/mega-kvm-front-bom.csv`/`-cpl.csv` (kept as
+  overview, not for ordering): they include all THT parts and the DNP J3,
+  the column is `LCSC` rather than `LCSC Part #`, and the CPL has no JLC
+  rotation corrections. The new CPL adds the JLCKicadTools corrections:
+  R_Array_Convex +90, TSSOP-24 +270, VSSOP-8 +180; 0603 chips 0.
+  **Check in JLC's viewer: U1, U2 (pin 1), U3 (least certain rule), RN1-RN4.**
+* All 15 LCSC numbers looked up on LCSC on 2026-11-28; each exists and
+  matches value, package and MPN (C14663, C19702, C23179, C25804, C25811,
+  C29718, C130204 TCA9535PWR TSSOP-24, C33196 PCA9306DCUR VSSOP-8, C84774,
+  C85161, C136679, C37208, C124378, C57369, C49257). LCSC catalogue stock
+  that day (JLC's assembly stock is separate, check at order time): C25804
+  (10 k, R21/R22) showed **0** at LCSC although it is a JLC basic part;
+  C136679 (switch) only 470; C14663 4000; the rest ample.
+* JP1 needs a 2.54 mm jumper shunt, not in the BOM (hand-fit).
+* Known difference: the Gerbers use the pours as filled and saved by
+  `pcb_build.py` (DRC 0). A KiCad refill (B in the GUI, `--refill-zones`)
+  gives one starved thermal on J2 pin 1 (GND island on B.Cu); recorded in
+  `out/fab/drc-refilled.rpt`. Harmless for fabrication (pad also on the
+  F.Cu GND pour, 0 unconnected either way), but a generator follow-up:
+  don't refill+save the board before ordering without re-running
+  `make pcb-fab`.
+
+Questions for the owner when ordering:
+
+1. **Assembly scope.** Recommended: JLC Economic PCBA, SMT top side only
+   (`-bom-jlc.csv`/`-cpl-jlc.csv`), hand-fit the LEDs and switches against
+   the panel and the three bottom headers. Alternative: Standard PCBA with
+   THT (`-with-tht` files), more cost, and LED/switch height against the
+   panel is then JLC's.
+2. **Quantity.** Recommended: 5 PCBs, 2 assembled (one KVM plus a spare).
+   Alternative: all 5 assembled if more KVM units are planned.
+3. **Finish / order number.** Recommended: HASL lead-free, any colour, and
+   let JLC print its order number (the F side faces the panel). Alternative:
+   ENIG and/or paid "remove order number".
+4. **R21/R22 10 k (C25804) stock.** If JLC shows it out of stock at order
+   time, recommended: substitute any JLC basic 10 k 0603 1 % in their part
+   picker (nothing else depends on the part). Alternative: wait.
