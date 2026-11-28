@@ -80,3 +80,12 @@ Unknowns for hardware: what RXC the RTL8211E drives with no cable (2.5 or
 with the cable out, the board will show `  10`/` 100` and reset the PHY
 with the back-off (harmless, at most once a minute after the first few);
 MDIO (or RGMII in-band status) would tell link-down from 10/100 later.
+
+## 2026-11-28 lead: merged and built
+
+Merged into feature/foundation (246580b); make test green (43 HDL,
+netproto selftest, 995 dutctl, 52 relay). Build **246580b6**: TIMING MET,
+WNS +0.193 ns, WHS +0.020 ns. dutctl installed (decodes `eth 1000M reneg
+N`), keeper restarted. Hardware test waits for the owner at the switch
+(force the port to 100, watch the drop/retry, back to auto) and a hardweb
+reload window.
