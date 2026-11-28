@@ -37,3 +37,17 @@ and eno2.3101 are still 1500: the VLAN override did not apply (the script
 did not find the NM-made VLAN definitions, or their ID differs). Host
 raster traffic is untagged on eno2, so the raster capture is unaffected;
 eno2.1650 at 1500 only limits sniffing relay frames there.
+
+## 2026-11-28 lead: raster passes; script v2 for all VLANs
+
+With eno2 at 9000, hwtest on known-good 6f2fdc94 is **69/0** (raster
+capture dut1: 2 complete 720x480 frames), the first clean run.
+
+Owner: "Give me an updated script to set all the VLANs to mtu 9000 on
+boot." v1's VLAN step did nothing (NM VLANs stayed MTU auto: the netplan
+lookup did not find the NM-made definitions). **v2**: eno2 via netplan as
+before; each NM VLAN on eno2 via `nmcli connection modify <uuid>
+802-3-ethernet.mtu 9000` (NM persists it); a dispatcher hook
+/etc/NetworkManager/dispatcher.d/50-jumbo-eno2 that raises eno2 and any
+eno2.* to 9000 when they come up (never lowers); live `ip link`, no
+bouncing. Dry run on bob found all five VLANs (1650, 3101-3104).

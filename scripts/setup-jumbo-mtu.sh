@@ -1,118 +1,119 @@
 #!/usr/bin/env bash
-# Make jumbo frames on the bench NIC permanent (netplan + NetworkManager).
+# Jumbo frames (MTU 9000) on bob's eno2 and all its VLANs, kept across boots.
 #
 #   sudo scripts/setup-jumbo-mtu.sh [--dry-run] [--mtu N] [--iface eno2]
-#                                   [--vlan 1650]... [--other-vlans keep|jumbo]
 #
-# What it sets, and why:
-#   * eno2 MTU 9000. Raster lines (ADR 0005 section 8: a 720-px RGB888 line
-#     is 2240 bytes on the wire) and relayed thumbnails to the host (~8100
-#     bytes) are jumbo; the supervisor's host traffic is untagged on eno2
-#     (key 0x0046 = 0). The igc NIC allows up to 9216; 9000 is the usual
-#     interoperable value and leaves room for the 802.1Q tag.
-#   * eno2.1650 MTU 9000 (board-to-board relay VLAN, issue 0060/0063), so
-#     `dutctl thumbs eno2.1650` and large pings on the VLAN work.
-#   * The other VLANs on eno2 (eno2.3101..3104 today) are pinned at 1500:
-#     a Linux VLAN inherits its parent's MTU when it is created, so without
-#     a pin they would silently become 9000 at the next boot, and their far
-#     ends are not ours. `--other-vlans jumbo` makes them 9000 as well.
+# Version 2 (2026-11-28, issue 0064). Version 1 set eno2 through netplan but
+# its VLAN step did nothing: the VLANs are NetworkManager-made connections
+# that the netplan lookup did not find, so they stayed at MTU "auto" (1500).
+# The owner wants every VLAN at 9000, so this version:
 #
-# How: `netplan set --origin-hint 60-jumbo-mtu` writes the overrides into
-# /etc/netplan/60-jumbo-mtu.yaml (netplan merges it with the existing eno2
-# and NM-written VLAN definitions; no other file is edited). Then `netplan
-# generate` + `nmcli connection reload` make NetworkManager pick it up, and
-# the MTU is changed live with `ip link`, so no connection is bounced
-# (no DHCP renew, no drop for sessions using the bench). Undo with
-#   sudo rm /etc/netplan/60-jumbo-mtu.yaml && sudo netplan generate &&
-#   sudo nmcli connection reload   (MTUs go back to 1500 at the next boot).
+#   1. eno2: `netplan set --origin-hint 60-jumbo-mtu ethernets.eno2.mtu=N`
+#      (as before; /etc/netplan/60-jumbo-mtu.yaml), netplan generate,
+#      nmcli connection reload.
+#   2. Every NM VLAN connection whose parent is eno2 (eno2.1650,
+#      eno2.3101..3104 today): `nmcli connection modify <con>
+#      802-3-ethernet.mtu N`. NM stores that itself (with the netplan
+#      integration it writes its own 90-NM-*.yaml), so it holds at boot.
+#   3. A NetworkManager dispatcher hook, /etc/NetworkManager/dispatcher.d/
+#      50-jumbo-eno2, as a safety net: whenever eno2 or an eno2.* VLAN comes
+#      up (boot, reconnect, a VLAN added later), it raises the MTU to N if it
+#      is lower (parent first). It never lowers anything.
+#   4. Applies the MTU live with `ip link` (parent first): no connection is
+#      bounced, no DHCP renew, sessions on the bench keep running.
 #
-# The switch must pass jumbo frames (bench switch does: raster capture
-# passed before bob's reboot on 2026-11-28).
+# Consequence: large UDP from bob to a host that only takes 1500 on any of
+# these networks is dropped (TCP negotiates its segment size and is fine).
+# The bench switch passes jumbo frames.
+#
+# Undo: sudo rm /etc/NetworkManager/dispatcher.d/50-jumbo-eno2
+#       /etc/netplan/60-jumbo-mtu.yaml; for each VLAN
+#       `sudo nmcli connection modify <con> 802-3-ethernet.mtu 0` (0 = auto);
+#       sudo netplan generate; sudo nmcli connection reload; reboot.
 set -euo pipefail
 
-mtu=9000 iface=eno2 other=keep dry=0
-vlans=()
+mtu=9000 iface=eno2 dry=0
 while (($#)); do
 	case $1 in
 	--dry-run) dry=1 ;;
 	--mtu) mtu=$2; shift ;;
 	--iface) iface=$2; shift ;;
-	--vlan) vlans+=("$2"); shift ;;
-	--other-vlans) other=$2; shift ;;
 	-h | --help) sed -n '2,32p' "$0"; exit 0 ;;
 	*) echo "unknown option $1" >&2; exit 2 ;;
 	esac
 	shift
 done
-((${#vlans[@]})) || vlans=(1650)
-[[ $other == keep || $other == jumbo ]] || { echo "--other-vlans keep|jumbo" >&2; exit 2; }
 ((dry)) || [[ $EUID == 0 ]] || { echo "run with sudo (or --dry-run)" >&2; exit 1; }
+run() { if ((dry)); then echo "  would run: $*"; else "$@"; fi; }
 
 maxmtu=$(ip -d link show "$iface" | grep -o 'maxmtu [0-9]*' | awk '{print $2}')
 ((mtu <= maxmtu)) || { echo "$iface: maxmtu $maxmtu < $mtu" >&2; exit 1; }
 
-# netplan IDs: eno2 itself and every VLAN whose link is eno2 (NM-created
-# VLANs are stored as NM-<uuid> IDs, so look them up rather than guess).
-# Prints "ID KIND VLAN_ID IFNAME" lines.
-# (NETPLAN_YAML=file replaces `netplan get all`, for testing the parser)
-defs=$( { if [[ -n ${NETPLAN_YAML:-} ]]; then cat "$NETPLAN_YAML"; else netplan get all 2>/dev/null; fi; } | python3 -I -c '
-import sys, yaml
-iface = sys.argv[1]
-n = (yaml.safe_load(sys.stdin) or {}).get("network", {})
-eth = n.get("ethernets", {}) or {}
-for k, v in eth.items():
-    v = v or {}
-    name = v.get("set-name") or (v.get("match") or {}).get("name") or k
-    nm = ((v.get("networkmanager") or {}).get("passthrough") or {}).get("connection.interface-name")
-    if iface in (k, name, nm):
-        print(k, "ethernets", "-", iface)
-for k, v in (n.get("vlans", {}) or {}).items():
-    v = v or {}
-    nm = (v.get("networkmanager") or {}).get("passthrough") or {}
-    link = v.get("link")
-    ifname = nm.get("connection.interface-name") or k
-    if link == iface or ifname.startswith(iface + "."):
-        print(k, "vlans", v.get("id", "?"), ifname)
-' "$iface")
-[[ -n $defs ]] || { echo "no netplan definition found for $iface (need root to read /etc/netplan?)" >&2; exit 1; }
-grep -q ' ethernets ' <<<"$defs" || { echo "no netplan ethernets entry for $iface:"$'\n'"$defs" >&2; exit 1; }
+# NM VLAN connections on $iface, as "uuid ifname"
+vlans=()
+while IFS=: read -r uuid type name; do
+	[[ $type == vlan ]] || continue
+	[[ $(nmcli -g vlan.parent connection show "$uuid") == "$iface" ]] || continue
+	dev=$(nmcli -g connection.interface-name connection show "$uuid")
+	vlans+=("$uuid ${dev:-$name}")
+done < <(nmcli -t -f UUID,TYPE,NAME connection show)
 
-plan=()
-while read -r id kind vid ifname; do
-	if [[ $kind == ethernets ]]; then want=$mtu
-	elif printf '%s\n' "${vlans[@]}" | grep -qx "$vid"; then want=$mtu
-	elif [[ $other == jumbo ]]; then want=$mtu
-	else want=1500; fi
-	plan+=("$kind.$id.mtu=$want $ifname $want")
-done <<<"$defs"
+echo "$iface: live MTU $(cat /sys/class/net/$iface/mtu) -> $mtu"
+for v in "${vlans[@]}"; do
+	read -r uuid dev <<<"$v"
+	echo "VLAN $dev: NM mtu $(nmcli -g 802-3-ethernet.mtu connection show "$uuid"), live $(cat /sys/class/net/$dev/mtu 2>/dev/null || echo down) -> $mtu"
+done
+((${#vlans[@]})) || echo "(no NM VLAN connections on $iface)"
 
-echo "plan (netplan key, interface, MTU):"
-printf '  %s\n' "${plan[@]}"
+echo "1. $iface via netplan"
+run netplan set --origin-hint 60-jumbo-mtu "ethernets.$iface.mtu=$mtu"
+((dry)) || chmod 600 /etc/netplan/60-jumbo-mtu.yaml
+run netplan generate
+run nmcli connection reload
+
+echo "2. VLAN connections via NetworkManager"
+for v in "${vlans[@]}"; do
+	read -r uuid dev <<<"$v"
+	run nmcli connection modify "$uuid" 802-3-ethernet.mtu "$mtu"
+done
+
+hook=/etc/NetworkManager/dispatcher.d/50-jumbo-eno2
+echo "3. dispatcher hook $hook"
+body=$(cat <<EOF
+#!/bin/sh
+# Installed by FPGA-DUT-Manager scripts/setup-jumbo-mtu.sh (issue 0064):
+# raise $iface and its VLANs to MTU $mtu when they come up; never lowers.
+case "\$1" in $iface|$iface.*) ;; *) exit 0 ;; esac
+case "\$2" in up|pre-up|dhcp4-change|connectivity-change) ;; *) exit 0 ;; esac
+raise() {
+	[ -e "/sys/class/net/\$1/mtu" ] || return 0
+	[ "\$(cat "/sys/class/net/\$1/mtu")" -lt $mtu ] && ip link set dev "\$1" mtu $mtu
+	return 0
+}
+raise $iface
+[ "\$1" = $iface ] || raise "\$1"
+exit 0
+EOF
+)
+if ((dry)); then
+	echo "  would write $hook:"; sed 's/^/    | /' <<<"$body"
+else
+	printf '%s\n' "$body" > "$hook"; chmod 755 "$hook"; chown root:root "$hook"
+fi
+
+echo "4. live (parent first)"
+run ip link set dev "$iface" mtu "$mtu"
+for v in "${vlans[@]}"; do
+	read -r uuid dev <<<"$v"
+	if [[ -e /sys/class/net/$dev ]]; then run ip link set dev "$dev" mtu "$mtu"; fi
+done
+
 ((dry)) && exit 0
-
-for p in "${plan[@]}"; do
-	netplan set --origin-hint 60-jumbo-mtu "${p%% *}"
-done
-chmod 600 /etc/netplan/60-jumbo-mtu.yaml
-netplan generate
-nmcli connection reload
-# live: parent first when growing, VLANs after
-for p in "${plan[@]}"; do
-	read -r _ ifname want <<<"$p"
-	if [[ $ifname == "$iface" ]]; then ip link set dev "$ifname" mtu "$want"; fi
-done
-for p in "${plan[@]}"; do
-	read -r _ ifname want <<<"$p"
-	if [[ $ifname != "$iface" ]] && ip link show "$ifname" >/dev/null 2>&1; then
-		ip link set dev "$ifname" mtu "$want"
-	fi
-done
-
-echo; echo "/etc/netplan/60-jumbo-mtu.yaml:"; cat /etc/netplan/60-jumbo-mtu.yaml
 echo; echo "now:"
-for p in "${plan[@]}"; do
-	read -r _ ifname _ <<<"$p"
-	ip -br link show "$ifname" 2>/dev/null | awk '{print "  " $1}' | tr '\n' ' '
-	ip -o link show "$ifname" 2>/dev/null | grep -o 'mtu [0-9]*' || echo "  $ifname absent"
+printf '  %-12s mtu %s\n' "$iface" "$(cat /sys/class/net/$iface/mtu)"
+for v in "${vlans[@]}"; do
+	read -r uuid dev <<<"$v"
+	printf '  %-12s mtu %s (NM %s)\n' "$dev" "$(cat /sys/class/net/$dev/mtu 2>/dev/null || echo down)" \
+		"$(nmcli -g 802-3-ethernet.mtu connection show "$uuid")"
 done
-echo "check after the next reboot: ip link show $iface | grep mtu"
+echo "check after the next reboot: ip -br link | grep $iface; ip link show $iface.1650 | grep mtu"
