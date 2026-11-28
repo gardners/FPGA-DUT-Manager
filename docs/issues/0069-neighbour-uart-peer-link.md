@@ -1,6 +1,6 @@
 # 0069: Neighbour UART between two supervisors (same image, peer/role detection)
 
-Status: in progress (owner, 2026-11-28). Related: ADR 0007 (neighbour link:
+Status: phase 1 on hardware (one board, standalone), known-good 9f4cebd2; two-board test pending Mimas #2 (owner, 2026-11-28).
 P12 row 23, G17 TX / G18 RX), 0044 (cross-board KVM over Ethernet), 0068
 (test-DUT image: superseded as the plan for Mimas #2, kept as an optional
 bench tool), shield pin plan.
@@ -91,3 +91,13 @@ Hardware test plan (lead):
 4. Optional: same B on both boards gives `B-CLASH` with the lower DNA
    primary. One board's TX jumpered to its own RX gives `LOOPBACK` and
    standalone.
+
+## 2026-11-28 lead: merged, on hardware (one board), known-good
+
+Merged into feature/foundation (9f4cebd), make test green (42 HDL, netproto
+selftest, 991 dutctl, 52 relay). Build 9f4cebd2: TIMING MET, WNS +0.006 ns
+(thin; the same HDL built +0.226 ns in the agent worktree: placement
+variance), 66.8 % LUTs. On B0: hwcheck PASS, hwtest 69/0, heartbeat
+`nb standalone (no peer) rx 0 tx 330` ~33 s after the load (10 HELLO/s).
+Promoted to known-good, main = 9f4cebd. Next: Mimas #2 with the same
+bitstream (DIP 0x11, FTDI_SERIAL), then the three crossed jumpers.

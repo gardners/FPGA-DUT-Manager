@@ -10,8 +10,8 @@ docs/handover-2026-11-25.md. The memory index (~/.claude/projects/...
 
 * Branch `feature/foundation` (pushed) is the integration branch; agents
   branch from `origin/feature/foundation` in worktrees and the lead merges
-  with `--no-ff`. `main` = **6f2fdc9**, known-good bitstream
-  **bits/supervisor-6f2fdc94.bit** (`bits/known-good.bit`; bits/*.bit are
+  with `--no-ff`. `main` = **9f4cebd**, known-good bitstream
+  **bits/supervisor-9f4cebd2.bit** (`bits/known-good.bit`; bits/*.bit are
   git-ignored, only README + symlink tracked). It is loaded on the board.
 * Bench: one Mimas A7 supervisor, endpoints **DUT0 = 203.28.176.86**
   (MEGA65, owner has it off the network for now) and **DUT1 =
@@ -84,6 +84,17 @@ docs/handover-2026-11-25.md. The memory index (~/.claude/projects/...
   the DUT is known off (out-policy 2 / shield hold). Build 6f2fdc94 on
   hardware, hwtest 68/1, known-good, main = 6f2fdc9. Reloads of the
   supervisor: message the hardweb session first (it pauses its UART bridge).
+
+* Later 2026-11-28: jumbo frames on bob (hwtest **69/0**), script v2 for all
+  VLANs (owner to run); 0066 dutctl-keeper user service running and verified
+  on a reload; 0050 front-panel JLC package (`make pcb-fab`); keyboard CPLD
+  pushed upstream as `long-keyboard-cable-protocol`; JTAG loads need
+  FTDI_SERIAL with several boards (B0 = NL4IT7JQ). 0069 neighbour UART
+  (P12 row 23, crossover to a second Mimas; same image, role by lower B):
+  known-good 9f4cebd2, standalone on B0; two-board test waits for Mimas #2.
+  0068 test_dut image superseded (kept as a bench tool). Owner declined
+  tunnelling over the neighbour link ("wait for Ethernet"; Catalyst 3750
+  coming: needs `system mtu jumbo 9000` + reload).
 
 ## Waiting on the owner (canonical list: rendezvous/agents/fpga-dut-manager/TODO.md)
 

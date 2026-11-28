@@ -1,7 +1,6 @@
 # 0066: Bench settings that survive a supervisor reload
 
-Status: merged and running on bob (2026-11-28); reload check pending
-(next coordinated supervisor reload).
+Status: done, verified on a real reload (2026-11-28).
 
 ## Settings the bench depends on today
 
@@ -124,3 +123,9 @@ applied". User unit installed and enabled; journal: "first seen, boot
 XDG_RUNTIME_DIR=/run/user/1001 in agent shells. Linger is off, so the
 keeper runs only while the owner is logged in on bob (owner question).
 Still to see on hardware: a "boot X -> Y" re-apply after a JTAG load.
+
+## 2026-11-28 lead: verified on a reload
+
+JTAG load of 9f4cebd2: keeper journal "board 00124c296998c854 via
+203.28.176.86 (boot 4cda5eb9 -> 4cdbd847): hdmi-owner 1 - applied"; hwtest
+69/0 and its exit re-apply worked. Done.
