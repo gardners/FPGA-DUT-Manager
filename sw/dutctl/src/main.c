@@ -85,7 +85,7 @@ static void die(const char *msg)
 }
 
 /* ------------------------------------------------------------- UDP helpers */
-static int udp_bind(uint16_t port)
+static int udp_bind_addr(uint16_t port, in_addr_t addr)
 {
   int fd = socket(AF_INET, SOCK_DGRAM, 0);
   if (fd < 0)
@@ -96,10 +96,27 @@ static int udp_bind(uint16_t port)
   setsockopt(fd, SOL_SOCKET, SO_BROADCAST, &one, sizeof one);
   int rcv = 4 << 20;
   setsockopt(fd, SOL_SOCKET, SO_RCVBUF, &rcv, sizeof rcv);
-  struct sockaddr_in a = {.sin_family = AF_INET, .sin_port = htons(port), .sin_addr.s_addr = INADDR_ANY};
+  struct sockaddr_in a = {.sin_family = AF_INET, .sin_port = htons(port), .sin_addr.s_addr = addr};
   if (bind(fd, (struct sockaddr *)&a, sizeof a) < 0)
     die("bind");
   return fd;
+}
+
+static int udp_bind(uint16_t port)
+{
+  return udp_bind_addr(port, htonl(INADDR_ANY));
+}
+
+/* Heartbeat listener for apply / keeper (issue 0066). Bound to the limited
+ * broadcast address it hears the default (broadcast) heartbeats of every
+ * board, like `dutctl listen` and alongside it, but never takes a share of
+ * heartbeats a board sends unicast to this host while another dutctl has
+ * pointed its telemetry here (screenshot): SO_REUSEPORT load-balances
+ * unicast datagrams between the INADDR_ANY sockets of one port. --any
+ * binds INADDR_ANY instead (unicast telemetry, loopback tests). */
+static int hb_bind(int any)
+{
+  return udp_bind_addr(DP_PORT_HB, any ? htonl(INADDR_ANY) : htonl(INADDR_BROADCAST));
 }
 
 static struct sockaddr_in parse_target(const char *ip, uint16_t port)
@@ -1454,15 +1471,20 @@ static int hb_next(int fd, int timeout_ms, dp_heartbeat_t *hb, char *ip, size_t 
 static int cmd_apply(int argc, char **argv)
 {
   double secs = 5;
+  int any = 0;
   for (int i = 0; i < argc; i++) {
     if (!strcmp(argv[i], "-t") && i + 1 < argc)
       secs = atof(argv[++i]);
+    else if (!strcmp(argv[i], "--any"))
+      any = 1;
     else
       return fprintf(stderr,
-                     "usage: dutctl [--conf FILE] apply [-t SECONDS]\n"
+                     "usage: dutctl [--conf FILE] apply [-t SECONDS] [--any]\n"
                      "  listen for heartbeats (default 5 s) and send each [board DNA] section's\n"
                      "  settings in duts.conf once to that board; exit 1 if any send failed\n"
-                     "  (a board not heard is reported, not a failure). Format: dutctl duts --help\n"),
+                     "  (a board not heard is reported, not a failure). Format: dutctl duts --help\n"
+                     "  --any: also hear heartbeats sent unicast to this host (default: broadcast\n"
+                     "  ones only, so other dutctl commands keep all of theirs)\n"),
              !strcmp(argv[i], "-h") || !strcmp(argv[i], "--help") ? 0 : 2;
   }
   const dc_conf_t *c = conf();
@@ -1471,7 +1493,7 @@ static int cmd_apply(int argc, char **argv)
     return 0;
   }
   int done[DC_MAX_BOARDS] = {0}, ndone = 0, fails = 0;
-  int fd = udp_bind(DP_PORT_HB);
+  int fd = hb_bind(any);
   signal(SIGINT, on_sig);
   signal(SIGTERM, on_sig);
   double end = now_s() + secs;
@@ -1490,7 +1512,7 @@ static int cmd_apply(int argc, char **argv)
     int f = board_send(b, ip, what, sizeof what);
     fails += f;
     printf("board %016llx via %s (boot %08x): %s%s\n", b->dna, ip, hb.boot_id,
-           b->nset ? what : "(no settings)", f ? "" : " - applied");
+           b->nset ? what : "(no settings)", (f || !b->nset) ? "" : " - applied");
     fflush(stdout);
   }
   close(fd);
@@ -1524,18 +1546,22 @@ static void keeper_log(const char *fmt, ...)
 static int cmd_keeper(int argc, char **argv)
 {
   double min_iv = 5, max_backoff = 60;
+  int any = 0;
   for (int i = 0; i < argc; i++) {
     if (!strcmp(argv[i], "--min-interval") && i + 1 < argc)
       min_iv = atof(argv[++i]);
+    else if (!strcmp(argv[i], "--any"))
+      any = 1;
     else
       return fprintf(stderr,
-                     "usage: dutctl [--conf FILE] keeper [--min-interval SECONDS]\n"
+                     "usage: dutctl [--conf FILE] keeper [--min-interval SECONDS] [--any]\n"
                      "  long-running: send the [board DNA] settings of duts.conf when a board is\n"
                      "  first heard and again whenever its heartbeat boot id changes (supervisor\n"
                      "  reloaded or reconfigured). At most one send per board per --min-interval\n"
                      "  (default 5 s); failures are retried with backoff up to 60 s. SIGHUP\n"
                      "  re-reads duts.conf and re-applies to every board. One line per action on\n"
-                     "  stdout. systemd user unit: sw/dutctl/systemd/dutctl-keeper.service\n"),
+                     "  stdout. Hears broadcast heartbeats only unless --any (see dutctl apply -h).\n"
+                     "  systemd user unit: sw/dutctl/systemd/dutctl-keeper.service\n"),
              !strcmp(argv[i], "-h") || !strcmp(argv[i], "--help") ? 0 : 2;
   }
   struct sigaction sa;
@@ -1549,7 +1575,7 @@ static int cmd_keeper(int argc, char **argv)
   kp_init(&k, min_iv, max_backoff);
   const dc_conf_t *c = conf();
   keeper_log("keeper: %d board section(s) in %s", c->nboards, conf_path());
-  int fd = udp_bind(DP_PORT_HB);
+  int fd = hb_bind(any);
   while (!g_stop) {
     if (g_hup) {
       g_hup = 0;
@@ -1586,7 +1612,7 @@ static int cmd_keeper(int argc, char **argv)
     else
       snprintf(reason, sizeof reason, "%s, boot %08x", kp_reason_name(why), hb.boot_id);
     keeper_log("board %016llx via %s (%s): %s%s", b->dna, ip, reason, b->nset ? what : "(no settings)",
-               f ? "" : " - applied");
+               (f || !b->nset) ? "" : " - applied");
   }
   close(fd);
   keeper_log("keeper: stopped");
@@ -1623,7 +1649,8 @@ static int cmd_duts(int argc, char **argv)
     return 0;
   }
   printf("%s:\n", conf_path());
-  printf("%-16s %-7s %-18s %-14s %s\n", "name", "jtag", "endpoint", "TCK", "adaptor / power");
+  if (c->n)
+    printf("%-16s %-7s %-18s %-14s %s\n", "name", "jtag", "endpoint", "TCK", "adaptor / power");
   for (int i = 0; i < c->n; i++) {
     const dc_dut_t *d = &c->d[i];
     char ep[80], tck[40], extra[400];

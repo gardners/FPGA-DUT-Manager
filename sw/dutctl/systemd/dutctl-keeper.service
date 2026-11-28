@@ -1,0 +1,26 @@
+# dutctl keeper (issue 0066): re-applies the [board DNA] bench settings in
+# ~/.config/dutctl/duts.conf whenever a supervisor board is (re)loaded.
+#
+# Install (user unit, no root needed):
+#   make -C sw/dutctl install            # -> ~/.local/bin/dutctl
+#   install -D -m644 sw/dutctl/systemd/dutctl-keeper.service \
+#       ~/.config/systemd/user/dutctl-keeper.service
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now dutctl-keeper
+#   loginctl enable-linger "$USER"       # optional: run without a login session
+# Log:      journalctl --user -u dutctl-keeper -f
+# Re-read duts.conf after editing it:  systemctl --user reload dutctl-keeper
+
+[Unit]
+Description=dutctl keeper: re-apply supervisor bench settings after a reload
+Documentation=file://%h/Projects/mega65/FPGA-DUT-Manager/docs/issues/0066-bench-settings-survive-reload.md
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/dutctl keeper
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target
