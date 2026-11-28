@@ -54,3 +54,9 @@ list should have live links for each item" -> every TODO row's Ref is a
 GitHub link (rv lint enforces it), files to open/run are linked in the
 Item; published 69c44ab. Owner will confirm the hardweb session's setup
 once the repo and its use are improved.
+
+2026-11-28 owner: "for any new questions for the owner, the question
+should be explicitly written with the recommended and alternative
+decisions, and what to do/say/tell to effect each decision". Rule added to
+SKILL.md; all our open questions rewritten (Rec/Alt + exact reply),
+published 1fb0a76.
