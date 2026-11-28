@@ -38,3 +38,9 @@ lower DNA; no peer heard -> standalone). Outputs: NB TX idles high only
 while the link is enabled; harmless if unconnected (RX with a pull-up so
 an open link reads idle). Phase 2 (owner question): tunnel host traffic
 through the peer while a board has no Ethernet.
+
+## 2026-11-28 owner: no tunnelling, wait for Ethernet
+
+Phase 2 (host traffic through the peer) declined: "Wait for ethernet." The
+link stays hints/role only (ADR 0007); #2 gets its own gigabit link (owner
+is bringing up an old Catalyst 3750 for it).
