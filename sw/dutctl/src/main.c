@@ -5,6 +5,10 @@
  *   dutctl mgmt IP KEY [HEXVALUE] [--cmd-id N] [--dut N]
  *                                              raw MGMT_SET, prints the ack
  *   dutctl set IP NAME VALUE                   management (see `dutctl help`)
+ *   dutctl apply [-t SECONDS]                  send duts.conf [board DNA] settings
+ *                                              to the boards heard (issue 0066)
+ *   dutctl keeper [--min-interval S]           re-apply them whenever a board's
+ *                                              boot id changes (systemd user unit)
  *   dutctl kbd IP [KEY ...]                    hold keys (none = all up)
  *   dutctl uart IP [--baud N] [--clear] [--from-start]
  *                                              interactive UART bridge
@@ -39,6 +43,7 @@
 #include <netinet/tcp.h>
 #include <poll.h>
 #include <signal.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -51,9 +56,11 @@
 #include <unistd.h>
 
 #include "dutconf.h"
+#include "dutset.h"
 #include "dutproto.h"
 #include "jtagdisc.h"
 #include "jtagspeed.h"
+#include "keeper.h"
 #include "pngwrite.h"
 #include "rasterframe.h"
 #include "relayhook.h"
@@ -224,59 +231,15 @@ static int cmd_set(int argc, char **argv)
             "                     LED0/1 = drive LED, LED2/3 = power LED)\n");
     return 2;
   }
-  const char *ip = argv[0], *name = argv[1], *val = argv[2];
-  uint8_t v[18];
-  unsigned long u = strtoul(val, NULL, 0);
-  struct {
-    const char *name;
-    uint16_t key;
-    int len; /* 1, 2, 4 numeric; 6 mac; -4 ip */
-  } tab[] = {
-    {"mac", DP_K_MAC, 6}, {"ip", DP_K_IP, -4}, {"dhcp", DP_K_DHCP_EN, 1}, {"dest-ip", DP_K_DEST_IP, -4},
-    {"dest-mac", DP_K_DEST_MAC, 6}, {"baud", DP_K_UART_BAUD, 4}, {"uart-fast", DP_K_UART_FAST, 1},
-    {"uart-snap", DP_K_UART_SNAP_EN, 1}, {"uart-period-us", DP_K_UART_PERIOD, 2},
-    {"kbd-policy", DP_K_KBD_POLICY, 1}, {"kbd-override", DP_K_KBD_OVERRIDE, 1},
-    {"kbd-target", DP_K_KBD_TARGET, 1}, {"video-target", DP_K_VID_TARGET, 1},
-    {"coupled", DP_K_COUPLED, 1}, {"capture", DP_K_CAPTURE_EN, 1},
-    {"hb-period-ms", DP_K_HB_PERIOD, 2}, {"out-policy", DP_K_OUT_POLICY, 1},
-    {"kbd-leds", DP_K_PK_LED_MODE, 1}, {"console-screen", DP_K_CON_SCREEN, 1},
-    {"kbd-jtag", DP_K_PK_JTAG, 1}, {"power-ctl", DP_K_PWR_CTL, 1},
-    {"kbd-jtag-quiet", DP_K_KJ_QUIET, 1}, {"jtag-tdo-vote", DP_K_TDO_VOTE, 1},
-    {"vlan", DP_K_VLAN, 2}, {"hdmi-owner", DP_K_HDMI_OWNER, 1}, {"host-vlan", DP_K_HOST_VLAN, 2},
-    {"relay-view", DP_K_RELAY_VIEW, 1}, {"vlan-base", DP_K_VLAN_BASE, -4},
-  };
-  if (!strcmp(name, "kbd-led-rgb")) {
-    unsigned c[4];
-    if (sscanf(val, "%6x,%6x,%6x,%6x", &c[0], &c[1], &c[2], &c[3]) != 4)
-      return fprintf(stderr, "kbd-led-rgb: expected RRGGBB,RRGGBB,RRGGBB,RRGGBB\n"), 2;
-    for (int l = 0; l < 4; l++) {
-      v[3 * l] = (uint8_t)(c[l] >> 16);     /* R */
-      v[3 * l + 1] = (uint8_t)(c[l] >> 8);  /* G */
-      v[3 * l + 2] = (uint8_t)c[l];         /* B */
-    }
-    return mgmt_set(ip, DP_K_PK_LED_HOST, v, 12);
-  }
-  for (size_t i = 0; i < sizeof tab / sizeof tab[0]; i++) {
-    if (strcmp(name, tab[i].name))
-      continue;
-    int len = tab[i].len;
-    if (tab[i].key == DP_K_UART_BAUD)
-      u = dp_baud_nco((double)u);
-    if (len == 6) {
-      if (parse_mac(val, v) < 0)
-        return fprintf(stderr, "bad MAC\n"), 2;
-    } else if (len == -4) {
-      if (inet_pton(AF_INET, val, v) != 1)
-        return fprintf(stderr, "bad IP\n"), 2;
-      len = 4;
-    } else {
-      for (int b = 0; b < len; b++)
-        v[b] = (uint8_t)(u >> (8 * (len - 1 - b)));
-    }
-    return mgmt_set(ip, tab[i].key, v, (uint16_t)len);
-  }
-  fprintf(stderr, "unknown setting %s\n", name);
-  return 2;
+  uint16_t key, len;
+  uint8_t v[DS_MAX_VALUE];
+  const char *why;
+  int r = ds_encode(argv[1], argv[2], &key, v, &len, &why);
+  if (r == DS_UNKNOWN_NAME)
+    return fprintf(stderr, "unknown setting %s\n", argv[1]), 2;
+  if (r != DS_OK)
+    return fprintf(stderr, "%s: %s\n", argv[1], why), 2;
+  return mgmt_set(argv[0], key, v, len);
 }
 
 /* ------------------------------------------------------------- keyboard */
@@ -1445,6 +1408,191 @@ static int cmd_relay(int argc, char **argv)
   return rc;
 }
 
+/* ------------------------------------------------------------- apply / keeper */
+/* Issue 0066: [board DNA] sections of duts.conf, re-applied after a reload. */
+
+/* Send one board's settings to endpoint ip (dut = any), in file order.
+ * done gets "name value, ..." (failed ones marked); returns the failures. */
+static int board_send(const dc_board_t *b, const char *ip, char *done, size_t cap)
+{
+  int fails = 0;
+  done[0] = 0;
+  for (int i = 0; i < b->nset; i++) {
+    const dc_set_t *e = &b->set[i];
+    uint16_t key, len;
+    uint8_t v[DS_MAX_VALUE];
+    const char *why;
+    size_t l = strlen(done);
+    if (ds_encode(e->name, e->value, &key, v, &len, &why) != DS_OK) {
+      fprintf(stderr, "dutctl: board %016llx: %s %s: %s\n", b->dna, e->name, e->value, why);
+      fails++;
+      continue;
+    }
+    int bad = mgmt_set_q(ip, key, v, len, 1);
+    fails += bad;
+    if (l + 1 < cap)
+      snprintf(done + l, cap - l, "%s%s %s%s", l ? ", " : "", e->name, e->value, bad ? " FAILED" : "");
+  }
+  return fails;
+}
+
+/* The next heartbeat from a board with a usable source address: 0, or -1
+ * on timeout / signal / undecodable packet. */
+static int hb_next(int fd, int timeout_ms, dp_heartbeat_t *hb, char *ip, size_t ipcap)
+{
+  uint8_t buf[DP_MAX_PACKET];
+  dp_hdr_t h;
+  struct sockaddr_in src;
+  if (udp_recv(fd, buf, sizeof buf, timeout_ms, NULL, DP_T_HEARTBEAT, &h, &src) < 0)
+    return -1;
+  if (dp_decode_heartbeat(buf + DP_HDR_LEN, h.length, hb) < 0 || src.sin_addr.s_addr == 0)
+    return -1;
+  inet_ntop(AF_INET, &src.sin_addr, ip, (socklen_t)ipcap);
+  return 0;
+}
+
+static int cmd_apply(int argc, char **argv)
+{
+  double secs = 5;
+  for (int i = 0; i < argc; i++) {
+    if (!strcmp(argv[i], "-t") && i + 1 < argc)
+      secs = atof(argv[++i]);
+    else
+      return fprintf(stderr,
+                     "usage: dutctl [--conf FILE] apply [-t SECONDS]\n"
+                     "  listen for heartbeats (default 5 s) and send each [board DNA] section's\n"
+                     "  settings in duts.conf once to that board; exit 1 if any send failed\n"
+                     "  (a board not heard is reported, not a failure). Format: dutctl duts --help\n"),
+             !strcmp(argv[i], "-h") || !strcmp(argv[i], "--help") ? 0 : 2;
+  }
+  const dc_conf_t *c = conf();
+  if (c->nboards == 0) {
+    printf("no [board DNA] sections in %s (nothing to apply)\n", conf_path());
+    return 0;
+  }
+  int done[DC_MAX_BOARDS] = {0}, ndone = 0, fails = 0;
+  int fd = udp_bind(DP_PORT_HB);
+  signal(SIGINT, on_sig);
+  signal(SIGTERM, on_sig);
+  double end = now_s() + secs;
+  while (!g_stop && ndone < c->nboards && now_s() < end) {
+    dp_heartbeat_t hb;
+    char ip[32];
+    int left = (int)((end - now_s()) * 1000);
+    if (hb_next(fd, left > 200 ? 200 : (left > 0 ? left : 1), &hb, ip, sizeof ip) < 0)
+      continue;
+    const dc_board_t *b = dc_find_board(c, hb.dna);
+    if (!b || done[b - c->b])
+      continue;
+    done[b - c->b] = 1;
+    ndone++;
+    char what[2048];
+    int f = board_send(b, ip, what, sizeof what);
+    fails += f;
+    printf("board %016llx via %s (boot %08x): %s%s\n", b->dna, ip, hb.boot_id,
+           b->nset ? what : "(no settings)", f ? "" : " - applied");
+    fflush(stdout);
+  }
+  close(fd);
+  for (int i = 0; i < c->nboards; i++)
+    if (!done[i])
+      printf("board %016llx: not heard within %.1f s (not applied)\n", c->b[i].dna, secs);
+  fflush(stdout);
+  return fails ? 1 : 0;
+}
+
+static volatile sig_atomic_t g_hup;
+static void on_hup(int s) { (void)s; g_hup = 1; }
+
+static void keeper_log(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+static void keeper_log(const char *fmt, ...)
+{
+  char ts[32];
+  time_t t = time(NULL);
+  struct tm tm;
+  localtime_r(&t, &tm);
+  strftime(ts, sizeof ts, "%Y-%m-%d %H:%M:%S", &tm);
+  printf("%s ", ts);
+  va_list ap;
+  va_start(ap, fmt);
+  vprintf(fmt, ap);
+  va_end(ap);
+  printf("\n");
+  fflush(stdout);
+}
+
+static int cmd_keeper(int argc, char **argv)
+{
+  double min_iv = 5, max_backoff = 60;
+  for (int i = 0; i < argc; i++) {
+    if (!strcmp(argv[i], "--min-interval") && i + 1 < argc)
+      min_iv = atof(argv[++i]);
+    else
+      return fprintf(stderr,
+                     "usage: dutctl [--conf FILE] keeper [--min-interval SECONDS]\n"
+                     "  long-running: send the [board DNA] settings of duts.conf when a board is\n"
+                     "  first heard and again whenever its heartbeat boot id changes (supervisor\n"
+                     "  reloaded or reconfigured). At most one send per board per --min-interval\n"
+                     "  (default 5 s); failures are retried with backoff up to 60 s. SIGHUP\n"
+                     "  re-reads duts.conf and re-applies to every board. One line per action on\n"
+                     "  stdout. systemd user unit: sw/dutctl/systemd/dutctl-keeper.service\n"),
+             !strcmp(argv[i], "-h") || !strcmp(argv[i], "--help") ? 0 : 2;
+  }
+  struct sigaction sa;
+  memset(&sa, 0, sizeof sa);
+  sa.sa_handler = on_sig;
+  sigaction(SIGINT, &sa, NULL);
+  sigaction(SIGTERM, &sa, NULL);
+  sa.sa_handler = on_hup;
+  sigaction(SIGHUP, &sa, NULL);
+  static kp_t k;
+  kp_init(&k, min_iv, max_backoff);
+  const dc_conf_t *c = conf();
+  keeper_log("keeper: %d board section(s) in %s", c->nboards, conf_path());
+  int fd = udp_bind(DP_PORT_HB);
+  while (!g_stop) {
+    if (g_hup) {
+      g_hup = 0;
+      g_conf_loaded = 0;
+      c = conf();
+      for (int i = 0; i < k.n;)
+        if (!dc_find_board(c, k.b[i].dna))
+          kp_forget(&k, k.b[i].dna);
+        else
+          i++;
+      kp_invalidate_all(&k);
+      keeper_log("keeper: re-read %s: %d board section(s)", conf_path(), c->nboards);
+    }
+    dp_heartbeat_t hb;
+    char ip[32];
+    if (hb_next(fd, 500, &hb, ip, sizeof ip) < 0)
+      continue;
+    const dc_board_t *b = dc_find_board(c, hb.dna);
+    if (!b)
+      continue;
+    const kp_board_t *before = kp_find(&k, hb.dna);
+    uint32_t old = before ? before->boot : 0;
+    kp_reason_t why = kp_heartbeat(&k, hb.dna, hb.boot_id, now_s());
+    if (why == KP_NONE)
+      continue;
+    char what[2048];
+    int f = board_send(b, ip, what, sizeof what);
+    kp_done(&k, hb.dna, hb.boot_id, f == 0);
+    char reason[64];
+    if (why == KP_REBOOT)
+      snprintf(reason, sizeof reason, "boot %08x -> %08x", old, hb.boot_id);
+    else if (why == KP_RETRY)
+      snprintf(reason, sizeof reason, "retry %d, boot %08x", kp_find(&k, hb.dna)->fails, hb.boot_id);
+    else
+      snprintf(reason, sizeof reason, "%s, boot %08x", kp_reason_name(why), hb.boot_id);
+    keeper_log("board %016llx via %s (%s): %s%s", b->dna, ip, reason, b->nset ? what : "(no settings)",
+               f ? "" : " - applied");
+  }
+  close(fd);
+  keeper_log("keeper: stopped");
+  return 0;
+}
+
 /* ------------------------------------------------------------- duts */
 static int cmd_duts(int argc, char **argv)
 {
@@ -1461,11 +1609,16 @@ static int cmd_duts(int argc, char **argv)
             "    usb_vid = 0403  usb_pid = 6010  usb_serial = S  ftdi_channel = 0\n"
             "    usb_path = 1-2.3  tty = /dev/ttyUSB3  cable = ft2232  usb_freq = HZ\n"
             "    relay = /dev/ttyACM0 3   power path (relay controller tty and channel)\n"
-            "  `dutctl jtag-discover` proposes the usb_* keys.\n");
+            "  `dutctl jtag-discover` proposes the usb_* keys.\n"
+            "  Bench settings per supervisor board (issue 0066; MGMT keys reset on every\n"
+            "  reload), keyed by the DNA its heartbeats show (dutctl listen: dna ...):\n"
+            "    [board 00124c296998c854]\n"
+            "    set = hdmi-owner 1  NAME VALUE as for dutctl set; any number of lines\n"
+            "  `dutctl apply` sends them once, `dutctl keeper` after every reload.\n");
     return argc == 1 && (!strcmp(argv[0], "-h") || !strcmp(argv[0], "--help")) ? 0 : 2;
   }
   const dc_conf_t *c = conf();
-  if (c->n == 0) {
+  if (c->n == 0 && c->nboards == 0) {
     printf("no DUTs configured in %s (dutctl duts --help)\n", conf_path());
     return 0;
   }
@@ -1498,6 +1651,13 @@ static int cmd_duts(int argc, char **argv)
       snprintf(extra + l, sizeof extra - l, "%srelay %s %d", l ? "  " : "", d->relay_tty, d->relay_ch);
     printf("%-16s %-7s %-18s %-14s %s\n", d->name, d->jtag == DC_JTAG_USB ? "usb" : "octopus", ep, tck,
            extra);
+  }
+  for (int i = 0; i < c->nboards; i++) {
+    const dc_board_t *b = &c->b[i];
+    printf("board %016llx:", b->dna);
+    for (int j = 0; j < b->nset; j++)
+      printf("%s %s %s", j ? "," : "", b->set[j].name, b->set[j].value);
+    printf("%s\n", b->nset ? "" : " (no settings)");
   }
   return 0;
 }
@@ -1858,6 +2018,8 @@ static void usage(void)
           "dutctl - Mimas A7 DUT supervisor control\n"
           "  dutctl listen [-t SECONDS] [-n COUNT] [--kv]\n"
           "  dutctl set IP NAME VALUE          (dutctl set for names)\n"
+          "  dutctl apply [-t SECONDS]         send duts.conf [board DNA] settings to the boards heard\n"
+          "  dutctl keeper [--min-interval S]  re-apply them on every supervisor reload (boot id change)\n"
           "  dutctl mgmt IP KEY [HEXVALUE] [--cmd-id N] [--dut N]   raw MGMT_SET\n"
           "  dutctl kbd IP [KEY ...]           keys by name (A, RETURN, F1...) or matrix number\n"
           "  dutctl uart IP [--baud N] [--clear] [--from-start]\n"
@@ -2507,6 +2669,8 @@ int main(int argc, char **argv)
   argv += 2;
   if (!strcmp(c, "listen")) return cmd_listen(argc, argv);
   if (!strcmp(c, "set")) return cmd_set(argc, argv);
+  if (!strcmp(c, "apply")) return cmd_apply(argc, argv);
+  if (!strcmp(c, "keeper")) return cmd_keeper(argc, argv);
   if (!strcmp(c, "mgmt")) return cmd_mgmt(argc, argv);
   if (!strcmp(c, "kbd")) return cmd_kbd(argc, argv);
   if (!strcmp(c, "uart")) return cmd_uart(argc, argv);
