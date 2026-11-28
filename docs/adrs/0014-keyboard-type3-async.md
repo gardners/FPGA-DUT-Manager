@@ -10,7 +10,7 @@ KIO10 on the host's clock. Over a 3 m cable the round trip and ringing eat
 the timing margin. The owner wants a third protocol, keyboard **type 3**,
 that is asynchronous, can be probed safely, and leaves MK-I working
 unchanged (the same keyboard must still work on any MEGA65). The firmware
-lives in MEGA65/mega65-keyboard-cpld (local branch `type3`); the host side
+lives in MEGA65/mega65-keyboard-cpld (branch `long-keyboard-cable-protocol`, pushed 2026-11-28; was local `type3`); the host side
 is `kbd_t3_host` inside `kbd_phys_host`.
 
 The owner also wants to flash the keyboard CPLD from the host through the
