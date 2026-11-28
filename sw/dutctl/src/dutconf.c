@@ -1,8 +1,11 @@
-/* Per-DUT host configuration (issue 0053). LGPL-2.1-or-later. */
+/* Per-DUT host configuration (issue 0053) and per-board bench settings
+ * (issue 0066); the file format is described in include/dutconf.h.
+ * LGPL-2.1-or-later. */
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
 #include "dutconf.h"
+#include "dutset.h"
 
 #include <ctype.h>
 #include <errno.h>
@@ -140,6 +143,62 @@ static int set_key(dc_dut_t *d, const char *k, const char *v)
   return -2;
 }
 
+/* "[board DNA]": 1..16 hex digits (optional 0x). Returns 0 and the DNA. */
+static int parse_dna(const char *s, unsigned long long *dna)
+{
+  if (!strncasecmp(s, "0x", 2))
+    s += 2;
+  size_t n = strlen(s);
+  if (n < 1 || n > 16 || strspn(s, "0123456789abcdefABCDEF") != n)
+    return -1;
+  *dna = strtoull(s, NULL, 16);
+  return 0;
+}
+
+/* One "set = NAME VALUE" line of a [board] section. */
+static int board_key(dc_board_t *b, const char *k, const char *v, char *err, size_t errcap, int lineno)
+{
+  if (strcmp(k, "set")) {
+    errf(err, errcap, lineno, "unknown key '%s' in a [board] section (only set = NAME VALUE)", k);
+    return 1;
+  }
+  char name[64];
+  size_t nl = strcspn(v, " \t");
+  const char *val = v + nl;
+  while (*val == ' ' || *val == '\t')
+    val++;
+  if (!nl || !*val || nl >= sizeof name) {
+    errf(err, errcap, lineno, "expected set = NAME VALUE");
+    return 1;
+  }
+  memcpy(name, v, nl);
+  name[nl] = 0;
+  uint16_t key, vlen;
+  uint8_t buf[DS_MAX_VALUE];
+  const char *why;
+  int r = ds_encode(name, val, &key, buf, &vlen, &why);
+  if (r == DS_UNKNOWN_NAME) {
+    errf(err, errcap, lineno, "unknown setting '%s' (see dutctl set)", name);
+    return 1;
+  }
+  if (r != DS_OK) {
+    errf(err, errcap, lineno, "bad value for setting %s: '%s' (%s)", name, val, why);
+    return 1;
+  }
+  if (b->nset == DC_MAX_SETS) {
+    errf(err, errcap, lineno, "too many settings for one board (max %d)", DC_MAX_SETS);
+    return 1;
+  }
+  if (strlen(name) >= sizeof b->set[0].name || strlen(val) >= sizeof b->set[0].value) {
+    errf(err, errcap, lineno, "setting too long");
+    return 1;
+  }
+  dc_set_t *e = &b->set[b->nset++];
+  snprintf(e->name, sizeof e->name, "%s", name);
+  snprintf(e->value, sizeof e->value, "%s", val);
+  return 0;
+}
+
 int dc_parse(const char *text, dc_conf_t *c, char *err, size_t errcap)
 {
   memset(c, 0, sizeof *c);
@@ -147,6 +206,7 @@ int dc_parse(const char *text, dc_conf_t *c, char *err, size_t errcap)
     err[0] = 0;
   int problems = 0, lineno = 0;
   dc_dut_t *cur = NULL;
+  dc_board_t *curb = NULL;
   const char *p = text;
   while (*p) {
     const char *nl = strchr(p, '\n');
@@ -171,10 +231,36 @@ int dc_parse(const char *text, dc_conf_t *c, char *err, size_t errcap)
         errf(err, errcap, lineno, "bad section header");
         problems++;
         cur = NULL;
+        curb = NULL;
         continue;
       }
       *e = 0;
       char *name = trim(s + 1);
+      cur = NULL;
+      curb = NULL;
+      if (!strncmp(name, "board", 5) && (name[5] == ' ' || name[5] == '\t')) {
+        unsigned long long dna;
+        if (parse_dna(trim(name + 5), &dna)) {
+          errf(err, errcap, lineno, "bad board DNA (expected [board 00124c296998c854])");
+          problems++;
+          continue;
+        }
+        if (dc_find_board(c, dna)) {
+          errf(err, errcap, lineno, "duplicate section [board %016llx]", dna);
+          problems++;
+          continue;
+        }
+        if (c->nboards == DC_MAX_BOARDS) {
+          errf(err, errcap, lineno, "too many boards (max %d)", DC_MAX_BOARDS);
+          problems++;
+          continue;
+        }
+        curb = &c->b[c->nboards++];
+        memset(curb, 0, sizeof *curb);
+        curb->dna = dna;
+        curb->line = lineno;
+        continue;
+      }
       if (!*name || strlen(name) >= sizeof cur->name || strpbrk(name, " \t[]=")) {
         errf(err, errcap, lineno, "bad section name");
         problems++;
@@ -207,6 +293,10 @@ int dc_parse(const char *text, dc_conf_t *c, char *err, size_t errcap)
     }
     *eq = 0;
     char *k = trim(s), *v = trim(eq + 1);
+    if (curb) {
+      problems += board_key(curb, k, v, err, errcap, lineno);
+      continue;
+    }
     if (!cur) {
       errf(err, errcap, lineno, "key '%s' outside a [section]", k);
       problems++;
@@ -282,6 +372,14 @@ const dc_dut_t *dc_find_name(const dc_conf_t *c, const char *name)
   for (int i = 0; i < c->n; i++)
     if (!strcmp(c->d[i].name, name))
       return &c->d[i];
+  return NULL;
+}
+
+const dc_board_t *dc_find_board(const dc_conf_t *c, unsigned long long dna)
+{
+  for (int i = 0; i < c->nboards; i++)
+    if (c->b[i].dna == dna)
+      return &c->b[i];
   return NULL;
 }
 

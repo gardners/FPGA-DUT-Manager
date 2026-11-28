@@ -1,6 +1,7 @@
 /* Unit tests for dutctl: protocol vectors, UART merging, XVC parsing, per-DUT
  * config, JTAG speed probe (on a simulated chain) and USB adaptor discovery
- * (on a fake sysfs tree). */
+ * (on a fake sysfs tree), named settings, [board] sections and the keeper
+ * re-apply decision (issue 0066). */
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
@@ -21,6 +22,8 @@
 #include "jtagdisc.h"
 #include "jtagspeed.h"
 #include "relayhook.h"
+#include "dutset.h"
+#include "keeper.h"
 
 static int failures, checks;
 #define CHECK(c)                                                                   \
@@ -904,6 +907,180 @@ static void test_dutconf(void)
   CHECK(!strcmp(dc_default_cable(0x0403, 0x6010), "ft2232") && dc_default_cable(0x2a19, 0x1009) == NULL);
 }
 
+/* ------------------------------------------------------------ issue 0066 */
+static void test_dutset(void)
+{
+  uint16_t key, len;
+  uint8_t v[DS_MAX_VALUE];
+  const char *why;
+  CHECK(ds_encode("hdmi-owner", "1", &key, v, &len, &why) == DS_OK && key == DP_K_HDMI_OWNER && len == 1 &&
+        v[0] == 1);
+  CHECK(ds_encode("vlan", "0x672", &key, v, &len, NULL) == DS_OK && key == DP_K_VLAN && len == 2 &&
+        v[0] == 0x06 && v[1] == 0x72);
+  CHECK(ds_encode("vlan-base", "10.231.50.0", &key, v, &len, NULL) == DS_OK && len == 4 && v[0] == 10 &&
+        v[1] == 231 && v[2] == 50 && v[3] == 0);
+  CHECK(ds_encode("dest-mac", "02:00:00:00:00:2a", &key, v, &len, NULL) == DS_OK && len == 6 &&
+        v[0] == 2 && v[5] == 0x2a);
+  CHECK(ds_encode("kbd-led-rgb", "ff0000,00ff00,0000ff,123456", &key, v, &len, NULL) == DS_OK &&
+        key == DP_K_PK_LED_HOST && len == 12 && v[0] == 0xff && v[4] == 0xff && v[8] == 0xff &&
+        v[9] == 0x12 && v[11] == 0x56);
+  CHECK(ds_encode("baud", "2000000", &key, v, &len, NULL) == DS_OK && key == DP_K_UART_BAUD && len == 4);
+  uint32_t nco = dp_baud_nco(2000000.0);
+  CHECK(v[0] == (uint8_t)(nco >> 24) && v[3] == (uint8_t)nco);
+  CHECK(ds_encode("nope", "1", &key, v, &len, &why) == DS_UNKNOWN_NAME);
+  CHECK(ds_encode("hdmi-owner", "256", &key, v, &len, &why) == DS_BAD_VALUE && strstr(why, "0..255"));
+  CHECK(ds_encode("hdmi-owner", "one", &key, v, &len, NULL) == DS_BAD_VALUE);
+  CHECK(ds_encode("hdmi-owner", "", &key, v, &len, NULL) == DS_BAD_VALUE);
+  CHECK(ds_encode("hdmi-owner", "-1", &key, v, &len, NULL) == DS_BAD_VALUE);
+  CHECK(ds_encode("vlan", "65536", &key, v, &len, NULL) == DS_BAD_VALUE);
+  CHECK(ds_encode("ip", "1.2.3", &key, v, &len, NULL) == DS_BAD_VALUE);
+  CHECK(ds_encode("mac", "02:00:00:00:00", &key, v, &len, NULL) == DS_BAD_VALUE);
+  CHECK(ds_encode("kbd-led-rgb", "ff0000,00ff00,0000ff", &key, v, &len, NULL) == DS_BAD_VALUE);
+  int all = 1;
+  for (int i = 0; ds_names[i]; i++)
+    all &= ds_encode(ds_names[i], "x", &key, v, &len, NULL) == DS_BAD_VALUE; /* every name is known */
+  CHECK(all);
+}
+
+static void test_dutconf_boards(void)
+{
+  static const char *text =
+      "[m65]\n"
+      "ip = 192.168.1.50\n"
+      "[board 00124c296998c854]\n"
+      "set = hdmi-owner 1\n"
+      "set =  relay-view   0  \n"
+      "set = kbd-led-rgb ff0000,00ff00,0000ff,123456\n"
+      "[board]\n"          /* no DNA: an ordinary DUT named "board" */
+      "ip = 10.0.0.1\n"
+      "[board 0x1F]\n"     /* short, 0x prefix, upper case */
+      "[after]\n"
+      "dut = 1\n";
+  static dc_conf_t c;
+  char err[2048];
+  CHECK(dc_parse(text, &c, err, sizeof err) == 0 && err[0] == 0);
+  CHECK(c.n == 3 && c.nboards == 2);
+  const dc_board_t *b = dc_find_board(&c, 0x00124c296998c854ull);
+  CHECK(b && b->line == 3 && b->nset == 3);
+  if (b && b->nset == 3) {
+    CHECK(!strcmp(b->set[0].name, "hdmi-owner") && !strcmp(b->set[0].value, "1"));
+    CHECK(!strcmp(b->set[1].name, "relay-view") && !strcmp(b->set[1].value, "0"));
+    CHECK(!strcmp(b->set[2].name, "kbd-led-rgb") && !strcmp(b->set[2].value, "ff0000,00ff00,0000ff,123456"));
+  }
+  CHECK(dc_find_board(&c, 0x1f) && dc_find_board(&c, 0x1f)->nset == 0);
+  CHECK(!dc_find_board(&c, 0x1234));
+  CHECK(dc_find_name(&c, "board") && !strcmp(dc_find_name(&c, "board")->ip, "10.0.0.1"));
+  CHECK(dc_find_name(&c, "after") && dc_find_name(&c, "after")->dut == 1); /* keys after [board] go to the DUT */
+  CHECK(!strcmp(dc_find_name(&c, "m65")->ip, "192.168.1.50"));
+
+  /* errors, with line numbers */
+  static const char *bad =
+      "[board 00124c296998c854]\n" /* 1 */
+      "set = hdmi-owner 9999\n"    /* 2 bad value */
+      "set = no-such 1\n"          /* 3 unknown setting */
+      "set = hdmi-owner\n"         /* 4 no value */
+      "ip = 1.2.3.4\n"             /* 5 not allowed in a board section */
+      "set = relay-view 1\n"       /* 6 ok */
+      "[board 00124C296998C854]\n" /* 7 duplicate (case-insensitive) */
+      "set = hdmi-owner 1\n"       /* 8 ignored with its section */
+      "[board xyz]\n"              /* 9 bad DNA */
+      "set = hdmi-owner 1\n"       /* 10 outside a section */
+      "[board 00112233445566778]\n" /* 11 17 digits */
+      "[b c]\n";                   /* 12 still a bad DUT name */
+  int r = dc_parse(bad, &c, err, sizeof err);
+  CHECK(r == 10);
+  CHECK(strstr(err, "2: bad value for setting hdmi-owner: '9999'") && strstr(err, "3: unknown setting 'no-such'") &&
+        strstr(err, "4: expected set = NAME VALUE") && strstr(err, "5: unknown key 'ip' in a [board]") &&
+        strstr(err, "7: duplicate section [board 00124c296998c854]") && strstr(err, "9: bad board DNA") &&
+        strstr(err, "8: key 'set' outside") && strstr(err, "10: key 'set' outside") && strstr(err, "11: bad board DNA") && strstr(err, "12: bad section"));
+  CHECK(c.nboards == 1 && c.b[0].nset == 1 && !strcmp(c.b[0].set[0].name, "relay-view"));
+
+  /* limits */
+  static char many[8192];
+  size_t l = (size_t)snprintf(many, sizeof many, "[board 1]\n");
+  for (int i = 0; i <= DC_MAX_SETS; i++)
+    l += (size_t)snprintf(many + l, sizeof many - l, "set = hdmi-owner %d\n", i & 3);
+  CHECK(dc_parse(many, &c, err, sizeof err) == 1 && strstr(err, "too many settings") &&
+        c.b[0].nset == DC_MAX_SETS);
+  l = 0;
+  for (int i = 0; i <= DC_MAX_BOARDS; i++)
+    l += (size_t)snprintf(many + l, sizeof many - l, "[board %x]\n", i + 1);
+  CHECK(dc_parse(many, &c, err, sizeof err) == 1 && strstr(err, "too many boards") && c.nboards == DC_MAX_BOARDS);
+
+  /* the writer leaves board sections alone and can still edit DUTs */
+  char *t = dc_text_set(text, "after", "tck_half", "8");
+  CHECK(t && dc_parse(t, &c, NULL, 0) == 0 && c.nboards == 2 && dc_find_name(&c, "after")->tck_half == 8 &&
+        dc_find_board(&c, 0x00124c296998c854ull)->nset == 3);
+  free(t);
+}
+
+static void test_keeper(void)
+{
+  static kp_t k;
+  const unsigned long long A = 0x00124c296998c854ull, B = 0x1f;
+  kp_init(&k, 5, 60);
+  /* first heartbeat: apply; the other endpoint's heartbeat (same DNA and
+   * boot) and later ones: nothing */
+  CHECK(kp_heartbeat(&k, A, 0x1111, 100.0) == KP_FIRST);
+  kp_done(&k, A, 0x1111, 1);
+  CHECK(kp_heartbeat(&k, A, 0x1111, 100.1) == KP_NONE);
+  CHECK(kp_heartbeat(&k, A, 0x1111, 200.0) == KP_NONE);
+  CHECK(kp_find(&k, A)->applied && kp_find(&k, A)->boot == 0x1111);
+  /* boot id change: apply again at once (last send was long ago) */
+  CHECK(kp_heartbeat(&k, A, 0x2222, 300.0) == KP_REBOOT && kp_find(&k, A)->old_boot == 0x1111);
+  kp_done(&k, A, 0x2222, 1);
+  CHECK(kp_heartbeat(&k, A, 0x2222, 301.0) == KP_NONE);
+  /* rapid reload: rate-limited to min_interval, then applied */
+  CHECK(kp_heartbeat(&k, A, 0x3333, 302.0) == KP_NONE);
+  CHECK(kp_heartbeat(&k, A, 0x3333, 304.9) == KP_NONE);
+  CHECK(kp_heartbeat(&k, A, 0x3333, 305.0) == KP_REBOOT);
+  kp_done(&k, A, 0x3333, 1);
+  /* a second board is independent */
+  CHECK(kp_heartbeat(&k, B, 0xaaaa, 305.5) == KP_FIRST);
+  /* failure: retried with backoff 5, 10, 20, 40, 60, 60 s */
+  kp_done(&k, B, 0xaaaa, 0);
+  CHECK(kp_heartbeat(&k, B, 0xaaaa, 312.0) == KP_NONE);    /* 6.5 s < 10 */
+  CHECK(kp_heartbeat(&k, B, 0xaaaa, 315.5) == KP_RETRY);   /* 10 s */
+  kp_done(&k, B, 0xaaaa, 0);
+  CHECK(kp_heartbeat(&k, B, 0xaaaa, 335.0) == KP_NONE);    /* 19.5 < 20 */
+  CHECK(kp_heartbeat(&k, B, 0xaaaa, 335.5) == KP_RETRY);
+  kp_done(&k, B, 0xaaaa, 0);
+  kp_done(&k, B, 0xaaaa, 0);
+  kp_done(&k, B, 0xaaaa, 0); /* 5 failures: capped at 60 s */
+  CHECK(kp_find(&k, B)->fails == 5);
+  CHECK(kp_heartbeat(&k, B, 0xaaaa, 395.0) == KP_NONE);
+  CHECK(kp_heartbeat(&k, B, 0xaaaa, 395.5) == KP_RETRY);
+  kp_done(&k, B, 0xaaaa, 1);
+  CHECK(kp_heartbeat(&k, B, 0xaaaa, 500.0) == KP_NONE && kp_find(&k, B)->fails == 0);
+  /* a stale result for an old boot id is ignored */
+  CHECK(kp_heartbeat(&k, B, 0xbbbb, 600.0) == KP_REBOOT);
+  kp_done(&k, B, 0xaaaa, 1);
+  CHECK(!kp_find(&k, B)->applied);
+  kp_done(&k, B, 0xbbbb, 1);
+  /* a reboot clears the failure backoff */
+  CHECK(kp_heartbeat(&k, B, 0xcccc, 700.0) == KP_REBOOT);
+  kp_done(&k, B, 0xcccc, 0);
+  CHECK(kp_heartbeat(&k, B, 0xdddd, 705.0) == KP_REBOOT);
+  kp_done(&k, B, 0xdddd, 1);
+  /* configuration re-read: every board again on its next heartbeat, not rate-limited */
+  kp_invalidate_all(&k);
+  CHECK(kp_heartbeat(&k, A, 0x3333, 705.1) == KP_RELOAD);
+  CHECK(kp_heartbeat(&k, B, 0xdddd, 705.2) == KP_RELOAD);
+  kp_done(&k, A, 0x3333, 1);
+  CHECK(kp_heartbeat(&k, A, 0x3333, 705.3) == KP_NONE);
+  /* forget: seen again as new */
+  kp_forget(&k, A);
+  CHECK(!kp_find(&k, A) && kp_find(&k, B) && k.n == 1);
+  CHECK(kp_heartbeat(&k, A, 0x3333, 706.0) == KP_FIRST);
+  CHECK(!strcmp(kp_reason_name(KP_REBOOT), "boot id changed") && !strcmp(kp_reason_name(KP_NONE), "none"));
+  /* table full: further boards ignored, known ones still served */
+  kp_init(&k, 5, 60);
+  for (int i = 0; i < KP_MAX_BOARDS; i++)
+    kp_heartbeat(&k, 1000 + (unsigned)i, 1, 0);
+  CHECK(k.n == KP_MAX_BOARDS && kp_heartbeat(&k, 5, 1, 0) == KP_NONE);
+  CHECK(kp_heartbeat(&k, 1000, 2, 10) == KP_REBOOT);
+}
+
 /* file round trip in a scratch directory (created by test_dirs) */
 static char g_tmp[256];
 
@@ -1285,6 +1462,9 @@ int main(int argc, char **argv)
   test_png(argc > 2 ? argv[2] : NULL);
   test_screenshot_targets();
   test_dutconf();
+  test_dutset();
+  test_dutconf_boards();
+  test_keeper();
   test_relayhook();
   test_jtagspeed();
   test_dirs();

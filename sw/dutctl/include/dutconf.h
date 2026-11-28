@@ -20,6 +20,21 @@
  *   usb_freq = 6000000        openFPGALoader --freq for this adaptor (Hz)
  *   relay = /dev/ttyACM0 3    power path: relay controller tty and channel
  *
+ * Per-board bench settings (issue 0066): MGMT keys are volatile, so a
+ * supervisor reload (JTAG load, reconfiguration from flash, brown-out)
+ * returns them to the build defaults. A board section, keyed by the board's
+ * DNA as heartbeats show it (`dna 00124c296998c854`, 1..16 hex digits),
+ * lists settings that `dutctl apply` sends to every board heard and that
+ * `dutctl keeper` re-applies whenever the board's boot id changes:
+ *
+ *   [board 00124c296998c854]  one section per supervisor board
+ *   set = hdmi-owner 1        NAME VALUE as for `dutctl set IP NAME VALUE`;
+ *   set = relay-view 1        any number of lines, sent in file order
+ *
+ * The board is found from its heartbeats (no ip = key). The settings go to
+ * the endpoint whose heartbeat was heard, with dut = any (board-wide keys).
+ * [board] without a DNA is an ordinary DUT section named "board".
+ *
  * Values run to the end of the line (surrounding blanks trimmed). Writing
  * (dc_text_set) edits the text in place, so comments and unknown keys survive.
  *
@@ -51,13 +66,31 @@ typedef struct {
   int line;         /* line of the [section] header */
 } dc_dut_t;
 
+#define DC_MAX_BOARDS 16
+#define DC_MAX_SETS 16
+
+typedef struct {
+  char name[32];   /* setting name (dutset.h) */
+  char value[96];
+} dc_set_t;
+
+typedef struct {
+  unsigned long long dna;
+  int nset;
+  dc_set_t set[DC_MAX_SETS];
+  int line;        /* line of the [board ...] header */
+} dc_board_t;
+
 typedef struct {
   int n;
   dc_dut_t d[DC_MAX_DUTS];
+  int nboards;
+  dc_board_t b[DC_MAX_BOARDS];
 } dc_conf_t;
 
 /* Parse text into c. Problems (unknown key, bad value, duplicate section,
- * key outside a section) are appended as lines "LINE: message\n" to err
+ * key outside a section, unknown setting name or bad setting value in a
+ * [board] section) are appended as lines "LINE: message\n" to err
  * (if non-NULL). Returns the number of problems (0 = clean); entries are
  * kept even when some of their keys were bad. */
 int dc_parse(const char *text, dc_conf_t *c, char *err, size_t errcap);
@@ -71,6 +104,8 @@ int dc_load(const char *path, dc_conf_t *c, char *err, size_t errcap, int *missi
 const char *dc_default_path(char *buf, size_t cap);
 
 const dc_dut_t *dc_find_name(const dc_conf_t *c, const char *name);
+/* The [board DNA] section for a board DNA, or NULL. */
+const dc_board_t *dc_find_board(const dc_conf_t *c, unsigned long long dna);
 /* The entry for endpoint ip (and dut index, -1 = any). A wildcard on
  * either side matches; an exact index match wins over a wildcard. */
 const dc_dut_t *dc_find_ip(const dc_conf_t *c, const char *ip, int dut);
