@@ -63,6 +63,11 @@ cleanup() {
 		}
 	done
 	((${#restore_order[@]})) && ((bad == 0)) && echo "     (restored ${#restore_order[@]} management settings)"
+	# bench settings from duts.conf [board] sections (issue 0066: e.g.
+	# hdmi-owner, which the key tests above leave at the default 0)
+	if "$D" duts 2>/dev/null | grep -q '^board '; then
+		timeout 10 "$D" apply -t 3 2>&1 | sed 's/^/     (duts.conf) /'
+	fi
 	rm -rf "$tmp"
 }
 trap cleanup EXIT
@@ -331,7 +336,7 @@ keytest kbd-led-rgb    0x0034 board 000000000000000000000000 "000000000000000000
 keytest console-screen 0x0035 board 00       "01 02 03 00"     "04"       "0000"
 keytest capture        0x0040 ep    00       "00"              ""         "0000"
 # issue 0060: inter-board VLAN (restored to the default 1650) and HDMI IN
-# owner (restored to 0: set it again after hwtest for a relayed slot)
+# owner (restored to 0; duts.conf [board] settings are re-applied at exit)
 keytest vlan           0x0043 board 0672     "0000 0ffe 0672"  "0fff ffff" "06 067200"
 keytest hdmi-owner     0x0044 board 00       "01 02 03 00"     "04"       "0000"
 # relay-rx-speed: relayed full view, restored to 1 (live, the default)
