@@ -1,6 +1,6 @@
 # 0068: Second Mimas A7 as a test DUT on the supervisor's DUT0 port
 
-Status: in progress (owner, 2026-11-28). Related: 0044 (cross-board KVM:
+Status: superseded as the plan for Mimas #2 by 0069 (owner, 2026-11-28: same supervisor image + crossover neighbour UART). The test_dut image stays as an optional bench tool (`make bitstream-test-dut`).
 the same board becomes supervisor B = 1 once it has Ethernet), 0056/0067
 (outputs off / TX low), 0054 (JTAG), ADR 0008, docs/cabling/dut-cable.md.
 
